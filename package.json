@@ -1,0 +1,56 @@
+{
+  "name": "project-limitless-vesiosuuskunta",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "^22",
+    "npm": ">=9"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "vercel-build": "prisma generate && npm run migrate:prod && next build",
+    "check-types": "tsc --noemit",
+    "lint": "(next lint || true) && npm run check-types",
+    "lint:fix": "next lint --fix",
+    "start-json-server": "json-server -p3001 --watch db.json",
+    "prepush": "next lint --max-warnings=0 && npm run check-types",
+    "svgr": "svgr --out-dir icons --typescript --jsx-runtime automatic --no-dimensions --silent --filename-case snake --ignore-existing --no-index -- public/images/icons",
+    "migrate": "npm run prisma migrate deploy && prisma generate",
+    "migrate:prod": "if [ \"$VERCEL_ENV\" = \"production\" ]; then npm run prisma migrate deploy; fi",
+    "prisma": "dotenv -c .env.local -- prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.6.0",
+    "next": "15.3.1",
+    "prisma": "^6.6.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^1.2.8",
+    "@eslint/eslintrc": "^3",
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
+    "@svgr/cli": "^8.1.0",
+    "@svgr/webpack": "^8.1.0",
+    "@tailwindcss/postcss": "^4.1.4",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.1",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-n": "^17.17.0",
+    "eslint-plugin-prettier": "^5.2.6",
+    "postcss": "^8",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "tailwind-merge": "^3.2.0",
+    "tailwindcss": "^4.1.4",
+    "typescript": "^5",
+    "typescript-eslint": "^8.31.0"
+  }
+}
