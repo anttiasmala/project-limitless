@@ -8,7 +8,7 @@ export function Button({
   return (
     <button
       className={twMerge(
-        'h-12 w-96 rounded-lg bg-green-500 font-bold text-black',
+        'h-12 w-80 rounded-lg bg-green-500 font-bold text-black',
         className,
       )}
     >
