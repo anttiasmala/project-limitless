@@ -69,6 +69,10 @@ export const getUserSchema = fullUserSchema
   })
   .merge(userSchema);
 
+export const createUserSchema = userSchema.extend({
+  password: passwordSchema,
+});
+
 // SESSION
 
 export const fullSessionSchema = z.object({
