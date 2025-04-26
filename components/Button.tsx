@@ -1,10 +1,10 @@
-import { HTMLAttributes } from 'react';
+import { ComponentPropsWithoutRef, HTMLAttributes } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 export function Button({
   className,
   children,
-}: HTMLAttributes<HTMLButtonElement>) {
+}: ComponentPropsWithoutRef<'button'>) {
   return (
     <button
       className={twMerge(
