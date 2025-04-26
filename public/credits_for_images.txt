@@ -1,6 +1,7 @@
 arrow-uturn-left.svg = https://heroicons.com/
 bars-3.svg = https://heroicons.com/
-plus = https://heroicons.com/
+plus.svg = https://heroicons.com/
+water-drop.svg = https://www.svgrepo.com/svg/167896/water-drop
 
 
 window.svg, vercel.svg, next.svg, globe.svg, file.svg = NextJS' default SVGs
