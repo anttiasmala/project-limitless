@@ -1,5 +1,9 @@
 import { Button } from '~/components/Button';
 import { Topbar } from '~/components/Topbar';
+import { getServerSideProps } from '~/utils/getServerSideProps';
+
+// this checks login status
+export { getServerSideProps };
 
 export default function Home() {
   return (
