@@ -47,9 +47,6 @@ export const fullUserSchema = z.object({
   lastName: lastNameSchema,
   email: emailSchema,
   password: passwordSchema,
-  vesiosuuskuntaName: z
-    .string()
-    .min(1, 'Name for Vesiosuuskunta is mandatory!'),
   role: z.literal('USER').or(z.literal('ADMIN')),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -60,7 +57,6 @@ export const userSchema = fullUserSchema.pick({
   email: true,
   firstName: true,
   lastName: true,
-  vesiosuuskuntaName: true,
 });
 
 /** Schema to be used when wanting details of user. It does not have password etc for a security reason */
@@ -113,4 +109,27 @@ export const invalidSessionResultSchema = z.object({
   status: z.literal('invalid'),
   databaseSession: z.null(),
   databaseUser: z.null(),
+});
+
+// VESIOSUUSKUNTA
+
+export const fullVesiosuuskuntaSchema = z.object({
+  id: z.number(),
+  uuid: uuidSchema,
+  name: z.string().min(1, 'Name for Vesiosuuskunta is mandatory!'),
+  ownerUUID: uuidSchema,
+  userUUID: uuidSchema,
+});
+
+export const getVesiosuuskuntaSchema = fullVesiosuuskuntaSchema.pick({
+  uuid: true,
+  name: true,
+  ownerUUID: true,
+  userUUID: true,
+});
+
+export const createVesiosuuskuntaSchema = fullVesiosuuskuntaSchema.pick({
+  name: true,
+  ownerUUID: true,
+  userUUID: true,
 });
