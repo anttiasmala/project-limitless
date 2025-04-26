@@ -3,7 +3,7 @@ import { Input } from '~/components/Input';
 import LinkElement from '~/components/LinkElement';
 import { Main } from '~/components/Main';
 import axios from 'axios';
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 
 type Form = {
   firstName: string;
@@ -21,15 +21,19 @@ const EMPTY_FORM_DATA: Form = {
 export default function Register() {
   const [formData, setFormData] = useState<Form>(EMPTY_FORM_DATA);
 
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const request = await axios.post('/api/auth/register', formData);
+
+    if (request) {
+      console.log('Everything went through well!');
+    }
+  }
+
   return (
     <Main>
       <div className="flex flex-col items-center">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            axios.post('');
-          }}
-        >
+        <form onSubmit={(e) => handleSubmit(e)}>
           <div className="mt-2 flex flex-col">
             <label htmlFor="firstName">Etunimi:</label>
             <Input
@@ -38,9 +42,10 @@ export default function Register() {
               onChange={(e) => {
                 setFormData((otherFormData) => ({
                   ...otherFormData,
-                  firstName: e.currentTarget.value,
+                  firstName: e.target.value,
                 }));
               }}
+              value={formData.firstName}
             />
           </div>
           <div className="mt-2 flex flex-col">
@@ -51,9 +56,10 @@ export default function Register() {
               onChange={(e) => {
                 setFormData((otherFormData) => ({
                   ...otherFormData,
-                  lastName: e.currentTarget.value,
+                  lastName: e.target.value,
                 }));
               }}
+              value={formData.lastName}
             />
           </div>
           <div className="mt-2 flex flex-col">
@@ -64,9 +70,10 @@ export default function Register() {
               onChange={(e) => {
                 setFormData((otherFormData) => ({
                   ...otherFormData,
-                  email: e.currentTarget.value,
+                  email: e.target.value,
                 }));
               }}
+              value={formData.email}
             />
           </div>
           <div className="mt-2 flex flex-col">
@@ -74,12 +81,14 @@ export default function Register() {
             <Input
               name="password"
               placeholder="**************"
+              type="password"
               onChange={(e) => {
                 setFormData((otherFormData) => ({
                   ...otherFormData,
-                  password: e.currentTarget.value,
+                  password: e.target.value,
                 }));
               }}
+              value={formData.password}
             />
           </div>
           <Button
