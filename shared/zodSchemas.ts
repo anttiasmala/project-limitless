@@ -11,12 +11,12 @@ export const dateSchema = z
   .datetime({ message: 'Given date is invalid!' })
   .pipe(z.coerce.date());
 
-const firstNameSchema = z
+export const firstNameSchema = z
   .string()
   .min(1, 'Etunimi on pakollinen!')
   .max(128, 'Etunimi on liian pitkä, maksimipituus on 128 merkkiä');
 
-const lastNameSchema = z
+export const lastNameSchema = z
   .string()
   .min(1, 'Sukunimi on pakollinen!')
   .max(128, 'Sukunimi on liian pitkä, maksimipituus on 128 merkkiä');
@@ -28,7 +28,7 @@ export const emailSchema = z
   .regex(emailRegex, 'Sähköposti on virheellinen')
   .transform((value) => value.toLowerCase());
 
-const passwordSchema = z
+export const passwordSchema = z
   .string()
   .min(1, 'Salasana on pakollinen!')
   .max(128, 'Salasana on liian pitkä, maksimipituus on 128 merkkiä')
