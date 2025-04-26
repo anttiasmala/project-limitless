@@ -1,27 +1,30 @@
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { HTMLAttributes } from 'react';
+import { twMerge } from 'tailwind-merge';
+import SvgWaterDrop from '~/icons/water_drop';
 
-export function Topbar() {
+export function Topbar({ className }: HTMLAttributes<HTMLDivElement>) {
   const router = useRouter();
 
   return (
-    <div className="relative flex justify-center">
-      <div className="absolute font-bold text-black text-shadow-lg">
-        <button
-          onClick={() => {
-            router.push('/').catch((e) => console.error(e));
-          }}
-        >
-          Project Limitless Vesiosuuskunta
-        </button>
-      </div>
-      <Image
-        src={'/water.png'}
-        alt="waterdrop"
-        className="h-20 w-full md:h-40"
-        width={600}
-        height={1}
-      />
+    <div
+      className={twMerge(
+        'relative mt-1 mb-20 flex flex-row justify-center',
+        className,
+      )}
+    >
+      <button
+        className="relative"
+        onClick={() => {
+          router.push('/').catch((e) => console.error(e));
+        }}
+      >
+        <SvgWaterDrop width={100} height={100} />
+        <span className="absolute -left-13 w-max text-xl font-bold shadow-xl">
+          PROJECT LIMITLESS
+        </span>
+      </button>
     </div>
   );
 }
