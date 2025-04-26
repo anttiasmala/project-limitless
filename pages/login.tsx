@@ -7,15 +7,8 @@ export default function Register() {
   return (
     <Main>
       <div className="flex flex-col items-center">
+        <p className="text-xl font-bold">Kirjaudu sisään</p>
         <form>
-          <div className="mt-2 flex flex-col">
-            <label htmlFor="firstName">Etunimi:</label>
-            <Input name="firstName" placeholder="Matti" />
-          </div>
-          <div className="mt-2 flex flex-col">
-            <label htmlFor="lastName">Sukunimi:</label>
-            <Input name="lastName" placeholder="Meikalainen" />
-          </div>
           <div className="mt-2 flex flex-col">
             <label htmlFor="email">Sähköposti:</label>
             <Input
@@ -32,12 +25,11 @@ export default function Register() {
             className="mt-10 w-72 min-w-72 rounded-md p-3 text-black hover:text-blue-500"
             type="submit"
           >
-            Rekistöröidy
+            Kirjaudu sisään
           </Button>
         </form>
-
-        <LinkElement className="text-sm" href="/login">
-          Onko sinulla jo käyttäjä? Kirjaudu sisään!
+        <LinkElement className="text-sm" href="/register">
+          Eikö ole käyttäjää? Rekistöröidy!
         </LinkElement>
       </div>
     </Main>
