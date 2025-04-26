@@ -10,6 +10,9 @@ import {
   invalidSessionResultSchema,
   validSessionResultSchema,
   frontendSessionSchema,
+  fullVesiosuuskuntaSchema,
+  getVesiosuuskuntaSchema,
+  createVesiosuuskuntaSchema,
 } from './zodSchemas';
 
 // USER
@@ -37,6 +40,16 @@ type validSessionResult = z.infer<typeof validSessionResultSchema>;
 type invalidSessionResult = z.infer<typeof invalidSessionResultSchema>;
 
 export type GetUserAndSessionResult = validSessionResult | invalidSessionResult;
+
+// VESIOSUUSKUNTA
+
+export type FullVesiosuuskunta = z.infer<typeof fullVesiosuuskuntaSchema>;
+
+export type GetVesiosuuskunta = z.infer<typeof getVesiosuuskuntaSchema>;
+
+export type CreateVesiosuuskunta = z.infer<typeof createVesiosuuskuntaSchema>;
+
+// DATABASE
 
 export type DatabaseAdapter = {
   createSession: (sessionData: CreateSession) => Promise<Session | null>;
