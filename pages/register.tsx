@@ -10,6 +10,8 @@ import {
   lastNameSchema,
   passwordSchema,
 } from '~/shared/zodSchemas';
+import { useMutation } from '@tanstack/react-query';
+import { MUTATION_KEYS } from '~/utils/utils';
 
 type Form = {
   firstName: string;
@@ -37,16 +39,19 @@ export default function Register() {
 
   const [formErrors, setFormErrors] = useState<Form>(EMPTY_FORM_ERRORS);
 
+  const { mutateAsync } = useMutation({
+    mutationKey: MUTATION_KEYS.REGISTER,
+    mutationFn: async (formData: Form) =>
+      await axios.post('/api/auth/register', formData),
+  });
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!checkFields()) {
       return;
     }
-    const request = await axios.post('/api/auth/register', formData);
-
-    if (request) {
-      console.log('Everything went through well!');
-    }
+    setFormErrors(EMPTY_FORM_ERRORS);
+    await mutateAsync(formData);
   }
 
   /** If returns true all good, if false errors have been found */
