@@ -4,6 +4,7 @@ import { twMerge } from 'tailwind-merge';
 export function Button({
   className,
   children,
+  ...rest
 }: ComponentPropsWithoutRef<'button'>) {
   return (
     <button
@@ -11,6 +12,7 @@ export function Button({
         'min-h-12 min-w-80 rounded-lg bg-green-500 font-bold wrap-anywhere text-black',
         className,
       )}
+      {...rest}
     >
       {children}
     </button>
