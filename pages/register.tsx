@@ -12,6 +12,7 @@ import {
 } from '~/shared/zodSchemas';
 import { useMutation } from '@tanstack/react-query';
 import { MUTATION_KEYS } from '~/utils/utils';
+import handleError from '~/utils/handleError';
 
 type Form = {
   firstName: string;
@@ -44,15 +45,20 @@ export default function Register() {
 
   function accountCreationSuccess() {
     setFormData(EMPTY_FORM_DATA);
+    setIsAccountCreationSuccess(true);
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!checkFields()) {
-      return;
+    try {
+      e.preventDefault();
+      if (!checkFields()) {
+        return;
+      }
+      setFormErrors(EMPTY_FORM_ERRORS);
+      await mutateAsync(formData);
+    } catch (e) {
+      handleError(e);
     }
-    setFormErrors(EMPTY_FORM_ERRORS);
-    await mutateAsync(formData);
   }
 
   /** If returns true all good, if false errors have been found */
@@ -153,7 +159,7 @@ export default function Register() {
           <LinkElement className="absolute text-sm" href="/login">
             Onko jo käyttäjä? Kirjaudu sisään!
           </LinkElement>
-          {!isAccountCreationSuccess && (
+          {isAccountCreationSuccess && (
             <div>
               <div className="absolute top-0 left-0 z-99 h-screen w-full bg-black opacity-80"></div>
 
