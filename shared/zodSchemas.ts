@@ -137,3 +137,10 @@ export const createVesiosuuskuntaSchema = fullVesiosuuskuntaSchema.pick({
   ownerUUID: true,
   userUUID: true,
 });
+
+// LOGIN
+
+export const loginSchema = z.object({
+  email: emailSchema,
+  password: passwordSchema,
+});
