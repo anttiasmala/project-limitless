@@ -30,7 +30,8 @@ async function createUser(userData: CreateUser) {
     ...userData,
     password: hashedPassword,
   });
-
+  // perhaps check if user exists before create a new one?
+  // autoincrement seemds to increase even if it doesn't do the user
   await prisma.user.create({
     data: parsedUserData,
     select: {
