@@ -13,7 +13,7 @@ export default async function Login(req: NextApiRequest, res: NextApiResponse) {
 
     const loginDetails = loginSchema.parse(req.body);
 
-    const userDetails = await prisma.user.findUnique({
+    const userDetails = await prisma.user.findUniqueOrThrow({
       where: {
         email: loginDetails.email,
       },
