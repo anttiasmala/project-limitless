@@ -36,14 +36,17 @@ const EMPTY_FORM_ERRORS = {
 
 export default function Register() {
   const [formData, setFormData] = useState<Form>(EMPTY_FORM_DATA);
-
   const [formErrors, setFormErrors] = useState<Form>(EMPTY_FORM_ERRORS);
+  const [isAccountCreationSuccess, setIsAccountCreationSuccess] =
+    useState<boolean>(false);
 
   const { mutateAsync } = useMutation({
     mutationKey: MUTATION_KEYS.REGISTER,
     mutationFn: async (formData: Form) =>
       await axios.post('/api/auth/register', formData),
   });
+
+  function accountCreationSuccess() {}
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -149,10 +152,22 @@ export default function Register() {
               Rekistöröidy
             </Button>
           </form>
-
           <LinkElement className="absolute text-sm" href="/login">
             Onko jo käyttäjä? Kirjaudu sisään!
           </LinkElement>
+          {!isAccountCreationSuccess && (
+            <div>
+              <div className="absolute top-0 left-0 z-99 h-screen w-full bg-black opacity-80"></div>
+
+              <div className="relative">
+                <div className="absolute z-100 grid h-50 w-screen items-center rounded-lg border-4 border-yellow-800 bg-gray-500 md:-right-13 md:w-100">
+                  <p className="text-center text-2xl wrap-anywhere">
+                    Käyttäjätili luotu onnistuneesti!
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </Main>
