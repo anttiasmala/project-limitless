@@ -1,14 +1,14 @@
 import { NextApiResponse } from 'next';
 import { HttpError } from './HttpError';
 import { ZodError } from 'zod';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { Prisma } from '@prisma/client';
 
 export function handleError(res: NextApiResponse, e: unknown) {
   if (e instanceof HttpError) {
     return res.status(e.httpStatusCode ?? 400).send(e.message);
   }
 
-  if (e instanceof PrismaClientKnownRequestError) {
+  if (e instanceof Prisma.PrismaClientKnownRequestError) {
     if (e.code === 'P2025') {
       const modelName =
         typeof e.meta?.modelName === 'string' ? e.meta?.modelName : 'Record';
