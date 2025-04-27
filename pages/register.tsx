@@ -13,6 +13,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { MUTATION_KEYS } from '~/utils/utils';
 import handleError from '~/utils/handleError';
+import { useRouter } from 'next/router';
 
 type Form = {
   firstName: string;
@@ -36,6 +37,8 @@ export default function Register() {
   const [isAccountCreationSuccess, setIsAccountCreationSuccess] =
     useState<boolean>(false);
 
+  const router = useRouter();
+
   const { mutateAsync } = useMutation({
     mutationKey: MUTATION_KEYS.REGISTER,
     mutationFn: async (formData: Form) =>
@@ -46,6 +49,9 @@ export default function Register() {
   function accountCreationSuccess() {
     setFormData(EMPTY_FORM_DATA);
     setIsAccountCreationSuccess(true);
+    setTimeout(() => {
+      router.push('/').catch((e) => console.error(e));
+    }, 1000);
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
