@@ -27,12 +27,7 @@ const EMPTY_FORM_DATA: Form = {
   password: '',
 };
 
-const EMPTY_FORM_ERRORS = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  password: '',
-};
+const EMPTY_FORM_ERRORS = EMPTY_FORM_DATA;
 
 export default function Register() {
   const [formData, setFormData] = useState<Form>(EMPTY_FORM_DATA);
@@ -44,9 +39,12 @@ export default function Register() {
     mutationKey: MUTATION_KEYS.REGISTER,
     mutationFn: async (formData: Form) =>
       await axios.post('/api/auth/register', formData),
+    onSuccess: () => accountCreationSuccess(),
   });
 
-  function accountCreationSuccess() {}
+  function accountCreationSuccess() {
+    setFormData(EMPTY_FORM_DATA);
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
