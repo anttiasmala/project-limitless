@@ -4,6 +4,7 @@ import { HttpError } from '~/backend/HttpError';
 import { verifyPassword } from '~/backend/utils';
 import { loginSchema } from '~/shared/zodSchemas';
 import prisma from '~/prisma';
+import { auth, authLong } from '~/backend/auth/vesiosuuskunta-auth';
 
 export default async function Login(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -23,15 +24,29 @@ export default async function Login(req: NextApiRequest, res: NextApiResponse) {
       },
     });
 
-    const verifiedPassword = verifyPassword(
+    const isPasswordSame = verifyPassword(
       loginDetails.password,
       userDetails?.password ?? '',
     );
 
-    if (!verifiedPassword) throw new HttpError('Password is invalid!', 400);
+    if (!isPasswordSame) throw new HttpError('Password is invalid!', 400);
 
-    res.status(200).end();
+    const sessionUUID = await logUserIn(userDetails.uuid);
+
+    res
+      .appendHeader(
+        'Set-cookie',
+        authLong.createSessionCookie(sessionUUID).serialize(),
+      )
+      .status(200)
+      .end();
   } catch (e) {
     return handleError(res, e);
   }
+}
+
+async function logUserIn(userUUID: string) {
+  const { uuid: sessionUUID } = await authLong.createSession(userUUID);
+
+  return sessionUUID;
 }

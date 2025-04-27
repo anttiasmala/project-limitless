@@ -9,8 +9,8 @@ import { VesiosuuskuntaAuth } from './auth';
 
 const prismaAdapter = new VesiosuuskuntaAuthAdapter(prisma);
 
-// 1 hour
-const auth = new VesiosuuskuntaAuth(prismaAdapter, {
+/** 1 hour */
+export const auth = new VesiosuuskuntaAuth(prismaAdapter, {
   sessionExpiresIn: new TimeSpan(1, 'h'),
   sessionCookie: {
     attributes: {
@@ -19,8 +19,8 @@ const auth = new VesiosuuskuntaAuth(prismaAdapter, {
   },
 });
 
-// 30 days | 1 month
-const authLong = new VesiosuuskuntaAuth(prismaAdapter, {
+/** 30 days | 1 month */
+export const authLong = new VesiosuuskuntaAuth(prismaAdapter, {
   sessionExpiresIn: new TimeSpan(30, 'd'),
   sessionCookie: {
     attributes: {
@@ -36,6 +36,7 @@ export async function validateRequest(
   { user: User; session: FrontendSession } | { user: null; session: null }
 > {
   const sessionId = auth.readSessionCookie(req.headers.cookie ?? '');
+  console.log(sessionId, req.headers.cookie);
   if (!sessionId) {
     return {
       user: null,

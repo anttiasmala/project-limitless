@@ -52,5 +52,7 @@ export function isWithinExpirationDate(date: Date): boolean {
  * @returns Date
  */
 export function createDate(timeSpan: TimeSpan): Date {
+  console.log(Date.now(), timeSpan.milliseconds());
+  console.log(Date.now() + timeSpan.milliseconds());
   return new Date(Date.now() + timeSpan.milliseconds());
 }

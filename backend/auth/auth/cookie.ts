@@ -79,6 +79,7 @@ export class CookieController {
   private baseCookieAttributes: CookieAttributes;
 
   public createCookie(sessionUUID: string): Cookie {
+    console.log(this.cookieExpiresIn, 'this.cookieexpiresin');
     return new Cookie(this.cookieName, sessionUUID, {
       maxAge: this.cookieExpiresIn?.seconds(),
     });

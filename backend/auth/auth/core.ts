@@ -141,7 +141,9 @@ export class VesiosuuskuntaAuth {
     },
   ): Promise<Session> {
     const sessionUUID = options?.sessionUUID ?? generateUUID();
+    console.log(this.sessionExpiresIn);
     const sessionExpiresAt = createDate(this.sessionExpiresIn);
+    console.log(sessionExpiresAt, new Date());
     await this.adapter.createSession({
       uuid: sessionUUID,
       expiresAt: sessionExpiresAt,
