@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
+import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { FormEvent, useState } from 'react';
+import { validateRequest } from '~/backend/auth/vesiosuuskunta-auth';
 import { Button } from '~/components/Button';
 import { Input } from '~/components/Input';
 import LinkElement from '~/components/LinkElement';
@@ -14,6 +16,21 @@ const EMPTY_ERRORS = {
   email: '',
   password: '',
 };
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const cookieData = await validateRequest(context.req, context.res);
+  if (!cookieData.user || !cookieData.session.isLoggedIn) {
+    return {
+      props: {},
+    };
+  }
+  return {
+    redirect: {
+      permanent: false,
+      destination: '/',
+    },
+  };
+}
 
 export default function Register() {
   const [email, setEmail] = useState<string>('');
