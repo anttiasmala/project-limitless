@@ -35,22 +35,25 @@ export async function validateRequest(
 ): Promise<
   { user: User; session: FrontendSession } | { user: null; session: null }
 > {
-  const sessionId = auth.readSessionCookie(req.headers.cookie ?? '');
+  const sessionId = authLong.readSessionCookie(req.headers.cookie ?? '');
   if (!sessionId) {
     return {
       user: null,
       session: null,
     };
   }
-  const result = await auth.validateSession(sessionId);
+  const result = await authLong.validateSession(sessionId);
   if (result.session && result.session.fresh) {
     res.appendHeader(
       'Set-Cookie',
-      auth.createSessionCookie(result.session.uuid).serialize(),
+      authLong.createSessionCookie(result.session.uuid).serialize(),
     );
   }
   if (!result.session) {
-    res.appendHeader('Set-Cookie', auth.createBlankSessionCookie().serialize());
+    res.appendHeader(
+      'Set-Cookie',
+      authLong.createBlankSessionCookie().serialize(),
+    );
   }
 
   return result;
