@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import { TimeSpan } from './auth';
 import prisma from '~/prisma';
-import type { User, FrontendSession } from '~/shared/types';
+import type { User, FrontendSession, GetUser } from '~/shared/types';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { HttpError } from '~/backend/HttpError';
 import { VesiosuuskuntaAuthAdapter } from './db-adapter';
@@ -33,7 +33,7 @@ export async function validateRequest(
   req: IncomingMessage,
   res: ServerResponse,
 ): Promise<
-  { user: User; session: FrontendSession } | { user: null; session: null }
+  { user: GetUser; session: FrontendSession } | { user: null; session: null }
 > {
   const sessionId = authLong.readSessionCookie(req.headers.cookie ?? '');
   if (!sessionId) {
@@ -62,7 +62,7 @@ export async function validateRequest(
 export async function requireLogin(
   req: NextApiRequest,
   res: NextApiResponse,
-): Promise<{ user: User; session: FrontendSession }> {
+): Promise<{ user: GetUser; session: FrontendSession }> {
   const userDetails = await validateRequest(req, res);
   if (
     !userDetails.session ||

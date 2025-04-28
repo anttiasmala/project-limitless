@@ -9,6 +9,7 @@ import type {
   DatabaseAdapter,
   Session,
   FrontendSession,
+  GetUser,
 } from '~/shared/types';
 
 export class VesiosuuskuntaAuth {
@@ -78,7 +79,7 @@ export class VesiosuuskuntaAuth {
   public async validateSession(
     sessionUUID: string,
   ): Promise<
-    { user: User; session: FrontendSession } | { user: null; session: null }
+    { user: GetUser; session: FrontendSession } | { user: null; session: null }
   > {
     const {
       status: databaseStatus,
@@ -129,7 +130,8 @@ export class VesiosuuskuntaAuth {
         session.expiresAt,
       );
     }
-    const user: User = databaseUser;
+    console.log('databaseUser:', databaseUser);
+    const user: GetUser = databaseUser;
     return { user, session };
   }
 
