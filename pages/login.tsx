@@ -1,5 +1,6 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import { FormEvent, useState } from 'react';
 import { Button } from '~/components/Button';
 import { Input } from '~/components/Input';
@@ -20,11 +21,17 @@ export default function Register() {
 
   const [errors, setErrors] = useState(EMPTY_ERRORS);
 
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
   const { mutateAsync } = useMutation({
     mutationKey: MUTATION_KEYS.LOGIN,
     mutationFn: async () =>
       await axios.post('/api/auth/login', { email, password }),
-    onSuccess: () => console.log('Success!!'),
+    onSuccess: () => {
+      queryClient.clear();
+      router.push('/').catch((e) => console.error(e));
+    },
   });
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
