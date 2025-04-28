@@ -6,9 +6,7 @@ import { getUserSchema } from '~/shared/zodSchemas';
 export async function getServerSideProps(
   context: GetServerSidePropsContext,
 ): Promise<GetServerSidePropsResult<{ user: User }>> {
-  console.log(context.req.headers.cookie);
   const cookieData = await validateRequest(context.req, context.res);
-  console.log(cookieData);
   if (
     !cookieData.user ||
     !cookieData.session ||

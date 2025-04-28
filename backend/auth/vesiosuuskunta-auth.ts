@@ -36,7 +36,6 @@ export async function validateRequest(
   { user: User; session: FrontendSession } | { user: null; session: null }
 > {
   const sessionId = auth.readSessionCookie(req.headers.cookie ?? '');
-  console.log(sessionId, req.headers.cookie);
   if (!sessionId) {
     return {
       user: null,
