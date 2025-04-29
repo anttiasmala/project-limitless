@@ -12,7 +12,7 @@ export default function Home({
   user,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
-    <Main>
+    <Main user={user}>
       <div className="flex flex-col items-center">
         <Button className="mt-1">Jäsenet</Button>
       </div>
