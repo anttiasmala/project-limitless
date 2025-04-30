@@ -1,6 +1,8 @@
 import { FormEvent, useState } from 'react';
 import { Button } from './Button';
 import { Input } from './Input';
+import { createVesiosuuskuntaSchema } from '~/shared/zodSchemas';
+import handleError from '~/utils/handleError';
 
 export default function CreateVesiosuuskuntaModal({
   closeModal,
@@ -10,11 +12,18 @@ export default function CreateVesiosuuskuntaModal({
   type Form = {
     name: string;
     streetAddress?: string;
-    zipCode?: number | '';
+    zipCode?: number | null;
     city?: string;
   };
 
   const EMPTY_FORM_DATA: Form = {
+    name: '',
+    streetAddress: '',
+    zipCode: null,
+    city: '',
+  };
+
+  const EMPTY_FORM_ERRORS: Form = {
     name: '',
     streetAddress: '',
     zipCode: '',
@@ -22,9 +31,38 @@ export default function CreateVesiosuuskuntaModal({
   };
 
   const [formData, setFormData] = useState<Form>(EMPTY_FORM_DATA);
+  const [formErrors, setFormErrors] = useState<Form>();
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    try {
+      checkFields();
+    } catch (e) {
+      handleError(e);
+    }
+  }
+  function checkFields() {
+    const formParse = createVesiosuuskuntaSchema.safeParse(formData);
+    console.log(formParse);
+
+    if (formParse.success === false) {
+      setErrors({
+        firstName: validatedForm.error.format().firstName?._errors[0] || '',
+        lastName: validatedForm.error.format().lastName?._errors[0] || '',
+        email: validatedForm.error.format().email?._errors[0] || '',
+        password: validatedForm.error.format().password?._errors[0] || '',
+      });
+      return;
+    }
+    //setFormErrors(() => ({ firstName, lastName, email, password }));
+
+    // if some of the fields has failed, return false
+    /*
+    if (firstName || lastName || email || password) {
+      return false;
+    }
+    */
+    return true;
   }
 
   return (
