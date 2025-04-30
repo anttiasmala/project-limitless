@@ -1,15 +1,17 @@
 import { InferGetServerSidePropsType } from 'next';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '~/components/Button';
 import { Main } from '~/components/Main';
 import { Topbar } from '~/components/Topbar';
-import { GetUser, User } from '~/shared/types';
+import { GetUser, GetVesiosuuskunta, User } from '~/shared/types';
 import { getServerSideProps } from '~/utils/getServerSideProps';
 import { MUTATION_AND_QUERY_KEYS } from '~/utils/utils';
 import prisma from '~/prisma';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import handleError from '~/utils/handleError';
+import axios from 'axios';
+import CreateVesiosuuskuntaModal from '~/components/CreateVesiosuuskuntaModal';
 
 // this checks login status
 export { getServerSideProps };
@@ -20,26 +22,52 @@ export default function Home({
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { mutateAsync } = useMutation({
-    mutationKey: MUTATION_AND_QUERY_KEYS.LOGIN,
-    mutationFn: async () =>
-      await axios.
-    onSuccess: () => {
-      queryClient.clear();
-      router.push('/').catch((e) => console.error(e));
+  const [showCreateVesiosuuskuntaModal, setShowCreateVesiosuuskuntaModal] =
+    useState<boolean>(false);
+
+  const { data: vesiosuuskunnat, refetch } = useQuery({
+    queryKey: MUTATION_AND_QUERY_KEYS.VESIOSUUSKUNNAT,
+    queryFn: async () => {
+      return (await axios.get('/api/vesiosuuskunta'))
+        .data as GetVesiosuuskunta[];
     },
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: false,
   });
 
   useEffect(() => {
     async function fetchVesiosuuskunnat() {
       try {
-        await mutateAsync();
+        console.log(vesiosuuskunnat);
       } catch (e) {
         handleError(e);
       }
     }
     fetchVesiosuuskunnat();
-  }, []);
+  }, [vesiosuuskunnat]);
+
+  if (vesiosuuskunnat && vesiosuuskunnat.length <= 0) {
+    return (
+      <Main user={user}>
+        <div className="flex flex-col items-center">
+          <Button
+            className="mt-1"
+            onClick={() => setShowCreateVesiosuuskuntaModal(true)}
+          >
+            Luo vesiosuuskunta
+          </Button>
+        </div>
+        {showCreateVesiosuuskuntaModal && (
+          <CreateVesiosuuskuntaModal
+            closeModal={() => {
+              setShowCreateVesiosuuskuntaModal(false);
+            }}
+          />
+        )}
+      </Main>
+    );
+  }
 
   return (
     <Main user={user}>
