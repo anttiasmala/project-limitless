@@ -50,16 +50,19 @@ export default function CreateVesiosuuskuntaModal({
     },
   });
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
       setFormErrors(EMPTY_FORM_ERRORS);
-      checkFields();
+      if (!checkFields()) {
+        return;
+      }
+      await mutateAsync();
     } catch (e) {
       handleError(e);
     }
   }
-  function checkFields() {
+  function checkFields(): boolean {
     const formParse = createVesiosuuskuntaSchema.safeParse(formData);
 
     if (formParse.success === false) {
@@ -69,7 +72,7 @@ export default function CreateVesiosuuskuntaModal({
         streetAddress: formParse.error.format().streetAddress?._errors[0] || '',
         zipCode: formParse.error.format().zipCode?._errors[0] || '',
       });
-      return;
+      return false;
     }
     return true;
   }
