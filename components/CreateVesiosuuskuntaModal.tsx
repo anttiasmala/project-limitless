@@ -4,32 +4,32 @@ import { Input } from './Input';
 import { createVesiosuuskuntaSchema } from '~/shared/zodSchemas';
 import handleError from '~/utils/handleError';
 
+type Form = {
+  name: string;
+  streetAddress?: string;
+  zipCode?: string;
+  city?: string;
+};
+
+const EMPTY_FORM_DATA: Form = {
+  name: '',
+  streetAddress: '',
+  zipCode: '',
+  city: '',
+};
+
+const EMPTY_FORM_ERRORS = {
+  name: '',
+  streetAddress: '',
+  zipCode: '',
+  city: '',
+};
+
 export default function CreateVesiosuuskuntaModal({
   closeModal,
 }: {
   closeModal: () => void;
 }) {
-  type Form = {
-    name: string;
-    streetAddress?: string;
-    zipCode?: string;
-    city?: string;
-  };
-
-  const EMPTY_FORM_DATA: Form = {
-    name: '',
-    streetAddress: '',
-    zipCode: '',
-    city: '',
-  };
-
-  const EMPTY_FORM_ERRORS = {
-    name: '',
-    streetAddress: '',
-    zipCode: '',
-    city: '',
-  };
-
   const [formData, setFormData] = useState<Form>(EMPTY_FORM_DATA);
   const [formErrors, setFormErrors] =
     useState<typeof EMPTY_FORM_ERRORS>(EMPTY_FORM_ERRORS);
