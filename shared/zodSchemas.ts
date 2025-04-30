@@ -122,7 +122,10 @@ export const fullVesiosuuskuntaSchema = z.object({
   streetAddress: z
     .string({ message: 'Street address should be a string' })
     .optional(),
-  zipCode: z.number({ message: 'Zip code should be a number' }).optional(),
+  zipCode: z
+    .number({ message: 'Zip code should be a number' })
+    .or(z.null())
+    .optional(),
   city: z.string({ message: 'City should be a string' }).optional(),
   ownerUUID: uuidSchema,
   userUUID: uuidSchema,
@@ -140,8 +143,6 @@ export const getVesiosuuskuntaSchema = fullVesiosuuskuntaSchema.pick({
 
 export const createVesiosuuskuntaSchema = fullVesiosuuskuntaSchema.pick({
   name: true,
-  ownerUUID: true,
-  userUUID: true,
   streetAddress: true,
   zipCode: true,
   city: true,
