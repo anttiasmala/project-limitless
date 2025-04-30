@@ -10,7 +10,7 @@ import LinkElement from '~/components/LinkElement';
 import { Main } from '~/components/Main';
 import { emailSchema } from '~/shared/zodSchemas';
 import handleError from '~/utils/handleError';
-import { MUTATION_KEYS } from '~/utils/utils';
+import { MUTATION_AND_QUERY_KEYS } from '~/utils/utils';
 
 const EMPTY_ERRORS = {
   email: '',
@@ -42,7 +42,7 @@ export default function Register() {
   const router = useRouter();
 
   const { mutateAsync } = useMutation({
-    mutationKey: MUTATION_KEYS.LOGIN,
+    mutationKey: MUTATION_AND_QUERY_KEYS.LOGIN,
     mutationFn: async () =>
       await axios.post('/api/auth/login', { email, password }),
     onSuccess: () => {

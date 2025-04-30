@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import SvgWaterDrop from '~/icons/water_drop';
 import { getServerSideProps } from '~/utils/getServerSideProps';
 import handleError from '~/utils/handleError';
-import { MUTATION_KEYS } from '~/utils/utils';
+import { MUTATION_AND_QUERY_KEYS } from '~/utils/utils';
 
 export default function Logout({
   user,
@@ -15,7 +15,7 @@ export default function Logout({
   const router = useRouter();
 
   const { mutateAsync } = useMutation({
-    mutationKey: MUTATION_KEYS.LOGIN,
+    mutationKey: MUTATION_AND_QUERY_KEYS.LOGIN,
     mutationFn: async () => await axios.post('/api/auth/logout'),
 
     onSuccess: () => {
