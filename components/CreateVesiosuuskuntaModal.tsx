@@ -3,6 +3,10 @@ import { Button } from './Button';
 import { Input } from './Input';
 import { createVesiosuuskuntaSchema } from '~/shared/zodSchemas';
 import handleError from '~/utils/handleError';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { MUTATION_AND_QUERY_KEYS } from '~/utils/utils';
+import { useRouter } from 'next/router';
+import axios from 'axios';
 
 type Form = {
   name: string;
@@ -33,6 +37,18 @@ export default function CreateVesiosuuskuntaModal({
   const [formData, setFormData] = useState<Form>(EMPTY_FORM_DATA);
   const [formErrors, setFormErrors] =
     useState<typeof EMPTY_FORM_ERRORS>(EMPTY_FORM_ERRORS);
+
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  const { mutateAsync } = useMutation({
+    mutationKey: MUTATION_AND_QUERY_KEYS.CREATE_VESIOSUUSKUNTA,
+    mutationFn: async () => await axios.post('/api/vesiosuuskunta', formData),
+    onSuccess: () => {
+      queryClient.clear();
+      router.push('/').catch((e) => console.error(e));
+    },
+  });
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
