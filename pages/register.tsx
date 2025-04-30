@@ -11,7 +11,7 @@ import {
   passwordSchema,
 } from '~/shared/zodSchemas';
 import { useMutation } from '@tanstack/react-query';
-import { MUTATION_KEYS } from '~/utils/utils';
+import { MUTATION_AND_QUERY_KEYS } from '~/utils/utils';
 import handleError from '~/utils/handleError';
 import { useRouter } from 'next/router';
 
@@ -40,7 +40,7 @@ export default function Register() {
   const router = useRouter();
 
   const { mutateAsync } = useMutation({
-    mutationKey: MUTATION_KEYS.REGISTER,
+    mutationKey: MUTATION_AND_QUERY_KEYS.REGISTER,
     mutationFn: async (formData: Form) =>
       await axios.post('/api/auth/register', formData),
     onSuccess: () => accountCreationSuccess(),

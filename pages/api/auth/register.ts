@@ -20,7 +20,7 @@ export default async function Register(
 
     res.status(200).end();
   } catch (e) {
-    handleError(res, e);
+    return handleError(res, e);
   }
 }
 

@@ -47,7 +47,6 @@ export const fullUserSchema = z.object({
   lastName: lastNameSchema,
   email: emailSchema,
   password: passwordSchema,
-  role: z.literal('USER').or(z.literal('ADMIN')),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -65,7 +64,6 @@ export const getUserSchema = fullUserSchema
     uuid: true,
     createdAt: true,
     updatedAt: true,
-    role: true,
   })
   .merge(userSchema);
 
@@ -136,4 +134,11 @@ export const createVesiosuuskuntaSchema = fullVesiosuuskuntaSchema.pick({
   name: true,
   ownerUUID: true,
   userUUID: true,
+});
+
+// LOGIN
+
+export const loginSchema = z.object({
+  email: emailSchema,
+  password: passwordSchema,
 });
