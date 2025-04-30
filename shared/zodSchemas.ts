@@ -118,15 +118,22 @@ export const invalidSessionResultSchema = z.object({
 export const fullVesiosuuskuntaSchema = z.object({
   id: z.number(),
   uuid: uuidSchema,
-  name: z.string().min(1, 'Name for Vesiosuuskunta is mandatory!'),
+  name: z
+    .string()
+    .min(1, 'Name for Vesiosuuskunta is mandatory!')
+    .max(128, { message: 'Name for Vesiosuuskunta is too long!' }),
   streetAddress: z
     .string({ message: 'Street address should be a string' })
+    .max(128, { message: 'Street address is too long' })
     .optional(),
   zipCode: z
-    .number({ message: 'Zip code should be a number' })
-    .or(z.null())
+    .string({ message: 'Zip code should be a string' })
+    .max(128, { message: 'Zipcode is too long' })
     .optional(),
-  city: z.string({ message: 'City should be a string' }).optional(),
+  city: z
+    .string({ message: 'City should be a string' })
+    .max(128, { message: 'City is too long' })
+    .optional(),
   ownerUUID: uuidSchema,
   userUUID: uuidSchema,
 });
