@@ -130,7 +130,6 @@ export class VesiosuuskuntaAuth {
         session.expiresAt,
       );
     }
-    console.log('databaseUser:', databaseUser);
     const user: GetUser = databaseUser;
     return { user, session };
   }
