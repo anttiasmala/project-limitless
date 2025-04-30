@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { GetServerSidePropsContext } from 'next/types';
 import { FormEvent, useEffect, useState } from 'react';
+import { validateRequest } from '~/backend/auth/vesiosuuskunta-auth';
 import { Button } from '~/components/Button';
 import { Input } from '~/components/Input';
 import LinkElement from '~/components/LinkElement';
@@ -9,6 +11,21 @@ import { Main } from '~/components/Main';
 import { emailSchema } from '~/shared/zodSchemas';
 import handleError from '~/utils/handleError';
 import { MUTATION_KEYS } from '~/utils/utils';
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const cookieData = await validateRequest(context.req, context.res);
+  if (!cookieData.user || !cookieData.session.isLoggedIn) {
+    return {
+      props: {},
+    };
+  }
+  return {
+    redirect: {
+      permanent: false,
+      destination: '/',
+    },
+  };
+}
 
 const EMPTY_ERRORS = {
   email: '',
