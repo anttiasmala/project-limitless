@@ -1,9 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next/types';
-import { requireLogin } from '~/backend/auth/vesiosuuskunta-auth';
+import {
+  requireLogin,
+  validateRequest,
+} from '~/backend/auth/vesiosuuskunta-auth';
 import { handleError } from '~/backend/handleError';
 import { HttpError } from '~/backend/HttpError';
 import { GetUser } from '~/shared/types';
 import prisma from '~/prisma';
+import { createVesiosuuskuntaSchema } from '~/shared/zodSchemas';
+import { Prisma } from '@prisma/client';
 
 const HANDLER: Record<
   string,
@@ -56,7 +61,25 @@ async function handleGET(
   return;
 }
 
-async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
-  res.status(200).end();
-  return;
+async function handlePOST(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  userData: GetUser,
+) {
+  const parsedVesiosuuskunta = createVesiosuuskuntaSchema.safeParse(req.body);
+  if (parsedVesiosuuskunta.success === false) {
+    throw new HttpError('Request had invalid data, check it again!', 400);
+  }
+
+  const dataObject = {
+    ...parsedVesiosuuskunta.data,
+    ownerUUID: userData.uuid,
+    userUUID: userData.uuid,
+  };
+
+  const createdVesiosuuskunta = await prisma.vesiosuuskunta.create({
+    data: dataObject,
+  });
+
+  return res.status(200).json(createdVesiosuuskunta);
 }
