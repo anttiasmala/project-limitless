@@ -32,6 +32,12 @@ export default async function handleVesiosuuskuntaRequest(
   }
 }
 
-async function handleGET() {}
+async function handleGET(req: NextApiRequest, res: NextApiResponse) {
+  res.status(200).end();
+  return;
+}
 
-async function handlePOST() {}
+async function handlePOST(req: NextApiRequest, res: NextApiResponse) {
+  res.status(200).end();
+  return;
+}
