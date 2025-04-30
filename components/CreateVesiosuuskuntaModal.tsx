@@ -65,7 +65,7 @@ export default function CreateVesiosuuskuntaModal({
               <Input
                 name="streetAddress"
                 className="m-0"
-                placeholder="Mannerheiminkatu 30"
+                placeholder="Mannerheimintie 30"
                 value={formData.streetAddress}
                 onChange={(e) => {
                   setFormData((prevData) => ({
@@ -82,7 +82,7 @@ export default function CreateVesiosuuskuntaModal({
               <Input
                 name="zipCode"
                 className="m-0"
-                placeholder="33330"
+                placeholder="00100"
                 value={formData.zipCode}
                 onChange={(e) => {
                   setFormData((prevData) => ({
