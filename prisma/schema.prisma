@@ -35,7 +35,6 @@ model Vesiosuuskunta {
     uuid          String   @unique @default(uuid())
     name          String
     streetAddress String?
-    streetNumber  String?
     zipCode       Int?
     city          String?
     ownerUUID     String
