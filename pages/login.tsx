@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Button } from '~/components/Button';
 import { Input } from '~/components/Input';
 import LinkElement from '~/components/LinkElement';
@@ -19,7 +19,7 @@ export default function Register() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
-  const [errors, setErrors] = useState(EMPTY_ERRORS);
+  const [errors, setErrors] = useState<typeof EMPTY_ERRORS>(EMPTY_ERRORS);
 
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -50,15 +50,24 @@ export default function Register() {
 
   function checkIfFieldsOk() {
     let errorFound = false;
-    if (password.length <= 0) {
-      setErrors({ ...errors, password: 'Salasana on pakollinen!' });
-      errorFound = true;
-    }
     const parsedEmail = emailSchema.safeParse(email);
     if (!parsedEmail.success) {
-      setErrors({
-        ...errors,
-        email: parsedEmail.error.issues[0].message ?? 'Sähköpostissa on virhe!',
+      setErrors((prevErrors) => {
+        return {
+          ...prevErrors,
+          email:
+            parsedEmail.error.issues[0].message ?? 'Sähköpostissa on virhe!',
+        };
+      });
+
+      errorFound = true;
+    }
+    if (password.length <= 0) {
+      setErrors((prevErrors) => {
+        return {
+          ...prevErrors,
+          password: 'Salasana on pakollinen!',
+        };
       });
       errorFound = true;
     }
@@ -72,7 +81,7 @@ export default function Register() {
     <Main>
       <div className="flex flex-col items-center">
         <p className="text-xl font-bold">Kirjaudu sisään</p>
-        <form onSubmit={(e) => handleSubmit(e)}>
+        <form onSubmit={(e) => void handleSubmit(e)}>
           <div className="mt-2 flex flex-col">
             <label htmlFor="email">Sähköposti:</label>
             <Input
