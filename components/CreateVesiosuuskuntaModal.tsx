@@ -12,18 +12,18 @@ export default function CreateVesiosuuskuntaModal({
   type Form = {
     name: string;
     streetAddress?: string;
-    zipCode?: number | null;
+    zipCode?: string;
     city?: string;
   };
 
   const EMPTY_FORM_DATA: Form = {
     name: '',
     streetAddress: '',
-    zipCode: null,
+    zipCode: '',
     city: '',
   };
 
-  const EMPTY_FORM_ERRORS: Form = {
+  const EMPTY_FORM_ERRORS = {
     name: '',
     streetAddress: '',
     zipCode: '',
@@ -31,7 +31,8 @@ export default function CreateVesiosuuskuntaModal({
   };
 
   const [formData, setFormData] = useState<Form>(EMPTY_FORM_DATA);
-  const [formErrors, setFormErrors] = useState<Form>();
+  const [formErrors, setFormErrors] =
+    useState<typeof EMPTY_FORM_ERRORS>(EMPTY_FORM_ERRORS);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -43,14 +44,13 @@ export default function CreateVesiosuuskuntaModal({
   }
   function checkFields() {
     const formParse = createVesiosuuskuntaSchema.safeParse(formData);
-    console.log(formParse);
 
     if (formParse.success === false) {
-      setErrors({
-        firstName: validatedForm.error.format().firstName?._errors[0] || '',
-        lastName: validatedForm.error.format().lastName?._errors[0] || '',
-        email: validatedForm.error.format().email?._errors[0] || '',
-        password: validatedForm.error.format().password?._errors[0] || '',
+      setFormErrors({
+        name: formParse.error.format().name?._errors[0] || '',
+        city: formParse.error.format().city?._errors[0] || '',
+        streetAddress: formParse.error.format().streetAddress?._errors[0] || '',
+        zipCode: formParse.error.format().zipCode?._errors[0] || '',
       });
       return;
     }
@@ -96,6 +96,7 @@ export default function CreateVesiosuuskuntaModal({
                   }));
                 }}
               />
+              <ErrorText text={formErrors.name} />
             </div>
             <div className="m-1 grid justify-center">
               <label className="mr-2" htmlFor="streetAddress">
@@ -113,6 +114,7 @@ export default function CreateVesiosuuskuntaModal({
                   }));
                 }}
               />
+              <ErrorText text={formErrors.streetAddress} />
             </div>
             <div className="m-1 grid justify-center">
               <label htmlFor="zipCode" className="mr-2">
@@ -122,6 +124,7 @@ export default function CreateVesiosuuskuntaModal({
                 name="zipCode"
                 className="m-0"
                 placeholder="00100"
+                type="number"
                 value={formData.zipCode}
                 onChange={(e) => {
                   setFormData((prevData) => ({
@@ -130,6 +133,7 @@ export default function CreateVesiosuuskuntaModal({
                   }));
                 }}
               />
+              <ErrorText text={formErrors.zipCode} />
             </div>
             <div className="m-1 mb-5 grid justify-center">
               <label className="mr-2" htmlFor="city">
@@ -147,6 +151,7 @@ export default function CreateVesiosuuskuntaModal({
                   }));
                 }}
               />
+              <ErrorText text={formErrors.city} />
             </div>
             <div className="mt-5 mb-5 flex justify-center">
               <Button type="submit" className="w-72 min-w-72">
@@ -158,4 +163,11 @@ export default function CreateVesiosuuskuntaModal({
       </div>
     </div>
   );
+}
+
+function ErrorText({ text }: { text: string }) {
+  if (text.length > 0) {
+    return <p className="text-red-500">{text}</p>;
+  }
+  return null;
 }
