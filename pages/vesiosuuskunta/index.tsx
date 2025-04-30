@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import handleError from '~/utils/handleError';
 import axios from 'axios';
 import CreateVesiosuuskuntaModal from '~/components/CreateVesiosuuskuntaModal';
+import LinkElement from '~/components/LinkElement';
 
 // this checks login status
 export { getServerSideProps };
@@ -72,7 +73,17 @@ export default function Home({
   return (
     <Main user={user}>
       <div className="flex flex-col items-center">
-        <Button className="mt-1">Jäsenet</Button>
+        {vesiosuuskunnat?.map((value, index) => {
+          return (
+            <LinkElement
+              href={`/vesiosuuskunta/${value.uuid}`}
+              key={`${value.name}${index}`}
+              className="min-h-12 min-w-80 rounded-lg bg-green-500 text-center text-2xl font-bold wrap-anywhere text-black"
+            >
+              {value.name}
+            </LinkElement>
+          );
+        })}
       </div>
     </Main>
   );
