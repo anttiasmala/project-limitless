@@ -119,6 +119,14 @@ export const fullVesiosuuskuntaSchema = z.object({
   id: z.number(),
   uuid: uuidSchema,
   name: z.string().min(1, 'Name for Vesiosuuskunta is mandatory!'),
+  streetAddress: z
+    .string({ message: 'Street address should be a string' })
+    .optional(),
+  streetNumber: z
+    .string({ message: 'Street address should be a string' })
+    .optional(),
+  zipCode: z.number({ message: 'Zip code should be a number' }).optional(),
+  city: z.string({ message: 'City should be a string' }).optional(),
   ownerUUID: uuidSchema,
   userUUID: uuidSchema,
 });
@@ -126,6 +134,10 @@ export const fullVesiosuuskuntaSchema = z.object({
 export const getVesiosuuskuntaSchema = fullVesiosuuskuntaSchema.pick({
   uuid: true,
   name: true,
+  streetAddress: true,
+  streetNumber: true,
+  zipCode: true,
+  city: true,
   ownerUUID: true,
   userUUID: true,
 });
@@ -134,6 +146,10 @@ export const createVesiosuuskuntaSchema = fullVesiosuuskuntaSchema.pick({
   name: true,
   ownerUUID: true,
   userUUID: true,
+  streetAddress: true,
+  streetNumber: true,
+  zipCode: true,
+  city: true,
 });
 
 // LOGIN
