@@ -10,7 +10,7 @@ import {
   lastNameSchema,
   passwordSchema,
 } from '~/shared/zodSchemas';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MUTATION_AND_QUERY_KEYS } from '~/utils/utils';
 import handleError from '~/utils/handleError';
 import { useRouter } from 'next/router';
@@ -37,6 +37,7 @@ export default function Register() {
   const [isAccountCreationSuccess, setIsAccountCreationSuccess] =
     useState<boolean>(false);
 
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   const { mutateAsync } = useMutation({
@@ -50,6 +51,7 @@ export default function Register() {
     setFormData(EMPTY_FORM_DATA);
     setIsAccountCreationSuccess(true);
     setTimeout(() => {
+      queryClient.clear();
       router.push('/').catch((e) => console.error(e));
     }, 1000);
   }
