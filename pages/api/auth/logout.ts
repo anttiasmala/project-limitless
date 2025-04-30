@@ -4,7 +4,11 @@ import { HttpError } from '~/backend/HttpError';
 import { verifyPassword } from '~/backend/utils';
 import { getUserSchema, loginSchema } from '~/shared/zodSchemas';
 import prisma from '~/prisma';
-import { auth, authLong } from '~/backend/auth/vesiosuuskunta-auth';
+import {
+  auth,
+  authLong,
+  validateRequest,
+} from '~/backend/auth/vesiosuuskunta-auth';
 import { getServerSideProps } from '~/utils/getServerSideProps';
 
 export { getServerSideProps };
@@ -17,37 +21,31 @@ export default async function Logout(
     if (req.method !== 'POST') {
       throw new HttpError('Invalid request method!', 405);
     }
-
-    const userDetailsParse = getUserSchema.safeParse(req.body);
-
-    if (!userDetailsParse.success) {
-      throw new HttpError("Expected to get User's data!", 400);
+    // check if request is validated
+    const { session } = await validateRequest(req, res);
+    if (!session) {
+      res.status(200).end();
+      return;
     }
-    const userDetails = userDetailsParse.data;
+    // if session is found, mark user's isLoggedIn to false it
+    await logUserOut(session.uuid);
 
-    const isPasswordSame = verifyPassword(
-      loginDetails.password,
-      userDetailsParse?.password ?? '',
-    );
-
-    if (!isPasswordSame) throw new HttpError('Password is invalid!', 400);
-
-    const sessionUUID = await logUserIn(userDetailsParse.uuid);
-
-    res
-      .appendHeader(
-        'Set-cookie',
-        authLong.createSessionCookie(sessionUUID).serialize(),
-      )
-      .status(200)
-      .end();
+    res.status(200).end();
+    return;
   } catch (e) {
     return handleError(res, e);
   }
 }
 
-async function logUserIn(userUUID: string) {
-  const { uuid: sessionUUID } = await authLong.createSession(userUUID);
+async function logUserOut(sessionUUID: string) {
+  await prisma.session.update({
+    where: {
+      uuid: sessionUUID,
+    },
+    data: {
+      isLoggedIn: false,
+    },
+  });
 
-  return sessionUUID;
+  return;
 }
