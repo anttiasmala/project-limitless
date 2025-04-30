@@ -46,7 +46,7 @@ export default function CreateVesiosuuskuntaModal({
     mutationFn: async () => await axios.post('/api/vesiosuuskunta', formData),
     onSuccess: () => {
       queryClient.clear();
-      router.push('/').catch((e) => console.error(e));
+      router.push('/vesiosuuskunta').catch((e) => console.error(e));
     },
   });
 
