@@ -37,6 +37,7 @@ export default function CreateVesiosuuskuntaModal({
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
+      setFormErrors(EMPTY_FORM_ERRORS);
       checkFields();
     } catch (e) {
       handleError(e);
