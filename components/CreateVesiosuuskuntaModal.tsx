@@ -38,6 +38,7 @@ export default function CreateVesiosuuskuntaModal({
               <button
                 className="mt-2 mr-2 hover:text-blue-300"
                 onClick={() => closeModal()}
+                type="button"
               >
                 Sulje
               </button>
@@ -110,7 +111,9 @@ export default function CreateVesiosuuskuntaModal({
               />
             </div>
             <div className="mt-5 mb-5 flex justify-center">
-              <Button className="w-72 min-w-72">Luo vesiosuuskunta</Button>
+              <Button type="submit" className="w-72 min-w-72">
+                Luo vesiosuuskunta
+              </Button>
             </div>
           </form>
         </div>
