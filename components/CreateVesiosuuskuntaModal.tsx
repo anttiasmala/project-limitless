@@ -55,14 +55,6 @@ export default function CreateVesiosuuskuntaModal({
       });
       return;
     }
-    //setFormErrors(() => ({ firstName, lastName, email, password }));
-
-    // if some of the fields has failed, return false
-    /*
-    if (firstName || lastName || email || password) {
-      return false;
-    }
-    */
     return true;
   }
 
