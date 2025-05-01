@@ -165,41 +165,39 @@ export default function Home({
                   })}
                 </div>
                 <div>
-                  <TitleParagraph>
-                    Muokkaa/Poista
-                    {arrayOfNames.map((v, i) => {
-                      return (
-                        <div key={`${v.comments}${i + 1}`}>
-                          <div className="relative">
-                            <button
-                              className="m-0 p-0"
-                              onClick={() => {
-                                console.log('Muokkaa:', arrayOfNames[i]);
-                              }}
-                            >
-                              <SvgWaterDrop
-                                width={18}
-                                height={18}
-                                className="bg-green-500"
-                              />
-                            </button>
-                            <button
-                              className="m-0 ml-2 p-0"
-                              onClick={() => {
-                                console.log('Poista:', arrayOfNames[i]);
-                              }}
-                            >
-                              <SvgWaterDrop
-                                width={18}
-                                height={18}
-                                className="bg-red-500"
-                              />
-                            </button>
-                          </div>
+                  <TitleParagraph>Muokkaa/Poista</TitleParagraph>
+                  {arrayOfNames.map((v, i) => {
+                    return (
+                      <div key={`${v.comments}${i + 1}`}>
+                        <div className="relative">
+                          <button
+                            className="m-0 p-0"
+                            onClick={() => {
+                              console.log('Muokkaa:', arrayOfNames[i]);
+                            }}
+                          >
+                            <SvgWaterDrop
+                              width={18}
+                              height={18}
+                              className="bg-green-500"
+                            />
+                          </button>
+                          <button
+                            className="m-0 ml-2 p-0"
+                            onClick={() => {
+                              console.log('Poista:', arrayOfNames[i]);
+                            }}
+                          >
+                            <SvgWaterDrop
+                              width={18}
+                              height={18}
+                              className="bg-red-500"
+                            />
+                          </button>
                         </div>
-                      );
-                    })}
-                  </TitleParagraph>
+                      </div>
+                    );
+                  })}
                 </div>
                 <button
                   className="absolute top-140 right-1/5 h-0 w-0"
