@@ -212,8 +212,8 @@ export default function Home({
                               }}
                             >
                               <SvgWaterDrop
-                                width={24}
-                                height={24}
+                                width={18}
+                                height={18}
                                 className="bg-green-500"
                               />
                             </button>
@@ -224,8 +224,8 @@ export default function Home({
                               }}
                             >
                               <SvgWaterDrop
-                                width={24}
-                                height={24}
+                                width={18}
+                                height={18}
                                 className="bg-red-500"
                               />
                             </button>
