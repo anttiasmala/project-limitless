@@ -31,45 +31,10 @@ export default function Home({
   const [showCreateVesiosuuskuntaModal, setShowCreateVesiosuuskuntaModal] =
     useState<boolean>(false);
 
-  const initialRender = useRef(true);
-
-  const [pageUUID, setPageUUID] = useState<string>('');
-  const [baseURL, setBaseURL] = useState<string>('');
-
-  const { data: vesiosuuskunta, refetch } = useQuery({
-    queryKey: MUTATION_AND_QUERY_KEYS.VESIOSUUSKUNTA,
-    queryFn: async () => {
-      return (await axios.get(`/api/vesiosuuskunta/${pageUUID}`))
-        .data as GetVesiosuuskunta;
-    },
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    retry: false,
-    enabled: false,
-  });
-
   useEffect(() => {
-    setPageUUID(window.location.pathname.split('/vesiosuuskunta/')[1] ?? '');
-    setBaseURL(window.location.href);
     document.body.classList.remove('bg-gray-500');
     document.body.classList.add('bg-gray-200');
   }, []);
-
-  useEffect(() => {
-    async function fetchVesiosuuskunta() {
-      try {
-        if (initialRender.current === true) {
-          initialRender.current = false;
-          return;
-        }
-        await refetch();
-        console.log(vesiosuuskunta);
-      } catch (e) {
-        handleError(e);
-      }
-    }
-    fetchVesiosuuskunta();
-  }, [pageUUID, vesiosuuskunta]);
 
   return (
     <main className="h-screen w-screen">
