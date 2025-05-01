@@ -7,7 +7,10 @@ import { handleError } from '~/backend/handleError';
 import { HttpError } from '~/backend/HttpError';
 import { GetUser } from '~/shared/types';
 import prisma from '~/prisma';
-import { createVesiosuuskuntaSchema } from '~/shared/zodSchemas';
+import {
+  createMemberSchema,
+  createVesiosuuskuntaSchema,
+} from '~/shared/zodSchemas';
 import { Prisma } from '@prisma/client';
 
 const HANDLER: Record<
@@ -48,16 +51,7 @@ async function handleGET(
   res: NextApiResponse,
   userData: GetUser,
 ) {
-  const vesiosuuskunnat = await prisma.vesiosuuskunta.findMany({
-    where: {
-      ownerUUID: userData.uuid,
-    },
-    omit: {
-      id: true,
-    },
-  });
-
-  res.status(200).json(vesiosuuskunnat);
+  res.status(200).end();
   return;
 }
 
@@ -66,18 +60,18 @@ async function handlePOST(
   res: NextApiResponse,
   userData: GetUser,
 ) {
-  const parsedVesiosuuskunta = createVesiosuuskuntaSchema.safeParse(req.body);
-  if (parsedVesiosuuskunta.success === false) {
+  const parsedMember = createMemberSchema.safeParse(req.body);
+  if (parsedMember.success === false) {
     throw new HttpError('Request had invalid data, check it again!', 400);
   }
 
   const dataObject = {
-    ...parsedVesiosuuskunta.data,
+    ...parsedMember.data,
     ownerUUID: userData.uuid,
     userUUID: userData.uuid,
   };
 
-  const createdVesiosuuskunta = await prisma.vesiosuuskunta.create({
+  const createdVesiosuuskunta = await prisma.member.create({
     data: dataObject,
   });
 
