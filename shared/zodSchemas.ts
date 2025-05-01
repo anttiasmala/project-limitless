@@ -37,6 +37,21 @@ export const passwordSchema = z
     'Salasanan täytyy olla vähintään 8 merkkiä pitkä, maksimissaan 128 merkkiä pitkä, sekä sisältää vähintään yksi iso kirjain, yksi pieni kirjain, yksi numero ja yksi erikoismerkki!',
   );
 
+export const streetAddressSchema = z
+  .string({ message: 'Street address should be a string' })
+  .max(128, { message: 'Street address is too long' })
+  .optional();
+
+export const zipCodeSchema = z
+  .string({ message: 'Zip code should be a string' })
+  .max(128, { message: 'Zipcode is too long' })
+  .optional();
+
+export const citySchema = z
+  .string({ message: 'City should be a string' })
+  .max(128, { message: 'City is too long' })
+  .optional();
+
 // USER
 
 /** Contains ALL the rows in database */
@@ -122,18 +137,9 @@ export const fullVesiosuuskuntaSchema = z.object({
     .string()
     .min(1, 'Name for Vesiosuuskunta is mandatory!')
     .max(128, { message: 'Name for Vesiosuuskunta is too long!' }),
-  streetAddress: z
-    .string({ message: 'Street address should be a string' })
-    .max(128, { message: 'Street address is too long' })
-    .optional(),
-  zipCode: z
-    .string({ message: 'Zip code should be a string' })
-    .max(128, { message: 'Zipcode is too long' })
-    .optional(),
-  city: z
-    .string({ message: 'City should be a string' })
-    .max(128, { message: 'City is too long' })
-    .optional(),
+  streetAddress: streetAddressSchema,
+  zipCode: zipCodeSchema,
+  city: citySchema,
   ownerUUID: uuidSchema,
   userUUID: uuidSchema,
 });
@@ -162,18 +168,9 @@ export const fullMemberSchema = z.object({
   uuid: uuidSchema,
   lastName: lastNameSchema,
   firstName: firstNameSchema,
-  streetAddress: z
-    .string({ message: 'Street address should be a string' })
-    .max(128, { message: 'Street address is too long' })
-    .optional(),
-  zipCode: z
-    .string({ message: 'Zip code should be a string' })
-    .max(128, { message: 'Zipcode is too long' })
-    .optional(),
-  city: z
-    .string({ message: 'City should be a string' })
-    .max(128, { message: 'City is too long' })
-    .optional(),
+  streetAddress: streetAddressSchema,
+  zipCode: zipCodeSchema,
+  city: citySchema,
   phoneNumber: z
     .string({ message: 'Phonenumber should be a string' })
     .max(128, 'Phonenumber is too long')
