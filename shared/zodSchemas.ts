@@ -157,7 +157,7 @@ export const createVesiosuuskuntaSchema = fullVesiosuuskuntaSchema.pick({
 
 // MEMBERS
 
-export const fullMembersSchema = z.object({
+export const fullMemberSchema = z.object({
   id: z.number(),
   uuid: uuidSchema,
   lastName: lastNameSchema,
@@ -192,6 +192,22 @@ export const fullMembersSchema = z.object({
   vesiosuuskuntaUUID: z
     .string({ message: 'vesiosuuskuntaUUID should be a string' })
     .uuid(),
+});
+
+export const getMemberSchema = fullMemberSchema.omit({
+  id: true,
+});
+
+export const createMemberSchema = fullMemberSchema.pick({
+  lastName: true,
+  firstName: true,
+  streetAddress: true,
+  zipCode: true,
+  city: true,
+  phoneNumber: true,
+  email: true,
+  paid: true,
+  connectionPointNumber: true,
 });
 
 // LOGIN
