@@ -158,8 +158,8 @@ export default function Home({
 
                   {arrayOfNames.map((v, i) => {
                     return (
-                      <div>
-                        <p key={`${v.comments}${i}`}>-</p>
+                      <div key={`${v.comments}${i}`}>
+                        <p>-</p>
                       </div>
                     );
                   })}
