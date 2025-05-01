@@ -6,4 +6,5 @@ export const MUTATION_AND_QUERY_KEYS = {
 
   // QUERIES
   VESIOSUUSKUNNAT: ['vesiosuuskunnat'],
+  VESIOSUUSKUNTA: ['vesiosuuskunta'],
 };
