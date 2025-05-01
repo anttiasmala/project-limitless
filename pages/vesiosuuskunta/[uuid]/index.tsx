@@ -29,6 +29,7 @@ export default function Home({
   const initialRender = useRef(true);
 
   const [pageUUID, setPageUUID] = useState<string>('');
+  const [baseURL, setBaseURL] = useState<string>('');
 
   const { data: vesiosuuskunta, refetch } = useQuery({
     queryKey: MUTATION_AND_QUERY_KEYS.VESIOSUUSKUNTA,
@@ -44,6 +45,7 @@ export default function Home({
 
   useEffect(() => {
     setPageUUID(window.location.pathname.split('/vesiosuuskunta/')[1] ?? '');
+    setBaseURL(window.location.href);
   }, []);
 
   useEffect(() => {
@@ -65,7 +67,7 @@ export default function Home({
   return (
     <Main user={user}>
       <div className="flex flex-col items-center">
-        <Button>Jäsenet</Button>
+        <LinkElement href={`${baseURL}/members`}>Jäsenet</LinkElement>
       </div>
     </Main>
   );
