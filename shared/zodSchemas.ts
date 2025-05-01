@@ -155,6 +155,45 @@ export const createVesiosuuskuntaSchema = fullVesiosuuskuntaSchema.pick({
   city: true,
 });
 
+// MEMBERS
+
+export const fullMembersSchema = z.object({
+  id: z.number(),
+  uuid: uuidSchema,
+  lastName: lastNameSchema,
+  firstName: firstNameSchema,
+  streetAddress: z
+    .string({ message: 'Street address should be a string' })
+    .max(128, { message: 'Street address is too long' })
+    .optional(),
+  zipCode: z
+    .string({ message: 'Zip code should be a string' })
+    .max(128, { message: 'Zipcode is too long' })
+    .optional(),
+  city: z
+    .string({ message: 'City should be a string' })
+    .max(128, { message: 'City is too long' })
+    .optional(),
+  phoneNumber: z
+    .string({ message: 'Phonenumber should be a string' })
+    .max(128, 'Phonenumber is too long')
+    .optional(),
+  email: emailSchema,
+  paid: z
+    .string({ message: 'Paid should be a string' })
+    .max(128, 'Paid is too long')
+    .optional(),
+  connectionPointNumber: z
+    .string({ message: 'Connection point number should be a string' })
+    .max(128, 'Connection point number is too long')
+    .optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  vesiosuuskuntaUUID: z
+    .string({ message: 'vesiosuuskuntaUUID should be a string' })
+    .uuid(),
+});
+
 // LOGIN
 
 export const loginSchema = z.object({
