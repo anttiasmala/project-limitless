@@ -35,6 +35,10 @@ export default function Home({
   useEffect(() => {
     document.body.classList.remove('bg-gray-500');
     document.body.classList.add('bg-gray-200');
+    return () => {
+      document.body.classList.remove('bg-gray-200');
+      document.body.classList.add('bg-gray-500');
+    };
   }, []);
 
   return (
