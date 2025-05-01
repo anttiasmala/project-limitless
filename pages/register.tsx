@@ -169,7 +169,7 @@ export default function Register() {
           </LinkElement>
           {isAccountCreationSuccess && (
             <div>
-              <div className="absolute top-0 left-0 z-99 h-screen w-full bg-black opacity-80"></div>
+              <div className="fixed top-0 left-0 z-99 h-screen w-full bg-black opacity-80"></div>
 
               <div className="relative">
                 <div className="absolute z-100 grid h-50 w-screen items-center rounded-lg border-4 border-yellow-800 bg-gray-500 md:-right-13 md:w-100">

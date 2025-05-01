@@ -103,7 +103,7 @@ export default function CreateMemberModal({
 
   return (
     <div>
-      <div className="absolute top-0 left-0 z-99 h-screen w-full bg-black opacity-80"></div>
+      <div className="fixed top-0 left-0 z-99 h-full w-full bg-black opacity-80"></div>
 
       <div className="relative grid w-full justify-items-center">
         <div className="absolute -bottom-20 z-100 flex flex-col rounded-lg border-4 border-yellow-800 bg-gray-500">
