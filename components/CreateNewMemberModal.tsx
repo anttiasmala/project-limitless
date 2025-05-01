@@ -61,10 +61,10 @@ export default function CreateMemberModal({
 
   const { mutateAsync } = useMutation({
     mutationKey: MUTATION_AND_QUERY_KEYS.CREATE_MEMBER,
-    mutationFn: async () => await axios.post('/api/vesiosuuskunta', formData),
+    mutationFn: async () =>
+      await axios.post('/api/vesiosuuskunta/members', formData),
     onSuccess: () => {
       queryClient.clear();
-      router.push('/vesiosuuskunta').catch((e) => console.error(e));
     },
   });
 
