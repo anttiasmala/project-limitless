@@ -135,19 +135,19 @@ export default function CreateMemberModal({
             </div>
             <div className="m-1 grid justify-center">
               <div className="col-start-1 col-end-1">
-                <PhoneNumberBlock
+                <EmailBlock
                   setFormData={setFormData}
                   formData={formData}
                   formErrors={formErrors}
-                ></PhoneNumberBlock>
+                ></EmailBlock>
               </div>
               <div className="col-start-2 col-end-2 ml-5">
                 <div className="m-1 grid justify-center">
-                  <EmailBlock
+                  <PhoneNumberBlock
                     setFormData={setFormData}
                     formData={formData}
                     formErrors={formErrors}
-                  ></EmailBlock>
+                  ></PhoneNumberBlock>
                 </div>
               </div>
             </div>
@@ -392,7 +392,7 @@ function EmailBlock({
   return (
     <div>
       <label className="mr-2" htmlFor="email">
-        Sähköposti:
+        Sähköposti: <span className="text-red-400">*</span>
       </label>
       <Input
         name="email"
