@@ -29,7 +29,7 @@ const EMPTY_FORM_ERRORS = {
   city: '',
 };
 
-export default function CreateVesiosuuskuntaModal({
+export default function CreateMemberModal({
   closeModal,
 }: {
   closeModal: () => void;
@@ -82,7 +82,7 @@ export default function CreateVesiosuuskuntaModal({
       <div className="absolute top-0 left-0 z-99 h-screen w-full bg-black opacity-80"></div>
 
       <div className="relative grid w-full justify-items-center">
-        <div className="absolute z-100 flex w-screen flex-col rounded-lg border-4 border-yellow-800 bg-gray-500 md:w-100">
+        <div className="absolute -bottom-20 z-100 flex flex-col rounded-lg border-4 border-yellow-800 bg-gray-500">
           <form onSubmit={(e) => void handleSubmit(e)}>
             <div className="flex justify-end">
               <button
@@ -94,76 +94,137 @@ export default function CreateVesiosuuskuntaModal({
               </button>
             </div>
             <div className="m-1 grid justify-center">
-              <label htmlFor="name" className="mr-2">
-                Nimi: <span className="text-red-400">Pakollinen</span>
-              </label>
-              <Input
-                name="name"
-                className="m-0"
-                placeholder="Meikäläisen vesiosuuskunta"
-                onChange={(e) => {
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    name: e.target.value,
-                  }));
-                }}
-              />
-              <ErrorText text={formErrors.name} />
+              <div className="col-start-1 col-end-1">
+                <label htmlFor="firstName" className="mr-2">
+                  Etunimi: <span className="text-red-400">*</span>
+                </label>
+                <Input
+                  name="firstName"
+                  className="m-0"
+                  placeholder="Matti"
+                  onChange={(e) => {
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      name: e.target.value,
+                    }));
+                  }}
+                />
+                <ErrorText text={formErrors.name} />
+              </div>
+              <div className="col-start-2 col-end-2">
+                <label htmlFor="lastName" className="mr-2">
+                  Sukunimi: <span className="text-red-400">*</span>
+                </label>
+                <Input
+                  name="lastName"
+                  className="m-0 ml-5"
+                  placeholder="Meikäläinen"
+                  onChange={(e) => {
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      name: e.target.value,
+                    }));
+                  }}
+                />
+                <ErrorText text={formErrors.name} />
+              </div>
             </div>
             <div className="m-1 grid justify-center">
-              <label className="mr-2" htmlFor="streetAddress">
-                Osoite:
-              </label>
-              <Input
-                name="streetAddress"
-                className="m-0"
-                placeholder="Mannerheimintie 30"
-                value={formData.streetAddress}
-                onChange={(e) => {
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    streetAddress: e.target.value,
-                  }));
-                }}
-              />
-              <ErrorText text={formErrors.streetAddress} />
-            </div>
-            <div className="m-1 grid justify-center">
-              <label htmlFor="zipCode" className="mr-2">
-                Postinumero:
-              </label>
-              <Input
-                name="zipCode"
-                className="m-0"
-                placeholder="00100"
-                type="number"
-                value={formData.zipCode}
-                onChange={(e) => {
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    zipCode: e.target.value,
-                  }));
-                }}
-              />
-              <ErrorText text={formErrors.zipCode} />
+              <div className="col-start-1 col-end-1">
+                <label className="mr-2" htmlFor="streetAddress">
+                  Katuosoite:
+                </label>
+                <Input
+                  name="streetAddress"
+                  className="m-0"
+                  placeholder="Mannerheimintie 30"
+                  value={formData.streetAddress}
+                  onChange={(e) => {
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      streetAddress: e.target.value,
+                    }));
+                  }}
+                />
+                <ErrorText text={formErrors.streetAddress} />
+              </div>
+              <div className="col-start-2 col-end-2">
+                <div className="m-1 grid justify-center">
+                  <label htmlFor="zipCode" className="mr-2">
+                    Postinumero:
+                  </label>
+                  <Input
+                    name="zipCode"
+                    className="m-0 ml-5"
+                    placeholder="00100"
+                    type="number"
+                    value={formData.zipCode}
+                    onChange={(e) => {
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        zipCode: e.target.value,
+                      }));
+                    }}
+                  />
+                  <ErrorText text={formErrors.zipCode} />
+                </div>
+              </div>
             </div>
             <div className="m-1 mb-5 grid justify-center">
-              <label className="mr-2" htmlFor="city">
-                Postitoimipaikka:
-              </label>
-              <Input
-                name="city"
-                className="m-0"
-                placeholder="Helsinki"
-                value={formData.city}
-                onChange={(e) => {
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    city: e.target.value,
-                  }));
-                }}
-              />
-              <ErrorText text={formErrors.city} />
+              <div className="col-start-1 col-end-1">
+                <label className="mr-2" htmlFor="city">
+                  Postitoimipaikka:
+                </label>
+                <Input
+                  name="city"
+                  className="m-0"
+                  placeholder="Helsinki"
+                  value={formData.city}
+                  onChange={(e) => {
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      city: e.target.value,
+                    }));
+                  }}
+                />
+                <ErrorText text={formErrors.city} />
+              </div>
+              <div className="col-start-2 col-end-2">
+                <label className="mr-2" htmlFor="phoneNumber">
+                  Puhelinnumero:
+                </label>
+                <Input
+                  name="phoneNumber"
+                  className="m-0 ml-5"
+                  placeholder="045 678 0912"
+                  value={formData.streetAddress}
+                  onChange={(e) => {
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      streetAddress: e.target.value,
+                    }));
+                  }}
+                />
+                <ErrorText text={formErrors.streetAddress} />
+              </div>
+              <div className="col-start-1 col-end-1">
+                <label className="mr-2" htmlFor="email">
+                  Sähköposti:
+                </label>
+                <Input
+                  name="email"
+                  className="m-0"
+                  placeholder="matti.meikalainen@email.com"
+                  value={formData.streetAddress}
+                  onChange={(e) => {
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      streetAddress: e.target.value,
+                    }));
+                  }}
+                />
+                <ErrorText text={formErrors.streetAddress} />
+              </div>
             </div>
             <div className="mt-5 mb-5 flex justify-center">
               <Button type="submit" className="w-72 min-w-72">
