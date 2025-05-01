@@ -1,5 +1,5 @@
 import { InferGetServerSidePropsType } from 'next';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '~/components/Button';
 import { Main } from '~/components/Main';
 import { Topbar } from '~/components/Topbar';
@@ -26,64 +26,46 @@ export default function Home({
   const [showCreateVesiosuuskuntaModal, setShowCreateVesiosuuskuntaModal] =
     useState<boolean>(false);
 
-  const { data: vesiosuuskunnat, refetch } = useQuery({
-    queryKey: MUTATION_AND_QUERY_KEYS.VESIOSUUSKUNNAT,
+  const initialRender = useRef(true);
+
+  const [pageUUID, setPageUUID] = useState<string>('');
+
+  const { data: vesiosuuskunta, refetch } = useQuery({
+    queryKey: MUTATION_AND_QUERY_KEYS.VESIOSUUSKUNTA,
     queryFn: async () => {
-      return (await axios.get('/api/vesiosuuskunta'))
-        .data as GetVesiosuuskunta[];
+      return (await axios.get(`/api/vesiosuuskunta/${pageUUID}`))
+        .data as GetVesiosuuskunta;
     },
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: false,
+    enabled: false,
   });
 
   useEffect(() => {
-    async function fetchVesiosuuskunnat() {
+    setPageUUID(window.location.pathname.split('/vesiosuuskunta/')[1] ?? '');
+  }, []);
+
+  useEffect(() => {
+    async function fetchVesiosuuskunta() {
       try {
-        console.log(vesiosuuskunnat);
+        if (initialRender.current === true) {
+          initialRender.current = false;
+          return;
+        }
+        await refetch();
+        console.log(vesiosuuskunta);
       } catch (e) {
         handleError(e);
       }
     }
-    fetchVesiosuuskunnat();
-  }, [vesiosuuskunnat]);
-
-  if (vesiosuuskunnat && vesiosuuskunnat.length <= 0) {
-    return (
-      <Main user={user}>
-        <div className="flex flex-col items-center">
-          <Button
-            className="mt-1"
-            onClick={() => setShowCreateVesiosuuskuntaModal(true)}
-          >
-            Luo vesiosuuskunta
-          </Button>
-        </div>
-        {showCreateVesiosuuskuntaModal && (
-          <CreateVesiosuuskuntaModal
-            closeModal={() => {
-              setShowCreateVesiosuuskuntaModal(false);
-            }}
-          />
-        )}
-      </Main>
-    );
-  }
+    fetchVesiosuuskunta();
+  }, [pageUUID, vesiosuuskunta]);
 
   return (
     <Main user={user}>
       <div className="flex flex-col items-center">
-        {vesiosuuskunnat?.map((value, index) => {
-          return (
-            <LinkElement
-              href={`/vesiosuuskunta/${value.uuid}`}
-              key={`${value.name}${index}`}
-              className="min-h-12 min-w-80 rounded-lg bg-green-500 text-center text-2xl font-bold wrap-anywhere text-black"
-            >
-              {value.name}
-            </LinkElement>
-          );
-        })}
+        <Button>Jäsenet</Button>
       </div>
     </Main>
   );
