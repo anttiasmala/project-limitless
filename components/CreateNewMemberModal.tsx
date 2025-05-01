@@ -42,7 +42,7 @@ export default function CreateVesiosuuskuntaModal({
   const router = useRouter();
 
   const { mutateAsync } = useMutation({
-    mutationKey: MUTATION_AND_QUERY_KEYS.CREATE_VESIOSUUSKUNTA,
+    mutationKey: MUTATION_AND_QUERY_KEYS.CREATE_MEMBER,
     mutationFn: async () => await axios.post('/api/vesiosuuskunta', formData),
     onSuccess: () => {
       queryClient.clear();
