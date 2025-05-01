@@ -18,6 +18,16 @@ function withLogoutButton({ children }: Main) {
     <main className="h-screen w-full">
       <div className="flex h-full w-full justify-center">
         <div className="w-full bg-gray-200 md:w-1/2">
+          <div className="relative">
+            <button
+              className="absolute z-20 ml-1 font-bold hover:text-blue-500"
+              onClick={() => {
+                window.history.back();
+              }}
+            >
+              Takaisin
+            </button>
+          </div>
           <div className="relative grid justify-items-end">
             <LinkElement
               href="/logout"

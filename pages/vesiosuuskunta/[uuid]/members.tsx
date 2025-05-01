@@ -45,6 +45,16 @@ export default function Home({
     <main className="h-screen w-screen">
       <div className="flex h-full w-full justify-center">
         <div className="w-full bg-gray-200">
+          <div className="relative">
+            <button
+              className="absolute z-20 ml-1 font-bold hover:text-blue-500"
+              onClick={() => {
+                window.history.back();
+              }}
+            >
+              Takaisin
+            </button>
+          </div>
           <Topbar />
           <div className="flex flex-col items-center">
             <div className="flex w-full flex-col">
