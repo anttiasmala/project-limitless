@@ -18,6 +18,7 @@ import CreateVesiosuuskuntaModal from '~/components/CreateVesiosuuskuntaModal';
 import LinkElement from '~/components/LinkElement';
 import { twMerge } from 'tailwind-merge';
 import SvgWaterDrop from '~/icons/water_drop';
+import CreateMemberModal from '~/components/CreateNewMemberModal';
 
 // this checks login status
 export { getServerSideProps };
@@ -28,7 +29,7 @@ export default function Home({
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const [showCreateVesiosuuskuntaModal, setShowCreateVesiosuuskuntaModal] =
+  const [showCreateNewMemberModal, setShowCreateNewMemberModal] =
     useState<boolean>(false);
 
   useEffect(() => {
@@ -200,12 +201,21 @@ export default function Home({
                     })}
                   </TitleParagraph>
                 </div>
-                <button className="absolute top-140 right-1/5">
+                <button
+                  className="absolute top-140 right-1/5 h-0 w-0"
+                  onClick={() => {
+                    setShowCreateNewMemberModal(true);
+                  }}
+                >
                   <SvgWaterDrop width={128} height={128} />
                 </button>
               </div>
             </div>
-            <div className="flex w-full flex-row"></div>
+            {showCreateNewMemberModal && (
+              <CreateMemberModal
+                closeModal={() => setShowCreateNewMemberModal(false)}
+              />
+            )}
           </div>
         </div>
       </div>
