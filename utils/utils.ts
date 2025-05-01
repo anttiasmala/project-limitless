@@ -3,6 +3,7 @@ export const MUTATION_AND_QUERY_KEYS = {
   LOGIN: ['login'],
   LOGOUT: ['logout'],
   CREATE_VESIOSUUSKUNTA: ['createVesiosuuskunta'],
+  CREATE_MEMBER: ['createMember'],
 
   // QUERIES
   VESIOSUUSKUNNAT: ['vesiosuuskunnat'],
