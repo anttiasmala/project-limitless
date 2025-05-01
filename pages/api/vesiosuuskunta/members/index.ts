@@ -65,10 +65,27 @@ async function handlePOST(
     throw new HttpError('Request had invalid data, check it again!', 400);
   }
 
+  const unTrusfulUUID =
+    req.headers.referer?.match(/vesiosuuskunta\/(.+?)\/members/)?.[1] ??
+    undefined;
+
+  if (!unTrusfulUUID) {
+    throw new HttpError(
+      'Request was not sent from correct place, check it again!',
+      400,
+    );
+  }
+  // get vesiosuuskunta
+  const vesiosuuskunta = await prisma.vesiosuuskunta.findFirst({
+    where: {
+      uuid: unTrusfulUUID,
+      ownerUUID: userData.uuid,
+    },
+  });
+
   const dataObject = {
     ...parsedMember.data,
-    ownerUUID: userData.uuid,
-    userUUID: userData.uuid,
+    vesiosuuskuntaUUID: vesiosuuskunta?.uuid ?? '',
   };
 
   const createdVesiosuuskunta = await prisma.member.create({
