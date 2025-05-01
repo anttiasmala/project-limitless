@@ -1,7 +1,10 @@
 import { FormEvent, useState } from 'react';
 import { Button } from './Button';
 import { Input } from './Input';
-import { createVesiosuuskuntaSchema } from '~/shared/zodSchemas';
+import {
+  createMemberSchema,
+  createVesiosuuskuntaSchema,
+} from '~/shared/zodSchemas';
 import handleError from '~/utils/handleError';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MUTATION_AND_QUERY_KEYS } from '~/utils/utils';
@@ -9,24 +12,39 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 
 type Form = {
-  name: string;
+  firstName: string;
+  lastName: string;
   streetAddress?: string;
   zipCode?: string;
   city?: string;
+  phoneNumber?: string;
+  email: string;
+  paid?: string;
+  conncetionPointNumber?: string;
 };
 
 const EMPTY_FORM_DATA: Form = {
-  name: '',
+  firstName: '',
+  lastName: '',
+  email: '',
   streetAddress: '',
   zipCode: '',
   city: '',
+  paid: '',
+  conncetionPointNumber: '',
+  phoneNumber: '',
 };
 
 const EMPTY_FORM_ERRORS = {
-  name: '',
+  firstName: '',
+  lastName: '',
+  email: '',
   streetAddress: '',
   zipCode: '',
   city: '',
+  paid: '',
+  conncetionPointNumber: '',
+  phoneNumber: '',
 };
 
 export default function CreateMemberModal({
@@ -63,14 +81,20 @@ export default function CreateMemberModal({
     }
   }
   function checkFields(): boolean {
-    const formParse = createVesiosuuskuntaSchema.safeParse(formData);
+    const formParse = createMemberSchema.safeParse(formData);
 
     if (formParse.success === false) {
       setFormErrors({
-        name: formParse.error.format().name?._errors[0] || '',
+        firstName: formParse.error.format().firstName?._errors[0] || '',
+        lastName: formParse.error.format().lastName?._errors[0] || '',
+        email: formParse.error.format().email?._errors[0] || '',
         city: formParse.error.format().city?._errors[0] || '',
         streetAddress: formParse.error.format().streetAddress?._errors[0] || '',
         zipCode: formParse.error.format().zipCode?._errors[0] || '',
+        paid: formParse.error.format().paid?._errors[0] || '',
+        conncetionPointNumber:
+          formParse.error.format().connectionPointNumber?._errors[0] || '',
+        phoneNumber: formParse.error.format().phoneNumber?._errors[0] || '',
       });
       return false;
     }
@@ -109,15 +133,15 @@ export default function CreateMemberModal({
                     }));
                   }}
                 />
-                <ErrorText text={formErrors.name} />
+                <ErrorText text={formErrors.firstName} />
               </div>
-              <div className="col-start-2 col-end-2">
+              <div className="col-start-2 col-end-2 ml-5">
                 <label htmlFor="lastName" className="mr-2">
                   Sukunimi: <span className="text-red-400">*</span>
                 </label>
                 <Input
                   name="lastName"
-                  className="m-0 ml-5"
+                  className="m-0"
                   placeholder="Meikäläinen"
                   onChange={(e) => {
                     setFormData((prevData) => ({
@@ -126,7 +150,7 @@ export default function CreateMemberModal({
                     }));
                   }}
                 />
-                <ErrorText text={formErrors.name} />
+                <ErrorText text={formErrors.lastName} />
               </div>
             </div>
             <div className="m-1 grid justify-center">
@@ -148,14 +172,14 @@ export default function CreateMemberModal({
                 />
                 <ErrorText text={formErrors.streetAddress} />
               </div>
-              <div className="col-start-2 col-end-2">
+              <div className="col-start-2 col-end-2 ml-5">
                 <div className="m-1 grid justify-center">
                   <label htmlFor="zipCode" className="mr-2">
                     Postinumero:
                   </label>
                   <Input
                     name="zipCode"
-                    className="m-0 ml-5"
+                    className="m-0"
                     placeholder="00100"
                     type="number"
                     value={formData.zipCode}
@@ -170,7 +194,7 @@ export default function CreateMemberModal({
                 </div>
               </div>
             </div>
-            <div className="m-1 mb-5 grid justify-center">
+            <div className="grid justify-center">
               <div className="col-start-1 col-end-1">
                 <label className="mr-2" htmlFor="city">
                   Postitoimipaikka:
@@ -189,25 +213,25 @@ export default function CreateMemberModal({
                 />
                 <ErrorText text={formErrors.city} />
               </div>
-              <div className="col-start-2 col-end-2">
+              <div className="col-start-2 col-end-2 ml-5">
                 <label className="mr-2" htmlFor="phoneNumber">
                   Puhelinnumero:
                 </label>
                 <Input
                   name="phoneNumber"
-                  className="m-0 ml-5"
+                  className="m-0"
                   placeholder="045 678 0912"
-                  value={formData.streetAddress}
+                  value={formData.phoneNumber}
                   onChange={(e) => {
                     setFormData((prevData) => ({
                       ...prevData,
-                      streetAddress: e.target.value,
+                      phoneNumber: e.target.value,
                     }));
                   }}
                 />
-                <ErrorText text={formErrors.streetAddress} />
+                <ErrorText text={formErrors.phoneNumber} />
               </div>
-              <div className="col-start-1 col-end-1">
+              <div className="col-start-1 col-end-1 mt-2">
                 <label className="mr-2" htmlFor="email">
                   Sähköposti:
                 </label>
@@ -215,20 +239,20 @@ export default function CreateMemberModal({
                   name="email"
                   className="m-0"
                   placeholder="matti.meikalainen@email.com"
-                  value={formData.streetAddress}
+                  value={formData.email}
                   onChange={(e) => {
                     setFormData((prevData) => ({
                       ...prevData,
-                      streetAddress: e.target.value,
+                      email: e.target.value,
                     }));
                   }}
                 />
-                <ErrorText text={formErrors.streetAddress} />
+                <ErrorText text={formErrors.email} />
               </div>
             </div>
             <div className="mt-5 mb-5 flex justify-center">
               <Button type="submit" className="w-72 min-w-72">
-                Luo vesiosuuskunta
+                Luo jäsen
               </Button>
             </div>
           </form>
