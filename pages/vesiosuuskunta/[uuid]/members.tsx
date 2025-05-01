@@ -17,6 +17,7 @@ import axios from 'axios';
 import CreateVesiosuuskuntaModal from '~/components/CreateVesiosuuskuntaModal';
 import LinkElement from '~/components/LinkElement';
 import { twMerge } from 'tailwind-merge';
+import SvgWaterDrop from '~/icons/water_drop';
 
 // this checks login status
 export { getServerSideProps };
@@ -50,6 +51,8 @@ export default function Home({
   useEffect(() => {
     setPageUUID(window.location.pathname.split('/vesiosuuskunta/')[1] ?? '');
     setBaseURL(window.location.href);
+    document.body.classList.remove('bg-gray-500');
+    document.body.classList.add('bg-gray-200');
   }, []);
 
   useEffect(() => {
@@ -69,7 +72,7 @@ export default function Home({
   }, [pageUUID, vesiosuuskunta]);
 
   return (
-    <main className="h-full w-full">
+    <main className="h-screen w-screen">
       <div className="flex h-full w-full justify-center">
         <div className="w-full bg-gray-200">
           <Topbar />
@@ -90,7 +93,7 @@ export default function Home({
                 </div>
                 <div>
                   <TitleParagraph className="sticky top-0 mb-3 bg-gray-200">
-                    Etunimi
+                    Etunimet
                   </TitleParagraph>
 
                   {arrayOfNames.map((v, i) => {
@@ -104,7 +107,12 @@ export default function Home({
 
                   {arrayOfNames.map((v, i) => {
                     return (
-                      <p key={`${v.streetAddress}${i}`}>{v.streetAddress}</p>
+                      <p
+                        key={`${v.streetAddress}${i}`}
+                        className="mr-3 lg:mr-0"
+                      >
+                        {v.streetAddress}
+                      </p>
                     );
                   })}
                 </div>
@@ -132,7 +140,11 @@ export default function Home({
                   </TitleParagraph>
 
                   {arrayOfNames.map((v, i) => {
-                    return <p key={`${v.phoneNumber}${i}`}>{v.phoneNumber}</p>;
+                    return (
+                      <p key={`${v.phoneNumber}${i}`} className="mr-3 lg:mr-0">
+                        {v.phoneNumber}
+                      </p>
+                    );
                   })}
                 </div>
                 <div>
@@ -141,7 +153,11 @@ export default function Home({
                   </TitleParagraph>
 
                   {arrayOfNames.map((v, i) => {
-                    return <p key={`${v.email}${i}`}>{v.email}</p>;
+                    return (
+                      <p key={`${v.email}${i}`} className="mr-3 lg:mr-0">
+                        {v.email}
+                      </p>
+                    );
                   })}
                 </div>
                 <div>
@@ -149,7 +165,11 @@ export default function Home({
                     Maksettu
                   </TitleParagraph>
                   {arrayOfNames.map((v, i) => {
-                    return <p key={`${v.paid}${i}`}>{v.paid}</p>;
+                    return (
+                      <p key={`${v.paid}${i}`} className="mr-3 lg:mr-0">
+                        {v.paid}
+                      </p>
+                    );
                   })}
                 </div>
                 <div>
@@ -171,9 +191,53 @@ export default function Home({
                   </TitleParagraph>
 
                   {arrayOfNames.map((v, i) => {
-                    return <p key={`${v.phoneNumber}${i + 1}`}>-</p>;
+                    return (
+                      <div>
+                        <p key={`${v.comments}${i}`}>-</p>
+                      </div>
+                    );
                   })}
                 </div>
+                <div>
+                  <TitleParagraph>
+                    Muokkaa/Poista
+                    {arrayOfNames.map((v, i) => {
+                      return (
+                        <div key={`${v.comments}${i + 1}`}>
+                          <div className="relative">
+                            <button
+                              className="m-0 p-0"
+                              onClick={() => {
+                                console.log('Muokkaa:', arrayOfNames[i]);
+                              }}
+                            >
+                              <SvgWaterDrop
+                                width={24}
+                                height={24}
+                                className="bg-green-500"
+                              />
+                            </button>
+                            <button
+                              className="m-0 ml-2 p-0"
+                              onClick={() => {
+                                console.log('Poista:', arrayOfNames[i]);
+                              }}
+                            >
+                              <SvgWaterDrop
+                                width={24}
+                                height={24}
+                                className="bg-red-500"
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </TitleParagraph>
+                </div>
+                <button className="absolute top-140 right-1/5">
+                  <SvgWaterDrop width={128} height={128} />
+                </button>
               </div>
             </div>
             <div className="flex w-full flex-row"></div>
