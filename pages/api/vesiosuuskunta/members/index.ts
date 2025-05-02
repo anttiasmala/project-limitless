@@ -51,7 +51,36 @@ async function handleGET(
   res: NextApiResponse,
   userData: GetUser,
 ) {
-  res.status(200).end();
+  const unTrusfulUUID =
+    req.headers.referer?.match(/vesiosuuskunta\/(.+?)\/members/)?.[1] ??
+    undefined;
+
+  if (!unTrusfulUUID) {
+    throw new HttpError(
+      'Request was not sent from incorrect place, check it again!',
+      400,
+    );
+  }
+
+  // check vesiosuuskunta exists with given UUID and user's UUID
+
+  const vesiosuuskunta = await prisma.vesiosuuskunta.findFirstOrThrow({
+    where: {
+      uuid: unTrusfulUUID,
+      ownerUUID: userData.uuid,
+    },
+  });
+  console.log(vesiosuuskunta);
+
+  const vesiosuuskuntaMembers = await prisma.member.findMany({
+    where: {
+      vesiosuuskuntaUUID: vesiosuuskunta.uuid,
+    },
+  });
+
+  console.log(vesiosuuskuntaMembers);
+
+  res.status(200).json(vesiosuuskuntaMembers);
   return;
 }
 
@@ -71,12 +100,12 @@ async function handlePOST(
 
   if (!unTrusfulUUID) {
     throw new HttpError(
-      'Request was not sent from correct place, check it again!',
+      'Request was not sent from incorrect place, check it again!',
       400,
     );
   }
   // get vesiosuuskunta
-  const vesiosuuskunta = await prisma.vesiosuuskunta.findFirst({
+  const vesiosuuskunta = await prisma.vesiosuuskunta.findFirstOrThrow({
     where: {
       uuid: unTrusfulUUID,
       ownerUUID: userData.uuid,
