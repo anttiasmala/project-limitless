@@ -10,6 +10,7 @@ import prisma from '~/prisma';
 import {
   createMemberSchema,
   createVesiosuuskuntaSchema,
+  uuidSchema,
 } from '~/shared/zodSchemas';
 import { Prisma } from '@prisma/client';
 
@@ -90,6 +91,7 @@ async function handlePOST(
   if (parsedMember.success === false) {
     throw new HttpError('Request had invalid data, check it again!', 400);
   }
+  const givenUUID = uuidSchema.safeParse(req.query.uuid);
 
   const unTrusfulUUID =
     req.headers.referer?.match(/vesiosuuskunta\/(.+?)\/members/)?.[1] ??

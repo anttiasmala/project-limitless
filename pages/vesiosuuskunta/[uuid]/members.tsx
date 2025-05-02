@@ -1,5 +1,5 @@
 import { InferGetServerSidePropsType } from 'next';
-import { HTMLAttributes, useEffect, useRef, useState } from 'react';
+import { FormEvent, HTMLAttributes, useEffect, useRef, useState } from 'react';
 import { Button } from '~/components/Button';
 import { Main } from '~/components/Main';
 import { Topbar } from '~/components/Topbar';
@@ -19,6 +19,8 @@ import LinkElement from '~/components/LinkElement';
 import { twMerge } from 'tailwind-merge';
 import SvgWaterDrop from '~/icons/water_drop';
 import CreateMemberModal from '~/components/CreateNewMemberModal';
+import { Input } from '~/components/Input';
+import EditModal from '~/components/EditMemberModal';
 
 // this checks login status
 export { getServerSideProps };
@@ -229,7 +231,7 @@ export default function Home({
                             <button
                               className="m-0 p-0"
                               onClick={() => {
-                                console.log('Muokkaa:', members[i]);
+                                setEditModalData(members[i]);
                               }}
                             >
                               <SvgWaterDrop
@@ -268,6 +270,12 @@ export default function Home({
             {showCreateNewMemberModal && (
               <CreateMemberModal
                 closeModal={() => setShowCreateNewMemberModal(false)}
+              />
+            )}
+            {editModalData && (
+              <EditModal
+                closeModal={() => setEditModalData(null)}
+                memberData={editModalData}
               />
             )}
           </div>
