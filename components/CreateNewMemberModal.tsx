@@ -106,7 +106,7 @@ export default function CreateMemberModal({
       <div className="fixed top-0 left-0 z-99 h-full w-full bg-black opacity-80"></div>
 
       <div className="relative grid w-full justify-items-center">
-        <div className="absolute -bottom-20 z-100 flex flex-col rounded-lg border-4 border-yellow-800 bg-gray-500">
+        <div className="absolute z-100 flex flex-col rounded-lg border-4 border-yellow-800 bg-gray-500">
           <form onSubmit={(e) => void handleSubmit(e)}>
             <div className="flex justify-end">
               <button
