@@ -5,14 +5,14 @@ import {
 } from '~/backend/auth/vesiosuuskunta-auth';
 import { handleError } from '~/backend/handleError';
 import { HttpError } from '~/backend/HttpError';
-import { GetUser } from '~/shared/types';
+import { CreateMember, GetUser } from '~/shared/types';
 import prisma from '~/prisma';
 import {
   createMemberSchema,
   createVesiosuuskuntaSchema,
-  uuidSchema,
 } from '~/shared/zodSchemas';
 import { Prisma } from '@prisma/client';
+import { string } from 'zod';
 
 const HANDLER: Record<
   string,
@@ -91,7 +91,6 @@ async function handlePOST(
   if (parsedMember.success === false) {
     throw new HttpError('Request had invalid data, check it again!', 400);
   }
-  const givenUUID = uuidSchema.safeParse(req.query.uuid);
 
   const unTrusfulUUID =
     req.headers.referer?.match(/vesiosuuskunta\/(.+?)\/members/)?.[1] ??
@@ -111,13 +110,47 @@ async function handlePOST(
     },
   });
 
+  const newParsedMemberObject: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    streetAddress?: string | undefined;
+    zipCode?: string | undefined;
+    city?: string | undefined;
+    phoneNumber?: string | undefined;
+    paid?: string | undefined;
+    connectionPointNumber?: string | undefined;
+    comment?: string | undefined;
+  } = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    connectionPointNumber: '-',
+    comment: '-',
+  };
+  // loop through the answer, if empty fields are found
+  // add a "-" in it
+  for (const key in parsedMember.data) {
+    console.log(parsedMember.data[key as keyof typeof parsedMember.data]);
+    newParsedMemberObject[key as keyof typeof parsedMember.data] =
+      parsedMember.data[key as keyof typeof parsedMember.data] === ''
+        ? '-'
+        : (parsedMember.data[key as keyof typeof parsedMember.data] ?? '');
+  }
+
+  console.log(newParsedMemberObject);
+
   const dataObject = {
-    ...parsedMember.data,
+    ...newParsedMemberObject,
     vesiosuuskuntaUUID: vesiosuuskunta?.uuid ?? '',
   };
 
   const createdVesiosuuskunta = await prisma.member.create({
-    data: dataObject,
+    data: {
+      ...dataObject,
+      comment: newParsedMemberObject.comment,
+      connectionPointNumber: newParsedMemberObject.connectionPointNumber,
+    },
   });
 
   return res.status(200).json(createdVesiosuuskunta);
