@@ -82,4 +82,5 @@ async function handlePATCH(
     },
     data: parsedNewMemberData.data,
   });
+  res.status(200).json(updatedMember);
 }
