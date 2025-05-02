@@ -57,6 +57,7 @@ model Member {
     email                 String
     paid                  String?
     connectionPointNumber String?
+    comment               String?
     createdAt             DateTime        @default(now())
     updatedAt             DateTime        @updatedAt
     vesiosuuskuntaUUID    String
