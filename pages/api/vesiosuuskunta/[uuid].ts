@@ -49,7 +49,6 @@ async function handleGET(
   userData: GetUser,
 ) {
   const givenUUID = z.string().uuid().safeParse(req.query.uuid);
-  console.log(req.query.uuid);
   if (givenUUID.success === false) {
     throw new HttpError('Invalid UUID!', 400);
   }
