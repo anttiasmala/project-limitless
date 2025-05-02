@@ -31,6 +31,10 @@ export default function Home({
 
   const [showCreateNewMemberModal, setShowCreateNewMemberModal] =
     useState<boolean>(false);
+  const [editModalData, setEditModalData] = useState<GetMember | null>(null);
+  const [deleteModalData, setDeleteModalData] = useState<GetMember | null>(
+    null,
+  );
 
   const [pageUUID, setPageUUID] = useState('');
 
