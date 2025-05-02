@@ -214,7 +214,6 @@ export const patchMemberSchema = fullMemberSchema.omit({
   uuid: true,
   createdAt: true,
   updatedAt: true,
-  vesiosuuskuntaUUID: true,
 });
 
 // LOGIN
