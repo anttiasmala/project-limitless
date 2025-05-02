@@ -5,6 +5,8 @@ import { CreateUser } from '~/shared/types';
 import { createUserSchema } from '~/shared/zodSchemas';
 import prisma from '~/prisma';
 import { hashPassword } from '~/backend/utils';
+import { logUserIn } from './login';
+import { authLong } from '~/backend/auth/vesiosuuskunta-auth';
 
 export default async function Register(
   req: NextApiRequest,
@@ -16,9 +18,15 @@ export default async function Register(
     }
     const validateRequestBody = createUserSchema.parse(req.body);
 
-    await createUser(validateRequestBody);
+    const sessionUUID = await createUser(validateRequestBody);
 
-    res.status(200).end();
+    res
+      .appendHeader(
+        'Set-cookie',
+        authLong.createSessionCookie(sessionUUID).serialize(),
+      )
+      .status(200)
+      .end();
   } catch (e) {
     return handleError(res, e);
   }
@@ -32,7 +40,7 @@ async function createUser(userData: CreateUser) {
   });
   // perhaps check if user exists before create a new one?
   // autoincrement seemds to increase even if it doesn't do the user
-  await prisma.user.create({
+  const createdUser = await prisma.user.create({
     data: parsedUserData,
     select: {
       uuid: true,
@@ -43,4 +51,8 @@ async function createUser(userData: CreateUser) {
       updatedAt: true,
     },
   });
+
+  const sessionUUID = await logUserIn(createdUser.uuid);
+
+  return sessionUUID;
 }

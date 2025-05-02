@@ -8,16 +8,16 @@ datasource db {
 }
 
 model User {
-    id             Int              @id @default(autoincrement())
-    uuid           String           @unique @default(uuid())
-    firstName      String
-    lastName       String
-    email          String           @unique
-    password       String
-    createdAt      DateTime         @default(now())
-    updatedAt      DateTime         @updatedAt
-    Session        Session[]
-    Vesiosuuskunta Vesiosuuskunta[]
+    id        Int       @id @default(autoincrement())
+    uuid      String    @unique @default(uuid())
+    firstName String
+    lastName  String
+    email     String    @unique
+    password  String
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    Session   Session[]
+    Member    Member[]
 }
 
 model Session {
@@ -30,36 +30,21 @@ model Session {
     User       User?    @relation(fields: [userUUID], references: [uuid], onDelete: Cascade)
 }
 
-model Vesiosuuskunta {
-    id            Int      @id @default(autoincrement())
-    uuid          String   @unique @default(uuid())
-    name          String
-    streetAddress String?
-    zipCode       String?
-    city          String?
-    ownerUUID     String
-    userUUID      String
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
-    User          User?    @relation(fields: [userUUID], references: [uuid])
-    Member        Member[]
-}
-
 model Member {
-    id                    Int             @id @default(autoincrement())
-    uuid                  String          @unique @default(uuid())
-    lastName              String
+    id                    Int      @id @default(autoincrement())
+    uuid                  String   @unique @default(uuid())
+    userUUID              String
     firstName             String
+    lastName              String
+    email                 String
+    phoneNumber           String?
     streetAddress         String?
     zipCode               String?
     city                  String?
-    phoneNumber           String?
-    email                 String
     paid                  String?
     connectionPointNumber String?
     comment               String?
-    createdAt             DateTime        @default(now())
-    updatedAt             DateTime        @updatedAt
-    vesiosuuskuntaUUID    String
-    Vesiosuuskunta        Vesiosuuskunta? @relation(fields: [vesiosuuskuntaUUID], references: [uuid])
+    createdAt             DateTime @default(now())
+    updatedAt             DateTime @updatedAt
+    User                  User?    @relation(fields: [userUUID], references: [uuid])
 }

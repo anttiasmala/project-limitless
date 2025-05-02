@@ -45,7 +45,7 @@ export default async function Login(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-async function logUserIn(userUUID: string) {
+export async function logUserIn(userUUID: string) {
   const { uuid: sessionUUID } = await authLong.createSession(userUUID);
 
   return sessionUUID;
