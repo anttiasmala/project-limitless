@@ -7,7 +7,7 @@ import { handleError } from '~/backend/handleError';
 import { HttpError } from '~/backend/HttpError';
 import { GetUser } from '~/shared/types';
 import prisma from '~/prisma';
-import { createVesiosuuskuntaSchema } from '~/shared/zodSchemas';
+import { createVesiosuuskuntaSchema, uuidSchema } from '~/shared/zodSchemas';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
@@ -48,7 +48,7 @@ async function handleGET(
   res: NextApiResponse,
   userData: GetUser,
 ) {
-  const givenUUID = z.string().uuid().safeParse(req.query.uuid);
+  const givenUUID = uuidSchema.safeParse(req.query.uuid);
   if (givenUUID.success === false) {
     throw new HttpError('Invalid UUID!', 400);
   }
