@@ -225,7 +225,7 @@ export default function Home({
                             <button
                               className="m-0 p-0"
                               onClick={() => {
-                                console.log('Muokkaa:', arrayOfNames[i]);
+                                console.log('Muokkaa:', members[i]);
                               }}
                             >
                               <SvgWaterDrop
@@ -237,7 +237,7 @@ export default function Home({
                             <button
                               className="m-0 ml-2 p-0"
                               onClick={() => {
-                                console.log('Poista:', arrayOfNames[i]);
+                                console.log('Poista:', members[i]);
                               }}
                             >
                               <SvgWaterDrop
