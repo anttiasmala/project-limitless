@@ -189,6 +189,7 @@ export const fullMemberSchema = z.object({
   vesiosuuskuntaUUID: z
     .string({ message: 'vesiosuuskuntaUUID should be a string' })
     .uuid(),
+  comment: z.string({ message: 'comment should be a string' }).optional(),
 });
 
 export const getMemberSchema = fullMemberSchema.omit({
@@ -205,6 +206,7 @@ export const createMemberSchema = fullMemberSchema.pick({
   email: true,
   paid: true,
   connectionPointNumber: true,
+  comment: true,
 });
 
 // LOGIN

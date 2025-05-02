@@ -14,6 +14,9 @@ import {
   getVesiosuuskuntaSchema,
   createVesiosuuskuntaSchema,
   createUserSchema,
+  fullMemberSchema,
+  getMemberSchema,
+  createMemberSchema,
 } from './zodSchemas';
 
 // USER
@@ -51,6 +54,14 @@ export type FullVesiosuuskunta = z.infer<typeof fullVesiosuuskuntaSchema>;
 export type GetVesiosuuskunta = z.infer<typeof getVesiosuuskuntaSchema>;
 
 export type CreateVesiosuuskunta = z.infer<typeof createVesiosuuskuntaSchema>;
+
+// MEMBER
+
+export type FullMember = z.infer<typeof fullMemberSchema>;
+
+export type GetMember = z.infer<typeof getMemberSchema>;
+
+export type CreateMember = z.infer<typeof createMemberSchema>;
 
 // DATABASE
 
