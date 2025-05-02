@@ -8,6 +8,7 @@ export const MUTATION_AND_QUERY_KEYS = {
   // QUERIES
   VESIOSUUSKUNNAT: ['vesiosuuskunnat'],
   VESIOSUUSKUNTA: ['vesiosuuskunta'],
+  MEMBERS: ['members'],
 };
 
 export const arrayOfNames_debug = [
