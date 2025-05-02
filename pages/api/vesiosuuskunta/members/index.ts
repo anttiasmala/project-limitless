@@ -70,15 +70,12 @@ async function handleGET(
       ownerUUID: userData.uuid,
     },
   });
-  console.log(vesiosuuskunta);
 
   const vesiosuuskuntaMembers = await prisma.member.findMany({
     where: {
       vesiosuuskuntaUUID: vesiosuuskunta.uuid,
     },
   });
-
-  console.log(vesiosuuskuntaMembers);
 
   res.status(200).json(vesiosuuskuntaMembers);
   return;
