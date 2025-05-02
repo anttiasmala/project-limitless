@@ -43,6 +43,7 @@ export default function Home({
     document.body.classList.remove('bg-gray-500');
     document.body.classList.add('bg-gray-200');
     return () => {
+      queryClient.clear();
       document.body.classList.remove('bg-gray-200');
       document.body.classList.add('bg-gray-500');
     };
