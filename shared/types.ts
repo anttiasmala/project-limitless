@@ -17,6 +17,7 @@ import {
   fullMemberSchema,
   getMemberSchema,
   createMemberSchema,
+  patchMemberSchema,
 } from './zodSchemas';
 
 // USER
@@ -62,6 +63,8 @@ export type FullMember = z.infer<typeof fullMemberSchema>;
 export type GetMember = z.infer<typeof getMemberSchema>;
 
 export type CreateMember = z.infer<typeof createMemberSchema>;
+
+export type PatchMember = z.infer<typeof patchMemberSchema>;
 
 // DATABASE
 

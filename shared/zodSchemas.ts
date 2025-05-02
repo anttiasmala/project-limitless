@@ -209,6 +209,14 @@ export const createMemberSchema = fullMemberSchema.pick({
   comment: true,
 });
 
+export const patchMemberSchema = fullMemberSchema.omit({
+  id: true,
+  uuid: true,
+  createdAt: true,
+  updatedAt: true,
+  vesiosuuskuntaUUID: true,
+});
+
 // LOGIN
 
 export const loginSchema = z.object({
