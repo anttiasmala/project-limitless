@@ -22,10 +22,10 @@ export default function Home({
         <Button
           className="mt-1"
           onClick={() => {
-            router.push('/vesiosuuskunta').catch((e) => console.error(e));
+            router.push('/members').catch((e) => console.error(e));
           }}
         >
-          Vesiosuuskunta
+          Jäsenet
         </Button>
       </div>
     </Main>
