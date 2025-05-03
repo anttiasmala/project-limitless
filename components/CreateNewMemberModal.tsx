@@ -78,6 +78,7 @@ export default function CreateMemberModal({
         return;
       }
       await mutateAsync();
+      closeModal();
     } catch (e) {
       handleError(e);
     }
@@ -108,8 +109,8 @@ export default function CreateMemberModal({
     <div>
       <div className="fixed top-0 left-0 z-99 h-full w-full bg-black opacity-80"></div>
 
-      <div className="relative grid w-full justify-items-center">
-        <div className="absolute bottom-100 z-100 flex flex-col rounded-lg border-4 border-yellow-800 bg-gray-500">
+      <div className="absolute top-0 grid w-full justify-items-center md:top-1/5">
+        <div className="z-100 flex flex-col rounded-lg border-4 border-yellow-800 bg-gray-500">
           <form onSubmit={(e) => void handleSubmit(e)}>
             <div className="flex justify-end">
               <button
@@ -120,7 +121,7 @@ export default function CreateMemberModal({
                 Sulje
               </button>
             </div>
-            <div className="m-1 grid grid-cols-2 justify-center">
+            <div className="m-1 grid justify-center md:grid-cols-2">
               <InputBlock
                 htmlForAndName="firstName"
                 inputPlaceholder="Matti"
