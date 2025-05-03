@@ -166,8 +166,8 @@ export default function Home({
           )}
           {deleteModalData && (
             <DeleteModal
-              memberData={deleteModalData}
               closeModal={() => setDeleteModalData(null)}
+              memberData={deleteModalData}
             />
           )}
           {showCreateNewMemberModal && (
