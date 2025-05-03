@@ -55,7 +55,7 @@ export default function DeleteModal({
   const router = useRouter();
 
   const { mutateAsync } = useMutation({
-    mutationKey: MUTATION_AND_QUERY_KEYS.CREATE_MEMBER,
+    mutationKey: MUTATION_AND_QUERY_KEYS.DELETE_MEMBER,
     mutationFn: async () => {
       await axios.delete(`/api/members/${memberData.uuid}`);
     },
@@ -64,6 +64,16 @@ export default function DeleteModal({
         queryKey: MUTATION_AND_QUERY_KEYS.MEMBERS,
       }),
   });
+
+  async function handleClick() {
+    try {
+      await mutateAsync();
+      closeModal();
+      return;
+    } catch (e) {
+      handleError(e);
+    }
+  }
 
   return (
     <div>
@@ -85,7 +95,11 @@ export default function DeleteModal({
             <p className="font-bold">Sukunimi: {memberData.lastName}</p>
           </div>
           <div className="mt-5 mb-5 flex justify-center">
-            <Button type="submit" className="w-72 min-w-72">
+            <Button
+              type="submit"
+              className="w-72 min-w-72"
+              onClick={() => void handleClick()}
+            >
               Poista jäsen
             </Button>
           </div>
