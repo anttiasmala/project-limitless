@@ -86,10 +86,13 @@ export default function Home({
             </button>
           </div>
           <Topbar />
-          <div className="grid justify-center">
+          <div className="grid grid-cols-4 justify-center">
             {arrayOfNames.map((v, i) => {
               return (
-                <div className="m-3 grid border border-black">
+                <div
+                  key={`parentDiv${i}`}
+                  className="m-3 grid border border-black"
+                >
                   <p>Sukunimi: {v.lastName}</p>
                   <p>Etunimi: {v.firstName}</p>
                   <p>Katuosoite: {v.streetAddress}</p>
