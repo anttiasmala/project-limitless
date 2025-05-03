@@ -21,7 +21,7 @@ type Form = {
   phoneNumber?: string;
   email: string;
   paid?: string;
-  conncetionPointNumber?: string;
+  connectionPointNumber?: string;
   comment?: string;
 };
 
@@ -33,7 +33,7 @@ const EMPTY_FORM_DATA = {
   zipCode: '',
   city: '',
   paid: '',
-  conncetionPointNumber: '',
+  connectionPointNumber: '',
   phoneNumber: '',
   comment: '',
 };
@@ -90,7 +90,7 @@ export default function EditModal({
         streetAddress: formParse.error.format().streetAddress?._errors[0] || '',
         zipCode: formParse.error.format().zipCode?._errors[0] || '',
         paid: formParse.error.format().paid?._errors[0] || '',
-        conncetionPointNumber:
+        connectionPointNumber:
           formParse.error.format().connectionPointNumber?._errors[0] || '',
         phoneNumber: formParse.error.format().phoneNumber?._errors[0] || '',
         comment: formParse.error.format().comment?._errors[0] || '',
@@ -122,53 +122,83 @@ export default function EditModal({
                 inputPlaceholder="Matti"
                 labelText="Etunimi"
                 isRequired={true}
+                errorText={formErrors.firstName}
+                setFormData={setFormData}
+                inputValue={formData.firstName}
               />
               <InputBlock
                 htmlForAndName="lastName"
                 inputPlaceholder="Meikäläinen"
                 labelText="Sukunimi"
                 isRequired={true}
+                errorText={formErrors.lastName}
+                setFormData={setFormData}
+                inputValue={formData.lastName}
               />
               <InputBlock
                 htmlForAndName="email"
                 inputPlaceholder="matti.meikalainen@email.com"
                 labelText="Sähköposti"
                 isRequired={true}
+                errorText={formErrors.email}
+                setFormData={setFormData}
+                inputValue={formData.email}
               />
               <InputBlock
                 htmlForAndName="phoneNumber"
                 inputPlaceholder="045 678 9012"
                 labelText="Puhelinnumero"
+                errorText={formErrors.phoneNumber}
+                setFormData={setFormData}
+                inputValue={formData.phoneNumber}
               />
               <InputBlock
                 htmlForAndName="streetAddress"
                 inputPlaceholder="Mannerheimintie 30"
                 labelText="Katuosoite"
+                errorText={formErrors.streetAddress}
+                setFormData={setFormData}
+                inputValue={formData.streetAddress}
               />
               <InputBlock
                 htmlForAndName="zipCode"
                 inputPlaceholder="00100"
                 labelText="Postinumero"
+                errorText={formErrors.zipCode}
+                setFormData={setFormData}
+                inputValue={formData.zipCode}
               />
               <InputBlock
                 htmlForAndName="city"
                 inputPlaceholder="Helsinki"
                 labelText="Postitoimipaikka"
+                errorText={formErrors.city}
+                setFormData={setFormData}
+                inputValue={formData.city}
               />
               <InputBlock
                 htmlForAndName="paid"
                 inputPlaceholder="1/1/1970"
                 labelText="Maksettu"
+                errorText={formErrors.paid}
+                setFormData={setFormData}
+                inputValue={formData.paid}
               />
               <InputBlock
                 htmlForAndName="connectionPointNumber"
                 inputPlaceholder="K111"
                 labelText="Liittymän nro"
+                errorText={formErrors.connectionPointNumber}
+                setFormData={setFormData}
+                inputValue={formData.connectionPointNumber}
               />
               <InputBlock
                 htmlForAndName="comment"
                 inputPlaceholder="500 metriä putkea kaivettu"
                 labelText="Kommenttikenttä"
+                errorText={formErrors.comment}
+                setFormData={setFormData}
+                inputValue={formData.comment}
               />
             </div>
             <div className="mt-5 mb-5 flex justify-center">
@@ -195,18 +225,66 @@ function InputBlock({
   labelText,
   inputPlaceholder,
   isRequired,
+  errorText,
+  setFormData,
+  inputValue,
 }: {
   htmlForAndName: string;
   labelText: string;
   inputPlaceholder: string;
   isRequired?: boolean;
+  errorText: string;
+  setFormData: Dispatch<SetStateAction<Form>>;
+  inputValue?: string;
 }) {
   return (
     <div className="m-2 grid">
       <label htmlFor={htmlForAndName}>
         {labelText}: {isRequired && <span className="text-red-500">*</span>}
       </label>
-      <Input name={htmlForAndName} placeholder={inputPlaceholder} />
+      <Input
+        name={htmlForAndName}
+        placeholder={inputPlaceholder}
+        value={inputValue || ''}
+        onChange={(e) =>
+          setFormData((prevData) => ({
+            ...prevData,
+            firstName: e.target.value,
+          }))
+        }
+      />
+      <ErrorText text={errorText || ''} />
+    </div>
+  );
+}
+
+function FirstNameBlock({
+  setFormData,
+  formData,
+  formErrors,
+}: {
+  setFormData: Dispatch<SetStateAction<Form>>;
+  formData: Form;
+  formErrors: typeof EMPTY_FORM_ERRORS;
+}) {
+  return (
+    <div>
+      <label htmlFor="firstName" className="mr-2">
+        Etunimi: <span className="text-red-400">*</span>
+      </label>
+      <Input
+        name="firstName"
+        className="m-0"
+        placeholder="Matti"
+        value={formData.firstName}
+        onChange={(e) => {
+          setFormData((prevData) => ({
+            ...prevData,
+            firstName: e.target.value,
+          }));
+        }}
+      />
+      <ErrorText text={formErrors.firstName} />
     </div>
   );
 }
