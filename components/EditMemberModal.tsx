@@ -56,11 +56,13 @@ export default function EditModal({
 
   const { mutateAsync } = useMutation({
     mutationKey: MUTATION_AND_QUERY_KEYS.CREATE_MEMBER,
-    mutationFn: async () =>
-      await axios.patch(`/api/members/${memberData.uuid}`, formData),
-    onSuccess: () => {
-      queryClient.clear();
+    mutationFn: async () => {
+      await axios.patch(`/api/members/${memberData.uuid}`, formData);
     },
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: MUTATION_AND_QUERY_KEYS.MEMBERS,
+      }),
   });
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -71,6 +73,7 @@ export default function EditModal({
         return;
       }
       await mutateAsync();
+      closeModal();
     } catch (e) {
       handleError(e);
     }
@@ -101,8 +104,8 @@ export default function EditModal({
     <div>
       <div className="fixed top-0 left-0 z-99 h-full w-full bg-black opacity-80"></div>
 
-      <div className="relative grid w-full justify-items-center">
-        <div className="absolute bottom-100 z-100 flex flex-col rounded-lg border-4 border-yellow-800 bg-gray-500">
+      <div className="absolute top-0 grid w-full justify-items-center md:top-1/5">
+        <div className="z-100 flex flex-col rounded-lg border-4 border-yellow-800 bg-gray-500">
           <form onSubmit={(e) => void handleSubmit(e)}>
             <div className="flex justify-end">
               <button
@@ -113,17 +116,7 @@ export default function EditModal({
                 Sulje
               </button>
             </div>
-            <div className="grid grid-cols-2">
-              <InputBlock
-                htmlForAndName="firstName"
-                inputPlaceholder="Matti"
-                labelText="Etunimi"
-                isRequired={true}
-                errorText={formErrors.firstName}
-                setFormData={setFormData}
-                setFormDataKeyName="firstName"
-                inputValue={formData.firstName}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2">
               <InputBlock
                 htmlForAndName="lastName"
                 inputPlaceholder="Meikäläinen"
@@ -135,23 +128,14 @@ export default function EditModal({
                 inputValue={formData.lastName}
               />
               <InputBlock
-                htmlForAndName="email"
-                inputPlaceholder="matti.meikalainen@email.com"
-                labelText="Sähköposti"
+                htmlForAndName="firstName"
+                inputPlaceholder="Matti"
+                labelText="Etunimi"
                 isRequired={true}
-                errorText={formErrors.email}
+                errorText={formErrors.firstName}
                 setFormData={setFormData}
-                setFormDataKeyName="email"
-                inputValue={formData.email}
-              />
-              <InputBlock
-                htmlForAndName="phoneNumber"
-                inputPlaceholder="045 678 9012"
-                labelText="Puhelinnumero"
-                errorText={formErrors.phoneNumber}
-                setFormData={setFormData}
-                setFormDataKeyName="phoneNumber"
-                inputValue={formData.phoneNumber}
+                setFormDataKeyName="firstName"
+                inputValue={formData.firstName}
               />
               <InputBlock
                 htmlForAndName="streetAddress"
@@ -179,6 +163,25 @@ export default function EditModal({
                 setFormData={setFormData}
                 setFormDataKeyName="city"
                 inputValue={formData.city}
+              />
+              <InputBlock
+                htmlForAndName="email"
+                inputPlaceholder="matti.meikalainen@email.com"
+                labelText="Sähköposti"
+                isRequired={true}
+                errorText={formErrors.email}
+                setFormData={setFormData}
+                setFormDataKeyName="email"
+                inputValue={formData.email}
+              />
+              <InputBlock
+                htmlForAndName="phoneNumber"
+                inputPlaceholder="045 678 9012"
+                labelText="Puhelinnumero"
+                errorText={formErrors.phoneNumber}
+                setFormData={setFormData}
+                setFormDataKeyName="phoneNumber"
+                inputValue={formData.phoneNumber}
               />
               <InputBlock
                 htmlForAndName="paid"
