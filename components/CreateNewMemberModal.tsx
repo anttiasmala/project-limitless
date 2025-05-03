@@ -20,7 +20,8 @@ type Form = {
   phoneNumber?: string;
   email: string;
   paid?: string;
-  conncetionPointNumber?: string;
+  connectionPointNumber?: string;
+  comment?: string;
 };
 
 const EMPTY_FORM_DATA: Form = {
@@ -31,8 +32,9 @@ const EMPTY_FORM_DATA: Form = {
   zipCode: '',
   city: '',
   paid: '',
-  conncetionPointNumber: '',
+  connectionPointNumber: '',
   phoneNumber: '',
+  comment: '',
 };
 
 const EMPTY_FORM_ERRORS = {
@@ -43,8 +45,9 @@ const EMPTY_FORM_ERRORS = {
   zipCode: '',
   city: '',
   paid: '',
-  conncetionPointNumber: '',
+  connectionPointNumber: '',
   phoneNumber: '',
+  comment: '',
 };
 
 export default function CreateMemberModal({
@@ -61,8 +64,7 @@ export default function CreateMemberModal({
 
   const { mutateAsync } = useMutation({
     mutationKey: MUTATION_AND_QUERY_KEYS.CREATE_MEMBER,
-    mutationFn: async () =>
-      await axios.post('/api/vesiosuuskunta/members', formData),
+    mutationFn: async () => await axios.post('/api/members', formData),
     onSuccess: () => {
       queryClient.clear();
     },
@@ -92,9 +94,10 @@ export default function CreateMemberModal({
         streetAddress: formParse.error.format().streetAddress?._errors[0] || '',
         zipCode: formParse.error.format().zipCode?._errors[0] || '',
         paid: formParse.error.format().paid?._errors[0] || '',
-        conncetionPointNumber:
-          formParse.error.format().connectionPointNumber?._errors[0] || '',
         phoneNumber: formParse.error.format().phoneNumber?._errors[0] || '',
+        connectionPointNumber:
+          formParse.error.format().connectionPointNumber?._errors[0] || '',
+        comment: formParse.error.format().comment?._errors[0] || '',
       });
       return false;
     }
@@ -106,7 +109,7 @@ export default function CreateMemberModal({
       <div className="fixed top-0 left-0 z-99 h-full w-full bg-black opacity-80"></div>
 
       <div className="relative grid w-full justify-items-center">
-        <div className="absolute z-100 flex flex-col rounded-lg border-4 border-yellow-800 bg-gray-500">
+        <div className="absolute bottom-100 z-100 flex flex-col rounded-lg border-4 border-yellow-800 bg-gray-500">
           <form onSubmit={(e) => void handleSubmit(e)}>
             <div className="flex justify-end">
               <button
@@ -117,62 +120,100 @@ export default function CreateMemberModal({
                 Sulje
               </button>
             </div>
-            <div className="m-1 grid justify-center">
-              <div className="col-start-1 col-end-1">
-                <FirstNameBlock
-                  setFormData={setFormData}
-                  formData={formData}
-                  formErrors={formErrors}
-                ></FirstNameBlock>
-              </div>
-              <div className="col-start-2 col-end-2 ml-5">
-                <LastNameBlock
-                  setFormData={setFormData}
-                  formData={formData}
-                  formErrors={formErrors}
-                ></LastNameBlock>
-              </div>
-            </div>
-            <div className="m-1 grid justify-center">
-              <div className="col-start-1 col-end-1">
-                <EmailBlock
-                  setFormData={setFormData}
-                  formData={formData}
-                  formErrors={formErrors}
-                ></EmailBlock>
-              </div>
-              <div className="col-start-2 col-end-2 ml-5">
-                <div className="m-1 grid justify-center">
-                  <PhoneNumberBlock
-                    setFormData={setFormData}
-                    formData={formData}
-                    formErrors={formErrors}
-                  ></PhoneNumberBlock>
-                </div>
-              </div>
-            </div>
-            <div className="grid justify-center">
-              <div className="col-start-1 col-end-1">
-                <StreetAddressBlock
-                  setFormData={setFormData}
-                  formData={formData}
-                  formErrors={formErrors}
-                ></StreetAddressBlock>
-              </div>
-              <div className="col-start-2 col-end-2 ml-5">
-                <ZipCodeBlock
-                  setFormData={setFormData}
-                  formData={formData}
-                  formErrors={formErrors}
-                ></ZipCodeBlock>
-              </div>
-              <div className="col-start-1 col-end-1 mt-2">
-                <CityBlock
-                  setFormData={setFormData}
-                  formData={formData}
-                  formErrors={formErrors}
-                ></CityBlock>
-              </div>
+            <div className="m-1 grid grid-cols-2 justify-center">
+              <InputBlock
+                htmlForAndName="firstName"
+                inputPlaceholder="Matti"
+                labelText="Etunimi"
+                isRequired={true}
+                errorText={formErrors.firstName}
+                setFormData={setFormData}
+                setFormDataKeyName="firstName"
+                inputValue={formData.firstName}
+              />
+              <InputBlock
+                htmlForAndName="lastName"
+                inputPlaceholder="Meikäläinen"
+                labelText="Sukunimi"
+                isRequired={true}
+                errorText={formErrors.lastName}
+                setFormData={setFormData}
+                setFormDataKeyName="lastName"
+                inputValue={formData.lastName}
+              />
+              <InputBlock
+                htmlForAndName="email"
+                inputPlaceholder="matti.meikalainen@email.com"
+                labelText="Sähköposti"
+                isRequired={true}
+                errorText={formErrors.email}
+                setFormData={setFormData}
+                setFormDataKeyName="email"
+                inputValue={formData.email}
+              />
+              <InputBlock
+                htmlForAndName="phoneNumber"
+                inputPlaceholder="045 678 9012"
+                labelText="Puhelinnumero"
+                errorText={formErrors.phoneNumber}
+                setFormData={setFormData}
+                setFormDataKeyName="phoneNumber"
+                inputValue={formData.phoneNumber}
+              />
+              <InputBlock
+                htmlForAndName="streetAddress"
+                inputPlaceholder="Mannerheimintie 30"
+                labelText="Katuosoite"
+                errorText={formErrors.streetAddress}
+                setFormData={setFormData}
+                setFormDataKeyName="streetAddress"
+                inputValue={formData.streetAddress}
+              />
+              <InputBlock
+                htmlForAndName="zipCode"
+                inputPlaceholder="00100"
+                labelText="Postinumero"
+                errorText={formErrors.zipCode}
+                setFormData={setFormData}
+                setFormDataKeyName="zipCode"
+                inputValue={formData.zipCode}
+              />
+              <InputBlock
+                htmlForAndName="city"
+                inputPlaceholder="Helsinki"
+                labelText="Postitoimipaikka"
+                errorText={formErrors.city}
+                setFormData={setFormData}
+                setFormDataKeyName="city"
+                inputValue={formData.city}
+              />
+              <InputBlock
+                htmlForAndName="paid"
+                inputPlaceholder="1/1/1970"
+                labelText="Maksettu"
+                errorText={formErrors.paid}
+                setFormData={setFormData}
+                setFormDataKeyName="paid"
+                inputValue={formData.paid}
+              />
+              <InputBlock
+                htmlForAndName="connectionPointNumber"
+                inputPlaceholder="K111"
+                labelText="Liittymän nro"
+                errorText={formErrors.connectionPointNumber}
+                setFormData={setFormData}
+                setFormDataKeyName="connectionPointNumber"
+                inputValue={formData.connectionPointNumber}
+              />
+              <InputBlock
+                htmlForAndName="comment"
+                inputPlaceholder="500 metriä putkea kaivettu"
+                labelText="Kommenttikenttä"
+                errorText={formErrors.comment}
+                setFormData={setFormData}
+                setFormDataKeyName="comment"
+                inputValue={formData.comment}
+              />
             </div>
             <div className="mt-5 mb-5 flex justify-center">
               <Button type="submit" className="w-72 min-w-72">
@@ -193,220 +234,42 @@ function ErrorText({ text }: { text: string }) {
   return null;
 }
 
-function FirstNameBlock({
+function InputBlock({
+  htmlForAndName,
+  labelText,
+  inputPlaceholder,
+  isRequired,
+  errorText,
   setFormData,
-  formData,
-  formErrors,
+  setFormDataKeyName,
+  inputValue,
 }: {
+  htmlForAndName: string;
+  labelText: string;
+  inputPlaceholder: string;
+  isRequired?: boolean;
+  errorText: string;
   setFormData: Dispatch<SetStateAction<Form>>;
-  formData: Form;
-  formErrors: typeof EMPTY_FORM_ERRORS;
+  setFormDataKeyName: keyof Form;
+  inputValue?: string;
 }) {
   return (
-    <div>
-      <label htmlFor="firstName" className="mr-2">
-        Etunimi: <span className="text-red-400">*</span>
+    <div className="m-2 grid">
+      <label htmlFor={htmlForAndName}>
+        {labelText}: {isRequired && <span className="text-red-500">*</span>}
       </label>
       <Input
-        name="firstName"
-        className="m-0"
-        placeholder="Matti"
-        value={formData.firstName}
-        onChange={(e) => {
+        name={htmlForAndName}
+        placeholder={inputPlaceholder}
+        value={inputValue || ''}
+        onChange={(e) =>
           setFormData((prevData) => ({
             ...prevData,
-            firstName: e.target.value,
-          }));
-        }}
+            [setFormDataKeyName]: e.target.value,
+          }))
+        }
       />
-      <ErrorText text={formErrors.firstName} />
-    </div>
-  );
-}
-
-function LastNameBlock({
-  setFormData,
-  formData,
-  formErrors,
-}: {
-  setFormData: Dispatch<SetStateAction<Form>>;
-  formData: Form;
-  formErrors: typeof EMPTY_FORM_ERRORS;
-}) {
-  return (
-    <div>
-      <label htmlFor="lastName" className="mr-2">
-        Sukunimi: <span className="text-red-400">*</span>
-      </label>
-      <Input
-        name="lastName"
-        className="m-0"
-        placeholder="Meikäläinen"
-        value={formData.lastName}
-        onChange={(e) => {
-          setFormData((prevData) => ({
-            ...prevData,
-            lastName: e.target.value,
-          }));
-        }}
-      />
-      <ErrorText text={formErrors.lastName} />
-    </div>
-  );
-}
-
-function StreetAddressBlock({
-  setFormData,
-  formData,
-  formErrors,
-}: {
-  setFormData: Dispatch<SetStateAction<Form>>;
-  formData: Form;
-  formErrors: typeof EMPTY_FORM_ERRORS;
-}) {
-  return (
-    <div>
-      <label className="mr-2" htmlFor="streetAddress">
-        Katuosoite:
-      </label>
-      <Input
-        name="streetAddress"
-        className="m-0"
-        placeholder="Mannerheimintie 30"
-        value={formData.streetAddress}
-        onChange={(e) => {
-          setFormData((prevData) => ({
-            ...prevData,
-            streetAddress: e.target.value,
-          }));
-        }}
-      />
-      <ErrorText text={formErrors.streetAddress} />
-    </div>
-  );
-}
-
-function ZipCodeBlock({
-  setFormData,
-  formData,
-  formErrors,
-}: {
-  setFormData: Dispatch<SetStateAction<Form>>;
-  formData: Form;
-  formErrors: typeof EMPTY_FORM_ERRORS;
-}) {
-  return (
-    <div>
-      <label htmlFor="zipCode" className="mr-2">
-        Postinumero:
-      </label>
-      <Input
-        name="zipCode"
-        className="m-0"
-        placeholder="00100"
-        type="number"
-        value={formData.zipCode}
-        onChange={(e) => {
-          setFormData((prevData) => ({
-            ...prevData,
-            zipCode: e.target.value,
-          }));
-        }}
-      />
-      <ErrorText text={formErrors.zipCode} />
-    </div>
-  );
-}
-
-function CityBlock({
-  setFormData,
-  formData,
-  formErrors,
-}: {
-  setFormData: Dispatch<SetStateAction<Form>>;
-  formData: Form;
-  formErrors: typeof EMPTY_FORM_ERRORS;
-}) {
-  return (
-    <div>
-      <label className="mr-2" htmlFor="city">
-        Postitoimipaikka:
-      </label>
-      <Input
-        name="city"
-        className="m-0"
-        placeholder="Helsinki"
-        value={formData.city}
-        onChange={(e) => {
-          setFormData((prevData) => ({
-            ...prevData,
-            city: e.target.value,
-          }));
-        }}
-      />
-      <ErrorText text={formErrors.city} />
-    </div>
-  );
-}
-
-function PhoneNumberBlock({
-  setFormData,
-  formData,
-  formErrors,
-}: {
-  setFormData: Dispatch<SetStateAction<Form>>;
-  formData: Form;
-  formErrors: typeof EMPTY_FORM_ERRORS;
-}) {
-  return (
-    <div>
-      <label className="mr-2" htmlFor="phoneNumber">
-        Puhelinnumero:
-      </label>
-      <Input
-        name="phoneNumber"
-        className="m-0"
-        placeholder="045 678 0912"
-        value={formData.phoneNumber}
-        onChange={(e) => {
-          setFormData((prevData) => ({
-            ...prevData,
-            phoneNumber: e.target.value,
-          }));
-        }}
-      />
-      <ErrorText text={formErrors.phoneNumber} />
-    </div>
-  );
-}
-
-function EmailBlock({
-  setFormData,
-  formData,
-  formErrors,
-}: {
-  setFormData: Dispatch<SetStateAction<Form>>;
-  formData: Form;
-  formErrors: typeof EMPTY_FORM_ERRORS;
-}) {
-  return (
-    <div>
-      <label className="mr-2" htmlFor="email">
-        Sähköposti: <span className="text-red-400">*</span>
-      </label>
-      <Input
-        name="email"
-        className="m-0"
-        placeholder="matti.meikalainen@email.com"
-        value={formData.email}
-        onChange={(e) => {
-          setFormData((prevData) => ({
-            ...prevData,
-            email: e.target.value,
-          }));
-        }}
-      />
-      <ErrorText text={formErrors.email} />
+      <ErrorText text={errorText || ''} />
     </div>
   );
 }
