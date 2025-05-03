@@ -92,7 +92,7 @@ async function handleDELETE(
   const memberUUID = uuidSchema.safeParse(req.query.uuid);
 
   if (memberUUID.success === false) {
-    throw new HttpError('Wrong UUID, check it again!', 400);
+    throw new HttpError('Invalid UUID, check it again!', 400);
   }
 
   await prisma.member.delete({
@@ -101,4 +101,7 @@ async function handleDELETE(
       userUUID: userData.uuid,
     },
   });
+
+  res.status(200).end();
+  return;
 }
