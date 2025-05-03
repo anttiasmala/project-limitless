@@ -10,6 +10,7 @@ import prisma from '~/prisma';
 import {
   createMemberSchema,
   createVesiosuuskuntaSchema,
+  patchMemberSchema,
 } from '~/shared/zodSchemas';
 import { Prisma } from '@prisma/client';
 
@@ -22,7 +23,7 @@ const HANDLER: Record<
   ) => Promise<void>
 > = {
   GET: handleGET,
-  POST: handlePOST,
+  PATCH: handlePATCH,
 };
 
 export default async function handleMembersRequests(
@@ -51,25 +52,16 @@ async function handleGET(
   res: NextApiResponse,
   userData: GetUser,
 ) {
-  const members = await prisma.member.findMany({
-    where: {
-      userUUID: userData.uuid,
-    },
-    omit: {
-      id: true,
-    },
-  });
-
-  res.status(200).json(members);
+  res.status(200).end();
   return;
 }
 
-async function handlePOST(
+async function handlePATCH(
   req: NextApiRequest,
   res: NextApiResponse,
   userData: GetUser,
 ) {
-  const parsedMember = createMemberSchema.safeParse(req.body);
+  const parsedMember = patchMemberSchema.safeParse(req.body);
   if (parsedMember.success === false) {
     throw new HttpError('Request had invalid data, check it again!', 400);
   }
@@ -79,9 +71,13 @@ async function handlePOST(
     userUUID: userData.uuid,
   };
 
-  const createdMember = await prisma.member.create({
+  const updatedMember = await prisma.member.update({
+    where: {
+      userUUID: userData.uuid,
+      uuid: parsedMember.data.uuid,
+    },
     data: dataObject,
   });
 
-  return res.status(200).json(createdMember);
+  return res.status(200).json(updatedMember);
 }
