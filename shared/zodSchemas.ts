@@ -166,16 +166,17 @@ export const createVesiosuuskuntaSchema = fullVesiosuuskuntaSchema.pick({
 export const fullMemberSchema = z.object({
   id: z.number(),
   uuid: uuidSchema,
-  lastName: lastNameSchema,
+  userUUID: uuidSchema,
   firstName: firstNameSchema,
-  streetAddress: streetAddressSchema,
-  zipCode: zipCodeSchema,
-  city: citySchema,
+  lastName: lastNameSchema,
+  email: emailSchema,
   phoneNumber: z
     .string({ message: 'Phonenumber should be a string' })
     .max(128, 'Phonenumber is too long')
     .optional(),
-  email: emailSchema,
+  streetAddress: streetAddressSchema,
+  zipCode: zipCodeSchema,
+  city: citySchema,
   paid: z
     .string({ message: 'Paid should be a string' })
     .max(128, 'Paid is too long')
@@ -184,12 +185,9 @@ export const fullMemberSchema = z.object({
     .string({ message: 'Connection point number should be a string' })
     .max(128, 'Connection point number is too long')
     .optional(),
+  comment: z.string({ message: 'comment should be a string' }).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  vesiosuuskuntaUUID: z
-    .string({ message: 'vesiosuuskuntaUUID should be a string' })
-    .uuid(),
-  comment: z.string({ message: 'comment should be a string' }).optional(),
 });
 
 export const getMemberSchema = fullMemberSchema.omit({
@@ -197,13 +195,13 @@ export const getMemberSchema = fullMemberSchema.omit({
 });
 
 export const createMemberSchema = fullMemberSchema.pick({
-  lastName: true,
   firstName: true,
+  lastName: true,
+  email: true,
+  phoneNumber: true,
   streetAddress: true,
   zipCode: true,
   city: true,
-  phoneNumber: true,
-  email: true,
   paid: true,
   connectionPointNumber: true,
   comment: true,
