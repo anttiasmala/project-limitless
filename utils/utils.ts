@@ -1,9 +1,11 @@
 export const MUTATION_AND_QUERY_KEYS = {
+  // MUTATIONS
   REGISTER: ['register'],
   LOGIN: ['login'],
   LOGOUT: ['logout'],
   CREATE_VESIOSUUSKUNTA: ['createVesiosuuskunta'],
   CREATE_MEMBER: ['createMember'],
+  DELETE_MEMBER: ['deleteMember'],
 
   // QUERIES
   VESIOSUUSKUNNAT: ['vesiosuuskunnat'],
