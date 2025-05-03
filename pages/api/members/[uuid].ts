@@ -11,6 +11,7 @@ import {
   createMemberSchema,
   createVesiosuuskuntaSchema,
   patchMemberSchema,
+  uuidSchema,
 } from '~/shared/zodSchemas';
 import { Prisma } from '@prisma/client';
 
@@ -24,6 +25,7 @@ const HANDLER: Record<
 > = {
   GET: handleGET,
   PATCH: handlePATCH,
+  DELETE: handleDELETE,
 };
 
 export default async function handleMembersRequests(
@@ -80,4 +82,23 @@ async function handlePATCH(
   });
 
   return res.status(200).json(updatedMember);
+}
+
+async function handleDELETE(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  userData: GetUser,
+) {
+  const memberUUID = uuidSchema.safeParse(req.query.uuid);
+
+  if (memberUUID.success === false) {
+    throw new HttpError('Wrong UUID, check it again!', 400);
+  }
+
+  await prisma.member.delete({
+    where: {
+      uuid: memberUUID.data,
+      userUUID: userData.uuid,
+    },
+  });
 }
