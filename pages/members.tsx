@@ -23,7 +23,7 @@ import { Input } from '~/components/Input';
 import EditModal from '~/components/EditMemberModal';
 import SvgPlus from '~/icons/plus';
 import SvgFile from '~/icons/file';
-import DeleteModal from '~/components/DeleteMemberModal copy';
+import DeleteModal from '~/components/DeleteMemberModal';
 
 // this checks login status
 export { getServerSideProps };
