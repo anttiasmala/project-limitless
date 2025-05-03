@@ -209,7 +209,6 @@ export const createMemberSchema = fullMemberSchema.pick({
 
 export const patchMemberSchema = fullMemberSchema.omit({
   id: true,
-  uuid: true,
   createdAt: true,
   updatedAt: true,
 });
