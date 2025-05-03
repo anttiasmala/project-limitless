@@ -22,6 +22,7 @@ import CreateMemberModal from '~/components/CreateNewMemberModal';
 import { Input } from '~/components/Input';
 import EditModal from '~/components/EditMemberModal';
 import SvgPlus from '~/icons/plus';
+import SvgFile from '~/icons/file';
 
 // this checks login status
 export { getServerSideProps };
@@ -86,50 +87,59 @@ export default function Home({
           </div>
           <Topbar />
           <div className="grid grid-cols-2 justify-center wrap-anywhere md:grid-cols-4">
-            {members?.map((v, i) => {
+            {members?.map((member, index) => {
               return (
                 <div
-                  key={`parentDiv${i}`}
+                  key={`parentDiv${index}`}
                   className="m-3 grid border border-black"
                 >
-                  <BoxParagraph question="Sukunimi" answer={v.lastName} />
-                  <BoxParagraph question="Etunimi" answer={v.firstName} />
+                  <BoxParagraph question="Sukunimi" answer={member.lastName} />
+                  <BoxParagraph question="Etunimi" answer={member.firstName} />
                   <BoxParagraph
                     question="Katuosoite"
-                    answer={v.streetAddress || '-'}
+                    answer={member.streetAddress || '-'}
                   />
                   <BoxParagraph
                     question="Postinumero"
-                    answer={v.zipCode || '-'}
+                    answer={member.zipCode || '-'}
                   />
-                  <BoxParagraph question="Toimipaikka" answer={v.city || '-'} />
+                  <BoxParagraph
+                    question="Toimipaikka"
+                    answer={member.city || '-'}
+                  />
                   <BoxParagraph
                     question="Puhelinnumero"
-                    answer={v.phoneNumber || '-'}
+                    answer={member.phoneNumber || '-'}
                   />
-                  <BoxParagraph question="Sähköposti" answer={v.email} />
-                  <BoxParagraph question="Maksettu" answer={v.paid || '-'} />
+                  <BoxParagraph question="Sähköposti" answer={member.email} />
+                  <BoxParagraph
+                    question="Maksettu"
+                    answer={member.paid || '-'}
+                  />
                   <BoxParagraph
                     question="Liittymänumero"
-                    answer={v.connectionPointNumber || '-'}
+                    answer={member.connectionPointNumber || '-'}
                   />
                   <BoxParagraph
                     question="Kommenttikenttä"
-                    answer={v.comment || '-'}
+                    answer={member.comment || '-'}
                   />
 
                   <div className="grid justify-center">
                     <button
                       className="row-start-1 bg-green-500"
                       onClick={() => {
-                        setEditModalData(v);
+                        setEditModalData(member);
                       }}
                     >
-                      <SvgWaterDrop width={24} />
+                      <SvgFile width={24} />
                     </button>
-                    <button className="row-start-1 bg-red-500">
-                      <SvgWaterDrop width={24} />
-                    </button>
+                    <button
+                      className="row-start-1 w-6 bg-red-500"
+                      onClick={() => {
+                        setDeleteModalData(member);
+                      }}
+                    ></button>
                   </div>
                 </div>
               );
