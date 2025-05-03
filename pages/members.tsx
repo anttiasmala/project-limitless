@@ -139,7 +139,9 @@ export default function Home({
                       onClick={() => {
                         setDeleteModalData(member);
                       }}
-                    ></button>
+                    >
+                      P
+                    </button>
                   </div>
                 </div>
               );
