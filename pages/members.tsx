@@ -137,7 +137,7 @@ export default function Home({
           </div>
 
           <button
-            className="absolute right-3 bottom-3"
+            className="absolute right-3 bottom-3 border-8 border-green-500"
             onClick={() => {
               setShowCreateNewMemberModal(true);
             }}
