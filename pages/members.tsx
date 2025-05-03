@@ -58,8 +58,7 @@ export default function Home({
   const { data: members, refetch } = useQuery({
     queryKey: MUTATION_AND_QUERY_KEYS.MEMBERS,
     queryFn: async () => {
-      return (await axios.get(`/api/vesiosuuskunta/${pageUUID}/members`))
-        .data as GetMember[];
+      return (await axios.get(`/api/members`)).data as GetMember[];
     },
     refetchOnWindowFocus: false,
     refetchOnMount: false,
