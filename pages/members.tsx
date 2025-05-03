@@ -21,6 +21,7 @@ import SvgWaterDrop from '~/icons/water_drop';
 import CreateMemberModal from '~/components/CreateNewMemberModal';
 import { Input } from '~/components/Input';
 import EditModal from '~/components/EditMemberModal';
+import SvgPlus from '~/icons/plus';
 
 // this checks login status
 export { getServerSideProps };
@@ -63,7 +64,6 @@ export default function Home({
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: false,
-    enabled: false,
   });
 
   useEffect(() => {
@@ -86,22 +86,38 @@ export default function Home({
           </div>
           <Topbar />
           <div className="grid grid-cols-2 justify-center wrap-anywhere md:grid-cols-4">
-            {arrayOfNames.map((v, i) => {
+            {members?.map((v, i) => {
               return (
                 <div
                   key={`parentDiv${i}`}
                   className="m-3 grid border border-black"
                 >
-                  <p>Sukunimi: {v.lastName}</p>
-                  <p>Etunimi: {v.firstName}</p>
-                  <p>Katuosoite: {v.streetAddress}</p>
-                  <p>Postinro: {v.zipCode}</p>
-                  <p>Toimipaikka: {v.city}</p>
-                  <p>Puhelin: {v.phoneNumber}</p>
-                  <p>S-posti: {v.email}</p>
-                  <p>Maksettu: {v.paid}</p>
-                  <p>Liittymän nro: {v.connectionPointNumber}</p>
-                  <p>Kommenttikenttä: {v.comment}</p>
+                  <BoxParagraph question="Sukunimi" answer={v.lastName} />
+                  <BoxParagraph question="Etunimi" answer={v.firstName} />
+                  <BoxParagraph
+                    question="Katuosoite"
+                    answer={v.streetAddress || '-'}
+                  />
+                  <BoxParagraph
+                    question="Postinumero"
+                    answer={v.zipCode || '-'}
+                  />
+                  <BoxParagraph question="Toimipaikka" answer={v.city || '-'} />
+                  <BoxParagraph
+                    question="Puhelinnumero"
+                    answer={v.phoneNumber || '-'}
+                  />
+                  <BoxParagraph question="Sähköposti" answer={v.email} />
+                  <BoxParagraph question="Maksettu" answer={v.paid || '-'} />
+                  <BoxParagraph
+                    question="Liittymänumero"
+                    answer={v.connectionPointNumber || '-'}
+                  />
+                  <BoxParagraph
+                    question="Kommenttikenttä"
+                    answer={v.comment || '-'}
+                  />
+
                   <div className="grid justify-center">
                     <button
                       className="row-start-1 bg-green-500"
@@ -119,10 +135,25 @@ export default function Home({
               );
             })}
           </div>
+
+          <button
+            className="absolute right-3 bottom-3"
+            onClick={() => {
+              setShowCreateNewMemberModal(true);
+            }}
+          >
+            <SvgPlus width={128} />
+          </button>
+
           {editModalData && (
             <EditModal
               closeModal={() => setEditModalData(null)}
               memberData={editModalData}
+            />
+          )}
+          {showCreateNewMemberModal && (
+            <CreateMemberModal
+              closeModal={() => setShowCreateNewMemberModal(false)}
             />
           )}
         </div>
@@ -131,13 +162,16 @@ export default function Home({
   );
 }
 
-function TitleParagraph({
-  children,
-  className,
-}: HTMLAttributes<HTMLDivElement>) {
+function BoxParagraph({
+  answer,
+  question,
+}: {
+  question: string;
+  answer: string;
+}) {
   return (
-    <div className={twMerge('sticky top-0 mb-3 bg-gray-200', className)}>
-      {children}
-    </div>
+    <p>
+      {question}: <span className="font-bold">{answer}</span>
+    </p>
   );
 }
