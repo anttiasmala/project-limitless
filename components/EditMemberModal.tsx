@@ -57,10 +57,7 @@ export default function EditModal({
   const { mutateAsync } = useMutation({
     mutationKey: MUTATION_AND_QUERY_KEYS.CREATE_MEMBER,
     mutationFn: async () =>
-      await axios.post(
-        `/api/vesiosuuskunta/members/${memberData.uuid}`,
-        formData,
-      ),
+      await axios.patch(`/api/members/${memberData.uuid}`, formData),
     onSuccess: () => {
       queryClient.clear();
     },
@@ -124,6 +121,7 @@ export default function EditModal({
                 isRequired={true}
                 errorText={formErrors.firstName}
                 setFormData={setFormData}
+                setFormDataKeyName="firstName"
                 inputValue={formData.firstName}
               />
               <InputBlock
@@ -133,6 +131,7 @@ export default function EditModal({
                 isRequired={true}
                 errorText={formErrors.lastName}
                 setFormData={setFormData}
+                setFormDataKeyName="lastName"
                 inputValue={formData.lastName}
               />
               <InputBlock
@@ -142,6 +141,7 @@ export default function EditModal({
                 isRequired={true}
                 errorText={formErrors.email}
                 setFormData={setFormData}
+                setFormDataKeyName="email"
                 inputValue={formData.email}
               />
               <InputBlock
@@ -150,6 +150,7 @@ export default function EditModal({
                 labelText="Puhelinnumero"
                 errorText={formErrors.phoneNumber}
                 setFormData={setFormData}
+                setFormDataKeyName="phoneNumber"
                 inputValue={formData.phoneNumber}
               />
               <InputBlock
@@ -158,6 +159,7 @@ export default function EditModal({
                 labelText="Katuosoite"
                 errorText={formErrors.streetAddress}
                 setFormData={setFormData}
+                setFormDataKeyName="streetAddress"
                 inputValue={formData.streetAddress}
               />
               <InputBlock
@@ -166,6 +168,7 @@ export default function EditModal({
                 labelText="Postinumero"
                 errorText={formErrors.zipCode}
                 setFormData={setFormData}
+                setFormDataKeyName="zipCode"
                 inputValue={formData.zipCode}
               />
               <InputBlock
@@ -174,6 +177,7 @@ export default function EditModal({
                 labelText="Postitoimipaikka"
                 errorText={formErrors.city}
                 setFormData={setFormData}
+                setFormDataKeyName="city"
                 inputValue={formData.city}
               />
               <InputBlock
@@ -182,6 +186,7 @@ export default function EditModal({
                 labelText="Maksettu"
                 errorText={formErrors.paid}
                 setFormData={setFormData}
+                setFormDataKeyName="paid"
                 inputValue={formData.paid}
               />
               <InputBlock
@@ -190,6 +195,7 @@ export default function EditModal({
                 labelText="Liittymän nro"
                 errorText={formErrors.connectionPointNumber}
                 setFormData={setFormData}
+                setFormDataKeyName="connectionPointNumber"
                 inputValue={formData.connectionPointNumber}
               />
               <InputBlock
@@ -198,6 +204,7 @@ export default function EditModal({
                 labelText="Kommenttikenttä"
                 errorText={formErrors.comment}
                 setFormData={setFormData}
+                setFormDataKeyName="comment"
                 inputValue={formData.comment}
               />
             </div>
@@ -227,6 +234,7 @@ function InputBlock({
   isRequired,
   errorText,
   setFormData,
+  setFormDataKeyName,
   inputValue,
 }: {
   htmlForAndName: string;
@@ -235,6 +243,7 @@ function InputBlock({
   isRequired?: boolean;
   errorText: string;
   setFormData: Dispatch<SetStateAction<Form>>;
+  setFormDataKeyName: string;
   inputValue?: string;
 }) {
   return (
@@ -249,7 +258,7 @@ function InputBlock({
         onChange={(e) =>
           setFormData((prevData) => ({
             ...prevData,
-            firstName: e.target.value,
+            [setFormDataKeyName]: e.target.value,
           }))
         }
       />
