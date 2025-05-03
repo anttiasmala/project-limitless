@@ -243,7 +243,7 @@ function InputBlock({
   isRequired?: boolean;
   errorText: string;
   setFormData: Dispatch<SetStateAction<Form>>;
-  setFormDataKeyName: string;
+  setFormDataKeyName: keyof Form;
   inputValue?: string;
 }) {
   return (
