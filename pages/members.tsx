@@ -33,7 +33,7 @@ export default function Home({
 
   const [showCreateNewMemberModal, setShowCreateNewMemberModal] =
     useState<boolean>(false);
-  const [editModalData, setEditModalData] = useState<GetMember | null>(null);
+  const [editModalData, setEditModalData] = useState<any | null>(null);
   const [deleteModalData, setDeleteModalData] = useState<GetMember | null>(
     null,
   );
@@ -85,7 +85,7 @@ export default function Home({
             </button>
           </div>
           <Topbar />
-          <div className="grid grid-cols-4 justify-center">
+          <div className="grid grid-cols-2 justify-center wrap-anywhere md:grid-cols-4">
             {arrayOfNames.map((v, i) => {
               return (
                 <div
@@ -95,17 +95,36 @@ export default function Home({
                   <p>Sukunimi: {v.lastName}</p>
                   <p>Etunimi: {v.firstName}</p>
                   <p>Katuosoite: {v.streetAddress}</p>
-                  <p>Postinro: {v.zipcode}</p>
+                  <p>Postinro: {v.zipCode}</p>
                   <p>Toimipaikka: {v.city}</p>
                   <p>Puhelin: {v.phoneNumber}</p>
                   <p>S-posti: {v.email}</p>
                   <p>Maksettu: {v.paid}</p>
                   <p>Liittymän nro: {v.connectionPointNumber}</p>
-                  <p>Kommenttikenttä: {v.comments}</p>
+                  <p>Kommenttikenttä: {v.comment}</p>
+                  <div className="grid justify-center">
+                    <button
+                      className="row-start-1 bg-green-500"
+                      onClick={() => {
+                        setEditModalData(v);
+                      }}
+                    >
+                      <SvgWaterDrop width={24} />
+                    </button>
+                    <button className="row-start-1 bg-red-500">
+                      <SvgWaterDrop width={24} />
+                    </button>
+                  </div>
                 </div>
               );
             })}
           </div>
+          {editModalData && (
+            <EditModal
+              closeModal={() => setEditModalData(null)}
+              memberData={editModalData}
+            />
+          )}
         </div>
       </div>
     </main>
