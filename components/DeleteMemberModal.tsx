@@ -57,7 +57,7 @@ export default function DeleteModal({
   const { mutateAsync } = useMutation({
     mutationKey: MUTATION_AND_QUERY_KEYS.CREATE_MEMBER,
     mutationFn: async () => {
-      await axios.patch(`/api/members/${memberData.uuid}`, formData);
+      await axios.delete(`/api/members/${memberData.uuid}`);
     },
     onSuccess: () =>
       queryClient.invalidateQueries({
@@ -65,43 +65,30 @@ export default function DeleteModal({
       }),
   });
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    try {
-      setFormErrors(EMPTY_FORM_ERRORS);
-      if (!checkFields()) {
-        return;
-      }
-      await mutateAsync();
-      closeModal();
-    } catch (e) {
-      handleError(e);
-    }
-  }
-
   return (
     <div>
       <div className="fixed top-0 left-0 z-99 h-full w-full bg-black opacity-80"></div>
 
       <div className="absolute top-0 grid w-full justify-items-center md:top-1/5">
         <div className="z-100 flex flex-col rounded-lg border-4 border-yellow-800 bg-gray-500">
-          <form onSubmit={(e) => void handleSubmit(e)}>
-            <div className="flex justify-end">
-              <button
-                className="mt-2 mr-2 hover:text-blue-300"
-                onClick={() => closeModal()}
-                type="button"
-              >
-                Sulje
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2"></div>
-            <div className="mt-5 mb-5 flex justify-center">
-              <Button type="submit" className="w-72 min-w-72">
-                Poista jäsen
-              </Button>
-            </div>
-          </form>
+          <div className="flex justify-end">
+            <button
+              className="mt-2 mr-2 hover:text-blue-300"
+              onClick={() => closeModal()}
+              type="button"
+            >
+              Sulje
+            </button>
+          </div>
+          <div className="mt-5 grid grid-cols-1 md:grid-cols-2">
+            <p className="font-bold">Etunimi: {memberData.firstName}</p>
+            <p className="font-bold">Sukunimi: {memberData.lastName}</p>
+          </div>
+          <div className="mt-5 mb-5 flex justify-center">
+            <Button type="submit" className="w-72 min-w-72">
+              Poista jäsen
+            </Button>
+          </div>
         </div>
       </div>
     </div>
