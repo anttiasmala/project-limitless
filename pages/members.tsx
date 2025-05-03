@@ -23,6 +23,7 @@ import { Input } from '~/components/Input';
 import EditModal from '~/components/EditMemberModal';
 import SvgPlus from '~/icons/plus';
 import SvgFile from '~/icons/file';
+import DeleteModal from '~/components/DeleteMemberModal copy';
 
 // this checks login status
 export { getServerSideProps };
@@ -35,7 +36,7 @@ export default function Home({
 
   const [showCreateNewMemberModal, setShowCreateNewMemberModal] =
     useState<boolean>(false);
-  const [editModalData, setEditModalData] = useState<any | null>(null);
+  const [editModalData, setEditModalData] = useState<GetMember | null>(null);
   const [deleteModalData, setDeleteModalData] = useState<GetMember | null>(
     null,
   );
@@ -161,6 +162,12 @@ export default function Home({
             <EditModal
               closeModal={() => setEditModalData(null)}
               memberData={editModalData}
+            />
+          )}
+          {deleteModalData && (
+            <DeleteModal
+              memberData={deleteModalData}
+              closeModal={() => setDeleteModalData(null)}
             />
           )}
           {showCreateNewMemberModal && (
