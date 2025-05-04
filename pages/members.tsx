@@ -149,14 +149,16 @@ export default function Home({
             })}
           </div>
 
-          <button
-            className="absolute right-3 bottom-3 border-8 border-green-500"
-            onClick={() => {
-              setShowCreateNewMemberModal(true);
-            }}
-          >
-            <SvgPlus width={128} />
-          </button>
+          <div className="relative">
+            <button
+              className="absolute bottom-0 left-10/12 border-8 border-green-500"
+              onClick={() => {
+                setShowCreateNewMemberModal(true);
+              }}
+            >
+              <SvgPlus width={128} />
+            </button>
+          </div>
 
           {editModalData && (
             <EditModal
