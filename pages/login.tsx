@@ -68,15 +68,18 @@ export default function Register() {
   function checkIfFieldsOk() {
     let errorFound = false;
     if (password.length <= 0) {
-      setErrors({ ...errors, password: 'Salasana on pakollinen!' });
+      setErrors((prevData) => ({
+        ...prevData,
+        password: 'Salasana on pakollinen!',
+      }));
       errorFound = true;
     }
     const parsedEmail = emailSchema.safeParse(email);
     if (!parsedEmail.success) {
-      setErrors({
-        ...errors,
+      setErrors((prevData) => ({
+        ...prevData,
         email: parsedEmail.error.issues[0].message ?? 'Sähköpostissa on virhe!',
-      });
+      }));
       errorFound = true;
     }
 
