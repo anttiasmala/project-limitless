@@ -79,7 +79,7 @@ export default function DeleteModal({
     <div>
       <div className="fixed top-0 left-0 z-99 h-full w-full bg-black opacity-80"></div>
 
-      <div className="absolute top-0 grid w-full justify-items-center md:top-1/5">
+      <div className="absolute top-0 grid w-full justify-items-center md:top-1/2">
         <div className="z-100 flex flex-col rounded-lg border-4 border-yellow-800 bg-gray-500">
           <div className="flex justify-end">
             <button
