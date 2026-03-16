@@ -88,6 +88,7 @@ export default function Board() {
     setCurrentPlayer(HUMAN);
     setScores({ '☠️': 0, '⚓': 0 });
     setAiThinking(false);
+    setIsGameStarted(false);
   }
 
   const DIFFICULTY_LABELS: Record<Difficulty, string> = {
@@ -123,21 +124,24 @@ export default function Board() {
             Kraken Strength
           </span>
           <div className="flex gap-2 flex-wrap justify-center">
-            {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
+            {(['easy', 'medium', 'hard'] as Difficulty[]).map((_difficulty) => (
               <button
-                key={d}
+                key={_difficulty}
                 onClick={() => {
-                  setDifficulty(d);
+                  if (isGameStarted) return;
+                  setDifficulty(_difficulty);
                   resetGame();
                 }}
                 className={`px-3 py-1.5 rounded-lg border-2 font-semibold text-xs transition-all duration-200
                   ${
-                    difficulty === d
+                    difficulty === _difficulty
                       ? 'bg-red-900 border-red-500 text-yellow-300'
                       : 'bg-amber-950/40 border-amber-800 text-amber-500 hover:border-amber-600'
-                  }`}
+                  }
+                  ${isGameStarted && difficulty !== _difficulty && 'cursor-not-allowed'}    
+                  `}
               >
-                {DIFFICULTY_LABELS[d]}
+                {DIFFICULTY_LABELS[_difficulty]}
               </button>
             ))}
           </div>
