@@ -136,9 +136,9 @@ export default function Board() {
                   ${
                     difficulty === _difficulty
                       ? 'bg-red-900 border-red-500 text-yellow-300'
-                      : 'bg-amber-950/40 border-amber-800 text-amber-500 hover:border-amber-600 hover:cursor-pointer'
+                      : 'bg-amber-950/40 border-amber-800 text-amber-500 hover:border-amber-600'
                   }
-                  ${isGameStarted && difficulty !== _difficulty && 'cursor-not-allowed'}    
+                  ${isGameStarted && difficulty !== _difficulty ? 'cursor-not-allowed' : 'cursor-pointer'}    
                   `}
               >
                 {DIFFICULTY_LABELS[_difficulty]}
@@ -187,7 +187,7 @@ export default function Board() {
       <button
         onClick={resetGame}
         className="mt-4 px-6 py-3 bg-red-900 border-2 border-red-700 text-yellow-300
-          font-bold rounded-lg hover:bg-red-800 hover:border-yellow-500
+          font-bold rounded-lg hover:bg-red-800 hover:border-yellow-500 hover:cursor-pointer 
           transition-all duration-200 text-lg tracking-wide"
       >
         🏴‍☠️ New Voyage
