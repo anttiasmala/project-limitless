@@ -20,6 +20,9 @@ type BoardProps = {
 };
 
 const INITIAL_BOARD: BoardType = Array(9).fill(null);
+const CANNON_AUDIO = new Audio('/sounds/cannon.mp3');
+const SPLASH_AUDIO = new Audio('/sounds/splash.mp3');
+const CREAK_AUDIO = new Audio('/sounds/creak.mp3');
 
 export default function Board({ scores, setScores }: BoardProps) {
   const [isGameStarted, setIsGameStarted] = useState(false);
@@ -38,7 +41,6 @@ export default function Board({ scores, setScores }: BoardProps) {
 
   useEffect(() => {
     if (mode !== 'pvc' || gameOver || currentPlayer !== AI) return;
-
     // this thinkingTimeout added to prevent ESLint error, but having the aiThinking to be set immediately
     const thinkingTimeout = setTimeout(() => setAiThinking(true), 0);
 
@@ -50,6 +52,7 @@ export default function Board({ scores, setScores }: BoardProps) {
 
       const { winner: _winner } = calculateWinner(newBoard);
       if (_winner) {
+        CANNON_AUDIO.play();
         setScores((prev) => ({ ...prev, [_winner]: prev[_winner] + 1 }));
       } else if (!isDraw(newBoard)) {
         setCurrentPlayer(HUMAN);
@@ -72,13 +75,24 @@ export default function Board({ scores, setScores }: BoardProps) {
     newBoard[index] = currentPlayer;
     setBoard(newBoard);
 
+    // Game has no winner and is not draw, creak sound can be played
+    if (calculateWinner(newBoard).winner === null && !isDraw(newBoard)) {
+      CREAK_AUDIO.play();
+    }
+
     const { winner: _winner } = calculateWinner(newBoard);
     if (_winner) {
+      CANNON_AUDIO.play();
       setScores((prev) => ({ ...prev, [_winner]: prev[_winner] + 1 }));
     } else if (!isDraw(newBoard)) {
       setCurrentPlayer(
         mode === 'pvp' ? (currentPlayer === HUMAN ? AI : HUMAN) : AI,
       );
+    }
+
+    // Game is draw
+    if (isDraw(newBoard)) {
+      SPLASH_AUDIO.play();
     }
   }
 
