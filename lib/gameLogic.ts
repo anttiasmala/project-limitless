@@ -30,7 +30,9 @@ export function calculateWinner(board: Board): {
 }
 
 export function isDraw(board: Board): boolean {
-  return board.every((cell) => cell !== null);
+  return board.every(
+    (cell) => cell !== null && calculateWinner(board).winner === null,
+  );
 }
 
 // ─── AI LOGIC BELOW ────────────────────────────────────────────────────────────────
