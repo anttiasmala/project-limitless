@@ -10,20 +10,19 @@ import {
   isDraw,
   getAIMove,
 } from '@/lib/gameLogic';
+import { AI, HUMAN } from './GameContainer';
+
+type BoardProps = {
+  scores: Record<Player, number>;
+  setScores: React.Dispatch<React.SetStateAction<Record<Player, number>>>;
+};
 
 const INITIAL_BOARD: BoardType = Array(9).fill(null);
-const INITIAL_SCORE = {
-  '☠️': 0,
-  '⚓': 0,
-};
-const HUMAN: Player = '☠️';
-const AI: Player = '⚓';
 
-export default function Board() {
+export default function Board({ scores, setScores }: BoardProps) {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [board, setBoard] = useState<BoardType>(INITIAL_BOARD);
   const [currentPlayer, setCurrentPlayer] = useState<Player>('☠️');
-  const [scores, setScores] = useState<Record<Player, number>>(INITIAL_SCORE);
 
   const [mode, setMode] = useState<'pvp' | 'pvc'>('pvp');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
@@ -32,21 +31,6 @@ export default function Board() {
   const { winner, line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
   const gameOver = !!winner || draw;
-
-  // Reset Score logic
-
-  useEffect(() => {
-    console.log(document.getElementById('resetButton'));
-    document
-      .getElementById('resetScoreButton')
-      ?.addEventListener('click', () => {
-        // Reset the score on a click
-        setScores(INITIAL_SCORE);
-      });
-    return document
-      .getElementById('resetScoreButton')
-      ?.removeEventListener('click', () => {});
-  }, []);
 
   // AI move logic
 
