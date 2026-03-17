@@ -1,13 +1,11 @@
 'use client';
 
-import { Player } from '@/lib/gameLogic';
+import { AI, HUMAN, Player } from '@/lib/gameLogic';
 import { useState } from 'react';
 import Board from './Board';
 import ResetScore from './ResetScore';
 
 const INITIAL_SCORE: Record<Player, number> = { '☠️': 0, '⚓': 0 };
-export const HUMAN: Player = '☠️';
-export const AI: Player = '⚓';
 
 export default function GameContainer() {
   const [scores, setScores] = useState(INITIAL_SCORE);

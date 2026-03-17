@@ -9,8 +9,9 @@ import {
   calculateWinner,
   isDraw,
   getAIMove,
+  AI,
+  HUMAN,
 } from '@/lib/gameLogic';
-import { AI, HUMAN } from './GameContainer';
 
 type BoardProps = {
   scores: Record<Player, number>;

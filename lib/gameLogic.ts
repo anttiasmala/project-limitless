@@ -2,6 +2,9 @@ export type Player = '☠️' | '⚓';
 export type Board = (Player | null)[];
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
+export const HUMAN: Player = '☠️';
+export const AI: Player = '⚓';
+
 export const WINNING_LINES = [
   [0, 1, 2],
   [3, 4, 5],
