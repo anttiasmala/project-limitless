@@ -14,7 +14,7 @@ export default function GameContainer() {
         <Board scores={scores} setScores={setScores} />
       </div>
 
-      <div className="bg-amber-950/40 border-2 border-amber-800 rounded-2xl p-2 shadow-[0_0_40px_#451a0360] backdrop-blur-sm text-amber-500 hover:border-amber-600 ">
+      <div>
         <ResetScore
           onReset={() => {
             if (scores[HUMAN] === 0 && scores[AI] === 0) return;
