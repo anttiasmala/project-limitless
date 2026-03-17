@@ -1,9 +1,13 @@
 'use client';
 
-export default function ResetScore() {
+type ResetScoreProps = {
+  onReset: () => void;
+};
+
+export default function ResetScore({ onReset }: ResetScoreProps) {
   return (
     <div>
-      <button id="resetScoreButton" className="cursor-pointer">
+      <button onClick={onReset} className="cursor-pointer">
         Reset Score
       </button>
     </div>
