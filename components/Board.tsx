@@ -39,8 +39,10 @@ export default function Board({ scores, setScores }: BoardProps) {
   useEffect(() => {
     if (mode !== 'pvc' || gameOver || currentPlayer !== AI) return;
 
-    setAiThinking(true);
-    const timeout = setTimeout(() => {
+    // this thinkingTimeout added to prevent ESLint error, but having the aiThinking to be set immediately
+    const thinkingTimeout = setTimeout(() => setAiThinking(true), 0);
+
+    const moveTimeout = setTimeout(() => {
       const move = getAIMove(board, AI, HUMAN, difficulty);
       const newBoard = [...board];
       newBoard[move] = AI;
@@ -55,7 +57,10 @@ export default function Board({ scores, setScores }: BoardProps) {
       setAiThinking(false);
     }, 400); // slight delay so it feels alive
 
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(thinkingTimeout);
+      clearTimeout(moveTimeout);
+    };
   }, [board, currentPlayer, mode, difficulty, gameOver, setScores]);
 
   function handleClick(index: number) {
