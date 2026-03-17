@@ -9,7 +9,7 @@ import {
   calculateWinner,
   isDraw,
   getAIMove,
-} from '../lib/gameLogic';
+} from '@/lib/gameLogic';
 
 const INITIAL_BOARD: BoardType = Array(9).fill(null);
 const HUMAN: Player = '☠️';
@@ -44,9 +44,9 @@ export default function Board() {
       newBoard[move] = AI;
       setBoard(newBoard);
 
-      const { winner: w } = calculateWinner(newBoard);
-      if (w) {
-        setScores((prev) => ({ ...prev, [w]: prev[w] + 1 }));
+      const { winner: _winner } = calculateWinner(newBoard);
+      if (_winner) {
+        setScores((prev) => ({ ...prev, [_winner]: prev[_winner] + 1 }));
       } else if (!isDraw(newBoard)) {
         setCurrentPlayer(HUMAN);
       }
@@ -65,9 +65,9 @@ export default function Board() {
     newBoard[index] = currentPlayer;
     setBoard(newBoard);
 
-    const { winner: w } = calculateWinner(newBoard);
-    if (w) {
-      setScores((prev) => ({ ...prev, [w]: prev[w] + 1 }));
+    const { winner: _winner } = calculateWinner(newBoard);
+    if (_winner) {
+      setScores((prev) => ({ ...prev, [_winner]: prev[_winner] + 1 }));
     } else if (!isDraw(newBoard)) {
       setCurrentPlayer(
         mode === 'pvp' ? (currentPlayer === HUMAN ? AI : HUMAN) : AI,
@@ -101,18 +101,18 @@ export default function Board() {
     <div className="flex flex-col items-center gap-6">
       {/* Mode selector */}
       <div className="flex gap-3">
-        {(['pvp', 'pvc'] as const).map((m) => (
+        {(['pvp', 'pvc'] as const).map((_mode) => (
           <button
-            key={m}
-            onClick={() => switchMode(m)}
+            key={_mode}
+            onClick={() => switchMode(_mode)}
             className={`px-4 py-2 rounded-lg border-2 font-bold text-sm transition-all duration-200
               ${
-                mode === m
+                mode === _mode
                   ? 'bg-amber-700 border-yellow-400 text-yellow-300'
-                  : 'bg-amber-950/50 border-amber-800 text-amber-400 hover:border-amber-600'
+                  : 'bg-amber-950/50 border-amber-800 text-amber-400 hover:border-amber-600 hover:cursor-pointer'
               }`}
           >
-            {m === 'pvp' ? '⚔️ Two Pirates' : '🤖 Vs the Kraken'}
+            {_mode === 'pvp' ? '⚔️ Two Pirates' : '🤖 Vs the Kraken'}
           </button>
         ))}
       </div>
@@ -136,7 +136,7 @@ export default function Board() {
                   ${
                     difficulty === _difficulty
                       ? 'bg-red-900 border-red-500 text-yellow-300'
-                      : 'bg-amber-950/40 border-amber-800 text-amber-500 hover:border-amber-600'
+                      : 'bg-amber-950/40 border-amber-800 text-amber-500 hover:border-amber-600 hover:cursor-pointer'
                   }
                   ${isGameStarted && difficulty !== _difficulty && 'cursor-not-allowed'}    
                   `}
