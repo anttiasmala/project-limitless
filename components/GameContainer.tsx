@@ -6,7 +6,7 @@ import Board from './Board';
 import ResetScore from './ResetScore';
 
 export default function GameContainer() {
-  const [scores, setScores] = useState(INITIAL_SCORE);
+  const [scores, setScores] = useState({ ...INITIAL_SCORE });
 
   return (
     <>
@@ -18,7 +18,7 @@ export default function GameContainer() {
         <ResetScore
           onReset={() => {
             if (scores[HUMAN] === 0 && scores[AI] === 0) return;
-            setScores(INITIAL_SCORE);
+            setScores({ ...INITIAL_SCORE });
           }}
         />
       </div>

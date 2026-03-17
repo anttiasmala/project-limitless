@@ -93,7 +93,7 @@ export default function Board({ scores, setScores }: BoardProps) {
     setMode(newMode);
     setBoard(INITIAL_BOARD);
     setCurrentPlayer(HUMAN);
-    setScores(INITIAL_SCORE);
+    setScores({ ...INITIAL_SCORE });
     setAiThinking(false);
     setIsGameStarted(false);
   }
