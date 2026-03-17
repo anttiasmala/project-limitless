@@ -1,4 +1,5 @@
 1. If Kraken's strength is changed, reset score
+2. Add a setting that can be used to make audio volume lower or higher
 
 A lot of ideas below:
 
