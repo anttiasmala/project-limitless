@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Square from './Square';
 import GameStatus from './GameStatus';
 import {
@@ -20,9 +20,6 @@ type BoardProps = {
 };
 
 const INITIAL_BOARD: BoardType = Array(9).fill(null);
-const CANNON_AUDIO = new Audio('/sounds/cannon.mp3');
-const SPLASH_AUDIO = new Audio('/sounds/splash.mp3');
-const CREAK_AUDIO = new Audio('/sounds/creak.mp3');
 
 export default function Board({ scores, setScores }: BoardProps) {
   const [isGameStarted, setIsGameStarted] = useState(false);
@@ -36,6 +33,25 @@ export default function Board({ scores, setScores }: BoardProps) {
   const { winner, line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
   const gameOver = !!winner || draw;
+
+  const cannonAudio = useRef<HTMLAudioElement | null>(null);
+  const splashAudio = useRef<HTMLAudioElement | null>(null);
+  const creakAudio = useRef<HTMLAudioElement | null>(null);
+
+  // Audio logic
+
+  useEffect(() => {
+    cannonAudio.current = new Audio('/sounds/cannon.mp3');
+    splashAudio.current = new Audio('/sounds/splash.mp3');
+    creakAudio.current = new Audio('/sounds/creak.mp3');
+  }, []);
+
+  function playSound(ref: React.RefObject<HTMLAudioElement | null>) {
+    if (ref.current) {
+      ref.current.currentTime = 0;
+      ref.current.play();
+    }
+  }
 
   // AI move logic
 
@@ -52,7 +68,7 @@ export default function Board({ scores, setScores }: BoardProps) {
 
       const { winner: _winner } = calculateWinner(newBoard);
       if (_winner) {
-        CANNON_AUDIO.play();
+        playSound(cannonAudio);
         setScores((prev) => ({ ...prev, [_winner]: prev[_winner] + 1 }));
       } else if (!isDraw(newBoard)) {
         setCurrentPlayer(HUMAN);
@@ -75,24 +91,22 @@ export default function Board({ scores, setScores }: BoardProps) {
     newBoard[index] = currentPlayer;
     setBoard(newBoard);
 
-    // Game has no winner and is not draw, creak sound can be played
-    if (calculateWinner(newBoard).winner === null && !isDraw(newBoard)) {
-      CREAK_AUDIO.play();
-    }
-
     const { winner: _winner } = calculateWinner(newBoard);
+    const _isDraw = isDraw(newBoard);
+
+    // Game has no winner and is not draw, creak sound can be played
+    if (!_winner && !_isDraw) {
+      playSound(creakAudio);
+    }
     if (_winner) {
-      CANNON_AUDIO.play();
+      playSound(cannonAudio);
       setScores((prev) => ({ ...prev, [_winner]: prev[_winner] + 1 }));
-    } else if (!isDraw(newBoard)) {
+    } else if (_isDraw) {
+      playSound(splashAudio);
+    } else {
       setCurrentPlayer(
         mode === 'pvp' ? (currentPlayer === HUMAN ? AI : HUMAN) : AI,
       );
-    }
-
-    // Game is draw
-    if (isDraw(newBoard)) {
-      SPLASH_AUDIO.play();
     }
   }
 
