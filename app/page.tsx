@@ -1,4 +1,5 @@
-import Board from '../components/Board';
+import Board from '@/components/Board';
+import ResetScore from '@/components/ResetScore';
 
 export default function Home() {
   return (
@@ -23,6 +24,15 @@ export default function Home() {
           shadow-[0_0_40px_#451a0360] backdrop-blur-sm"
         >
           <Board />
+        </div>
+
+        {/* Reset Score */}
+
+        <div
+          className="bg-amber-950/40 border-2 border-amber-800 rounded-2xl p-2
+          shadow-[0_0_40px_#451a0360] backdrop-blur-sm text-amber-500 hover:border-amber-600"
+        >
+          <ResetScore />
         </div>
 
         {/* Legend */}
