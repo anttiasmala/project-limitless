@@ -1,4 +1,3 @@
-import React from 'react';
 import { Player } from '../lib/gameLogic';
 
 interface GameStatusProps {

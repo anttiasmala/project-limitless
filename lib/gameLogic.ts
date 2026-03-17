@@ -2,6 +2,7 @@ export type Player = '☠️' | '⚓';
 export type Board = (Player | null)[];
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
+export const INITIAL_SCORE: Record<Player, number> = { '☠️': 0, '⚓': 0 };
 export const HUMAN: Player = '☠️';
 export const AI: Player = '⚓';
 

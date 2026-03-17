@@ -11,6 +11,7 @@ import {
   getAIMove,
   AI,
   HUMAN,
+  INITIAL_SCORE,
 } from '@/lib/gameLogic';
 
 type BoardProps = {
@@ -55,7 +56,7 @@ export default function Board({ scores, setScores }: BoardProps) {
     }, 400); // slight delay so it feels alive
 
     return () => clearTimeout(timeout);
-  }, [board, currentPlayer, mode, difficulty, gameOver]);
+  }, [board, currentPlayer, mode, difficulty, gameOver, setScores]);
 
   function handleClick(index: number) {
     if (board[index] || gameOver || aiThinking) return;
@@ -87,7 +88,7 @@ export default function Board({ scores, setScores }: BoardProps) {
     setMode(newMode);
     setBoard(INITIAL_BOARD);
     setCurrentPlayer(HUMAN);
-    setScores({ '☠️': 0, '⚓': 0 });
+    setScores(INITIAL_SCORE);
     setAiThinking(false);
     setIsGameStarted(false);
   }
