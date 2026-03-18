@@ -67,10 +67,13 @@ export default function Board({ scores, setScores }: BoardProps) {
       setBoard(newBoard);
 
       const { winner: _winner } = calculateWinner(newBoard);
+      const _isDraw = isDraw(newBoard);
       if (_winner) {
         playSound(cannonAudio);
         setScores((prev) => ({ ...prev, [_winner]: prev[_winner] + 1 }));
-      } else if (!isDraw(newBoard)) {
+      } else if (_isDraw) {
+        playSound(splashAudio);
+      } else {
         setCurrentPlayer(HUMAN);
       }
       setAiThinking(false);
