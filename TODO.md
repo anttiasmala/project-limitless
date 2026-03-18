@@ -1,10 +1,10 @@
-1. If Kraken's strength is changed, reset score
-2. Add a setting that can be used to make audio volume lower or higher
+1. Add localStorage for volumes and scores
+2. If Kraken's strength is changed, reset score?
 
 A lot of ideas below:
 
 **Quick**
-Sound effects — a cannon blast when you win, splash when you draw, creak on each move (using the Web Audio API or small .mp3 files)
+**_Sound effects — a cannon blast when you win, splash when you draw, creak on each move (using the Web Audio API or small .mp3 files)_**
 
 Animated winning line — draw a crossed-out line through the winning three squares instead of just highlighting them
 
