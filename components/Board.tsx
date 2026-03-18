@@ -13,6 +13,8 @@ import {
   HUMAN,
   INITIAL_SCORE,
 } from '@/lib/gameLogic';
+import SvgSettings from '@/icons/settings';
+import { createPortal } from 'react-dom';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -30,6 +32,10 @@ export default function Board({ scores, setScores }: BoardProps) {
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [aiThinking, setAiThinking] = useState(false);
 
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const [volume, setVolume] = useState(1);
+
   const { winner, line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
   const gameOver = !!winner || draw;
@@ -38,6 +44,7 @@ export default function Board({ scores, setScores }: BoardProps) {
   const splashAudio = useRef<HTMLAudioElement | null>(null);
   const creakAudio = useRef<HTMLAudioElement | null>(null);
 
+  const ALL_AUDIOS = [cannonAudio, splashAudio, creakAudio];
   // Audio logic
 
   useEffect(() => {
@@ -153,6 +160,14 @@ export default function Board({ scores, setScores }: BoardProps) {
             {_mode === 'pvp' ? '⚔️ Two Pirates' : '🤖 Vs the Kraken'}
           </button>
         ))}
+        <div className="relative flex flex-col items-center gap-6">
+          <button
+            className="absolute -left-1.5 sm:left-3 top-0 cursor-pointer"
+            onClick={() => setShowSettingsModal(true)}
+          >
+            <SvgSettings className="w-8 h-8 fill-none" />
+          </button>
+        </div>
       </div>
 
       {/* Difficulty selector (only in PvC mode) */}
@@ -176,7 +191,11 @@ export default function Board({ scores, setScores }: BoardProps) {
                       ? 'bg-red-900 border-red-500 text-yellow-300'
                       : 'bg-amber-950/40 border-amber-800 text-amber-500 hover:border-amber-600'
                   }
-                  ${isGameStarted && difficulty !== _difficulty ? 'cursor-not-allowed' : 'cursor-pointer'}    
+                  ${
+                    isGameStarted && difficulty !== _difficulty
+                      ? 'cursor-not-allowed'
+                      : 'cursor-pointer'
+                  }    
                   `}
               >
                 {DIFFICULTY_LABELS[_difficulty]}
@@ -230,6 +249,112 @@ export default function Board({ scores, setScores }: BoardProps) {
       >
         🏴‍☠️ New Voyage
       </button>
+
+      {/* Settings Modal */}
+      <div>
+        <SettingsModal
+          showSettingsModal={showSettingsModal}
+          setShowSettingsModal={setShowSettingsModal}
+          isAudioMuted={isAudioMuted}
+          setIsAudioMuted={setIsAudioMuted}
+          volume={volume}
+          setVolume={setVolume}
+          AudioArray={ALL_AUDIOS}
+        />
+      </div>
     </div>
+  );
+}
+
+function SettingsModal({
+  showSettingsModal,
+  setShowSettingsModal,
+  isAudioMuted,
+  setIsAudioMuted,
+  volume,
+  setVolume,
+  AudioArray,
+}: {
+  showSettingsModal: boolean;
+  setShowSettingsModal: React.Dispatch<React.SetStateAction<boolean>>;
+  AudioArray: React.RefObject<HTMLAudioElement | null>[];
+  isAudioMuted: boolean;
+  setIsAudioMuted: React.Dispatch<React.SetStateAction<boolean>>;
+  volume: number;
+  setVolume: React.Dispatch<React.SetStateAction<number>>;
+}) {
+  if (!showSettingsModal) return null;
+  return createPortal(
+    <>
+      <div
+        className="fixed top-0 left-0 z-98 h-full w-full bg-black opacity-80"
+        onClick={() => setShowSettingsModal(false)}
+      />
+      <div className="fixed top-1/2 left-1/2 z-99 -translate-x-1/2 -translate-y-1/2">
+        <button
+          className="border rounded-md mb-2 cursor-pointer"
+          onClick={() => setShowSettingsModal(false)}
+        >
+          Close Window
+        </button>
+        <div
+          className="w-48 h-auto min-h-48 bg-red-900 border-2 border-red-700 text-yellow-300
+          font-bold rounded-lg hover:bg-red-800 hover:border-yellow-500"
+        >
+          <div className="mt-3 ml-3 flex flex-col">
+            <div
+              className="flex
+            "
+            >
+              <label className="cursor-pointer select-none">
+                Mute sounds
+                <input
+                  type="checkbox"
+                  className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                  checked={isAudioMuted}
+                  onChange={(e) => {
+                    const muted = e.target.checked;
+                    setIsAudioMuted(muted);
+                    if (!muted && volume === 0) {
+                      setVolume(0.5);
+                      AudioArray.forEach((ref) => {
+                        if (ref.current) ref.current.volume = 0.5;
+                      });
+                    }
+                    AudioArray.forEach((ref) => {
+                      if (ref.current) ref.current.muted = muted;
+                    });
+                  }}
+                />
+              </label>
+            </div>
+            <div className="mt-3 flex">
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={volume}
+                className="cursor-pointer w-max accent-yellow-400"
+                onChange={(e) => {
+                  const vol = parseFloat(e.target.value);
+                  setVolume(vol);
+                  const muted = vol === 0;
+                  setIsAudioMuted(muted);
+                  AudioArray.forEach((ref) => {
+                    if (ref.current) {
+                      ref.current.volume = vol;
+                      ref.current.muted = muted;
+                    }
+                  });
+                }}
+              />
+              <p className="ml-3">{Math.floor(volume * 100)}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>,
+    document.body,
   );
 }
