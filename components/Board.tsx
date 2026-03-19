@@ -30,6 +30,7 @@ export default function Board({ scores, setScores }: BoardProps) {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [board, setBoard] = useState<BoardType>(INITIAL_BOARD);
   const [currentPlayer, setCurrentPlayer] = useState<Player>('☠️');
+  const [starterPlayer, setStarterPlayer] = useState<Player>('☠️');
 
   const [mode, setMode] = useState<'pvp' | 'pvc'>('pvp');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
@@ -49,8 +50,9 @@ export default function Board({ scores, setScores }: BoardProps) {
 
   const ALL_AUDIOS = [cannonAudio, splashAudio, creakAudio];
 
-  // Measurement logic
+  const gameHasMoves = board.some((cell) => cell !== null);
 
+  // Measurement logic
   const { gridRef, measurement } = useGridMeasure(3);
 
   // Audio logic
@@ -85,7 +87,8 @@ export default function Board({ scores, setScores }: BoardProps) {
   // AI move logic
 
   useEffect(() => {
-    if (mode !== 'pvc' || gameOver || currentPlayer !== AI) return;
+    if (mode !== 'pvc' || gameOver || currentPlayer !== AI || !isGameStarted)
+      return;
     // this thinkingTimeout added to prevent ESLint error, but having the aiThinking to be set immediately
     const thinkingTimeout = setTimeout(() => setAiThinking(true), 0);
 
@@ -94,6 +97,7 @@ export default function Board({ scores, setScores }: BoardProps) {
       const newBoard = [...board];
       newBoard[move] = AI;
       setBoard(newBoard);
+      setIsGameStarted(true);
 
       const { winner: _winner } = calculateWinner(newBoard);
       const _isDraw = isDraw(newBoard);
@@ -112,7 +116,15 @@ export default function Board({ scores, setScores }: BoardProps) {
       clearTimeout(thinkingTimeout);
       clearTimeout(moveTimeout);
     };
-  }, [board, currentPlayer, mode, difficulty, gameOver, setScores]);
+  }, [
+    board,
+    currentPlayer,
+    mode,
+    difficulty,
+    gameOver,
+    setScores,
+    isGameStarted,
+  ]);
 
   function handleClick(index: number) {
     if (board[index] || gameOver || aiThinking) return;
@@ -144,18 +156,20 @@ export default function Board({ scores, setScores }: BoardProps) {
 
   function resetGame() {
     setBoard(INITIAL_BOARD);
-    setCurrentPlayer(HUMAN);
+    setCurrentPlayer(starterPlayer);
     setAiThinking(false);
-    setIsGameStarted(false);
+    const aiStarts = mode === 'pvc' && starterPlayer === AI;
+    setIsGameStarted(aiStarts);
   }
 
   function switchMode(newMode: 'pvp' | 'pvc') {
     setMode(newMode);
     setBoard(INITIAL_BOARD);
-    setCurrentPlayer(HUMAN);
+    setCurrentPlayer(starterPlayer);
     setScores({ ...INITIAL_SCORE });
     setAiThinking(false);
-    setIsGameStarted(false);
+    const aiStarts = newMode === 'pvc' && starterPlayer === AI;
+    setIsGameStarted(aiStarts);
   }
 
   const DIFFICULTY_LABELS: Record<Difficulty, string> = {
@@ -203,9 +217,9 @@ export default function Board({ scores, setScores }: BoardProps) {
               <button
                 key={_difficulty}
                 onClick={() => {
-                  if (isGameStarted) return;
+                  if (gameHasMoves) return;
                   setDifficulty(_difficulty);
-                  resetGame();
+                  setScores({ ...INITIAL_SCORE });
                 }}
                 className={`px-3 py-1.5 rounded-lg border-2 font-semibold text-xs transition-all duration-200
                   ${
@@ -214,7 +228,7 @@ export default function Board({ scores, setScores }: BoardProps) {
                       : 'bg-amber-950/40 border-amber-800 text-amber-500 hover:border-amber-600'
                   }
                   ${
-                    isGameStarted && difficulty !== _difficulty
+                    gameHasMoves && difficulty !== _difficulty
                       ? 'cursor-not-allowed'
                       : 'cursor-pointer'
                   }    
@@ -237,6 +251,41 @@ export default function Board({ scores, setScores }: BoardProps) {
           ⚓ {mode === 'pvc' ? 'Kraken' : 'Capt. Hook'}: {scores[AI]}
         </span>
       </div>
+
+      {/* Game Starter */}
+      {!isGameStarted || gameOver ? (
+        <div className="flex gap-12">
+          <button
+            className={`${
+              starterPlayer === '☠️'
+                ? 'bg-red-900 border-red-500 text-yellow-300 rounded'
+                : ''
+            } cursor-pointer`}
+            onClick={() => {
+              if (starterPlayer === '☠️' || aiThinking) return;
+              setStarterPlayer('☠️');
+              setCurrentPlayer('☠️');
+            }}
+          >
+            ☠️ First
+          </button>
+          <button
+            className={`${
+              starterPlayer === '⚓'
+                ? 'bg-red-900 border-red-500 text-yellow-300 rounded'
+                : ''
+            } cursor-pointer`}
+            onClick={() => {
+              if (starterPlayer === '⚓' || aiThinking) return;
+              setStarterPlayer('⚓');
+              setCurrentPlayer('⚓');
+              if (mode === 'pvc') setIsGameStarted(true);
+            }}
+          >
+            ⚓ First
+          </button>
+        </div>
+      ) : null}
 
       {/* Status */}
       <GameStatus
