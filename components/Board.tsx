@@ -16,6 +16,8 @@ import {
 import SvgSettings from '@/icons/settings';
 import { createPortal } from 'react-dom';
 import { useKeyPress } from '@/hooks/useKeyPress';
+import WinningLine from './WinningLine';
+import { useGridMeasure } from '@/hooks/useGridMeasure';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -47,6 +49,10 @@ export default function Board({ scores, setScores }: BoardProps) {
 
   const ALL_AUDIOS = [cannonAudio, splashAudio, creakAudio];
   // Audio logic
+
+  // Measurement logic
+
+  const { gridRef, measurement } = useGridMeasure(3);
 
   useEffect(() => {
     const savedVolume = parseFloat(localStorage.getItem('volume') ?? '0.5');
@@ -242,18 +248,29 @@ export default function Board({ scores, setScores }: BoardProps) {
       />
 
       {/* Grid */}
-      <div className="grid grid-cols-3 gap-3">
-        {board.map((cell, i) => (
-          <Square
-            key={i}
-            value={cell}
-            onClick={() => handleClick(i)}
-            isWinning={winLine?.includes(i) ?? false}
-            disabled={
-              gameOver || aiThinking || (mode === 'pvc' && currentPlayer === AI)
-            }
+      <div className="relative">
+        <div ref={gridRef} className="grid grid-cols-3 gap-3">
+          {board.map((cell, i) => (
+            <Square
+              key={i}
+              value={cell}
+              onClick={() => handleClick(i)}
+              isWinning={winLine?.includes(i) ?? false}
+              disabled={
+                gameOver ||
+                aiThinking ||
+                (mode === 'pvc' && currentPlayer === AI)
+              }
+            />
+          ))}
+        </div>
+        {winner && winLine && (
+          <WinningLine
+            winLine={winLine}
+            cellSize={measurement.cellSize}
+            gap={measurement.gap}
           />
-        ))}
+        )}
       </div>
 
       {/* Reset Game*/}

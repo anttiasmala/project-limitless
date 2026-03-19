@@ -27,3 +27,15 @@ body {
   color: var(--foreground);
   font-family: 'Pirata One', cursive, sans-serif;
 }
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
