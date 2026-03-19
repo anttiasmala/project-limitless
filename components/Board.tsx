@@ -48,12 +48,12 @@ export default function Board({ scores, setScores }: BoardProps) {
   const creakAudio = useRef<HTMLAudioElement | null>(null);
 
   const ALL_AUDIOS = [cannonAudio, splashAudio, creakAudio];
-  // Audio logic
 
   // Measurement logic
 
   const { gridRef, measurement } = useGridMeasure(3);
 
+  // Audio logic
   useEffect(() => {
     const savedVolume = parseFloat(localStorage.getItem('volume') ?? '0.5');
     const savedMuted = localStorage.getItem('muted') === 'true';
