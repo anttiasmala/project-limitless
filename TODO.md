@@ -1,3 +1,5 @@
+1. Change UX / UI a bit, espececially when selecting who is going first
+
 A lot of ideas below:
 
 **Quick**
@@ -5,7 +7,7 @@ _Sound effects — a cannon blast when you win, splash when you draw, creak on e
 
 _Animated winning line — draw a crossed-out line through the winning three squares instead of just highlighting them_
 
-**First player toggle — let players choose who goes first before each round, rather than always starting with ☠️**
+_First player toggle — let players choose who goes first before each round, rather than always starting with ☠️_
 
 Move history — show a log like "Turn 3: Davy Jones played center" in a pirate scroll-style sidebar
 
