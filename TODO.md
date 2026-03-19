@@ -1,5 +1,4 @@
-1. Add localStorage for volumes and scores
-2. If Kraken's strength is changed, reset score?
+1. If Kraken's strength is changed, reset score?
 
 A lot of ideas below:
 
