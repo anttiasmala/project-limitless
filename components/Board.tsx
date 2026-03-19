@@ -48,9 +48,24 @@ export default function Board({ scores, setScores }: BoardProps) {
   // Audio logic
 
   useEffect(() => {
+    const savedVolume = parseFloat(localStorage.getItem('volume') ?? '0.5');
+    const savedMuted = localStorage.getItem('muted') === 'true';
+
     cannonAudio.current = new Audio('/sounds/cannon.mp3');
     splashAudio.current = new Audio('/sounds/splash.mp3');
     creakAudio.current = new Audio('/sounds/creak.mp3');
+
+    [cannonAudio, splashAudio, creakAudio].forEach((ref) => {
+      if (ref.current) {
+        ref.current.volume = savedVolume;
+        ref.current.muted = savedMuted;
+      }
+    });
+
+    setTimeout(() => {
+      setVolume(savedVolume);
+      setIsAudioMuted(savedMuted);
+    }, 0);
   }, []);
 
   function playSound(ref: React.RefObject<HTMLAudioElement | null>) {
@@ -240,7 +255,7 @@ export default function Board({ scores, setScores }: BoardProps) {
         ))}
       </div>
 
-      {/* Reset */}
+      {/* Reset Game*/}
       <button
         onClick={resetGame}
         className="mt-4 px-6 py-3 bg-red-900 border-2 border-red-700 text-yellow-300
@@ -284,6 +299,7 @@ function SettingsModal({
   setVolume: React.Dispatch<React.SetStateAction<number>>;
 }) {
   if (!showSettingsModal) return null;
+
   return createPortal(
     <>
       <div
@@ -314,9 +330,11 @@ function SettingsModal({
                   checked={isAudioMuted}
                   onChange={(e) => {
                     const muted = e.target.checked;
+                    localStorage.setItem('muted', muted.toString());
                     setIsAudioMuted(muted);
                     if (!muted && volume === 0) {
                       setVolume(0.5);
+                      localStorage.setItem('volume', '0.5');
                       AudioArray.forEach((ref) => {
                         if (ref.current) ref.current.volume = 0.5;
                       });
@@ -339,7 +357,9 @@ function SettingsModal({
                 onChange={(e) => {
                   const vol = parseFloat(e.target.value);
                   setVolume(vol);
+                  localStorage.setItem('volume', vol.toString());
                   const muted = vol === 0;
+                  localStorage.setItem('muted', muted.toString());
                   setIsAudioMuted(muted);
                   AudioArray.forEach((ref) => {
                     if (ref.current) {
