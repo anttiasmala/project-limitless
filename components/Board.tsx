@@ -15,6 +15,7 @@ import {
 } from '@/lib/gameLogic';
 import SvgSettings from '@/icons/settings';
 import { createPortal } from 'react-dom';
+import { useKeyPress } from '@/hooks/useKeyPress';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -160,7 +161,7 @@ export default function Board({ scores, setScores }: BoardProps) {
             {_mode === 'pvp' ? '⚔️ Two Pirates' : '🤖 Vs the Kraken'}
           </button>
         ))}
-        <div className="relative flex flex-col items-center gap-6">
+        <div className="relative flex flex-col items-center gap-6 border-0">
           <button
             className="absolute -left-1.5 sm:left-3 top-0 cursor-pointer"
             onClick={() => setShowSettingsModal(true)}
@@ -283,6 +284,8 @@ function SettingsModal({
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
 }) {
+  useKeyPress('Escape', () => setShowSettingsModal(false));
+
   if (!showSettingsModal) return null;
   return createPortal(
     <>
