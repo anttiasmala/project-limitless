@@ -163,13 +163,18 @@ export default function Board({ scores, setScores }: BoardProps) {
   }
 
   function switchMode(newMode: 'pvp' | 'pvc') {
+    if (gameHasMoves && !gameOver) return;
     setMode(newMode);
     setBoard(INITIAL_BOARD);
-    setCurrentPlayer(starterPlayer);
     setScores({ ...INITIAL_SCORE });
     setAiThinking(false);
-    const aiStarts = newMode === 'pvc' && starterPlayer === AI;
-    setIsGameStarted(aiStarts);
+
+    if (newMode === 'pvc') {
+      setStarterPlayer(HUMAN);
+      setCurrentPlayer(HUMAN);
+    }
+    // this prevents game starting too early
+    setIsGameStarted(false);
   }
 
   const DIFFICULTY_LABELS: Record<Difficulty, string> = {
@@ -190,8 +195,13 @@ export default function Board({ scores, setScores }: BoardProps) {
               ${
                 mode === _mode
                   ? 'bg-amber-700 border-yellow-400 text-yellow-300'
-                  : 'bg-amber-950/50 border-amber-800 text-amber-400 hover:border-amber-600 hover:cursor-pointer'
-              }`}
+                  : 'bg-amber-950/50 border-amber-800 text-amber-400 hover:border-amber-600'
+              }
+            ${
+              gameHasMoves && !gameOver
+                ? 'cursor-not-allowed'
+                : 'cursor-pointer'
+            }`}
           >
             {_mode === 'pvp' ? '⚔️ Two Pirates' : '🤖 Vs the Kraken'}
           </button>
@@ -217,9 +227,11 @@ export default function Board({ scores, setScores }: BoardProps) {
               <button
                 key={_difficulty}
                 onClick={() => {
-                  if (gameHasMoves) return;
+                  if (gameHasMoves && !gameOver) return;
                   setDifficulty(_difficulty);
-                  setScores({ ...INITIAL_SCORE });
+                  if (difficulty !== _difficulty) {
+                    setScores({ ...INITIAL_SCORE });
+                  }
                 }}
                 className={`px-3 py-1.5 rounded-lg border-2 font-semibold text-xs transition-all duration-200
                   ${
@@ -228,7 +240,7 @@ export default function Board({ scores, setScores }: BoardProps) {
                       : 'bg-amber-950/40 border-amber-800 text-amber-500 hover:border-amber-600'
                   }
                   ${
-                    gameHasMoves && difficulty !== _difficulty
+                    gameHasMoves && difficulty !== _difficulty && !gameOver
                       ? 'cursor-not-allowed'
                       : 'cursor-pointer'
                   }    
@@ -290,7 +302,13 @@ export default function Board({ scores, setScores }: BoardProps) {
             ${aiThinking ? 'cursor-not-allowed' : 'cursor-pointer'}
           `}
               >
-                {player === HUMAN ? '☠️ Pirate' : '⚓ Anchor'}
+                {player === HUMAN
+                  ? mode === 'pvc'
+                    ? '☠️ You'
+                    : '☠️ Pirate'
+                  : mode === 'pvc'
+                  ? '⚓ Kraken'
+                  : '⚓ Anchor'}
               </button>
             ))}
           </div>
