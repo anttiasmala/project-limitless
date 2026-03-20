@@ -253,39 +253,49 @@ export default function Board({ scores, setScores }: BoardProps) {
       </div>
 
       {/* Game Starter */}
-      {!isGameStarted || gameOver ? (
-        <div className="flex gap-12">
-          <button
-            className={`${
-              starterPlayer === '☠️'
-                ? 'bg-red-900 border-red-500 text-yellow-300 rounded'
-                : ''
-            } cursor-pointer`}
-            onClick={() => {
-              if (starterPlayer === '☠️' || aiThinking) return;
-              setStarterPlayer('☠️');
-              setCurrentPlayer('☠️');
-            }}
-          >
-            ☠️ First
-          </button>
-          <button
-            className={`${
-              starterPlayer === '⚓'
-                ? 'bg-red-900 border-red-500 text-yellow-300 rounded'
-                : ''
-            } cursor-pointer`}
-            onClick={() => {
-              if (starterPlayer === '⚓' || aiThinking) return;
-              setStarterPlayer('⚓');
-              setCurrentPlayer('⚓');
-              if (mode === 'pvc') setIsGameStarted(true);
-            }}
-          >
-            ⚓ First
-          </button>
+      {(!isGameStarted || gameOver) && (
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-amber-500 text-xs uppercase tracking-widest">
+            Who sails first?
+          </span>
+          <div className="relative flex bg-amber-950/60 border border-amber-800 rounded-full p-1 gap-1">
+            {/* Sliding pill background */}
+            <div
+              className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full
+          bg-amber-700 border border-yellow-500 shadow-inner
+          transition-transform duration-300 ease-in-out"
+              style={{
+                transform:
+                  starterPlayer === AI
+                    ? 'translateX(calc(100%))'
+                    : 'translateX(0)',
+              }}
+            />
+            {([HUMAN, AI] as Player[]).map((player) => (
+              <button
+                key={player}
+                onClick={() => {
+                  if (starterPlayer === player || aiThinking) return;
+                  setStarterPlayer(player);
+                  setCurrentPlayer(player);
+                  if (mode === 'pvc' && player === AI) setIsGameStarted(true);
+                }}
+                className={`relative z-10 px-5 py-1.5 rounded-full text-sm font-bold
+            transition-colors duration-200
+            ${
+              starterPlayer === player
+                ? 'text-yellow-300'
+                : 'text-amber-500 hover:text-amber-300'
+            }
+            ${aiThinking ? 'cursor-not-allowed' : 'cursor-pointer'}
+          `}
+              >
+                {player === HUMAN ? '☠️ Pirate' : '⚓ Anchor'}
+              </button>
+            ))}
+          </div>
         </div>
-      ) : null}
+      )}
 
       {/* Status */}
       <GameStatus
@@ -382,10 +392,12 @@ function SettingsModal({
       />
       <div className="fixed top-1/2 left-1/2 z-99 -translate-x-1/2 -translate-y-1/2">
         <button
-          className="border rounded-md mb-2 cursor-pointer"
+          className="py-2 bg-red-900 border-2 border-red-700 text-yellow-300
+    font-bold rounded-lg hover:bg-red-800 hover:border-yellow-500
+    cursor-pointer transition-all duration-200 tracking-wide w-full mb-2"
           onClick={() => setShowSettingsModal(false)}
         >
-          Close Window
+          ⚓ Close Window ☠️
         </button>
         <div
           className="w-48 h-auto min-h-48 bg-red-900 border-2 border-red-700 text-yellow-300
