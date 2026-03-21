@@ -15,7 +15,7 @@ _Move history — show a log like "Turn 3: Davy Jones played center" in a pirate
 **Medium Effort**
 Kraken avatar reactions — show a small Kraken illustration that changes expression (calm → angry → victorious) based on game state
 
-Local storage persistence — remember scores across page refreshes so a session survives an accidental reload
+_Local storage persistence — remember scores across page refreshes so a session survives an accidental reload_
 
 Timed moves — optional sand timer (e.g. 10 seconds per move) that auto-forfeits if time runs out, with a pirate hourglass UI
 
