@@ -1,3 +1,5 @@
+import { Player } from '@/lib/gameLogic';
+
 // UTILS
 export type KeyboardEventKeys =
   | ' ' // Space
@@ -111,3 +113,26 @@ export type KeyboardEventKeys =
   | 'F12'
   | 'Num Lock'
   | 'Scroll Lock';
+
+export enum BoardPlaces {
+  'top left',
+  'top center',
+  'top right',
+  'middle left',
+  'middle center',
+  'middle right',
+  'bottom left',
+  'bottom center',
+  'bottom right',
+}
+
+export enum PlayerNames {
+  '☠️' = 'Davy Jones',
+  '⚓' = 'Capt. Hook',
+}
+
+export type MoveEntry = {
+  turn: number;
+  player: Player;
+  index: number;
+};

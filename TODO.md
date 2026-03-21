@@ -1,4 +1,5 @@
-1. Change UX / UI a bit, espececially when selecting who is going first
+1. Mobile site is not looking good, it has to be changed quite a bit
+2. Site changes its height, the site moves a lot during play
 
 A lot of ideas below:
 

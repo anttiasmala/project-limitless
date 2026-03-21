@@ -18,6 +18,8 @@ import { createPortal } from 'react-dom';
 import { useKeyPress } from '@/hooks/useKeyPress';
 import WinningLine from './WinningLine';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
+import { MoveEntry } from '@/utils/types';
+import MoveHistory from './MoveHistory';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -35,6 +37,8 @@ export default function Board({ scores, setScores }: BoardProps) {
   const [mode, setMode] = useState<'pvp' | 'pvc'>('pvp');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [aiThinking, setAiThinking] = useState(false);
+
+  const [moveHistory, setMoveHistory] = useState<MoveEntry[]>([]);
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
@@ -99,6 +103,11 @@ export default function Board({ scores, setScores }: BoardProps) {
       setBoard(newBoard);
       setIsGameStarted(true);
 
+      setMoveHistory((prev) => [
+        ...prev,
+        { turn: prev.length + 1, player: AI, index: move },
+      ]);
+
       const { winner: _winner } = calculateWinner(newBoard);
       const _isDraw = isDraw(newBoard);
       if (_winner) {
@@ -131,6 +140,11 @@ export default function Board({ scores, setScores }: BoardProps) {
     if (mode === 'pvc' && currentPlayer === AI) return;
     setIsGameStarted(true);
 
+    setMoveHistory((prev) => [
+      ...prev,
+      { turn: prev.length + 1, player: currentPlayer, index },
+    ]);
+
     const newBoard = [...board];
     newBoard[index] = currentPlayer;
     setBoard(newBoard);
@@ -160,6 +174,7 @@ export default function Board({ scores, setScores }: BoardProps) {
     setAiThinking(false);
     const aiStarts = mode === 'pvc' && starterPlayer === AI;
     setIsGameStarted(aiStarts);
+    setMoveHistory([]);
   }
 
   function switchMode(newMode: 'pvp' | 'pvc') {
@@ -168,6 +183,7 @@ export default function Board({ scores, setScores }: BoardProps) {
     setBoard(INITIAL_BOARD);
     setScores({ ...INITIAL_SCORE });
     setAiThinking(false);
+    setMoveHistory([]);
 
     if (newMode === 'pvc') {
       setStarterPlayer(HUMAN);
@@ -184,14 +200,16 @@ export default function Board({ scores, setScores }: BoardProps) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      {/* Mode selector */}
-      <div className="flex gap-3">
-        {(['pvp', 'pvc'] as const).map((_mode) => (
-          <button
-            key={_mode}
-            onClick={() => switchMode(_mode)}
-            className={`px-4 py-2 rounded-lg border-2 font-bold text-sm transition-all duration-200
+    <div className="flex gap-8 items-start justify-center">
+      {/* Main game column */}
+      <div className="flex flex-col items-center gap-6">
+        {/* Mode selector */}
+        <div className="flex gap-3">
+          {(['pvp', 'pvc'] as const).map((_mode) => (
+            <button
+              key={_mode}
+              onClick={() => switchMode(_mode)}
+              className={`px-4 py-2 rounded-lg border-2 font-bold text-sm transition-all duration-200
               ${
                 mode === _mode
                   ? 'bg-amber-700 border-yellow-400 text-yellow-300'
@@ -202,38 +220,39 @@ export default function Board({ scores, setScores }: BoardProps) {
                 ? 'cursor-not-allowed'
                 : 'cursor-pointer'
             }`}
-          >
-            {_mode === 'pvp' ? '⚔️ Two Pirates' : '🤖 Vs the Kraken'}
-          </button>
-        ))}
-        <div className="relative flex flex-col items-center gap-6">
-          <button
-            className="absolute -left-1.5 sm:left-3 top-0 cursor-pointer"
-            onClick={() => setShowSettingsModal(true)}
-          >
-            <SvgSettings className="w-8 h-8 fill-none" />
-          </button>
+            >
+              {_mode === 'pvp' ? '⚔️ Two Pirates' : '🤖 Vs the Kraken'}
+            </button>
+          ))}
+          <div className="relative flex flex-col items-center gap-6">
+            <button
+              className="absolute -left-1.5 sm:left-3 top-0 cursor-pointer"
+              onClick={() => setShowSettingsModal(true)}
+            >
+              <SvgSettings className="w-8 h-8 fill-none" />
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Difficulty selector (only in PvC mode) */}
-      {mode === 'pvc' && (
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-amber-500 text-xs uppercase tracking-widest">
-            Kraken Strength
-          </span>
-          <div className="flex gap-2 flex-wrap justify-center">
-            {(['easy', 'medium', 'hard'] as Difficulty[]).map((_difficulty) => (
-              <button
-                key={_difficulty}
-                onClick={() => {
-                  if (gameHasMoves && !gameOver) return;
-                  setDifficulty(_difficulty);
-                  if (difficulty !== _difficulty) {
-                    setScores({ ...INITIAL_SCORE });
-                  }
-                }}
-                className={`px-3 py-1.5 rounded-lg border-2 font-semibold text-xs transition-all duration-200
+        {/* Difficulty selector (only in PvC mode) */}
+        {mode === 'pvc' && (
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-amber-500 text-xs uppercase tracking-widest">
+              Kraken Strength
+            </span>
+            <div className="flex gap-2 flex-wrap justify-center">
+              {(['easy', 'medium', 'hard'] as Difficulty[]).map(
+                (_difficulty) => (
+                  <button
+                    key={_difficulty}
+                    onClick={() => {
+                      if (gameHasMoves && !gameOver) return;
+                      setDifficulty(_difficulty);
+                      if (difficulty !== _difficulty) {
+                        setScores({ ...INITIAL_SCORE });
+                      }
+                    }}
+                    className={`px-3 py-1.5 rounded-lg border-2 font-semibold text-xs transition-all duration-200
                   ${
                     difficulty === _difficulty
                       ? 'bg-red-900 border-red-500 text-yellow-300'
@@ -245,54 +264,55 @@ export default function Board({ scores, setScores }: BoardProps) {
                       : 'cursor-pointer'
                   }    
                   `}
-              >
-                {DIFFICULTY_LABELS[_difficulty]}
-              </button>
-            ))}
+                  >
+                    {DIFFICULTY_LABELS[_difficulty]}
+                  </button>
+                ),
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Scoreboard */}
-      <div className="flex gap-8 text-amber-200 text-lg font-semibold bg-amber-950/50 border border-amber-800 rounded-xl px-8 py-3">
-        <span>
-          ☠️ {mode === 'pvc' ? 'You' : 'Davy Jones'}: {scores[HUMAN]}
-        </span>
-        <span className="text-amber-600">|</span>
-        <span>
-          ⚓ {mode === 'pvc' ? 'Kraken' : 'Capt. Hook'}: {scores[AI]}
-        </span>
-      </div>
-
-      {/* Game Starter */}
-      {(!isGameStarted || gameOver) && (
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-amber-500 text-xs uppercase tracking-widest">
-            Who sails first?
+        {/* Scoreboard */}
+        <div className="flex gap-8 text-amber-200 text-lg font-semibold bg-amber-950/50 border border-amber-800 rounded-xl px-8 py-3">
+          <span>
+            ☠️ {mode === 'pvc' ? 'You' : 'Davy Jones'}: {scores[HUMAN]}
           </span>
-          <div className="relative flex bg-amber-950/60 border border-amber-800 rounded-full p-1 gap-1">
-            {/* Sliding pill background */}
-            <div
-              className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full
+          <span className="text-amber-600">|</span>
+          <span>
+            ⚓ {mode === 'pvc' ? 'Kraken' : 'Capt. Hook'}: {scores[AI]}
+          </span>
+        </div>
+
+        {/* Game Starter */}
+        {(!isGameStarted || gameOver) && (
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-amber-500 text-xs uppercase tracking-widest">
+              Who sails first?
+            </span>
+            <div className="relative flex bg-amber-950/60 border border-amber-800 rounded-full p-1 gap-1">
+              {/* Sliding pill background */}
+              <div
+                className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full
           bg-amber-700 border border-yellow-500 shadow-inner
           transition-transform duration-300 ease-in-out"
-              style={{
-                transform:
-                  starterPlayer === AI
-                    ? 'translateX(calc(100%))'
-                    : 'translateX(0)',
-              }}
-            />
-            {([HUMAN, AI] as Player[]).map((player) => (
-              <button
-                key={player}
-                onClick={() => {
-                  if (starterPlayer === player || aiThinking) return;
-                  setStarterPlayer(player);
-                  setCurrentPlayer(player);
-                  if (mode === 'pvc' && player === AI) setIsGameStarted(true);
+                style={{
+                  transform:
+                    starterPlayer === AI
+                      ? 'translateX(calc(100%))'
+                      : 'translateX(0)',
                 }}
-                className={`relative z-10 px-5 py-1.5 rounded-full text-sm font-bold
+              />
+              {([HUMAN, AI] as Player[]).map((player) => (
+                <button
+                  key={player}
+                  onClick={() => {
+                    if (starterPlayer === player || aiThinking) return;
+                    setStarterPlayer(player);
+                    setCurrentPlayer(player);
+                    if (mode === 'pvc' && player === AI) setIsGameStarted(true);
+                  }}
+                  className={`relative z-10 px-5 py-1.5 rounded-full text-sm font-bold
             transition-colors duration-200
             ${
               starterPlayer === player
@@ -301,77 +321,85 @@ export default function Board({ scores, setScores }: BoardProps) {
             }
             ${aiThinking ? 'cursor-not-allowed' : 'cursor-pointer'}
           `}
-              >
-                {player === HUMAN
-                  ? mode === 'pvc'
-                    ? '☠️ You'
-                    : '☠️ Pirate'
-                  : mode === 'pvc'
-                  ? '⚓ Kraken'
-                  : '⚓ Anchor'}
-              </button>
+                >
+                  {player === HUMAN
+                    ? mode === 'pvc'
+                      ? '☠️ You'
+                      : '☠️ Pirate'
+                    : mode === 'pvc'
+                    ? '⚓ Kraken'
+                    : '⚓ Anchor'}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Status */}
+        <GameStatus
+          winner={winner}
+          isDraw={draw}
+          currentPlayer={currentPlayer}
+          mode={mode}
+          aiThinking={aiThinking}
+        />
+
+        {/* Grid */}
+        <div className="relative">
+          <div ref={gridRef} className="grid grid-cols-3 gap-3">
+            {board.map((cell, i) => (
+              <Square
+                key={i}
+                value={cell}
+                onClick={() => handleClick(i)}
+                isWinning={winLine?.includes(i) ?? false}
+                disabled={
+                  gameOver ||
+                  aiThinking ||
+                  (mode === 'pvc' && currentPlayer === AI)
+                }
+              />
             ))}
           </div>
-        </div>
-      )}
-
-      {/* Status */}
-      <GameStatus
-        winner={winner}
-        isDraw={draw}
-        currentPlayer={currentPlayer}
-        mode={mode}
-        aiThinking={aiThinking}
-      />
-
-      {/* Grid */}
-      <div className="relative">
-        <div ref={gridRef} className="grid grid-cols-3 gap-3">
-          {board.map((cell, i) => (
-            <Square
-              key={i}
-              value={cell}
-              onClick={() => handleClick(i)}
-              isWinning={winLine?.includes(i) ?? false}
-              disabled={
-                gameOver ||
-                aiThinking ||
-                (mode === 'pvc' && currentPlayer === AI)
-              }
+          {winner && winLine && (
+            <WinningLine
+              winLine={winLine}
+              cellSize={measurement.cellSize}
+              gap={measurement.gap}
             />
-          ))}
+          )}
         </div>
-        {winner && winLine && (
-          <WinningLine
-            winLine={winLine}
-            cellSize={measurement.cellSize}
-            gap={measurement.gap}
-          />
-        )}
-      </div>
 
-      {/* Reset Game*/}
-      <button
-        onClick={resetGame}
-        className="mt-4 px-6 py-3 bg-red-900 border-2 border-red-700 text-yellow-300
+        {/* Reset Game*/}
+        <button
+          onClick={resetGame}
+          className="mt-4 px-6 py-3 bg-red-900 border-2 border-red-700 text-yellow-300
           font-bold rounded-lg hover:bg-red-800 hover:border-yellow-500 hover:cursor-pointer 
           transition-all duration-200 text-lg tracking-wide"
-      >
-        🏴‍☠️ New Voyage
-      </button>
+        >
+          🏴‍☠️ New Voyage
+        </button>
 
-      {/* Settings Modal */}
-      <div>
-        <SettingsModal
-          showSettingsModal={showSettingsModal}
-          setShowSettingsModal={setShowSettingsModal}
-          isAudioMuted={isAudioMuted}
-          setIsAudioMuted={setIsAudioMuted}
-          volume={volume}
-          setVolume={setVolume}
-          AudioArray={ALL_AUDIOS}
-        />
+        {/* Settings Modal */}
+        <div>
+          <SettingsModal
+            showSettingsModal={showSettingsModal}
+            setShowSettingsModal={setShowSettingsModal}
+            isAudioMuted={isAudioMuted}
+            setIsAudioMuted={setIsAudioMuted}
+            volume={volume}
+            setVolume={setVolume}
+            AudioArray={ALL_AUDIOS}
+          />
+        </div>
       </div>
+      {/* Sidebar */}
+      <MoveHistory
+        moveHistory={moveHistory}
+        mode={mode}
+        winner={winner}
+        isDraw={draw}
+      />
     </div>
   );
 }
