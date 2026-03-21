@@ -1,6 +1,5 @@
 import { Player } from '@/lib/gameLogic';
 import { BoardPlaces, MoveEntry, PlayerNames } from '@/utils/types';
-import { useEffect, useRef } from 'react';
 
 type MoveHistoryProps = {
   moveHistory: MoveEntry[];
@@ -22,14 +21,9 @@ export default function MoveHistory({
   winner,
   isDraw,
 }: MoveHistoryProps) {
-  const bottomRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [moveHistory]);
   return (
     <aside
-      className="flex flex-col w-56 min-h-64 max-h-120
+      className="flex flex-col w-full max-w-sm min-h-24 max-h-48
         bg-amber-950/60 border-2 border-amber-800 rounded-xl
         overflow-hidden"
     >
@@ -42,7 +36,7 @@ export default function MoveHistory({
       </div>
 
       {/* Scroll area */}
-      <div className="flex-1 overflow-y-auto max-h-48 px-3 py-2 flex flex-col gap-1 scroll-smooth">
+      <div className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-1 scroll-smooth">
         {moveHistory.length === 0 ? (
           <p className="text-amber-700 text-xs text-center mt-4 italic">
             No moves yet, Captain…
@@ -65,12 +59,15 @@ export default function MoveHistory({
             </div>
           ))
         )}
-        <div ref={bottomRef} />
 
         {/* Game result entry */}
         {winner && (
           <div className="mt-1 text-xs font-bold text-yellow-400 text-center border-t border-amber-700 pt-2">
-            🏴‍☠️ {getPlayerLabel(winner, mode)} claims the treasure!
+            🏴‍☠️{' '}
+            {getPlayerLabel(winner, mode) === 'You'
+              ? 'You claim'
+              : `${getPlayerLabel(winner, mode)} claims`}{' '}
+            the treasure! 🏴‍☠️
           </div>
         )}
         {isDraw && (
