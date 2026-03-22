@@ -88,7 +88,13 @@ export function SettingsModal({
                   type="checkbox"
                   className="ml-2 w-5 h-5 cursor-pointer align-middle"
                   checked={timerEnabled}
-                  onChange={(e) => setTimerEnabled(e.target.checked)}
+                  onChange={(e) => {
+                    setTimerEnabled(e.target.checked);
+                    localStorage.setItem(
+                      'timerEnabled',
+                      e.target.checked.toString(),
+                    );
+                  }}
                 />
               </label>
             </div>

@@ -74,10 +74,11 @@ export default function Board({ scores, setScores }: BoardProps) {
   // Measurement logic
   const { gridRef, measurement } = useGridMeasure(3);
 
-  // Audio logic
+  // Audio and Hourglass logic
   useEffect(() => {
     const savedVolume = parseFloat(localStorage.getItem('volume') ?? '0.5');
     const savedMuted = localStorage.getItem('muted') === 'true';
+    const savedTimerEnabled = localStorage.getItem('timerEnabled') === 'true';
 
     cannonAudio.current = new Audio('/sounds/cannon.mp3');
     splashAudio.current = new Audio('/sounds/splash.mp3');
@@ -93,6 +94,7 @@ export default function Board({ scores, setScores }: BoardProps) {
     setTimeout(() => {
       setVolume(savedVolume);
       setIsAudioMuted(savedMuted);
+      setTimerEnabled(savedTimerEnabled);
     }, 0);
   }, []);
 
