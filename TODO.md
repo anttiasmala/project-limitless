@@ -20,7 +20,7 @@ Kraken avatar reactions — show a small Kraken illustration that changes expres
 
 _Local storage persistence — remember scores across page refreshes so a session survives an accidental reload_
 
-Timed moves — optional sand timer (e.g. 10 seconds per move) that auto-forfeits if time runs out, with a pirate hourglass UI
+_Timed moves — optional sand timer (e.g. 10 seconds per move) that auto-forfeits if time runs out, with a pirate hourglass UI_
 
 Treasure chest win counter — replace numeric scores with a row of treasure chest icons that fill up as you win rounds
 

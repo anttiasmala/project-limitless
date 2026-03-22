@@ -22,6 +22,8 @@ import { MoveEntry } from '@/utils/types';
 import MoveHistory from './MoveHistory';
 import { useTimer } from '@/hooks/useTimer';
 import HourglassTimer from './HourglassTimer';
+import KrakenAvatar from './KrakenAvatar';
+import { getKrakenMood } from '@/utils/krakenMood';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -51,6 +53,14 @@ export default function Board({ scores, setScores }: BoardProps) {
   const { winner, line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
   const gameOver = !!winner || draw;
+
+  const krakenMood = getKrakenMood({
+    winner,
+    isDraw: draw,
+    aiThinking,
+    board,
+    isGameStarted,
+  });
 
   const cannonAudio = useRef<HTMLAudioElement | null>(null);
   const splashAudio = useRef<HTMLAudioElement | null>(null);
@@ -383,6 +393,11 @@ export default function Board({ scores, setScores }: BoardProps) {
         showForfeitMessage={showForfeitMessage}
       />
 
+      {/* Kraken mood */}
+
+      {mode === 'pvc' && <KrakenAvatar mood={krakenMood} />}
+
+      {/* Hourglass timer */}
       {timerEnabled && isHumanTurn && isGameStarted && (
         <HourglassTimer timeLeft={timeLeft} duration={TIMER_DURATION} />
       )}
