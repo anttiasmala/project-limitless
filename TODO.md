@@ -16,7 +16,7 @@ _First player toggle — let players choose who goes first before each round, ra
 _Move history — show a log like "Turn 3: Davy Jones played center" in a pirate scroll-style sidebar_
 
 **Medium Effort**
-Kraken avatar reactions — show a small Kraken illustration that changes expression (calm → angry → victorious) based on game state
+_Kraken avatar reactions — show a small Kraken illustration that changes expression (calm → angry → victorious) based on game state_
 
 _Local storage persistence — remember scores across page refreshes so a session survives an accidental reload_
 
