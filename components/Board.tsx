@@ -23,6 +23,7 @@ import HourglassTimer from './HourglassTimer';
 import KrakenAvatar from './KrakenAvatar';
 import { getKrakenMood } from '@/utils/krakenMood';
 import { SettingsModal } from './SettingsModal';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -42,12 +43,15 @@ export default function Board({ scores, setScores }: BoardProps) {
   const [aiThinking, setAiThinking] = useState(false);
 
   const [moveHistory, setMoveHistory] = useState<MoveEntry[]>([]);
-  const [timerEnabled, setTimerEnabled] = useState(false);
   const [showForfeitMessage, setShowForfeitMessage] = useState(false);
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [isAudioMuted, setIsAudioMuted] = useState(false);
-  const [volume, setVolume] = useState(1);
+  const [isAudioMuted, setIsAudioMuted] = useLocalStorage('muted', false);
+  const [volume, setVolume] = useLocalStorage('volume', 0.5);
+  const [timerEnabled, setTimerEnabled] = useLocalStorage(
+    'timerEnabled',
+    false,
+  );
 
   const { winner, line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
@@ -74,29 +78,19 @@ export default function Board({ scores, setScores }: BoardProps) {
   // Measurement logic
   const { gridRef, measurement } = useGridMeasure(3);
 
-  // Audio and Hourglass logic
+  // Audio logic
   useEffect(() => {
-    const savedVolume = parseFloat(localStorage.getItem('volume') ?? '0.5');
-    const savedMuted = localStorage.getItem('muted') === 'true';
-    const savedTimerEnabled = localStorage.getItem('timerEnabled') === 'true';
-
     cannonAudio.current = new Audio('/sounds/cannon.mp3');
     splashAudio.current = new Audio('/sounds/splash.mp3');
     creakAudio.current = new Audio('/sounds/creak.mp3');
 
-    [cannonAudio, splashAudio, creakAudio].forEach((ref) => {
+    ALL_AUDIOS.forEach((ref) => {
       if (ref.current) {
-        ref.current.volume = savedVolume;
-        ref.current.muted = savedMuted;
+        ref.current.volume = volume;
+        ref.current.muted = isAudioMuted;
       }
     });
-
-    setTimeout(() => {
-      setVolume(savedVolume);
-      setIsAudioMuted(savedMuted);
-      setTimerEnabled(savedTimerEnabled);
-    }, 0);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function playSound(ref: React.RefObject<HTMLAudioElement | null>) {
     if (ref.current) {

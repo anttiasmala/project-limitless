@@ -17,11 +17,11 @@ export function SettingsModal({
   setShowSettingsModal: React.Dispatch<React.SetStateAction<boolean>>;
   AudioArray: React.RefObject<HTMLAudioElement | null>[];
   isAudioMuted: boolean;
-  setIsAudioMuted: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsAudioMuted: (value: boolean) => void;
   volume: number;
-  setVolume: React.Dispatch<React.SetStateAction<number>>;
+  setVolume: (value: number) => void;
   timerEnabled: boolean;
-  setTimerEnabled: React.Dispatch<React.SetStateAction<boolean>>;
+  setTimerEnabled: (value: boolean) => void;
 }) {
   const handleClose = useCallback(
     () => setShowSettingsModal(false),
@@ -64,11 +64,9 @@ export function SettingsModal({
                   checked={isAudioMuted}
                   onChange={(e) => {
                     const muted = e.target.checked;
-                    localStorage.setItem('muted', muted.toString());
                     setIsAudioMuted(muted);
                     if (!muted && volume === 0) {
                       setVolume(0.5);
-                      localStorage.setItem('volume', '0.5');
                       AudioArray.forEach((ref) => {
                         if (ref.current) ref.current.volume = 0.5;
                       });
@@ -88,13 +86,7 @@ export function SettingsModal({
                   type="checkbox"
                   className="ml-2 w-5 h-5 cursor-pointer align-middle"
                   checked={timerEnabled}
-                  onChange={(e) => {
-                    setTimerEnabled(e.target.checked);
-                    localStorage.setItem(
-                      'timerEnabled',
-                      e.target.checked.toString(),
-                    );
-                  }}
+                  onChange={(e) => setTimerEnabled(e.target.checked)}
                 />
               </label>
             </div>
@@ -110,9 +102,7 @@ export function SettingsModal({
                 onChange={(e) => {
                   const vol = parseFloat(e.target.value);
                   setVolume(vol);
-                  localStorage.setItem('volume', vol.toString());
                   const muted = vol === 0;
-                  localStorage.setItem('muted', muted.toString());
                   setIsAudioMuted(muted);
                   AudioArray.forEach((ref) => {
                     if (ref.current) {
