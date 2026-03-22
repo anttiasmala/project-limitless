@@ -20,6 +20,8 @@ import WinningLine from './WinningLine';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
 import { MoveEntry } from '@/utils/types';
 import MoveHistory from './MoveHistory';
+import { useTimer } from '@/hooks/useTimer';
+import HourglassTimer from './HourglassTimer';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -39,6 +41,8 @@ export default function Board({ scores, setScores }: BoardProps) {
   const [aiThinking, setAiThinking] = useState(false);
 
   const [moveHistory, setMoveHistory] = useState<MoveEntry[]>([]);
+  const [timerEnabled, setTimerEnabled] = useState(false);
+  const [showForfeitMessage, setShowForfeitMessage] = useState(false);
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
@@ -53,8 +57,10 @@ export default function Board({ scores, setScores }: BoardProps) {
   const creakAudio = useRef<HTMLAudioElement | null>(null);
 
   const ALL_AUDIOS = [cannonAudio, splashAudio, creakAudio];
+  const TIMER_DURATION = 10;
 
   const gameHasMoves = board.some((cell) => cell !== null);
+  const isHumanTurn = !gameOver && (mode === 'pvp' || currentPlayer === HUMAN);
 
   // Measurement logic
   const { gridRef, measurement } = useGridMeasure(3);
@@ -88,6 +94,31 @@ export default function Board({ scores, setScores }: BoardProps) {
     }
   }
 
+  const { timeLeft, reset: resetTimer } = useTimer(
+    timerEnabled && isHumanTurn && isGameStarted,
+    TIMER_DURATION,
+    handleForfeit,
+  );
+
+  const resetGame = useCallback(() => {
+    setBoard(INITIAL_BOARD);
+    setCurrentPlayer(starterPlayer);
+    setAiThinking(false);
+    const aiStarts = mode === 'pvc' && starterPlayer === AI;
+    setIsGameStarted(aiStarts);
+    setMoveHistory([]);
+    resetTimer();
+    setShowForfeitMessage(false);
+  }, [starterPlayer, mode, resetTimer]);
+
+  // Reset forfeit message
+
+  useEffect(() => {
+    if (!showForfeitMessage) return;
+    const timeout = setTimeout(() => resetGame(), 2000);
+    return () => clearTimeout(timeout);
+  }, [showForfeitMessage, resetGame]);
+
   // AI move logic
 
   useEffect(() => {
@@ -117,6 +148,7 @@ export default function Board({ scores, setScores }: BoardProps) {
         playSound(splashAudio);
       } else {
         setCurrentPlayer(HUMAN);
+        resetTimer();
       }
       setAiThinking(false);
     }, 400); // slight delay so it feels alive
@@ -133,12 +165,28 @@ export default function Board({ scores, setScores }: BoardProps) {
     gameOver,
     setScores,
     isGameStarted,
+    resetTimer,
   ]);
 
+  function handleForfeit() {
+    // Treat forfeit as skipping — opponent wins the turn, or just end game
+    const loser = currentPlayer;
+    const opponent = loser === HUMAN ? AI : HUMAN;
+    setScores((prev) => ({
+      ...prev,
+      [opponent]: prev[opponent] + 1,
+    }));
+    playSound(cannonAudio);
+    // Mark board as full to trigger game-over state via a forced win
+    // Simplest: just award the point and reset
+    setShowForfeitMessage(true);
+  }
+
   function handleClick(index: number) {
-    if (board[index] || gameOver || aiThinking) return;
+    if (board[index] || gameOver || aiThinking || showForfeitMessage) return;
     if (mode === 'pvc' && currentPlayer === AI) return;
     setIsGameStarted(true);
+    setShowForfeitMessage(false);
 
     setMoveHistory((prev) => [
       ...prev,
@@ -148,6 +196,7 @@ export default function Board({ scores, setScores }: BoardProps) {
     const newBoard = [...board];
     newBoard[index] = currentPlayer;
     setBoard(newBoard);
+    resetTimer();
 
     const { winner: _winner } = calculateWinner(newBoard);
     const _isDraw = isDraw(newBoard);
@@ -168,15 +217,6 @@ export default function Board({ scores, setScores }: BoardProps) {
     }
   }
 
-  function resetGame() {
-    setBoard(INITIAL_BOARD);
-    setCurrentPlayer(starterPlayer);
-    setAiThinking(false);
-    const aiStarts = mode === 'pvc' && starterPlayer === AI;
-    setIsGameStarted(aiStarts);
-    setMoveHistory([]);
-  }
-
   function switchMode(newMode: 'pvp' | 'pvc') {
     if (gameHasMoves && !gameOver) return;
     setMode(newMode);
@@ -184,6 +224,8 @@ export default function Board({ scores, setScores }: BoardProps) {
     setScores({ ...INITIAL_SCORE });
     setAiThinking(false);
     setMoveHistory([]);
+    resetTimer();
+    setShowForfeitMessage(false);
 
     if (newMode === 'pvc') {
       setStarterPlayer(HUMAN);
@@ -338,7 +380,12 @@ export default function Board({ scores, setScores }: BoardProps) {
         currentPlayer={currentPlayer}
         mode={mode}
         aiThinking={aiThinking}
+        showForfeitMessage={showForfeitMessage}
       />
+
+      {timerEnabled && isHumanTurn && isGameStarted && (
+        <HourglassTimer timeLeft={timeLeft} duration={TIMER_DURATION} />
+      )}
 
       {/* Grid */}
       <div className="relative">
@@ -392,6 +439,8 @@ export default function Board({ scores, setScores }: BoardProps) {
           volume={volume}
           setVolume={setVolume}
           AudioArray={ALL_AUDIOS}
+          timerEnabled={timerEnabled}
+          setTimerEnabled={setTimerEnabled}
         />
       </div>
     </div>
@@ -406,6 +455,8 @@ function SettingsModal({
   volume,
   setVolume,
   AudioArray,
+  timerEnabled,
+  setTimerEnabled,
 }: {
   showSettingsModal: boolean;
   setShowSettingsModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -414,6 +465,8 @@ function SettingsModal({
   setIsAudioMuted: React.Dispatch<React.SetStateAction<boolean>>;
   volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
+  timerEnabled: boolean;
+  setTimerEnabled: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const handleClose = useCallback(
     () => setShowSettingsModal(false),
@@ -472,6 +525,19 @@ function SettingsModal({
                 />
               </label>
             </div>
+            {/* TIMER LOGIC */}
+            <div className="mt-3 flex">
+              <label className="cursor-pointer select-none">
+                Sand timer (10s)
+                <input
+                  type="checkbox"
+                  className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                  checked={timerEnabled}
+                  onChange={(e) => setTimerEnabled(e.target.checked)}
+                />
+              </label>
+            </div>
+
             <div className="mt-3 flex">
               <input
                 type="range"

@@ -1,3 +1,4 @@
+import { FORFEIT_MESSAGE } from '@/utils/utils';
 import { Player } from '../lib/gameLogic';
 
 interface GameStatusProps {
@@ -6,6 +7,7 @@ interface GameStatusProps {
   currentPlayer: Player;
   mode: 'pvp' | 'pvc';
   aiThinking: boolean;
+  showForfeitMessage: boolean;
 }
 
 const PVP_NAMES: Record<Player, string> = {
@@ -19,7 +21,15 @@ export default function GameStatus({
   currentPlayer,
   mode,
   aiThinking,
+  showForfeitMessage,
 }: GameStatusProps) {
+  if (showForfeitMessage) {
+    return (
+      <div className="text-center text-4xl font-bold text-yellow-400 animate-pulse">
+        <p>{FORFEIT_MESSAGE}</p>
+      </div>
+    );
+  }
   if (winner) {
     const name =
       mode === 'pvc'

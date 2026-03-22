@@ -1,5 +1,8 @@
 1. Mobile site is not looking good, it has to be changed quite a bit
 2. Site changes its height, the site moves a lot during play
+3. settingsModal to own component
+4. ?Add the win reason to captain's log?
+5. Add timer data to localstorage
 
 A lot of ideas below:
 
