@@ -24,6 +24,7 @@ import KrakenAvatar from './KrakenAvatar';
 import { getKrakenMood } from '@/utils/krakenMood';
 import { SettingsModal } from './SettingsModal';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import TreasureChests from './TreasureChests';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -317,14 +318,23 @@ export default function Board({ scores, setScores }: BoardProps) {
       )}
 
       {/* Scoreboard */}
-      <div className="flex gap-8 text-amber-200 text-lg font-semibold bg-amber-950/50 border border-amber-800 rounded-xl px-8 py-3">
-        <span>
-          ☠️ {mode === 'pvc' ? 'You' : 'Davy Jones'}: {scores[HUMAN]}
-        </span>
-        <span className="text-amber-600">|</span>
-        <span>
-          ⚓ {mode === 'pvc' ? 'Kraken' : 'Capt. Hook'}: {scores[AI]}
-        </span>
+      <div
+        className="flex gap-8 text-amber-200 text-lg font-semibold
+  bg-amber-950/50 border border-amber-800 rounded-xl px-8 py-3"
+      >
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-xs text-amber-500 uppercase tracking-widest">
+            {mode === 'pvc' ? '☠️ You' : '☠️ Davy Jones'}
+          </span>
+          <TreasureChests count={scores[HUMAN]} />
+        </div>
+        <span className="text-amber-600 self-center">|</span>
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-xs text-amber-500 uppercase tracking-widest">
+            {mode === 'pvc' ? '⚓ Kraken' : '⚓ Capt. Hook'}
+          </span>
+          <TreasureChests count={scores[AI]} />
+        </div>
       </div>
 
       {/* Game Starter */}
