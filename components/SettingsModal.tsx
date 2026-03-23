@@ -12,6 +12,8 @@ export function SettingsModal({
   AudioArray,
   timerEnabled,
   setTimerEnabled,
+  pointSystem,
+  setPointSystem,
 }: {
   showSettingsModal: boolean;
   setShowSettingsModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,6 +24,8 @@ export function SettingsModal({
   setVolume: (value: number) => void;
   timerEnabled: boolean;
   setTimerEnabled: (value: boolean) => void;
+  pointSystem: 'treasureChest' | 'number';
+  setPointSystem: (value: 'treasureChest' | 'number') => void;
 }) {
   const handleClose = useCallback(
     () => setShowSettingsModal(false),
@@ -88,6 +92,32 @@ export function SettingsModal({
                   checked={timerEnabled}
                   onChange={(e) => setTimerEnabled(e.target.checked)}
                 />
+              </label>
+            </div>
+
+            {/* Treasure chest or number logic*/}
+
+            <div className="mt-3 flex">
+              <label className="cursor-pointer select-none">
+                Point system:
+                <select
+                  className="border-2 rounded-md"
+                  name="pointSystem"
+                  onChange={(e) =>
+                    setPointSystem(e.target.value as 'treasureChest' | 'number')
+                  }
+                  value={pointSystem}
+                >
+                  <option className="text-black font-bold" value={'number'}>
+                    Number
+                  </option>
+                  <option
+                    className="text-black font-bold"
+                    value={'treasureChest'}
+                  >
+                    Treasure Chest
+                  </option>
+                </select>
               </label>
             </div>
 

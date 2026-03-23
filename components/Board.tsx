@@ -53,6 +53,9 @@ export default function Board({ scores, setScores }: BoardProps) {
     'timerEnabled',
     false,
   );
+  const [pointSystem, setPointSystem, pointSystemMounted] = useLocalStorage<
+    'treasureChest' | 'number'
+  >('pointSystem', 'number');
 
   const { winner, line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
@@ -81,9 +84,15 @@ export default function Board({ scores, setScores }: BoardProps) {
 
   // Audio logic
   useEffect(() => {
-    cannonAudio.current = new Audio('/sounds/cannon.mp3');
-    splashAudio.current = new Audio('/sounds/splash.mp3');
-    creakAudio.current = new Audio('/sounds/creak.mp3');
+    if (!cannonAudio.current) {
+      cannonAudio.current = new Audio('/sounds/cannon.mp3');
+    }
+    if (!splashAudio.current) {
+      splashAudio.current = new Audio('/sounds/splash.mp3');
+    }
+    if (!creakAudio.current) {
+      creakAudio.current = new Audio('/sounds/creak.mp3');
+    }
 
     ALL_AUDIOS.forEach((ref) => {
       if (ref.current) {
@@ -91,7 +100,7 @@ export default function Board({ scores, setScores }: BoardProps) {
         ref.current.muted = isAudioMuted;
       }
     });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [volume, isAudioMuted]);
 
   function playSound(ref: React.RefObject<HTMLAudioElement | null>) {
     if (ref.current) {
@@ -326,14 +335,22 @@ export default function Board({ scores, setScores }: BoardProps) {
           <span className="text-xs text-amber-500 uppercase tracking-widest">
             {mode === 'pvc' ? '☠️ You' : '☠️ Davy Jones'}
           </span>
-          <TreasureChests count={scores[HUMAN]} />
+          {!pointSystemMounted || pointSystem === 'number' ? (
+            <p>{scores[HUMAN]}</p>
+          ) : (
+            <TreasureChests count={scores[HUMAN]} />
+          )}
         </div>
         <span className="text-amber-600 self-center">|</span>
         <div className="flex flex-col items-center gap-1">
           <span className="text-xs text-amber-500 uppercase tracking-widest">
             {mode === 'pvc' ? '⚓ Kraken' : '⚓ Capt. Hook'}
           </span>
-          <TreasureChests count={scores[AI]} />
+          {!pointSystemMounted || pointSystem === 'number' ? (
+            <p>{scores[AI]}</p>
+          ) : (
+            <TreasureChests count={scores[AI]} />
+          )}
         </div>
       </div>
 
@@ -460,6 +477,8 @@ export default function Board({ scores, setScores }: BoardProps) {
         AudioArray={ALL_AUDIOS}
         timerEnabled={timerEnabled}
         setTimerEnabled={setTimerEnabled}
+        pointSystem={pointSystem}
+        setPointSystem={setPointSystem}
       />
     </div>
   );
