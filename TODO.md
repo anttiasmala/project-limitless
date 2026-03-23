@@ -22,7 +22,7 @@ _Local storage persistence — remember scores across page refreshes so a sessio
 
 _Timed moves — optional sand timer (e.g. 10 seconds per move) that auto-forfeits if time runs out, with a pirate hourglass UI_
 
-Treasure chest win counter — replace numeric scores with a row of treasure chest icons that fill up as you win rounds
+_Treasure chest win counter — replace numeric scores with a row of treasure chest icons that fill up as you win rounds_
 
 **Bigger Features**
 Best-of series mode — play a best-of-3 or best-of-5 series with a grand champion announcement at the end
