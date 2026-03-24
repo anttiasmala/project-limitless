@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Square from './Square';
 import GameStatus from './GameStatus';
 import {
@@ -73,7 +73,11 @@ export default function Board({ scores, setScores }: BoardProps) {
   const splashAudio = useRef<HTMLAudioElement | null>(null);
   const creakAudio = useRef<HTMLAudioElement | null>(null);
 
-  const ALL_AUDIOS = [cannonAudio, splashAudio, creakAudio];
+  const ALL_AUDIOS = useMemo(
+    () => [cannonAudio, splashAudio, creakAudio],
+    [cannonAudio, splashAudio, creakAudio],
+  );
+
   const TIMER_DURATION = 10;
 
   const gameHasMoves = board.some((cell) => cell !== null);
@@ -94,13 +98,13 @@ export default function Board({ scores, setScores }: BoardProps) {
       creakAudio.current = new Audio('/sounds/creak.mp3');
     }
 
-    ALL_AUDIOS.forEach((ref) => {
+    ALL_AUDIOS.forEach((ref: React.RefObject<HTMLAudioElement | null>) => {
       if (ref.current) {
         ref.current.volume = volume;
         ref.current.muted = isAudioMuted;
       }
     });
-  }, [volume, isAudioMuted]);
+  }, [volume, isAudioMuted, ALL_AUDIOS]);
 
   function playSound(ref: React.RefObject<HTMLAudioElement | null>) {
     if (ref.current) {

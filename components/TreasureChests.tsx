@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   count: number;
@@ -6,11 +6,32 @@ type Props = {
 };
 
 export default function TreasureChests({ count, max = 5 }: Props) {
+  const [justFilledIndex, setJustFilledIndex] = useState<number | null>(null);
   const prevCount = useRef(count);
-  const justFilledIndex = count > prevCount.current ? count - 1 : null;
 
   useEffect(() => {
+    let clearTimer: number | undefined;
+    let setIndexTimer: number | undefined;
+
+    if (count > prevCount.current) {
+      setIndexTimer = window.setTimeout(() => {
+        setJustFilledIndex(count - 1);
+        clearTimer = window.setTimeout(() => setJustFilledIndex(null), 300);
+      }, 0);
+    } else if (count !== prevCount.current) {
+      setIndexTimer = window.setTimeout(() => setJustFilledIndex(null), 0);
+    }
+
     prevCount.current = count;
+
+    return () => {
+      if (setIndexTimer !== undefined) {
+        window.clearTimeout(setIndexTimer);
+      }
+      if (clearTimer !== undefined) {
+        window.clearTimeout(clearTimer);
+      }
+    };
   }, [count]);
 
   return (
