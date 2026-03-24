@@ -5,7 +5,13 @@ import { useEffect, useState } from 'react';
 import Board from './Board';
 import ResetScore from './ResetScore';
 
-export default function GameContainer() {
+export default function GameContainer({
+  isDarkTheme,
+  setIsDarkTheme,
+}: {
+  isDarkTheme: boolean;
+  setIsDarkTheme: (value: boolean) => void;
+}) {
   const [scores, setScores] = useState({ ...INITIAL_SCORE });
 
   useEffect(() => {
@@ -20,8 +26,13 @@ export default function GameContainer() {
 
   return (
     <>
-      <div className="bg-amber-950/40 border-2 border-amber-800 rounded-2xl p-8 shadow-[0_0_40px_#451a0360] backdrop-blur-sm">
-        <Board scores={scores} setScores={setScores} />
+      <div className="bg-white/80 border-2 border-slate-300 dark:bg-amber-950/40 dark:border-amber-800 rounded-2xl p-8 shadow-[0_0_40px_#94a3b820] dark:shadow-[0_0_40px_#451a0360] backdrop-blur-sm">
+        <Board
+          scores={scores}
+          setScores={setScores}
+          isDarkTheme={isDarkTheme}
+          setIsDarkTheme={setIsDarkTheme}
+        />
       </div>
 
       <div>

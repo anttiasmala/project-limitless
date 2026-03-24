@@ -14,6 +14,8 @@ export function SettingsModal({
   setTimerEnabled,
   pointSystem,
   setPointSystem,
+  isDarkTheme,
+  setIsDarkTheme,
 }: {
   showSettingsModal: boolean;
   setShowSettingsModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -26,6 +28,8 @@ export function SettingsModal({
   setTimerEnabled: (value: boolean) => void;
   pointSystem: 'treasureChest' | 'number';
   setPointSystem: (value: 'treasureChest' | 'number') => void;
+  isDarkTheme: boolean;
+  setIsDarkTheme: (value: boolean) => void;
 }) {
   const handleClose = useCallback(
     () => setShowSettingsModal(false),
@@ -37,29 +41,21 @@ export function SettingsModal({
   if (!showSettingsModal) return null;
 
   return createPortal(
-    <>
+    <div className={`${isDarkTheme ? 'dark' : ''}`}>
       <div
         className="fixed top-0 left-0 z-98 h-full w-full bg-black opacity-80"
         onClick={() => setShowSettingsModal(false)}
       />
       <div className="fixed top-1/2 left-1/2 z-99 -translate-x-1/2 -translate-y-1/2">
         <button
-          className="py-2 bg-red-900 border-2 border-red-700 text-yellow-300
-    font-bold rounded-lg hover:bg-red-800 hover:border-yellow-500
-    cursor-pointer transition-all duration-200 tracking-wide w-full mb-2"
+          className="py-2 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg hover:bg-slate-100 hover:border-amber-500 dark:hover:bg-red-800 dark:hover:border-yellow-500 cursor-pointer transition-all duration-200 tracking-wide w-full mb-2"
           onClick={() => setShowSettingsModal(false)}
         >
           ⚓ Close Window ☠️
         </button>
-        <div
-          className="w-48 h-auto min-h-48 bg-red-900 border-2 border-red-700 text-yellow-300
-          font-bold rounded-lg hover:bg-red-800 hover:border-yellow-500"
-        >
+        <div className="w-48 h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-red-800 dark:hover:border-yellow-500">
           <div className="mt-3 ml-3 flex flex-col">
-            <div
-              className="flex
-            "
-            >
+            <div className="flex">
               <label className="cursor-pointer select-none">
                 Mute sounds
                 <input
@@ -101,7 +97,7 @@ export function SettingsModal({
               <label className="cursor-pointer select-none">
                 Point system:
                 <select
-                  className="border-2 rounded-md"
+                  className="border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
                   name="pointSystem"
                   onChange={(e) =>
                     setPointSystem(e.target.value as 'treasureChest' | 'number')
@@ -121,6 +117,22 @@ export function SettingsModal({
               </label>
             </div>
 
+            {/* Dark theme logic */}
+
+            <div className="mt-3 flex">
+              <label className="cursor-pointer select-none">
+                Dark Theme
+                <input
+                  type="checkbox"
+                  className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                  checked={isDarkTheme}
+                  onChange={(e) => setIsDarkTheme(e.target.checked)}
+                />
+              </label>
+            </div>
+
+            {/* Volume slider logic */}
+
             <div className="mt-3 flex">
               <input
                 type="range"
@@ -128,7 +140,7 @@ export function SettingsModal({
                 max={1}
                 step={0.01}
                 value={volume}
-                className="cursor-pointer w-max accent-yellow-400"
+                className="ml-3 text-slate-700 dark:text-yellow-300"
                 onChange={(e) => {
                   const vol = parseFloat(e.target.value);
                   setVolume(vol);
@@ -147,7 +159,7 @@ export function SettingsModal({
           </div>
         </div>
       </div>
-    </>,
+    </div>,
     document.body,
   );
 }

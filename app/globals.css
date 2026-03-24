@@ -4,6 +4,9 @@
 @tailwind utilities;
 @config '../tailwind.config.ts';
 
+/* This allows dark: work in element's className */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

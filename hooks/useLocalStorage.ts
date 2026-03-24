@@ -1,22 +1,31 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function useLocalStorage<T>(key: string, fallback: T) {
-  const [value, setValue] = useState<T>(() => {
-    // Lazy initializer runs once on mount, safe from SSR issues in client components
+  const [value, setValue] = useState<T>(fallback);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem(key);
-      return stored !== null ? (JSON.parse(stored) as T) : fallback;
+      if (stored !== null) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setValue(JSON.parse(stored) as T);
+      }
     } catch {
-      return fallback;
+      // Ignore errors
     }
-  });
+    setMounted(true);
+  }, [key]);
 
   function set(next: T) {
     setValue(next);
-    localStorage.setItem(key, JSON.stringify(next));
+    try {
+      localStorage.setItem(key, JSON.stringify(next));
+    } catch {
+      // Ignore errors
+    }
   }
 
-  // mounted is always true after hydration since this is a 'use client' component
-  return [value, set, true] as const;
+  return [value, set, mounted] as const;
 }

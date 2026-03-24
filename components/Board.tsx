@@ -29,11 +29,18 @@ import TreasureChests from './TreasureChests';
 type BoardProps = {
   scores: Record<Player, number>;
   setScores: React.Dispatch<React.SetStateAction<Record<Player, number>>>;
+  isDarkTheme: boolean;
+  setIsDarkTheme: (value: boolean) => void;
 };
 
 const INITIAL_BOARD: BoardType = Array(9).fill(null);
 
-export default function Board({ scores, setScores }: BoardProps) {
+export default function Board({
+  scores,
+  setScores,
+  isDarkTheme,
+  setIsDarkTheme,
+}: BoardProps) {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [board, setBoard] = useState<BoardType>(INITIAL_BOARD);
   const [currentPlayer, setCurrentPlayer] = useState<Player>('☠️');
@@ -53,7 +60,7 @@ export default function Board({ scores, setScores }: BoardProps) {
     'timerEnabled',
     false,
   );
-  const [pointSystem, setPointSystem, pointSystemMounted] = useLocalStorage<
+  const [pointSystem, setPointSystem] = useLocalStorage<
     'treasureChest' | 'number'
   >('pointSystem', 'number');
 
@@ -271,8 +278,8 @@ export default function Board({ scores, setScores }: BoardProps) {
             className={`px-4 py-2 rounded-lg border-2 font-bold text-sm transition-all duration-200
               ${
                 mode === _mode
-                  ? 'bg-amber-700 border-yellow-400 text-yellow-300'
-                  : 'bg-amber-950/50 border-amber-800 text-amber-400 hover:border-amber-600'
+                  ? 'bg-amber-600 border-amber-800 text-white dark:bg-amber-700 dark:border-yellow-400 dark:text-yellow-300'
+                  : 'bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:bg-amber-950/50 dark:hover:bg-amber-900/50 dark:border-amber-800 dark:text-amber-400 dark:hover:border-amber-600'
               }
             ${
               gameHasMoves && !gameOver
@@ -288,7 +295,7 @@ export default function Board({ scores, setScores }: BoardProps) {
             className="absolute -left-1.5 sm:left-3 top-0 cursor-pointer"
             onClick={() => setShowSettingsModal(true)}
           >
-            <SvgSettings className="w-8 h-8 fill-none" />
+            <SvgSettings className="w-8 h-8 fill-none dark:text-white text-amber-700" />
           </button>
         </div>
       </div>
@@ -296,7 +303,7 @@ export default function Board({ scores, setScores }: BoardProps) {
       {/* Difficulty selector (only in PvC mode) */}
       {mode === 'pvc' && (
         <div className="flex flex-col items-center gap-2">
-          <span className="text-amber-500 text-xs uppercase tracking-widest">
+          <span className="text-slate-500 dark:text-amber-500 text-xs uppercase tracking-widest">
             Kraken Strength
           </span>
           <div className="flex gap-2 flex-wrap justify-center">
@@ -313,8 +320,8 @@ export default function Board({ scores, setScores }: BoardProps) {
                 className={`px-3 py-1.5 rounded-lg border-2 font-semibold text-xs transition-all duration-200
                   ${
                     difficulty === _difficulty
-                      ? 'bg-red-900 border-red-500 text-yellow-300'
-                      : 'bg-amber-950/40 border-amber-800 text-amber-500 hover:border-amber-600'
+                      ? 'bg-amber-600 border-amber-800 text-white dark:bg-red-900 dark:border-red-500 dark:text-yellow-300'
+                      : 'bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-500 dark:hover:border-amber-600'
                   }
                   ${
                     gameHasMoves && difficulty !== _difficulty && !gameOver
@@ -331,26 +338,25 @@ export default function Board({ scores, setScores }: BoardProps) {
       )}
 
       {/* Scoreboard */}
-      <div
-        className="flex gap-8 text-amber-200 text-lg font-semibold
-  bg-amber-950/50 border border-amber-800 rounded-xl px-8 py-3"
-      >
+      <div className="bg-white/60 border border-slate-300 text-slate-800 dark:bg-amber-950/50 dark:border-amber-800 dark:text-amber-200 flex gap-8 text-lg font-semibold rounded-xl px-8 py-3">
         <div className="flex flex-col items-center gap-1">
-          <span className="text-xs text-amber-500 uppercase tracking-widest">
+          <span className="text-xs text-slate-500 dark:text-amber-500 uppercase tracking-widest">
             {mode === 'pvc' ? '☠️ You' : '☠️ Davy Jones'}
           </span>
-          {!pointSystemMounted || pointSystem === 'number' ? (
+          {pointSystem === 'number' ? (
             <p>{scores[HUMAN]}</p>
           ) : (
             <TreasureChests count={scores[HUMAN]} />
           )}
         </div>
-        <span className="text-amber-600 self-center">|</span>
+        <span className="text-slate-400 dark:text-amber-600 self-center">
+          |
+        </span>
         <div className="flex flex-col items-center gap-1">
-          <span className="text-xs text-amber-500 uppercase tracking-widest">
+          <span className="text-xs dark:text-amber-500 text-amber-700 uppercase tracking-widest">
             {mode === 'pvc' ? '⚓ Kraken' : '⚓ Capt. Hook'}
           </span>
-          {!pointSystemMounted || pointSystem === 'number' ? (
+          {pointSystem === 'number' ? (
             <p>{scores[AI]}</p>
           ) : (
             <TreasureChests count={scores[AI]} />
@@ -361,15 +367,13 @@ export default function Board({ scores, setScores }: BoardProps) {
       {/* Game Starter */}
       {(!isGameStarted || gameOver) && (
         <div className="flex flex-col items-center gap-2">
-          <span className="text-amber-500 text-xs uppercase tracking-widest">
+          <span className="text-slate-500 dark:text-amber-500 text-xs uppercase tracking-widest">
             Who sails first?
           </span>
-          <div className="relative flex bg-amber-950/60 border border-amber-800 rounded-full p-1 gap-1">
+          <div className="relative flex bg-white border border-slate-300 dark:bg-amber-950/60 dark:border-amber-800 rounded-full p-1 gap-1">
             {/* Sliding pill background */}
             <div
-              className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full
-          bg-amber-700 border border-yellow-500 shadow-inner
-          transition-transform duration-300 ease-in-out"
+              className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-amber-600 border border-amber-800 dark:bg-amber-700 dark:border-yellow-500 shadow-inner transition-transform duration-300 ease-in-out"
               style={{
                 transform:
                   starterPlayer === AI
@@ -390,8 +394,8 @@ export default function Board({ scores, setScores }: BoardProps) {
             transition-colors duration-200
             ${
               starterPlayer === player
-                ? 'text-yellow-300'
-                : 'text-amber-500 hover:text-amber-300'
+                ? 'text-white dark:text-yellow-300'
+                : 'text-slate-500 dark:text-amber-500 hover:text-slate-700 dark:hover:text-amber-300'
             }
             ${aiThinking ? 'cursor-not-allowed' : 'cursor-pointer'}
           `}
@@ -457,9 +461,11 @@ export default function Board({ scores, setScores }: BoardProps) {
       {/* Reset Game*/}
       <button
         onClick={resetGame}
-        className="mt-4 px-6 py-3 bg-red-900 border-2 border-red-700 text-yellow-300
-          font-bold rounded-lg hover:bg-red-800 hover:border-yellow-500 hover:cursor-pointer 
-          transition-all duration-200 text-lg tracking-wide"
+        className="mt-4 px-6 py-3 bg-red-700 border-2 border-red-900 text-white
+      dark:bg-red-900 dark:border-red-700 dark:text-yellow-300
+        font-bold rounded-lg hover:bg-red-600 dark:hover:bg-red-800
+      hover:border-red-700 dark:hover:border-yellow-500 cursor-pointer
+        transition-all duration-200 text-lg tracking-wide"
       >
         🏴‍☠️ New Voyage
       </button>
@@ -483,6 +489,8 @@ export default function Board({ scores, setScores }: BoardProps) {
         setTimerEnabled={setTimerEnabled}
         pointSystem={pointSystem}
         setPointSystem={setPointSystem}
+        isDarkTheme={isDarkTheme}
+        setIsDarkTheme={setIsDarkTheme}
       />
     </div>
   );

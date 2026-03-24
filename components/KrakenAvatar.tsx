@@ -14,7 +14,7 @@ const MOOD_CONFIG: Record<
     emoji: '🐙',
     label: 'Lurking in the deep…',
     emojiClassName: 'opacity-60',
-    labelClassName: 'opacity-60',
+    labelClassName: 'opacity-60 dark:text-amber-500 text-black',
   },
   thinking: {
     emoji: '🐙',
@@ -44,7 +44,7 @@ const MOOD_CONFIG: Record<
     emoji: '🐙',
     label: "This isn't over…",
     emojiClassName: 'opacity-30 scale-75',
-    labelClassName: 'opacity-30',
+    labelClassName: 'opacity-30 text-black dark:text-amber-500 ',
   },
   draw: {
     emoji: '🐙',
