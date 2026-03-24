@@ -1,8 +1,7 @@
 1. Mobile site is not looking good, it has to be changed quite a bit
 2. Site changes its height, the site moves a lot during play
-3. settingsModal to own component
-4. ?Add the win reason to captain's log?
-5. Add timer data to localstorage
+3. ?Add the win reason to captain's log?
+4. Add timer data to localstorage
 
 A lot of ideas below:
 
@@ -36,6 +35,6 @@ Animated ocean background — CSS/canvas waves that get stormier as the game pro
 **Polish**
 Mobile swipe gestures — make the grid feel more native on touchscreens
 
-Dark/light mode — a "day at sea" vs "night voyage" theme toggle
+_Dark/light mode — a "day at sea" vs "night voyage" theme toggle_
 
 Accessibility — keyboard navigation for the grid and proper ARIA labels for screen readers
