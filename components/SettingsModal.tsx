@@ -46,7 +46,12 @@ export function SettingsModal({
         className="fixed top-0 left-0 z-98 h-full w-full bg-black opacity-80"
         onClick={() => setShowSettingsModal(false)}
       />
-      <div className="fixed top-1/2 left-1/2 z-99 -translate-x-1/2 -translate-y-1/2">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Game settings"
+        className="fixed top-1/2 left-1/2 z-99 -translate-x-1/2 -translate-y-1/2"
+      >
         <button
           className="py-2 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg hover:bg-slate-100 hover:border-amber-500 dark:hover:bg-red-800 dark:hover:border-yellow-500 cursor-pointer transition-all duration-200 tracking-wide w-full mb-2"
           onClick={() => setShowSettingsModal(false)}
@@ -143,7 +148,7 @@ export function SettingsModal({
                 max={1}
                 step={0.01}
                 value={volume}
-                className="ml-3 text-slate-700 dark:text-yellow-300"
+                className="cursor-pointer w-max accent-yellow-400"
                 onChange={(e) => {
                   const vol = parseFloat(e.target.value);
                   setVolume(vol);

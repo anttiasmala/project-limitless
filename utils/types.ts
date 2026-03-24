@@ -136,3 +136,15 @@ export type MoveEntry = {
   player: Player;
   index: number;
 };
+
+export const CELL_LABELS: Record<number, string> = {
+  0: 'Top left',
+  1: 'Top centre',
+  2: 'Top right',
+  3: 'Middle left',
+  4: 'Centre',
+  5: 'Middle right',
+  6: 'Bottom left',
+  7: 'Bottom centre',
+  8: 'Bottom right',
+};

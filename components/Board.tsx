@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Square from './Square';
 import GameStatus from './GameStatus';
 import {
@@ -16,7 +16,7 @@ import {
 import SvgSettings from '@/icons/settings';
 import WinningLine from './WinningLine';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
-import { MoveEntry } from '@/utils/types';
+import { CELL_LABELS, MoveEntry } from '@/utils/types';
 import MoveHistory from './MoveHistory';
 import { useTimer } from '@/hooks/useTimer';
 import HourglassTimer from './HourglassTimer';
@@ -25,6 +25,7 @@ import { getKrakenMood } from '@/utils/krakenMood';
 import { SettingsModal } from './SettingsModal';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import TreasureChests from './TreasureChests';
+import { useGridNavigation } from '@/hooks/useGridNavigation';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -68,6 +69,9 @@ export default function Board({
   const draw = !winner && isDraw(board);
   const gameOver = !!winner || draw;
 
+  const { setRef, handleKeyDown, activeIndex, resetFocus } =
+    useGridNavigation(3);
+
   const krakenMood = getKrakenMood({
     winner,
     isDraw: draw,
@@ -79,11 +83,6 @@ export default function Board({
   const cannonAudio = useRef<HTMLAudioElement | null>(null);
   const splashAudio = useRef<HTMLAudioElement | null>(null);
   const creakAudio = useRef<HTMLAudioElement | null>(null);
-
-  const ALL_AUDIOS = useMemo(
-    () => [cannonAudio, splashAudio, creakAudio],
-    [cannonAudio, splashAudio, creakAudio],
-  );
 
   const TIMER_DURATION = 10;
 
@@ -105,13 +104,15 @@ export default function Board({
       creakAudio.current = new Audio('/sounds/creak.mp3');
     }
 
-    ALL_AUDIOS.forEach((ref: React.RefObject<HTMLAudioElement | null>) => {
-      if (ref.current) {
-        ref.current.volume = volume;
-        ref.current.muted = isAudioMuted;
-      }
-    });
-  }, [volume, isAudioMuted, ALL_AUDIOS]);
+    [cannonAudio, splashAudio, creakAudio].forEach(
+      (ref: React.RefObject<HTMLAudioElement | null>) => {
+        if (ref.current) {
+          ref.current.volume = volume;
+          ref.current.muted = isAudioMuted;
+        }
+      },
+    );
+  }, [volume, isAudioMuted]);
 
   function playSound(ref: React.RefObject<HTMLAudioElement | null>) {
     if (ref.current) {
@@ -134,8 +135,9 @@ export default function Board({
     setIsGameStarted(aiStarts);
     setMoveHistory([]);
     resetTimer();
+    resetFocus(0);
     setShowForfeitMessage(false);
-  }, [starterPlayer, mode, resetTimer]);
+  }, [starterPlayer, mode, resetTimer, resetFocus]);
 
   // Reset forfeit message
 
@@ -275,6 +277,10 @@ export default function Board({
           <button
             key={_mode}
             onClick={() => switchMode(_mode)}
+            aria-pressed={mode === _mode}
+            aria-label={
+              _mode === 'pvp' ? 'Two Pirates mode' : 'Versus the Kraken mode'
+            }
             className={`px-4 py-2 rounded-lg border-2 font-bold text-sm transition-all duration-200
               ${
                 mode === _mode
@@ -292,6 +298,8 @@ export default function Board({
         ))}
         <div className="relative flex flex-col items-center gap-6">
           <button
+            aria-label="Open settings"
+            aria-expanded={showSettingsModal}
             className="absolute -left-1.5 sm:left-3 top-0 cursor-pointer"
             onClick={() => setShowSettingsModal(true)}
           >
@@ -338,7 +346,13 @@ export default function Board({
       )}
 
       {/* Scoreboard */}
-      <div className="bg-white/60 border border-slate-300 text-slate-800 dark:bg-amber-950/50 dark:border-amber-800 dark:text-amber-200 flex gap-8 text-lg font-semibold rounded-xl px-8 py-3">
+      <div
+        aria-label={`Scores: ${mode === 'pvc' ? 'You' : 'Davy Jones'} ${
+          scores[HUMAN]
+        }, ${mode === 'pvc' ? 'Kraken' : 'Captain Hook'} ${scores[AI]}`}
+        role="region"
+        className="bg-white/60 border border-slate-300 text-slate-800 dark:bg-amber-950/50 dark:border-amber-800 dark:text-amber-200 flex gap-8 text-lg font-semibold rounded-xl px-8 py-3"
+      >
         <div className="flex flex-col items-center gap-1">
           <span className="text-xs text-slate-500 dark:text-amber-500 uppercase tracking-widest">
             {mode === 'pvc' ? '☠️ You' : '☠️ Davy Jones'}
@@ -440,12 +454,18 @@ export default function Board({
               key={i}
               value={cell}
               onClick={() => handleClick(i)}
+              onKeyDown={(e) => handleKeyDown(e, i)}
               isWinning={winLine?.includes(i) ?? false}
               disabled={
                 gameOver ||
                 aiThinking ||
                 (mode === 'pvc' && currentPlayer === AI)
               }
+              tabIndex={i === activeIndex.current ? 0 : -1}
+              cellRef={(el) => setRef(el, i)}
+              label={`${CELL_LABELS[i]}, ${
+                cell ? (cell === HUMAN ? 'skull' : 'anchor') : 'empty'
+              }`}
             />
           ))}
         </div>
@@ -461,6 +481,7 @@ export default function Board({
       {/* Reset Game*/}
       <button
         onClick={resetGame}
+        aria-label="Start a new game"
         className="mt-4 px-6 py-3 bg-red-700 border-2 border-red-900 text-white
       dark:bg-red-900 dark:border-red-700 dark:text-yellow-300
         font-bold rounded-lg hover:bg-red-600 dark:hover:bg-red-800
@@ -484,7 +505,7 @@ export default function Board({
         setIsAudioMuted={setIsAudioMuted}
         volume={volume}
         setVolume={setVolume}
-        AudioArray={ALL_AUDIOS}
+        AudioArray={[cannonAudio, splashAudio, creakAudio]}
         timerEnabled={timerEnabled}
         setTimerEnabled={setTimerEnabled}
         pointSystem={pointSystem}

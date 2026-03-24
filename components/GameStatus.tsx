@@ -23,9 +23,15 @@ export default function GameStatus({
   aiThinking,
   showForfeitMessage,
 }: GameStatusProps) {
+  const isGameOver = !!winner || isDraw || showForfeitMessage;
+
   if (showForfeitMessage) {
     return (
-      <div className="text-center text-4xl font-bold text-amber-700 dark:text-yellow-400 animate-pulse">
+      <div
+        role="alert"
+        aria-live="assertive"
+        className="text-center text-4xl font-bold text-amber-700 dark:text-yellow-400 animate-pulse"
+      >
         <p>{FORFEIT_MESSAGE}</p>
       </div>
     );
@@ -38,21 +44,34 @@ export default function GameStatus({
           : 'The Kraken claims'
         : `${PVP_NAMES[winner]} claims`;
     return (
-      <div className="text-center text-2xl font-bold text-amber-700 dark:text-yellow-400 animate-bounce">
+      <div
+        role="alert"
+        aria-live="assertive"
+        className="text-center text-2xl font-bold text-amber-700 dark:text-yellow-400 animate-bounce"
+      >
         🏴‍☠️ {name} the treasure! 🏴‍☠️
       </div>
     );
   }
   if (isDraw) {
     return (
-      <div className="text-center text-2xl font-bold text-slate-600 dark:text-amber-300">
+      <div
+        role="alert"
+        aria-live="assertive"
+        className="text-center text-2xl font-bold text-slate-600 dark:text-amber-300"
+      >
         ⚔️ The seas are tied! No treasure for anyone! ⚔️
       </div>
     );
   }
   if (aiThinking) {
     return (
-      <div className="text-center text-xl text-red-600 dark:text-red-400 animate-pulse">
+      <div
+        role="status"
+        aria-live="polite"
+        aria-label="Kraken is thinking"
+        className="text-center text-xl text-red-600 dark:text-red-400 animate-pulse"
+      >
         🐙 The Kraken stirs in the deep…
       </div>
     );
@@ -64,7 +83,12 @@ export default function GameStatus({
         : 'Kraken is thinking… (⚓)'
       : `${PVP_NAMES[currentPlayer]}'s turn`;
   return (
-    <div className="text-center text-xl text-slate-600 dark:text-amber-200">
+    <div
+      role="status"
+      aria-live="polite"
+      aria-label={isGameOver ? undefined : `Current turn ${label}`}
+      className="text-center text-xl text-slate-600 dark:text-amber-200"
+    >
       ⚓ {label}
     </div>
   );
