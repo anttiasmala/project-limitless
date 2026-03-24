@@ -104,11 +104,14 @@ export function SettingsModal({
                   }
                   value={pointSystem}
                 >
-                  <option className="text-black font-bold" value={'number'}>
+                  <option
+                    className="text-black dark:text-yellow-300 font-bold"
+                    value={'number'}
+                  >
                     Number
                   </option>
                   <option
-                    className="text-black font-bold"
+                    className="text-black dark:text-yellow-300 font-bold"
                     value={'treasureChest'}
                   >
                     Treasure Chest
