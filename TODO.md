@@ -1,7 +1,8 @@
 1. Mobile site is not looking good, it has to be changed quite a bit
 2. Site changes its height, the site moves a lot during play
 3. ?Add the win reason to captain's log?
-4. Add timer data to localstorage
+
+4. Logic for moving with Arrow Keys. For example if middle center is occupied, you can't move through the cell. Change it that you can just move through the occupied cell
 
 A lot of ideas below:
 
