@@ -179,12 +179,6 @@ export default function Board({
         resetTimer();
       }
       setAiThinking(false);
-      const nextEmpty = newBoard.findIndex(
-        (cell, i) => i > move && cell === null,
-      );
-      const fallback = newBoard.findIndex((cell) => cell === null);
-      const target = nextEmpty !== -1 ? nextEmpty : fallback;
-      if (target !== -1) focusCell(target);
     }, 400); // slight delay so it feels alive
 
     return () => {
