@@ -1,7 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 
 export function useGridNavigation(cols: number = 3) {
-  const [occupiedCells, setOccupiedCells] = useState<number[]>([]);
   const cellRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const activeIndex = useRef<number>(0);
   const [, forceUpdate] = useState(0);
