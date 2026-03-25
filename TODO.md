@@ -38,4 +38,4 @@ Mobile swipe gestures — make the grid feel more native on touchscreens
 
 _Dark/light mode — a "day at sea" vs "night voyage" theme toggle_
 
-Accessibility — keyboard navigation for the grid and proper ARIA labels for screen readers
+_Accessibility — keyboard navigation for the grid and proper ARIA labels for screen readers_
