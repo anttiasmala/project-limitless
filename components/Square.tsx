@@ -30,7 +30,6 @@ export default function Square({
       tabIndex={tabIndex}
       onClick={onClick}
       onKeyDown={onKeyDown}
-      disabled={disabled || !!value}
       className={`
         w-24 h-24 text-5xl font-bold border-4 rounded-lg
         transition-all duration-300

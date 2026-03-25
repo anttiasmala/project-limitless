@@ -1,8 +1,10 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 export function useGridNavigation(cols: number = 3) {
+  const [occupiedCells, setOccupiedCells] = useState<number[]>([]);
   const cellRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const activeIndex = useRef<number>(0);
+  const [, forceUpdate] = useState(0);
 
   const setRef = useCallback(
     (element: HTMLButtonElement | null, index: number) => {
@@ -17,6 +19,7 @@ export function useGridNavigation(cols: number = 3) {
       if (index < 0 || index >= total) return;
       activeIndex.current = index;
       cellRefs.current[index]?.focus();
+      forceUpdate((n) => n + 1); // trigger re-render so tabIndex updates
     },
     [cols],
   );

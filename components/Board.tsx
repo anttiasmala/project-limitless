@@ -69,7 +69,7 @@ export default function Board({
   const draw = !winner && isDraw(board);
   const gameOver = !!winner || draw;
 
-  const { setRef, handleKeyDown, activeIndex, resetFocus } =
+  const { setRef, handleKeyDown, activeIndex, resetFocus, focusCell } =
     useGridNavigation(3);
 
   const krakenMood = getKrakenMood({
@@ -179,6 +179,12 @@ export default function Board({
         resetTimer();
       }
       setAiThinking(false);
+      const nextEmpty = newBoard.findIndex(
+        (cell, i) => i > move && cell === null,
+      );
+      const fallback = newBoard.findIndex((cell) => cell === null);
+      const target = nextEmpty !== -1 ? nextEmpty : fallback;
+      if (target !== -1) focusCell(target);
     }, 400); // slight delay so it feels alive
 
     return () => {
@@ -225,6 +231,13 @@ export default function Board({
     newBoard[index] = currentPlayer;
     setBoard(newBoard);
     resetTimer();
+
+    const nextEmpty = newBoard.findIndex(
+      (cell, i) => i > index && cell === null,
+    );
+    const fallback = newBoard.findIndex((cell) => cell === null);
+    const target = nextEmpty !== -1 ? nextEmpty : fallback;
+    if (target !== -1) focusCell(target);
 
     const { winner: _winner } = calculateWinner(newBoard);
     const _isDraw = isDraw(newBoard);
