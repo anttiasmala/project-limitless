@@ -26,6 +26,7 @@ import { SettingsModal } from './SettingsModal';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import TreasureChests from './TreasureChests';
 import { useGridNavigation } from '@/hooks/useGridNavigation';
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -95,6 +96,27 @@ export default function Board({
 
   // Measurement logic
   const { gridRef, measurement } = useGridMeasure(3);
+
+  // Swipe Gestures
+  const handleSwipe = useCallback(
+    (direction: 'left' | 'right' | 'up' | 'down') => {
+      const current = activeIndex.current;
+      const col = current % 3;
+      const row = Math.floor(current / 3);
+
+      const next = {
+        left: col > 0 ? current - 1 : current,
+        right: col < 2 ? current + 1 : current,
+        up: row > 0 ? current - 3 : current,
+        down: row < 2 ? current + 3 : current,
+      }[direction];
+
+      if (next !== current) focusCell(next);
+    },
+    [focusCell, activeIndex],
+  );
+
+  const { onTouchStart, onTouchEnd } = useSwipeNavigation(gridRef, handleSwipe);
 
   // Audio logic
   useEffect(() => {
@@ -467,7 +489,12 @@ export default function Board({
 
       {/* Grid */}
       <div className="relative">
-        <div ref={gridRef} className="grid grid-cols-3 gap-3">
+        <div
+          ref={gridRef}
+          className="grid grid-cols-3 gap-3"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
           {board.map((cell, i) => (
             <Square
               key={i}
