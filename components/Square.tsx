@@ -31,10 +31,12 @@ export default function Square({
       onClick={onClick}
       onKeyDown={onKeyDown}
       className={`
-        w-24 h-24 text-5xl font-bold border-4 rounded-lg
+         w-[min(28vw,6rem)] h-[min(28vw,6rem)] text-[min(8vw,2rem)] sm:text-5xl font-bold border-4 rounded-lg
         transition-all duration-300
         flex items-center justify-center
-        focus:outline-none focus:ring-4 focus:ring-amber-400 dark:focus:ring-yellow-400
+      focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 dark:focus-visible:ring-yellow-400
+    
+        
         ${
           isWinning
             ? 'border-yellow-400 bg-yellow-100 dark:bg-yellow-900/60 shadow-[0_0_20px_#facc15] scale-105'

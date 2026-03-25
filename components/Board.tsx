@@ -61,6 +61,10 @@ export default function Board({
     'timerEnabled',
     false,
   );
+  const [isArrowKeysEnabled, setIsArrowKeysEnabled] = useLocalStorage(
+    'arrowKeysEnabled',
+    false,
+  );
   const [pointSystem, setPointSystem] = useLocalStorage<
     'treasureChest' | 'number'
   >('pointSystem', 'number');
@@ -226,12 +230,14 @@ export default function Board({
     setBoard(newBoard);
     resetTimer();
 
-    const nextEmpty = newBoard.findIndex(
-      (cell, i) => i > index && cell === null,
-    );
-    const fallback = newBoard.findIndex((cell) => cell === null);
-    const target = nextEmpty !== -1 ? nextEmpty : fallback;
-    if (target !== -1) focusCell(target);
+    if (isArrowKeysEnabled) {
+      const nextEmpty = newBoard.findIndex(
+        (cell, i) => i > index && cell === null,
+      );
+      const fallback = newBoard.findIndex((cell) => cell === null);
+      const target = nextEmpty !== -1 ? nextEmpty : fallback;
+      if (target !== -1) focusCell(target);
+    }
 
     const { winner: _winner } = calculateWinner(newBoard);
     const _isDraw = isDraw(newBoard);
@@ -270,16 +276,17 @@ export default function Board({
     setIsGameStarted(false);
   }
 
-  const DIFFICULTY_LABELS: Record<Difficulty, string> = {
-    easy: '🌊 Calm Seas (Easy)',
-    medium: '⛈️ Stormy Waters (Medium)',
-    hard: "💀 Davy Jones' Wrath (Hard)",
-  };
+  const DIFFICULTY_LABELS: Record<Difficulty, { short: string; long: string }> =
+    {
+      easy: { short: '🌊 Easy', long: '🌊 Calm Seas (Easy)' },
+      medium: { short: '⛈️ Medium', long: '⛈️ Stormy Waters (Medium)' },
+      hard: { short: '💀 Hard', long: "💀 Davy Jones' Wrath (Hard)" },
+    };
 
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Mode selector */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 pr-10 sm:pr-0">
         {(['pvp', 'pvc'] as const).map((_mode) => (
           <button
             key={_mode}
@@ -345,7 +352,12 @@ export default function Board({
                   }    
                   `}
               >
-                {DIFFICULTY_LABELS[_difficulty]}
+                <span className="sm:hidden">
+                  {DIFFICULTY_LABELS[_difficulty].short}
+                </span>
+                <span className="hidden sm:inline">
+                  {DIFFICULTY_LABELS[_difficulty].long}
+                </span>
               </button>
             ))}
           </div>
@@ -358,7 +370,7 @@ export default function Board({
           scores[HUMAN]
         }, ${mode === 'pvc' ? 'Kraken' : 'Captain Hook'} ${scores[AI]}`}
         role="region"
-        className="bg-white/60 border border-slate-300 text-slate-800 dark:bg-amber-950/50 dark:border-amber-800 dark:text-amber-200 flex gap-8 text-lg font-semibold rounded-xl px-8 py-3"
+        className="bg-white/60 border border-slate-300 text-slate-800 dark:bg-amber-950/50 dark:border-amber-800 dark:text-amber-200 flex gap-4 sm:gap-8 text-lg font-semibold rounded-xl sm:px-8 px-4 py-3"
       >
         <div className="flex flex-col items-center gap-1">
           <span className="text-xs text-slate-500 dark:text-amber-500 uppercase tracking-widest">
@@ -461,7 +473,9 @@ export default function Board({
               key={i}
               value={cell}
               onClick={() => handleClick(i)}
-              onKeyDown={(e) => handleKeyDown(e, i)}
+              onKeyDown={(e) =>
+                isArrowKeysEnabled ? handleKeyDown(e, i) : null
+              }
               isWinning={winLine?.includes(i) ?? false}
               disabled={
                 gameOver ||
@@ -519,6 +533,8 @@ export default function Board({
         setPointSystem={setPointSystem}
         isDarkTheme={isDarkTheme}
         setIsDarkTheme={setIsDarkTheme}
+        isArrowKeysEnabled={isArrowKeysEnabled}
+        setIsArrowKeysEnabled={setIsArrowKeysEnabled}
       />
     </div>
   );

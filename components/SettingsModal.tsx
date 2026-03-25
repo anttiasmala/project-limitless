@@ -16,6 +16,8 @@ export function SettingsModal({
   setPointSystem,
   isDarkTheme,
   setIsDarkTheme,
+  isArrowKeysEnabled,
+  setIsArrowKeysEnabled,
 }: {
   showSettingsModal: boolean;
   setShowSettingsModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -30,6 +32,8 @@ export function SettingsModal({
   setPointSystem: (value: 'treasureChest' | 'number') => void;
   isDarkTheme: boolean;
   setIsDarkTheme: (value: boolean) => void;
+  isArrowKeysEnabled: boolean;
+  setIsArrowKeysEnabled: (value: boolean) => void;
 }) {
   const handleClose = useCallback(
     () => setShowSettingsModal(false),
@@ -58,7 +62,7 @@ export function SettingsModal({
         >
           ⚓ Close Window ☠️
         </button>
-        <div className="w-48 h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-red-800 dark:hover:border-yellow-500">
+        <div className="w-48 max-w-[90vw] h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-red-800 dark:hover:border-yellow-500">
           <div className="mt-3 ml-3 flex flex-col">
             <div className="flex">
               <label className="cursor-pointer select-none">
@@ -135,6 +139,20 @@ export function SettingsModal({
                   className="ml-2 w-5 h-5 cursor-pointer align-middle"
                   checked={isDarkTheme}
                   onChange={(e) => setIsDarkTheme(e.target.checked)}
+                />
+              </label>
+            </div>
+
+            {/* Arrowkeys Enabling logic */}
+
+            <div className="mt-3 flex">
+              <label className="cursor-pointer select-none">
+                Arrow keys
+                <input
+                  type="checkbox"
+                  className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                  checked={isArrowKeysEnabled}
+                  onChange={(e) => setIsArrowKeysEnabled(e.target.checked)}
                 />
               </label>
             </div>
