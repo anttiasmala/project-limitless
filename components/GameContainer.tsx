@@ -4,6 +4,7 @@ import { AI, HUMAN, INITIAL_SCORE } from '@/lib/gameLogic';
 import { useEffect, useState } from 'react';
 import Board from './Board';
 import ResetScore from './ResetScore';
+import OceanBackground from './OceanBackground';
 
 function usePersistedScore(key: string) {
   const [score, setScore] = useState({ ...INITIAL_SCORE });
@@ -28,6 +29,7 @@ export default function GameContainer({
   setIsDarkTheme: (value: boolean) => void;
 }) {
   const [scores, setScores] = usePersistedScore('scores');
+  const [stormLevel, setStormLevel] = useState(0);
   const [bestOfSeriesScores, setBestOfSeriesScores] =
     usePersistedScore('bestOfSeriesScores');
 
@@ -41,6 +43,7 @@ export default function GameContainer({
           setBestOfSeriesScores={setBestOfSeriesScores}
           isDarkTheme={isDarkTheme}
           setIsDarkTheme={setIsDarkTheme}
+          onStormLevelChange={setStormLevel}
         />
       </div>
 
@@ -53,6 +56,7 @@ export default function GameContainer({
           }}
         />
       </div>
+      <OceanBackground isDarkTheme={isDarkTheme} stormLevel={stormLevel} />
     </>
   );
 }

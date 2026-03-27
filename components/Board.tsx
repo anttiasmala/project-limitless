@@ -32,6 +32,7 @@ import ModeSelector from './ModeSelector';
 import ScoreBoard from './ScoreBoard';
 import DifficultySelector from './DifficultySelector';
 import ReplayModal from './ReplayModal';
+import { getStormLevel } from '@/utils/stormLevel';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -42,6 +43,7 @@ type BoardProps = {
   >;
   isDarkTheme: boolean;
   setIsDarkTheme: (value: boolean) => void;
+  onStormLevelChange: (level: number) => void;
 };
 
 const INITIAL_BOARD: BoardType = Array(9).fill(null);
@@ -53,6 +55,7 @@ export default function Board({
   setBestOfSeriesScores,
   isDarkTheme,
   setIsDarkTheme,
+  onStormLevelChange,
 }: BoardProps) {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [board, setBoard] = useState<BoardType>(INITIAL_BOARD);
@@ -95,6 +98,12 @@ export default function Board({
     volume,
     isAudioMuted,
   );
+
+  const stormLevel = getStormLevel({ board, winner, isDraw: draw, mode });
+
+  useEffect(() => {
+    onStormLevelChange(stormLevel);
+  }, [stormLevel, onStormLevelChange]);
 
   const krakenMood = getKrakenMood({
     winner,
