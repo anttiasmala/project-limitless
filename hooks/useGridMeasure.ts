@@ -1,9 +1,5 @@
+import { GridMeasurement } from '@/utils/types';
 import { useEffect, useRef, useState } from 'react';
-
-type GridMeasurement = {
-  cellSize: number;
-  gap: number;
-};
 
 export function useGridMeasure(cols: number = 3): {
   gridRef: React.RefObject<HTMLDivElement | null>;

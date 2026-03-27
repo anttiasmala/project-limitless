@@ -31,6 +31,7 @@ import StarterPicker from './StarterPicker';
 import ModeSelector from './ModeSelector';
 import ScoreBoard from './ScoreBoard';
 import DifficultySelector from './DifficultySelector';
+import ReplayModal from './ReplayModal';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -66,6 +67,7 @@ export default function Board({
   const [showForfeitMessage, setShowForfeitMessage] = useState(false);
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showReplayModal, setShowReplayModal] = useState(false);
 
   const {
     isAudioMuted,
@@ -452,6 +454,31 @@ export default function Board({
       >
         🏴‍☠️ New Voyage
       </button>
+
+      {/* Replay the Game */}
+      {gameOver && (
+        <button
+          aria-label="Replay the game"
+          onClick={() => setShowReplayModal(true)}
+          className="px-6 py-3 bg-amber-600 border-2 border-amber-800 text-white
+      dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
+      font-bold rounded-lg hover:bg-amber-500 dark:hover:bg-amber-600
+      cursor-pointer transition-all duration-200 text-lg tracking-wide"
+        >
+          ▶ Replay game ◀
+        </button>
+      )}
+
+      {/* Replay Modal */}
+
+      {gameOver && showReplayModal && (
+        <ReplayModal
+          isDarkTheme={isDarkTheme}
+          onClose={() => setShowReplayModal(false)}
+          moveHistory={moveHistory}
+        />
+      )}
+
       {/* Sidebar */}
       <MoveHistory
         moveHistory={moveHistory}

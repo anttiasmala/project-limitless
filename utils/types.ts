@@ -154,3 +154,8 @@ export enum BestOfSeriesNames {
   'bo3' = 2, // Best of 3 needs only 2 wins
   'bo5' = 3, // Best of 5 needs only 3 wins
 }
+
+export type GridMeasurement = {
+  cellSize: number;
+  gap: number;
+};
