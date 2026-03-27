@@ -3,9 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 type Props = {
   count: number;
   max?: number;
+  filledEmoji?: string;
+  emptyEmoji?: string;
 };
 
-export default function TreasureChests({ count, max = 5 }: Props) {
+export function ChestRow({ count, max, emptyEmoji, filledEmoji }: Props) {
   const [justFilledIndex, setJustFilledIndex] = useState<number | null>(null);
   const prevCount = useRef(count);
 
@@ -36,7 +38,7 @@ export default function TreasureChests({ count, max = 5 }: Props) {
 
   return (
     <div className="flex gap-1">
-      {Array.from({ length: max }).map((_, i) => (
+      {Array.from({ length: max ?? 5 }).map((_, i) => (
         <span
           key={i}
           className={`text-xl transition-all duration-300 ${
@@ -45,9 +47,17 @@ export default function TreasureChests({ count, max = 5 }: Props) {
               : 'opacity-20 grayscale'
           } ${i === justFilledIndex ? 'animate-pop' : ''}`}
         >
-          {i < count ? '💰' : '🪙'}
+          {i < count ? filledEmoji : emptyEmoji}
         </span>
       ))}
     </div>
   );
+}
+
+export default function TreasureChests({ count, max = 5 }: Props) {
+  return <ChestRow count={count} max={max} filledEmoji="💰" emptyEmoji="🪙" />;
+}
+
+export function BestOfTreasureChests({ count, max = 5 }: Props) {
+  return <ChestRow count={count} max={max} filledEmoji="⭐️" emptyEmoji="🪙" />;
 }

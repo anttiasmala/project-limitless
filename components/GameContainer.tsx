@@ -13,6 +13,9 @@ export default function GameContainer({
   setIsDarkTheme: (value: boolean) => void;
 }) {
   const [scores, setScores] = useState({ ...INITIAL_SCORE });
+  const [bestOfSeriesScores, setBestOfSeriesScores] = useState({
+    ...INITIAL_SCORE,
+  });
 
   useEffect(() => {
     const _scores = localStorage.getItem('scores');
@@ -24,12 +27,27 @@ export default function GameContainer({
     localStorage.setItem('scores', JSON.stringify(scores));
   }, [scores]);
 
+  useEffect(() => {
+    const _bestOfSeriesScores = localStorage.getItem('bestOfSeriesScores');
+    if (!_bestOfSeriesScores) return;
+    setTimeout(() => setBestOfSeriesScores(JSON.parse(_bestOfSeriesScores)), 0);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      'bestOfSeriesScores',
+      JSON.stringify(bestOfSeriesScores),
+    );
+  }, [bestOfSeriesScores]);
+
   return (
     <>
       <div className="bg-white/80 border-2 border-slate-300 dark:bg-amber-950/40 dark:border-amber-800 rounded-2xl p-4 sm:p-8 shadow-[0_0_40px_#94a3b820] dark:shadow-[0_0_40px_#451a0360] backdrop-blur-sm w-full">
         <Board
           scores={scores}
           setScores={setScores}
+          bestOfSeriesScores={bestOfSeriesScores}
+          setBestOfSeriesScores={setBestOfSeriesScores}
           isDarkTheme={isDarkTheme}
           setIsDarkTheme={setIsDarkTheme}
         />
@@ -40,7 +58,12 @@ export default function GameContainer({
           onReset={() => {
             if (scores[HUMAN] === 0 && scores[AI] === 0) return;
             localStorage.setItem('scores', JSON.stringify(INITIAL_SCORE));
+            localStorage.setItem(
+              'bestOfSeriesScores',
+              JSON.stringify(INITIAL_SCORE),
+            );
             setScores({ ...INITIAL_SCORE });
+            setBestOfSeriesScores({ ...INITIAL_SCORE });
           }}
         />
       </div>

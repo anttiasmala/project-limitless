@@ -16,7 +16,7 @@ import {
 import SvgSettings from '@/icons/settings';
 import WinningLine from './WinningLine';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
-import { CELL_LABELS, MoveEntry } from '@/utils/types';
+import { BestOfSeriesNames, CELL_LABELS, MoveEntry } from '@/utils/types';
 import MoveHistory from './MoveHistory';
 import { useTimer } from '@/hooks/useTimer';
 import HourglassTimer from './HourglassTimer';
@@ -24,13 +24,18 @@ import KrakenAvatar from './KrakenAvatar';
 import { getKrakenMood } from '@/utils/krakenMood';
 import { SettingsModal } from './SettingsModal';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import TreasureChests from './TreasureChests';
+import TreasureChests, { BestOfTreasureChests } from './TreasureChests';
 import { useGridNavigation } from '@/hooks/useGridNavigation';
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
+import SeriesWinnerModal from './SeriesWinnerModal';
 
 type BoardProps = {
   scores: Record<Player, number>;
   setScores: React.Dispatch<React.SetStateAction<Record<Player, number>>>;
+  bestOfSeriesScores: Record<Player, number>;
+  setBestOfSeriesScores: React.Dispatch<
+    React.SetStateAction<Record<Player, number>>
+  >;
   isDarkTheme: boolean;
   setIsDarkTheme: (value: boolean) => void;
 };
@@ -40,6 +45,8 @@ const INITIAL_BOARD: BoardType = Array(9).fill(null);
 export default function Board({
   scores,
   setScores,
+  bestOfSeriesScores,
+  setBestOfSeriesScores,
   isDarkTheme,
   setIsDarkTheme,
 }: BoardProps) {
@@ -69,6 +76,9 @@ export default function Board({
   const [pointSystem, setPointSystem] = useLocalStorage<
     'treasureChest' | 'number'
   >('pointSystem', 'number');
+  const [bestOfSeries, setBestOfSeries] = useLocalStorage<
+    'off' | 'bo3' | 'bo5'
+  >('bestOfSeries', 'off');
 
   const { winner, line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
@@ -94,27 +104,34 @@ export default function Board({
   const gameHasMoves = board.some((cell) => cell !== null);
   const isHumanTurn = !gameOver && (mode === 'pvp' || currentPlayer === HUMAN);
 
+  const SERIES_WINS_NEEDED = BestOfSeriesNames[bestOfSeries];
+  const seriesWinner =
+    bestOfSeries === 'off'
+      ? null
+      : bestOfSeriesScores[HUMAN] >= SERIES_WINS_NEEDED
+      ? HUMAN
+      : bestOfSeriesScores[AI] >= SERIES_WINS_NEEDED
+      ? AI
+      : null;
+
   // Measurement logic
   const { gridRef, measurement } = useGridMeasure(3);
 
   // Swipe Gestures
-  const handleSwipe = useCallback(
-    (direction: 'left' | 'right' | 'up' | 'down') => {
-      const current = activeIndex.current;
-      const col = current % 3;
-      const row = Math.floor(current / 3);
+  function handleSwipe(direction: 'left' | 'right' | 'up' | 'down') {
+    const current = activeIndex.current;
+    const col = current % 3;
+    const row = Math.floor(current / 3);
 
-      const next = {
-        left: col > 0 ? current - 1 : current,
-        right: col < 2 ? current + 1 : current,
-        up: row > 0 ? current - 3 : current,
-        down: row < 2 ? current + 3 : current,
-      }[direction];
+    const next = {
+      left: col > 0 ? current - 1 : current,
+      right: col < 2 ? current + 1 : current,
+      up: row > 0 ? current - 3 : current,
+      down: row < 2 ? current + 3 : current,
+    }[direction];
 
-      if (next !== current) focusCell(next);
-    },
-    [focusCell, activeIndex],
-  );
+    if (next !== current) focusCell(next);
+  }
 
   const { onTouchStart, onTouchEnd } = useSwipeNavigation(gridRef, handleSwipe);
 
@@ -165,6 +182,29 @@ export default function Board({
     setShowForfeitMessage(false);
   }, [starterPlayer, mode, resetTimer, resetFocus]);
 
+  // moved upwards due to this error: Error: Cannot access variable before it is declared
+  const handleScores = useCallback(
+    (winner: Player, currentScores: Record<Player, number>) => {
+      if (
+        bestOfSeries === 'off' &&
+        pointSystem === 'treasureChest' &&
+        currentScores[winner] >= 6
+      ) {
+        setScores({ ...INITIAL_SCORE });
+        resetGame();
+      }
+
+      if (bestOfSeries !== 'off' && currentScores[winner] >= 5) {
+        setBestOfSeriesScores((prev) => ({
+          ...prev,
+          [winner]: prev[winner] + 1,
+        }));
+        setScores({ ...INITIAL_SCORE });
+      }
+    },
+    [setScores, resetGame, setBestOfSeriesScores, bestOfSeries, pointSystem],
+  );
+
   // Reset forfeit message
 
   useEffect(() => {
@@ -197,7 +237,9 @@ export default function Board({
       const _isDraw = isDraw(newBoard);
       if (_winner) {
         playSound(cannonAudio);
-        setScores((prev) => ({ ...prev, [_winner]: prev[_winner] + 1 }));
+        const newScores = { ...scores, [_winner]: scores[_winner] + 1 };
+        setScores(newScores);
+        handleScores(_winner, newScores);
       } else if (_isDraw) {
         playSound(splashAudio);
       } else {
@@ -220,6 +262,8 @@ export default function Board({
     setScores,
     isGameStarted,
     resetTimer,
+    scores,
+    handleScores,
   ]);
 
   function handleForfeit() {
@@ -270,7 +314,9 @@ export default function Board({
     }
     if (_winner) {
       playSound(cannonAudio);
-      setScores((prev) => ({ ...prev, [_winner]: prev[_winner] + 1 }));
+      const newScores = { ...scores, [_winner]: scores[_winner] + 1 };
+      setScores(newScores);
+      handleScores(_winner, newScores);
     } else if (_isDraw) {
       playSound(splashAudio);
     } else {
@@ -403,6 +449,14 @@ export default function Board({
           ) : (
             <TreasureChests count={scores[HUMAN]} />
           )}
+          <div>
+            {bestOfSeries !== 'off' && (
+              <BestOfTreasureChests
+                count={bestOfSeriesScores[HUMAN]}
+                max={BestOfSeriesNames[bestOfSeries]}
+              />
+            )}
+          </div>
         </div>
         <span className="text-slate-400 dark:text-amber-600 self-center">
           |
@@ -416,6 +470,14 @@ export default function Board({
           ) : (
             <TreasureChests count={scores[AI]} />
           )}
+          <div>
+            {bestOfSeries !== 'off' && (
+              <BestOfTreasureChests
+                count={bestOfSeriesScores[AI]}
+                max={BestOfSeriesNames[bestOfSeries]}
+              />
+            )}
+          </div>
         </div>
       </div>
 
@@ -526,6 +588,20 @@ export default function Board({
         )}
       </div>
 
+      {/* Series Winner Modal */}
+      {bestOfSeries !== 'off' && (
+        <SeriesWinnerModal
+          seriesWinner={seriesWinner}
+          mode={mode}
+          isDarkTheme={isDarkTheme}
+          onClose={() => {
+            setBestOfSeriesScores({ ...INITIAL_SCORE });
+            setScores({ ...INITIAL_SCORE });
+            resetGame();
+          }}
+        />
+      )}
+
       {/* Reset Game*/}
       <button
         onClick={resetGame}
@@ -562,6 +638,11 @@ export default function Board({
         setIsDarkTheme={setIsDarkTheme}
         isArrowKeysEnabled={isArrowKeysEnabled}
         setIsArrowKeysEnabled={setIsArrowKeysEnabled}
+        bestOfSeries={bestOfSeries}
+        setBestOfSeries={setBestOfSeries}
+        setScores={setScores}
+        setBestOfSeriesScores={setBestOfSeriesScores}
+        resetGame={resetGame}
       />
     </div>
   );

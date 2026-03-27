@@ -34,7 +34,7 @@ Replay system — after a game ends, step through moves one by one to review the
 Animated ocean background — CSS/canvas waves that get stormier as the game progresses toward an endgame
 
 **Polish**
-Mobile swipe gestures — make the grid feel more native on touchscreens
+_Mobile swipe gestures — make the grid feel more native on touchscreens_
 
 _Dark/light mode — a "day at sea" vs "night voyage" theme toggle_
 

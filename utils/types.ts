@@ -148,3 +148,9 @@ export const CELL_LABELS: Record<number, string> = {
   7: 'Bottom centre',
   8: 'Bottom right',
 };
+
+export enum BestOfSeriesNames {
+  'off' = 0,
+  'bo3' = 2, // Best of 3 needs only 2 wins
+  'bo5' = 3, // Best of 5 needs only 3 wins
+}
