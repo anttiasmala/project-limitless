@@ -1,8 +1,7 @@
 1. Mobile site is not looking good, it has to be changed quite a bit
 2. Site changes its height, the site moves a lot during play
 3. ?Add the win reason to captain's log?
-
-4. Logic for moving with Arrow Keys. For example if middle center is occupied, you can't move through the cell. Change it that you can just move through the occupied cell
+4. In Best of Series (3 or 5) when other player scores a Series point, both scores are reseted. Change that only the player who scored the Series point will be reseted
 
 A lot of ideas below:
 
@@ -25,7 +24,7 @@ _Timed moves — optional sand timer (e.g. 10 seconds per move) that auto-forfei
 _Treasure chest win counter — replace numeric scores with a row of treasure chest icons that fill up as you win rounds_
 
 **Bigger Features**
-Best-of series mode — play a best-of-3 or best-of-5 series with a grand champion announcement at the end
+_Best-of series mode — play a best-of-3 or best-of-5 series with a grand champion announcement at the end_
 
 Online multiplayer — two players on different devices using WebSockets (e.g. via Pusher or Partykit)
 
