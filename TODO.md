@@ -28,7 +28,7 @@ _Best-of series mode — play a best-of-3 or best-of-5 series with a grand champ
 
 Online multiplayer — two players on different devices using WebSockets (e.g. via Pusher or Partykit)
 
-Replay system — after a game ends, step through moves one by one to review the match
+_Replay system — after a game ends, step through moves one by one to review the match_
 
 Animated ocean background — CSS/canvas waves that get stormier as the game progresses toward an endgame
 
