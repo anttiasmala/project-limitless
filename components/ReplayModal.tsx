@@ -23,10 +23,12 @@ export default function ReplayModal({
     replayBoard,
     canGoBack,
     canGoForward,
+    isPlaying,
     next,
     prev,
     reset,
     jumpToEnd,
+    togglePlay,
   } = useReplay(moveHistory);
 
   const { gridRef, measurement } = useGridMeasure(3);
@@ -76,7 +78,7 @@ export default function ReplayModal({
           </div>
 
           {/* Controls */}
-          <div className="flex justify-center gap-2 mb-6">
+          <div className="flex justify-center gap-2 mb-4">
             {[
               {
                 label: '⏮',
@@ -87,13 +89,13 @@ export default function ReplayModal({
               {
                 label: '◀',
                 action: prev,
-                disabled: !canGoBack,
+                disabled: !canGoBack || isPlaying,
                 aria: 'Previous move',
               },
               {
                 label: '▶',
                 action: next,
-                disabled: !canGoForward,
+                disabled: !canGoForward || isPlaying,
                 aria: 'Next move',
               },
               {
@@ -109,15 +111,30 @@ export default function ReplayModal({
                 disabled={disabled}
                 aria-label={aria}
                 className="px-3 py-2 rounded-lg border-2 font-bold text-lg
-                  bg-amber-600 border-amber-800 text-white
-                  dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
-                  hover:bg-amber-500 dark:hover:bg-amber-600
-                  disabled:opacity-30 disabled:cursor-not-allowed
-                  cursor-pointer transition-all duration-200"
+        bg-amber-600 border-amber-800 text-white
+        dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
+        hover:bg-amber-500 dark:hover:bg-amber-600
+        disabled:opacity-30 disabled:cursor-not-allowed
+        cursor-pointer transition-all duration-200"
               >
                 {label}
               </button>
             ))}
+          </div>
+
+          {/* Auto-play toggle */}
+          <div className="mb-6">
+            <button
+              onClick={togglePlay}
+              aria-label={isPlaying ? 'Pause auto-play' : 'Start auto-play'}
+              className="px-5 py-2 rounded-lg border-2 font-bold text-sm
+      bg-amber-600 border-amber-800 text-white
+      dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
+      hover:bg-amber-500 dark:hover:bg-amber-600
+      cursor-pointer transition-all duration-200"
+            >
+              {isPlaying ? '⏸ Pause' : '▶ Auto-play'}
+            </button>
           </div>
 
           <button
