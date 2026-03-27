@@ -1,0 +1,61 @@
+import { Difficulty } from '@/lib/gameLogic';
+
+type Props = {
+  difficulty: Difficulty;
+  gameHasMoves: boolean;
+  gameOver: boolean;
+  onSelect: (difficulty: Difficulty) => void;
+  onReset: () => void;
+};
+
+const DIFFICULTY_LABELS: Record<Difficulty, { short: string; long: string }> = {
+  easy: { short: '🌊 Easy', long: '🌊 Calm Seas (Easy)' },
+  medium: { short: '⛈️ Medium', long: '⛈️ Stormy Waters (Medium)' },
+  hard: { short: '💀 Hard', long: "💀 Davy Jones' Wrath (Hard)" },
+};
+
+export default function DifficultySelector({
+  difficulty,
+  gameHasMoves,
+  gameOver,
+  onSelect,
+  onReset,
+}: Props) {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <span className="text-slate-500 dark:text-amber-500 text-xs uppercase tracking-widest">
+        Kraken Strength
+      </span>
+      <div className="flex gap-2 flex-wrap justify-center">
+        {(['easy', 'medium', 'hard'] as Difficulty[]).map((_difficulty) => (
+          <button
+            key={_difficulty}
+            onClick={() => {
+              if (gameHasMoves && !gameOver) return;
+              if (difficulty !== _difficulty) onReset();
+              onSelect(_difficulty);
+            }}
+            className={`px-3 py-1.5 rounded-lg border-2 font-semibold text-xs transition-all duration-200
+              ${
+                difficulty === _difficulty
+                  ? 'bg-amber-600 border-amber-800 text-white dark:bg-red-900 dark:border-red-500 dark:text-yellow-300'
+                  : 'bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-500 dark:hover:border-amber-600'
+              }
+              ${
+                gameHasMoves && difficulty !== _difficulty && !gameOver
+                  ? 'cursor-not-allowed'
+                  : 'cursor-pointer'
+              }`}
+          >
+            <span className="sm:hidden">
+              {DIFFICULTY_LABELS[_difficulty].short}
+            </span>
+            <span className="hidden sm:inline">
+              {DIFFICULTY_LABELS[_difficulty].long}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -5,6 +5,21 @@ import { useEffect, useState } from 'react';
 import Board from './Board';
 import ResetScore from './ResetScore';
 
+function usePersistedScore(key: string) {
+  const [score, setScore] = useState({ ...INITIAL_SCORE });
+
+  useEffect(() => {
+    const stored = localStorage.getItem(key);
+    if (stored) setTimeout(() => setScore(JSON.parse(stored)), 0);
+  }, [key]);
+
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(score));
+  }, [key, score]);
+
+  return [score, setScore] as const;
+}
+
 export default function GameContainer({
   isDarkTheme,
   setIsDarkTheme,
@@ -12,33 +27,9 @@ export default function GameContainer({
   isDarkTheme: boolean;
   setIsDarkTheme: (value: boolean) => void;
 }) {
-  const [scores, setScores] = useState({ ...INITIAL_SCORE });
-  const [bestOfSeriesScores, setBestOfSeriesScores] = useState({
-    ...INITIAL_SCORE,
-  });
-
-  useEffect(() => {
-    const _scores = localStorage.getItem('scores');
-    if (!_scores) return;
-    setTimeout(() => setScores(JSON.parse(_scores)), 0);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('scores', JSON.stringify(scores));
-  }, [scores]);
-
-  useEffect(() => {
-    const _bestOfSeriesScores = localStorage.getItem('bestOfSeriesScores');
-    if (!_bestOfSeriesScores) return;
-    setTimeout(() => setBestOfSeriesScores(JSON.parse(_bestOfSeriesScores)), 0);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(
-      'bestOfSeriesScores',
-      JSON.stringify(bestOfSeriesScores),
-    );
-  }, [bestOfSeriesScores]);
+  const [scores, setScores] = usePersistedScore('scores');
+  const [bestOfSeriesScores, setBestOfSeriesScores] =
+    usePersistedScore('bestOfSeriesScores');
 
   return (
     <>
@@ -57,11 +48,6 @@ export default function GameContainer({
         <ResetScore
           onReset={() => {
             if (scores[HUMAN] === 0 && scores[AI] === 0) return;
-            localStorage.setItem('scores', JSON.stringify(INITIAL_SCORE));
-            localStorage.setItem(
-              'bestOfSeriesScores',
-              JSON.stringify(INITIAL_SCORE),
-            );
             setScores({ ...INITIAL_SCORE });
             setBestOfSeriesScores({ ...INITIAL_SCORE });
           }}
