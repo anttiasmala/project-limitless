@@ -12,6 +12,7 @@
     "lint:fix": "eslint --fix ."
   },
   "dependencies": {
+    "nanoid": "^5.1.7",
     "next": "16.1.7",
     "partykit": "^0.0.115",
     "partysocket": "^1.1.16",
