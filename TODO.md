@@ -30,7 +30,7 @@ Online multiplayer — two players on different devices using WebSockets (e.g. v
 
 _Replay system — after a game ends, step through moves one by one to review the match_
 
-Animated ocean background — CSS/canvas waves that get stormier as the game progresses toward an endgame
+_Animated ocean background — CSS/canvas waves that get stormier as the game progresses toward an endgame_
 
 **Polish**
 _Mobile swipe gestures — make the grid feel more native on touchscreens_
