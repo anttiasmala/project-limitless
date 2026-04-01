@@ -9,7 +9,6 @@ import type {
 } from '@/utils/multiplayer/multiplayerTypes';
 
 export function usePartyRoom(roomId: string) {
-  const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [roomState, setRoomState] = useState<RoomState | null>(null);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
@@ -17,9 +16,6 @@ export function usePartyRoom(roomId: string) {
   const socket = usePartySocket({
     host: 'localhost:1999',
     room: roomId,
-    onOpen() {
-      // Socket id is available on the underlying WebSocket
-    },
     onMessage(e) {
       const msg = JSON.parse(e.data) as ServerMessage;
       if (msg.type === 'state-update') {
@@ -33,8 +29,8 @@ export function usePartyRoom(roomId: string) {
         const message = msg.message;
         console.error(message);
         if (message == 'Room is full') {
-          setIsError(true);
           setErrorMessage(message);
+          socket.close();
         }
       }
     },
@@ -70,7 +66,6 @@ export function usePartyRoom(roomId: string) {
     myPlayer,
     myId,
     opponentDisconnected,
-    isError,
     errorMessage,
     sendMove,
     sendRematch,

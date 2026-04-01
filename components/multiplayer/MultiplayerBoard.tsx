@@ -35,7 +35,7 @@ export default function MultiplayerBoard({ roomId }: Props) {
           Error: {errorMessage}
         </p>
         <button
-          className="text-black cursor-pointer"
+          className="text-black dark:text-red-500 dark:hover:text-red-600 cursor-pointer"
           onClick={() => router.push('/multiplayer/lobby')}
         >
           Back to lobby
@@ -48,7 +48,7 @@ export default function MultiplayerBoard({ roomId }: Props) {
       <div>
         <p className="text-center dark:text-yellow-300">Connecting...</p>
         <button
-          className="text-black cursor-pointer"
+          className="text-black dark:text-red-500 dark:hover:text-red-600 cursor-pointer"
           onClick={() => router.push('/multiplayer/lobby')}
         >
           Back to lobby
