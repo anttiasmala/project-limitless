@@ -1,3 +1,5 @@
+// components/multiplayer/Lobby.tsx
+
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -21,7 +23,14 @@ export default function Lobby() {
       <h1 className="text-2xl font-bold dark:text-yellow-300">
         ⚓ Multiplayer
       </h1>
-
+      {/* Exit button */}
+      <button
+        onClick={() => router.push('/')}
+        className="text-md text-slate-800 hover:text-red-500 dark:text-amber-700
+      dark:hover:text-red-400 cursor-pointer transition-colors"
+      >
+        ✕ Back to main page
+      </button>
       <button
         onClick={createRoom}
         className="px-6 py-3 bg-red-700 border-2 border-red-900 text-white

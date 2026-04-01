@@ -1,3 +1,5 @@
+// components/Board.tsx
+
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import Square from './Square';
@@ -33,6 +35,7 @@ import ScoreBoard from './ScoreBoard';
 import DifficultySelector from './DifficultySelector';
 import ReplayModal from './ReplayModal';
 import { getStormLevel } from '@/utils/stormLevel';
+import { useRouter } from 'next/navigation';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -71,6 +74,8 @@ export default function Board({
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showReplayModal, setShowReplayModal] = useState(false);
+
+  const router = useRouter();
 
   const {
     isAudioMuted,
@@ -334,6 +339,14 @@ export default function Board({
 
   return (
     <div className="flex flex-col items-center gap-6">
+      {/* Multiplayer button */}
+      <button
+        className="py-2 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg hover:bg-slate-100 hover:border-amber-500 dark:hover:bg-red-800 dark:hover:border-yellow-500 cursor-pointer transition-all duration-200 tracking-wide w-full mb-2"
+        onClick={() => router.push('/multiplayer/lobby')}
+      >
+        Multiplayer
+      </button>
+
       {/* Mode selector */}
       <ModeSelector
         mode={mode}

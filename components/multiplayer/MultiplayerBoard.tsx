@@ -1,3 +1,5 @@
+// components/multiplayer/MultiplayerBoard.tsx
+
 'use client';
 import { calculateWinner, isDraw } from '@/lib/gameLogic';
 import { usePartyRoom } from '@/hooks/multiplayer/usePartyRoom';
@@ -6,7 +8,7 @@ import WinningLine from '../WinningLine';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
 import { CELL_LABELS } from '@/utils/types';
 import MoveHistory from '../MoveHistory';
-import ScoreBoard from '../ScoreBoard';
+import ScoreBoard from '@/components/multiplayer/ScoreBoard';
 import { useRouter } from 'next/navigation';
 
 type Props = {
@@ -60,7 +62,6 @@ export default function MultiplayerBoard({ roomId }: Props) {
   const { line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
   const isMyTurn = status === 'playing' && currentPlayer === myPlayer;
-
   // Does my opponent want a rematch?
   const opponentWantsRematch = Object.values(players).some(
     (p) => p.player !== myPlayer && p.wantsRematch,
@@ -96,10 +97,10 @@ export default function MultiplayerBoard({ roomId }: Props) {
 
       {/* Scoreboard */}
       <ScoreBoard
+        myPlayer={myPlayer}
         scores={scores}
         bestOfSeriesScores={{ ['☠️']: 0, ['⚓']: 0 }}
         pointSystem="number"
-        mode="pvp"
         bestOfSeries="off"
       />
 
