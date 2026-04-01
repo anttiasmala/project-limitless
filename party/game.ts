@@ -1,0 +1,240 @@
+// party/game.ts
+
+import type * as Party from 'partykit/server';
+import {
+  Board as BoardType,
+  Player,
+  calculateWinner,
+  isDraw,
+  INITIAL_SCORE,
+  AI,
+  HUMAN,
+} from '@/lib/gameLogic';
+import type { MoveEntry } from '@/utils/types';
+
+const INITIAL_BOARD: BoardType = Array(9).fill(null);
+
+type RoomPlayer = {
+  id: string;
+  player: Player;
+  connected: boolean;
+  wantsRematch: boolean;
+};
+
+type RoomState = {
+  board: BoardType;
+  currentPlayer: Player;
+  players: Record<string, RoomPlayer>;
+  status: 'waiting' | 'playing' | 'finished';
+  winner: Player | null;
+  isDraw: boolean;
+  scores: Record<Player, number>;
+  moveHistory: MoveEntry[];
+};
+
+type ClientMessage =
+  | { type: 'make-move'; index: number }
+  | { type: 'request-rematch' };
+
+type ServerMessage =
+  | { type: 'state-update'; state: RoomState }
+  | { type: 'opponent-disconnected' }
+  | { type: 'error'; message: string };
+
+function makeInitialState(): RoomState {
+  return {
+    board: [...INITIAL_BOARD],
+    currentPlayer: HUMAN,
+    players: {},
+    status: 'waiting',
+    winner: null,
+    isDraw: false,
+    scores: { ...INITIAL_SCORE },
+    moveHistory: [],
+  };
+}
+
+export default class GameRoom implements Party.Server {
+  state: RoomState;
+
+  constructor(readonly room: Party.Room) {
+    this.state = makeInitialState();
+  }
+
+  clearBoard() {
+    // Reset board but keep scores and players
+    this.state.board = [...INITIAL_BOARD];
+    this.state.currentPlayer = this.state.currentPlayer === HUMAN ? AI : HUMAN;
+    this.state.winner = null;
+    this.state.isDraw = false;
+    this.state.status = 'playing';
+    this.state.moveHistory = [];
+    Object.values(this.state.players).forEach((p) => {
+      p.wantsRematch = false;
+    });
+  }
+
+  save() {
+    this.room.storage.put('state', this.state);
+  }
+
+  broadcast(msg: ServerMessage, exclude?: string[]) {
+    this.room.broadcast(JSON.stringify(msg), exclude);
+  }
+
+  sendTo(conn: Party.Connection, msg: ServerMessage) {
+    conn.send(JSON.stringify(msg));
+  }
+
+  async onStart() {
+    const saved = await this.room.storage.get<RoomState>('state');
+    if (saved) {
+      saved.players = {};
+      this.state = saved;
+    }
+  }
+
+  onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
+    try {
+      // A websocket just connected!
+      console.log(
+        `Connected:
+         id: ${conn.id}
+         room: ${this.room.id}
+         url: ${new URL(ctx.request.url).pathname}`,
+      );
+
+      const connectedPlayers = Object.values(this.state.players).filter(
+        (p) => p.connected,
+      );
+
+      // Room is full
+      if (connectedPlayers.length >= 2) {
+        this.sendTo(conn, { type: 'error', message: 'Room is full' });
+        conn.close();
+        return;
+      }
+
+      // Assign player slot — first gets ☠️, second gets ⚓
+      const takenSlots = Object.values(this.state.players).map((p) => p.player);
+      console.log(takenSlots);
+
+      const assignedPlayer: Player = takenSlots.includes(HUMAN) ? AI : HUMAN;
+
+      this.state.players[conn.id] = {
+        id: conn.id,
+        player: assignedPlayer,
+        connected: true,
+        wantsRematch: false,
+      };
+      if (
+        Object.values(this.state.players).filter((p) => p.connected).length ===
+        2
+      ) {
+        this.state.status = 'playing';
+      }
+
+      this.broadcast({ type: 'state-update', state: this.state });
+      this.save();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  onClose(conn: Party.Connection) {
+    if (this.state.players[conn.id]) {
+      //this.state.players[conn.id].connected = false;
+      delete this.state.players[conn.id];
+    }
+
+    const stillConnected = Object.values(this.state.players).filter(
+      (p) => p.connected,
+    );
+
+    console.log('Still Connected:', stillConnected);
+    console.log('this.state:', this.state);
+    if (stillConnected.length === 1 && this.state.status === 'finished') {
+      // Reset game, but keep players and score
+      this.clearBoard();
+      this.state.status = 'waiting';
+      this.broadcast({ type: 'state-update', state: this.state });
+      return;
+    }
+
+    if (stillConnected.length === 0) {
+      // Both gone — reset fully
+      this.state = makeInitialState();
+    } else if (stillConnected.length === 1) {
+      // One player left — notify them
+
+      this.state.status = 'waiting';
+      this.broadcast({ type: 'opponent-disconnected' });
+      this.broadcast({ type: 'state-update', state: this.state });
+      this.save();
+    }
+  }
+
+  onMessage(message: string, sender: Party.Connection) {
+    let msg: ClientMessage;
+    try {
+      msg = JSON.parse(message) as ClientMessage;
+    } catch {
+      return;
+    }
+    const senderPlayer = this.state.players[sender.id];
+    if (!senderPlayer) return;
+
+    if (msg.type === 'make-move') {
+      if (this.state.status !== 'playing') return;
+      if (senderPlayer.player !== this.state.currentPlayer) return;
+      if (this.state.board[msg.index] !== null) return;
+
+      const newBoard = [...this.state.board] as BoardType;
+      newBoard[msg.index] = senderPlayer.player;
+      this.state.board = newBoard;
+      this.state.moveHistory = [
+        ...this.state.moveHistory,
+        {
+          turn: this.state.moveHistory.length + 1,
+          player: senderPlayer.player,
+          index: msg.index,
+        },
+      ];
+
+      const { winner } = calculateWinner(newBoard);
+      const draw = !winner && isDraw(newBoard);
+
+      if (winner) {
+        this.state.winner = winner;
+        this.state.status = 'finished';
+        this.state.scores[winner] += 1;
+      } else if (draw) {
+        this.state.isDraw = true;
+        this.state.status = 'finished';
+      } else {
+        // Flip turn
+        this.state.currentPlayer =
+          this.state.currentPlayer === HUMAN ? AI : HUMAN;
+      }
+
+      this.broadcast({ type: 'state-update', state: this.state });
+    }
+
+    if (msg.type === 'request-rematch') {
+      this.state.players[sender.id].wantsRematch = true;
+      const allWantRematch = Object.values(this.state.players)
+        .filter((p) => p.connected)
+        .every((p) => p.wantsRematch);
+
+      if (allWantRematch) {
+        // Reset board but keep scores and players
+        this.clearBoard();
+      }
+
+      this.broadcast({ type: 'state-update', state: this.state });
+      this.save();
+    }
+  }
+}
+
+GameRoom satisfies Party.Worker;
