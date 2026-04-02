@@ -86,6 +86,32 @@ export default class GameRoom implements Party.Server {
     conn.send(JSON.stringify(msg));
   }
 
+  async saveAndBroadcast(msg: ServerMessage) {
+    this.save();
+    await this.updateLobby();
+    this.broadcast(msg);
+  }
+
+  async updateLobby() {
+    try {
+      const connectedCount = Object.values(this.state.players).filter(
+        (p) => p.connected,
+      ).length;
+
+      await this.room.context.parties.lobby.get('main').fetch({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomId: this.room.id,
+          status: this.state.status,
+          connectedCount,
+        }),
+      });
+    } catch (e) {
+      console.warn('Lobby update failed:', e);
+    }
+  }
+
   async onStart() {
     const saved = await this.room.storage.get<RoomState>('state');
     if (saved) {
@@ -94,9 +120,8 @@ export default class GameRoom implements Party.Server {
     }
   }
 
-  onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
+  async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
     try {
-      // A websocket just connected!
       console.log(
         `Connected:
          id: ${conn.id}
@@ -134,14 +159,13 @@ export default class GameRoom implements Party.Server {
         this.state.status = 'playing';
       }
 
-      this.broadcast({ type: 'state-update', state: this.state });
-      this.save();
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
     } catch (e) {
       console.error(e);
     }
   }
 
-  onClose(conn: Party.Connection) {
+  async onClose(conn: Party.Connection) {
     if (this.state.players[conn.id]) {
       //this.state.players[conn.id].connected = false;
       delete this.state.players[conn.id];
@@ -157,24 +181,25 @@ export default class GameRoom implements Party.Server {
       // Reset game, but keep players and score
       this.clearBoard();
       this.state.status = 'waiting';
-      this.broadcast({ type: 'state-update', state: this.state });
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
       return;
     }
 
     if (stillConnected.length === 0) {
       // Both gone — reset fully
       this.state = makeInitialState();
+      this.save();
+      await this.updateLobby();
     } else if (stillConnected.length === 1) {
       // One player left — notify them
 
       this.state.status = 'waiting';
       this.broadcast({ type: 'opponent-disconnected' });
-      this.broadcast({ type: 'state-update', state: this.state });
-      this.save();
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
     }
   }
 
-  onMessage(message: string, sender: Party.Connection) {
+  async onMessage(message: string, sender: Party.Connection) {
     let msg: ClientMessage;
     try {
       msg = JSON.parse(message) as ClientMessage;
@@ -217,7 +242,7 @@ export default class GameRoom implements Party.Server {
           this.state.currentPlayer === HUMAN ? AI : HUMAN;
       }
 
-      this.broadcast({ type: 'state-update', state: this.state });
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
     }
 
     if (msg.type === 'request-rematch') {
@@ -231,8 +256,7 @@ export default class GameRoom implements Party.Server {
         this.clearBoard();
       }
 
-      this.broadcast({ type: 'state-update', state: this.state });
-      this.save();
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
     }
   }
 }
