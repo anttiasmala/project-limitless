@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { nanoid } from 'nanoid';
 import { createPortal } from 'react-dom';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import Button from '../utils/Button';
 
 type LobbyEntry = {
   roomId: string;
@@ -58,27 +59,13 @@ export default function Lobby() {
       >
         ✕ Back to main page
       </button>
-      <button
-        onClick={() => setIsLobbyModalOpen(true)}
-        className="px-6 py-3 bg-red-700 border-2 border-red-900 text-white
-          dark:bg-red-900 dark:border-red-700 dark:text-yellow-300
-          font-bold rounded-lg hover:bg-red-600 cursor-pointer
-          transition-all duration-200 text-lg"
-      >
+      <Button onClick={() => setIsLobbyModalOpen(true)}>
         Lobby list
         {lobbies?.length && lobbies.length > 0
           ? `: ${lobbies.length} games`
           : ''}
-      </button>
-      <button
-        onClick={createRoom}
-        className="px-6 py-3 bg-red-700 border-2 border-red-900 text-white
-          dark:bg-red-900 dark:border-red-700 dark:text-yellow-300
-          font-bold rounded-lg hover:bg-red-600 cursor-pointer
-          transition-all duration-200 text-lg"
-      >
-        🏴‍☠️ Create New Room
-      </button>
+      </Button>
+      <Button onClick={createRoom}>🏴‍☠️ Create New Room</Button>
 
       <div className="flex gap-2">
         <input
@@ -90,7 +77,7 @@ export default function Lobby() {
             dark:border-amber-800 dark:bg-amber-950/40 dark:text-yellow-300
             focus:outline-none focus:ring-2 focus:ring-amber-400"
         />
-        <button
+        <Button
           onClick={joinRoom}
           className="px-4 py-2 bg-amber-600 border-2 border-amber-800 text-white
             dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
@@ -98,7 +85,7 @@ export default function Lobby() {
             transition-all duration-200"
         >
           Join
-        </button>
+        </Button>
       </div>
       {isLobbyModalOpen && (
         <LobbyModal
@@ -202,18 +189,15 @@ function LobbyModal({
                   </td>
                   <td className="py-3 text-right">
                     {lobby.status === 'waiting' && (
-                      <button
+                      <Button
                         onClick={() => {
                           router.push(`/multiplayer/${lobby.roomId}`);
                           closeModal();
                         }}
-                        className="px-3 py-1 bg-red-700 border border-red-900
-                          text-white dark:bg-red-900 dark:border-red-700
-                          dark:text-yellow-300 font-bold rounded-lg
-                          hover:bg-red-600 cursor-pointer transition-all text-xs"
+                        className="px-3 py-1 text-xs"
                       >
                         Join
-                      </button>
+                      </Button>
                     )}
                   </td>
                 </tr>
