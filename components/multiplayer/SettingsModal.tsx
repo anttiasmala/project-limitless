@@ -1,6 +1,7 @@
+// components/multiplayer/SettingsModal.tsx
+
 import { useKeyPress } from '@/hooks/useKeyPress';
-import { INITIAL_SCORE, Player } from '@/lib/gameLogic';
-import { SetStateAction, useCallback } from 'react';
+import { useCallback } from 'react';
 import { createPortal } from 'react-dom';
 
 export function SettingsModal({
@@ -11,19 +12,10 @@ export function SettingsModal({
   volume,
   setVolume,
   AudioArray,
-  timerEnabled,
-  setTimerEnabled,
-  pointSystem,
-  setPointSystem,
   isDarkTheme,
   setIsDarkTheme,
   isArrowKeysEnabled,
   setIsArrowKeysEnabled,
-  bestOfSeries,
-  setBestOfSeries,
-  setScores,
-  setBestOfSeriesScores,
-  resetGame,
 }: {
   showSettingsModal: boolean;
   setShowSettingsModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -32,19 +24,10 @@ export function SettingsModal({
   setIsAudioMuted: (value: boolean) => void;
   volume: number;
   setVolume: (value: number) => void;
-  timerEnabled: boolean;
-  setTimerEnabled: (value: boolean) => void;
-  pointSystem: 'treasureChest' | 'number';
-  setPointSystem: (value: 'treasureChest' | 'number') => void;
   isDarkTheme: boolean;
   setIsDarkTheme: (value: boolean) => void;
   isArrowKeysEnabled: boolean;
   setIsArrowKeysEnabled: (value: boolean) => void;
-  bestOfSeries: string;
-  setBestOfSeries: (value: 'off' | 'bo3' | 'bo5') => void;
-  setScores: React.Dispatch<SetStateAction<Record<Player, number>>>;
-  setBestOfSeriesScores: React.Dispatch<SetStateAction<Record<Player, number>>>;
-  resetGame: () => void;
 }) {
   const handleClose = useCallback(
     () => setShowSettingsModal(false),
@@ -98,47 +81,6 @@ export function SettingsModal({
                 />
               </label>
             </div>
-            {/* TIMER LOGIC */}
-            <div className="mt-3 flex">
-              <label className="cursor-pointer select-none">
-                Sand timer (10s)
-                <input
-                  type="checkbox"
-                  className="ml-2 w-5 h-5 cursor-pointer align-middle"
-                  checked={timerEnabled}
-                  onChange={(e) => setTimerEnabled(e.target.checked)}
-                />
-              </label>
-            </div>
-
-            {/* Treasure chest or number logic*/}
-
-            <div className="mt-3 flex">
-              <label className="cursor-pointer select-none">
-                Point system:
-                <select
-                  className="border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
-                  name="pointSystem"
-                  onChange={(e) =>
-                    setPointSystem(e.target.value as 'treasureChest' | 'number')
-                  }
-                  value={pointSystem}
-                >
-                  <option
-                    className="text-black dark:text-yellow-300 font-bold"
-                    value={'number'}
-                  >
-                    Number
-                  </option>
-                  <option
-                    className="text-black dark:text-yellow-300 font-bold"
-                    value={'treasureChest'}
-                  >
-                    Treasure Chest
-                  </option>
-                </select>
-              </label>
-            </div>
 
             {/* Dark theme logic */}
 
@@ -165,44 +107,6 @@ export function SettingsModal({
                   checked={isArrowKeysEnabled}
                   onChange={(e) => setIsArrowKeysEnabled(e.target.checked)}
                 />
-              </label>
-            </div>
-
-            {/* Best of Series logic */}
-
-            <div className="mt-3 flex">
-              <label className="select-none">
-                Best of Series:
-                <select
-                  className="border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
-                  name="bestOfSeries"
-                  onChange={(e) => {
-                    setBestOfSeries(e.target.value as 'off' | 'bo3' | 'bo5');
-                    setBestOfSeriesScores({ ...INITIAL_SCORE });
-                    setScores({ ...INITIAL_SCORE });
-                    resetGame();
-                  }}
-                  value={bestOfSeries}
-                >
-                  <option
-                    className="text-black dark:text-yellow-300 font-bold"
-                    value={'off'}
-                  >
-                    Off
-                  </option>
-                  <option
-                    className="text-black dark:text-yellow-300 font-bold"
-                    value={'bo3'}
-                  >
-                    Best of 3
-                  </option>
-                  <option
-                    className="text-black dark:text-yellow-300 font-bold"
-                    value={'bo5'}
-                  >
-                    Best of 5
-                  </option>
-                </select>
               </label>
             </div>
 

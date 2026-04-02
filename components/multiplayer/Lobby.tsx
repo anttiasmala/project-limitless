@@ -7,6 +7,10 @@ import { nanoid } from 'nanoid';
 import { createPortal } from 'react-dom';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import Button from '../utils/Button';
+import { SettingsModal } from './SettingsModal';
+import { useGameSettings } from '@/hooks/multiplayer/useGameSettings';
+import { useGameAudio } from '@/hooks/useGameAudio';
+import SvgSettings from '@/icons/settings';
 
 type LobbyEntry = {
   roomId: string;
@@ -14,13 +18,30 @@ type LobbyEntry = {
   connectedCount: number;
 };
 
-export default function Lobby() {
+type LobbyProps = {
+  isDarkTheme: boolean;
+  setIsDarkTheme: (value: boolean) => void;
+};
+
+export default function Lobby({ isDarkTheme, setIsDarkTheme }: LobbyProps) {
   const router = useRouter();
   const [lobbies, setLobbies] = useState<LobbyEntry[]>([]);
   const [isLobbyModalOpen, setIsLobbyModalOpen] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [joinId, setJoinId] = useState('');
 
-  const [isDarkTheme] = useLocalStorage('isDarkTheme', true);
+  const {
+    setIsArrowKeysEnabled,
+    isArrowKeysEnabled,
+    setIsAudioMuted,
+    isAudioMuted,
+    setVolume,
+    volume,
+  } = useGameSettings();
+  const { cannonAudio, creakAudio, splashAudio } = useGameAudio(
+    volume,
+    isAudioMuted,
+  );
 
   function createRoom() {
     const id = nanoid(8);
@@ -52,13 +73,24 @@ export default function Lobby() {
         ⚓ Multiplayer
       </h1>
       {/* Exit button */}
-      <button
-        onClick={() => router.push('/')}
-        className="text-md text-slate-800 hover:text-red-500 dark:text-amber-700
+      <div className="relative flex items-center gap-6">
+        <button
+          onClick={() => router.push('/')}
+          className="text-md text-slate-800 hover:text-red-500 dark:text-amber-700
       dark:hover:text-red-400 cursor-pointer transition-colors"
-      >
-        ✕ Back to main page
-      </button>
+        >
+          ✕ Back to main page
+        </button>
+        <button
+          aria-label="Open settings"
+          aria-expanded={showSettingsModal}
+          className="relative cursor-pointer"
+          onClick={() => setShowSettingsModal(true)}
+        >
+          <SvgSettings className="w-8 h-8 fill-none dark:text-white text-amber-700" />
+        </button>
+      </div>
+      {/* Lobby list and create Lobby buttons*/}
       <Button onClick={() => setIsLobbyModalOpen(true)}>
         Lobby list
         {lobbies?.length && lobbies.length > 0
@@ -87,6 +119,22 @@ export default function Lobby() {
           Join
         </Button>
       </div>
+      {showSettingsModal && (
+        <SettingsModal
+          AudioArray={[creakAudio, splashAudio, cannonAudio]}
+          setShowSettingsModal={setShowSettingsModal}
+          showSettingsModal={showSettingsModal}
+          setIsArrowKeysEnabled={setIsArrowKeysEnabled}
+          isArrowKeysEnabled={isArrowKeysEnabled}
+          setIsAudioMuted={setIsAudioMuted}
+          isAudioMuted={isAudioMuted}
+          setIsDarkTheme={setIsDarkTheme}
+          isDarkTheme={isDarkTheme}
+          setVolume={setVolume}
+          volume={volume}
+        />
+      )}
+
       {isLobbyModalOpen && (
         <LobbyModal
           isDarkTheme={isDarkTheme}
