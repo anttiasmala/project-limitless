@@ -10,36 +10,13 @@ import {
   AI,
   HUMAN,
 } from '@/lib/gameLogic';
-import type { MoveEntry } from '@/utils/types';
 
+import type {
+  RoomState,
+  ClientMessage,
+  ServerMessage,
+} from '@/utils/multiplayer/multiplayerTypes';
 const INITIAL_BOARD: BoardType = Array(9).fill(null);
-
-type RoomPlayer = {
-  id: string;
-  player: Player;
-  connected: boolean;
-  wantsRematch: boolean;
-};
-
-type RoomState = {
-  board: BoardType;
-  currentPlayer: Player;
-  players: Record<string, RoomPlayer>;
-  status: 'waiting' | 'playing' | 'finished';
-  winner: Player | null;
-  isDraw: boolean;
-  scores: Record<Player, number>;
-  moveHistory: MoveEntry[];
-};
-
-type ClientMessage =
-  | { type: 'make-move'; index: number }
-  | { type: 'request-rematch' };
-
-type ServerMessage =
-  | { type: 'state-update'; state: RoomState }
-  | { type: 'opponent-disconnected' }
-  | { type: 'error'; message: string };
 
 function makeInitialState(): RoomState {
   return {
@@ -147,7 +124,6 @@ export default class GameRoom implements Party.Server {
         const takenSlots = Object.values(this.state.players).map(
           (p) => p.player,
         );
-        console.log(takenSlots);
 
         const assignedPlayer: Player = takenSlots.includes(HUMAN) ? AI : HUMAN;
 
@@ -166,10 +142,9 @@ export default class GameRoom implements Party.Server {
       }
       this.sendTo(conn, { type: 'state-update', state: this.state });
       if (!isSpectator) {
-        await this.saveAndBroadcast({
-          type: 'state-update',
-          state: this.state,
-        });
+        this.save();
+        await this.updateLobby();
+        this.broadcast({ type: 'state-update', state: this.state }, [conn.id]); // exclude joiner
       }
     } catch (e) {
       console.error(e);
@@ -185,8 +160,6 @@ export default class GameRoom implements Party.Server {
       (p) => p.connected,
     );
 
-    console.log('Still Connected:', stillConnected);
-    console.log('this.state:', this.state);
     if (stillConnected.length === 1 && this.state.status === 'finished') {
       // Reset game, but keep players and score
       this.clearBoard();

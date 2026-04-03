@@ -3,12 +3,7 @@
 // This file contains the data of free lobbies
 
 import type * as Party from 'partykit/server';
-
-type LobbyEntry = {
-  roomId: string;
-  status: 'waiting' | 'playing' | 'finished';
-  connectedCount: number;
-};
+import type { LobbyEntry } from '@/utils/multiplayer/multiplayerTypes';
 
 export default class LobbyServer implements Party.Server {
   rooms: Record<string, LobbyEntry> = {};
@@ -17,14 +12,7 @@ export default class LobbyServer implements Party.Server {
 
   async onRequest(req: Party.Request) {
     if (req.method === 'GET') {
-      console.log('GET-request party/lobby.ts');
-      const rooms =
-        (await this.room.storage.get<Record<string, LobbyEntry>>('rooms')) ??
-        {};
-
-      // Return all full lobbies to frontend, do the parsing in frontend
-      const available = Object.values(rooms);
-      return Response.json(available);
+      return Response.json(Object.values(this.rooms));
     }
     if (req.method === 'POST') {
       const entry = (await req.json()) as LobbyEntry;

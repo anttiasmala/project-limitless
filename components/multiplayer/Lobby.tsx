@@ -10,12 +10,7 @@ import { SettingsModal } from './SettingsModal';
 import { useGameSettings } from '@/hooks/multiplayer/useGameSettings';
 import { useGameAudio } from '@/hooks/useGameAudio';
 import SvgSettings from '@/icons/settings';
-
-type LobbyEntry = {
-  roomId: string;
-  status: 'waiting' | 'playing' | 'finished';
-  connectedCount: number;
-};
+import type { LobbyEntry } from '@/utils/multiplayer/multiplayerTypes';
 
 type LobbyProps = {
   isDarkTheme: boolean;

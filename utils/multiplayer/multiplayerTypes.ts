@@ -27,3 +27,9 @@ export type ServerMessage =
   | { type: 'state-update'; state: RoomState }
   | { type: 'opponent-disconnected' }
   | { type: 'error'; message: string };
+
+export type LobbyEntry = {
+  roomId: string;
+  status: 'waiting' | 'playing' | 'finished';
+  connectedCount: number;
+};

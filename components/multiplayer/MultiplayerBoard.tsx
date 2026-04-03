@@ -133,7 +133,8 @@ export default function MultiplayerBoard({
   }
 
   function handleClick(index: number) {
-    if (!isMyTurn || isSpectator) return;
+    // board[index] added to prevent sound playing when clicking already taken square
+    if (!isMyTurn || isSpectator || board[index]) return;
 
     const newBoard = [...board];
     newBoard[index] = currentPlayer;
