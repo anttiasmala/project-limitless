@@ -22,10 +22,8 @@ export default class LobbyServer implements Party.Server {
         (await this.room.storage.get<Record<string, LobbyEntry>>('rooms')) ??
         {};
 
-      // Only return rooms with at least 1 player
-      const available = Object.values(rooms).filter(
-        (r) => r.connectedCount === 1,
-      );
+      // Return all full lobbies to frontend, do the parsing in frontend
+      const available = Object.values(rooms);
       return Response.json(available);
     }
     if (req.method === 'POST') {

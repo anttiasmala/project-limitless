@@ -6,7 +6,7 @@ import { usePartyRoom } from '@/hooks/multiplayer/usePartyRoom';
 import Square from '../Square';
 import WinningLine from '../WinningLine';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
-import { CELL_LABELS } from '@/utils/types';
+import { CELL_LABELS, PlayerNames } from '@/utils/types';
 import MoveHistory from '../MoveHistory';
 import ScoreBoard from '@/components/multiplayer/ScoreBoard';
 import { useRouter } from 'next/navigation';
@@ -22,12 +22,14 @@ type Props = {
   roomId: string;
   isDarkTheme: boolean;
   setIsDarkTheme: (value: boolean) => void;
+  isSpectator?: boolean;
 };
 
 export default function MultiplayerBoard({
   roomId,
   isDarkTheme,
   setIsDarkTheme,
+  isSpectator,
 }: Props) {
   const router = useRouter();
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -66,14 +68,28 @@ export default function MultiplayerBoard({
     const { status, winner } = roomState;
 
     if (status === 'finished' && prevStatusRef.current !== 'finished') {
-      // Only play for the opponent (the one who didn't make the last move)
-      if (!isMyTurn) {
-        if (winner) playSound(cannonAudio);
-        else playSound(splashAudio);
-      }
+      if (winner) playSound(cannonAudio);
+      else playSound(splashAudio);
     }
     prevStatusRef.current = status;
   }, [roomState?.status]);
+
+  // ERROR MESSAGE
+  if (errorMessage) {
+    return (
+      <div>
+        <p className="text-center text-red-500 dark:text-yellow-300">
+          Error: {errorMessage}
+        </p>
+        <button
+          className="text-black dark:text-red-500 dark:hover:text-red-600 cursor-pointer"
+          onClick={() => router.push('/multiplayer/lobby')}
+        >
+          Back to lobby
+        </button>
+      </div>
+    );
+  }
 
   // ROOM IS NOT "ONLINE"
   if (!roomState) {
@@ -117,18 +133,15 @@ export default function MultiplayerBoard({
   }
 
   function handleClick(index: number) {
-    if (!isMyTurn) return;
+    if (!isMyTurn || isSpectator) return;
 
     const newBoard = [...board];
     newBoard[index] = currentPlayer;
     const { winner: predictedWinner } = calculateWinner(newBoard);
     const predictedDraw = !predictedWinner && isDraw(newBoard);
 
-    if (predictedWinner) {
-      playSound(cannonAudio);
-    } else if (predictedDraw) {
-      playSound(splashAudio);
-    } else {
+    // this if, else if, else blocks in winning situation to cannon and creak sound playing at the same time
+    if (!predictedWinner && !predictedDraw) {
       playSound(creakAudio);
     }
 
@@ -142,23 +155,6 @@ export default function MultiplayerBoard({
     }
 
     sendMove(index);
-  }
-
-  // ERROR MESSAGE
-  if (errorMessage) {
-    return (
-      <div>
-        <p className="text-center text-red-500 dark:text-yellow-300">
-          Error: {errorMessage}
-        </p>
-        <button
-          className="text-black dark:text-red-500 dark:hover:text-red-600 cursor-pointer"
-          onClick={() => router.push('/multiplayer/lobby')}
-        >
-          Back to lobby
-        </button>
-      </div>
-    );
   }
 
   return (
@@ -188,7 +184,7 @@ export default function MultiplayerBoard({
       </div>
 
       {/* Waiting state */}
-      {status === 'waiting' && (
+      {status === 'waiting' && !isSpectator && (
         <p className="text-amber-600 dark:text-yellow-300 font-semibold animate-pulse">
           ⏳ Waiting for opponent to join...
         </p>
@@ -208,10 +204,24 @@ export default function MultiplayerBoard({
         bestOfSeries="off"
       />
 
+      {/* Spectator banner */}
+      {isSpectator && (
+        <p className="text-xs text-amber-500 dark:text-amber-400 font-semibold tracking-widest uppercase">
+          👁️ Spectating
+        </p>
+      )}
+
       {/* Turn indicator */}
-      {status === 'playing' && (
+      {status === 'playing' && !isSpectator && (
         <p className="font-semibold dark:text-yellow-300">
           {isMyTurn ? '⚔️ Your turn' : "⏳ Opponent's turn"}
+        </p>
+      )}
+
+      {/* For spectators show whose turn it is instead */}
+      {status === 'playing' && isSpectator && (
+        <p className="font-semibold dark:text-yellow-300">
+          ⚔️ {PlayerNames[currentPlayer]}'s turn {currentPlayer}
         </p>
       )}
 
@@ -248,8 +258,16 @@ export default function MultiplayerBoard({
         )}
       </div>
 
+      {/* Spectator's Game Over */}
+
+      {status === 'finished' && isSpectator && (
+        <p className="text-xl font-bold dark:text-yellow-300">
+          {winner ? `🏆 ${PlayerNames[winner]} wins!` : '🌊 Draw!'}
+        </p>
+      )}
+
       {/* Game over */}
-      {status === 'finished' && (
+      {status === 'finished' && !isSpectator && (
         <div className="text-center flex flex-col items-center gap-3">
           <p className="text-xl font-bold dark:text-yellow-300">
             {winner === myPlayer

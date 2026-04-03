@@ -7,15 +7,19 @@ import type {
   ServerMessage,
   ClientMessage,
 } from '@/utils/multiplayer/multiplayerTypes';
+import { useSearchParams } from 'next/navigation';
 
 export function usePartyRoom(roomId: string) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [roomState, setRoomState] = useState<RoomState | null>(null);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
+  const searchParams = useSearchParams();
+  const isSpectator = searchParams.get('spectator');
 
   const socket = usePartySocket({
     host: 'localhost:1999',
     room: roomId,
+    query: { spectator: isSpectator ? 'true' : undefined },
     onMessage(e) {
       const msg = JSON.parse(e.data) as ServerMessage;
       if (msg.type === 'state-update') {

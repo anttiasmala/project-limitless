@@ -128,48 +128,58 @@ export default class GameRoom implements Party.Server {
          room: ${this.room.id}
          url: ${new URL(ctx.request.url).pathname}`,
       );
+      const url = new URL(ctx.request.url);
+      const isSpectator = url.searchParams.get('spectator') === 'true';
 
-      const connectedPlayers = Object.values(this.state.players).filter(
-        (p) => p.connected,
-      );
+      if (!isSpectator) {
+        const connectedPlayers = Object.values(this.state.players).filter(
+          (p) => p.connected,
+        );
 
-      // Room is full
-      if (connectedPlayers.length >= 2) {
-        this.sendTo(conn, { type: 'error', message: 'Room is full' });
-        conn.close();
-        return;
+        // Room is full
+        if (connectedPlayers.length >= 2) {
+          this.sendTo(conn, { type: 'error', message: 'Room is full' });
+          conn.close();
+          return;
+        }
+
+        // Assign player slot — first gets ☠️, second gets ⚓
+        const takenSlots = Object.values(this.state.players).map(
+          (p) => p.player,
+        );
+        console.log(takenSlots);
+
+        const assignedPlayer: Player = takenSlots.includes(HUMAN) ? AI : HUMAN;
+
+        this.state.players[conn.id] = {
+          id: conn.id,
+          player: assignedPlayer,
+          connected: true,
+          wantsRematch: false,
+        };
+        if (
+          Object.values(this.state.players).filter((p) => p.connected)
+            .length === 2
+        ) {
+          this.state.status = 'playing';
+        }
       }
-
-      // Assign player slot — first gets ☠️, second gets ⚓
-      const takenSlots = Object.values(this.state.players).map((p) => p.player);
-      console.log(takenSlots);
-
-      const assignedPlayer: Player = takenSlots.includes(HUMAN) ? AI : HUMAN;
-
-      this.state.players[conn.id] = {
-        id: conn.id,
-        player: assignedPlayer,
-        connected: true,
-        wantsRematch: false,
-      };
-      if (
-        Object.values(this.state.players).filter((p) => p.connected).length ===
-        2
-      ) {
-        this.state.status = 'playing';
+      this.sendTo(conn, { type: 'state-update', state: this.state });
+      if (!isSpectator) {
+        await this.saveAndBroadcast({
+          type: 'state-update',
+          state: this.state,
+        });
       }
-
-      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
     } catch (e) {
       console.error(e);
     }
   }
 
   async onClose(conn: Party.Connection) {
-    if (this.state.players[conn.id]) {
-      //this.state.players[conn.id].connected = false;
-      delete this.state.players[conn.id];
-    }
+    if (!this.state.players[conn.id]) return;
+
+    delete this.state.players[conn.id];
 
     const stillConnected = Object.values(this.state.players).filter(
       (p) => p.connected,

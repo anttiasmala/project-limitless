@@ -1,12 +1,16 @@
 // components/multiplayer/MultiplayerPage.tsx
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import MultiplayerBoard from './MultiplayerBoard';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 export default function MultiplayerPage({ roomId }: { roomId: string }) {
-  const [isDarkTheme, setIsDarkTheme] = useLocalStorage('isDarkTheme', true);
+  const searchParams = useSearchParams();
+  const spectatorParam = searchParams.get('spectator');
+  const isSpectator = spectatorParam === 'true';
 
+  const [isDarkTheme, setIsDarkTheme] = useLocalStorage('isDarkTheme', true);
   return (
     <main
       className={`${
@@ -21,6 +25,7 @@ export default function MultiplayerPage({ roomId }: { roomId: string }) {
           roomId={roomId}
           isDarkTheme={isDarkTheme}
           setIsDarkTheme={setIsDarkTheme}
+          isSpectator={isSpectator}
         />
       </div>
     </main>
