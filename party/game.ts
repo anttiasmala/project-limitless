@@ -38,17 +38,21 @@ export default class GameRoom implements Party.Server {
     this.state = makeInitialState();
   }
 
-  clearBoard() {
-    // Reset board but keep scores and players
+  resetBoard() {
     this.state.board = [...INITIAL_BOARD];
-    this.state.currentPlayer = this.state.currentPlayer === HUMAN ? AI : HUMAN;
     this.state.winner = null;
     this.state.isDraw = false;
-    this.state.status = 'playing';
     this.state.moveHistory = [];
     Object.values(this.state.players).forEach((p) => {
       p.wantsRematch = false;
     });
+  }
+
+  clearBoard() {
+    // Reset board but keep scores and players
+    this.resetBoard();
+    this.state.currentPlayer = this.state.currentPlayer === HUMAN ? AI : HUMAN;
+    this.state.status = 'playing';
   }
 
   save() {
@@ -162,7 +166,7 @@ export default class GameRoom implements Party.Server {
 
     if (stillConnected.length === 1 && this.state.status === 'finished') {
       // Reset game, but keep players and score
-      this.clearBoard();
+      this.resetBoard();
       this.state.status = 'waiting';
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
       return;
@@ -174,8 +178,10 @@ export default class GameRoom implements Party.Server {
       this.save();
       await this.updateLobby();
     } else if (stillConnected.length === 1) {
-      // One player left — notify them
+      // clear the board
+      this.resetBoard();
 
+      // One player left — notify them
       this.state.status = 'waiting';
       this.broadcast({ type: 'opponent-disconnected' });
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
