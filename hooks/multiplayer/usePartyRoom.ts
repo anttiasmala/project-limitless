@@ -17,7 +17,7 @@ export function usePartyRoom(roomId: string) {
   const isSpectator = searchParams.get('spectator');
 
   const socket = usePartySocket({
-    host: 'localhost:1999',
+    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST ?? 'localhost:1999',
     room: roomId,
     query: { spectator: isSpectator ? 'true' : undefined },
     onMessage(e) {
@@ -38,9 +38,6 @@ export function usePartyRoom(roomId: string) {
         }
       }
     },
-    onClose() {
-      console.log('Socket closed');
-    },
   });
 
   const sendMove = useCallback(
@@ -56,12 +53,8 @@ export function usePartyRoom(roomId: string) {
     socket.send(JSON.stringify(msg));
   }, [socket]);
 
-  const myId = roomState
-    ? Object.values(roomState.players).find((p) => {
-        // partysocket exposes socket.id
-        return p.id === socket.id;
-      })?.id ?? ''
-    : '';
+  const myId = socket.id ?? '';
+
   // Derive my assigned player from room state
   const myPlayer = roomState?.players[myId]?.player ?? null;
 

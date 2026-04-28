@@ -1,4 +1,6 @@
-import { useEffect, useRef } from 'react';
+// hooks/useGameAudio.ts
+
+import { useCallback, useEffect, useRef } from 'react';
 
 export function useGameAudio(volume: number, isAudioMuted: boolean) {
   const cannonAudio = useRef<HTMLAudioElement | null>(null);
@@ -18,12 +20,15 @@ export function useGameAudio(volume: number, isAudioMuted: boolean) {
     });
   }, [volume, isAudioMuted]);
 
-  function playSound(ref: React.RefObject<HTMLAudioElement | null>) {
-    if (ref.current) {
-      ref.current.currentTime = 0;
-      ref.current.play();
-    }
-  }
+  const playSound = useCallback(
+    (ref: React.RefObject<HTMLAudioElement | null>) => {
+      if (ref.current) {
+        ref.current.currentTime = 0;
+        ref.current.play();
+      }
+    },
+    [],
+  );
 
   return { cannonAudio, splashAudio, creakAudio, playSound };
 }
