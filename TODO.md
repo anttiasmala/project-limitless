@@ -1,9 +1,8 @@
 1. Mobile site is not looking good, it has to be changed quite a bit
 2. Site changes its height, the site moves a lot during play
 3. ?Add the win reason to captain's log?
-4. In Best of Series (3 or 5) when other player scores a Series point, both scores are reseted. Change that only the player who scored the Series point will be reseted
-5. In multiplayer if player lefts, reset the board
-6. /multiplayer/EKtP-hJM?spectator=false allows player to get to room, but not play
+4. In multiplayer if player lefts, reset the board
+5. /multiplayer/EKtP-hJM?spectator=false allows player to get to room, but not play
 
 A lot of ideas below:
 
