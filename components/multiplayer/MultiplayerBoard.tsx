@@ -74,16 +74,19 @@ export default function MultiplayerBoard({
     prevStatusRef.current = status;
   }, [roomState?.status]);
 
-  // ERROR MESSAGE
-  if (errorMessage) {
+  function RoomMessage({
+    message,
+    onBack,
+  }: {
+    message: string;
+    onBack: () => void;
+  }) {
     return (
-      <div>
-        <p className="text-center text-red-500 dark:text-yellow-300">
-          Error: {errorMessage}
-        </p>
+      <div className="flex flex-col items-center gap-4">
+        <p className="text-center dark:text-yellow-300">{message}</p>
         <button
           className="text-black dark:text-red-500 dark:hover:text-red-600 cursor-pointer"
-          onClick={() => router.push('/multiplayer/lobby')}
+          onClick={onBack}
         >
           Back to lobby
         </button>
@@ -91,18 +94,23 @@ export default function MultiplayerBoard({
     );
   }
 
+  // ERROR MESSAGE
+  if (errorMessage) {
+    return (
+      <RoomMessage
+        message={`Error: ${errorMessage}`}
+        onBack={() => router.push('/multiplayer/lobby')}
+      />
+    );
+  }
+
   // ROOM IS NOT "ONLINE"
   if (!roomState) {
     return (
-      <div>
-        <p className="text-center dark:text-yellow-300">Connecting...</p>
-        <button
-          className="text-black dark:text-red-500 dark:hover:text-red-600 cursor-pointer"
-          onClick={() => router.push('/multiplayer/lobby')}
-        >
-          Back to lobby
-        </button>
-      </div>
+      <RoomMessage
+        message="Connecting..."
+        onBack={() => router.push('/multiplayer/lobby')}
+      />
     );
   }
 
@@ -243,7 +251,9 @@ export default function MultiplayerBoard({
                 isArrowKeysEnabled ? handleKeyDown(e, i) : null
               }
               isWinning={winLine?.includes(i) ?? false}
-              disabled={!isMyTurn || status !== 'playing' || !!board[i]}
+              disabled={
+                !isMyTurn || status !== 'playing' || !!board[i] || !!isSpectator
+              }
               tabIndex={i === activeIndex.current ? 0 : -1}
               cellRef={(el) => setRef(el, i)}
               label={`${CELL_LABELS[i]}, ${cell ?? 'empty'}`}
