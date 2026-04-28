@@ -36,6 +36,7 @@ export default function MultiplayerBoard({
   const {
     roomState,
     myPlayer,
+    myId,
     opponentDisconnected,
     errorMessage,
     sendMove,
@@ -72,27 +73,7 @@ export default function MultiplayerBoard({
       else playSound(splashAudio);
     }
     prevStatusRef.current = status;
-  }, [roomState?.status]);
-
-  function RoomMessage({
-    message,
-    onBack,
-  }: {
-    message: string;
-    onBack: () => void;
-  }) {
-    return (
-      <div className="flex flex-col items-center gap-4">
-        <p className="text-center dark:text-yellow-300">{message}</p>
-        <button
-          className="text-black dark:text-red-500 dark:hover:text-red-600 cursor-pointer"
-          onClick={onBack}
-        >
-          Back to lobby
-        </button>
-      </div>
-    );
-  }
+  }, [roomState?.status, cannonAudio, splashAudio, playSound]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ERROR MESSAGE
   if (errorMessage) {
@@ -123,6 +104,11 @@ export default function MultiplayerBoard({
   const opponentWantsRematch = Object.values(players).some(
     (p) => p.player !== myPlayer && p.wantsRematch,
   );
+
+  // I want a rematch?
+  const myWantsRematch = myPlayer
+    ? players[myId]?.wantsRematch ?? false
+    : false;
 
   // Swipe Gestures
   function handleSwipe(direction: 'left' | 'right' | 'up' | 'down') {
@@ -230,7 +216,7 @@ export default function MultiplayerBoard({
       {/* For spectators show whose turn it is instead */}
       {status === 'playing' && isSpectator && (
         <p className="font-semibold dark:text-yellow-300">
-          ⚔️ {PlayerNames[currentPlayer]}'s turn {currentPlayer}
+          ⚔️ {PlayerNames[currentPlayer]}&apos;s turn {currentPlayer}
         </p>
       )}
 
@@ -292,10 +278,15 @@ export default function MultiplayerBoard({
             className="px-6 py-3 bg-amber-600 border-2 border-amber-800 text-white
               dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
               font-bold rounded-lg hover:bg-amber-500 cursor-pointer
-              transition-all duration-200"
+              transition-all duration-200 disabled:cursor-not-allowed"
+            disabled={myWantsRematch}
           >
-            {opponentWantsRematch
+            {opponentWantsRematch && myWantsRematch
+              ? '✅ Both ready — Starting game!'
+              : opponentWantsRematch
               ? '✅ Opponent ready — Start rematch!'
+              : myWantsRematch
+              ? '⏳ Rematch Request Sent'
               : '🔁 Request Rematch'}
           </button>
         </div>
@@ -325,6 +316,26 @@ export default function MultiplayerBoard({
           isDarkTheme={isDarkTheme}
         />
       )}
+    </div>
+  );
+}
+
+function RoomMessage({
+  message,
+  onBack,
+}: {
+  message: string;
+  onBack: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <p className="text-center dark:text-yellow-300">{message}</p>
+      <button
+        className="text-black dark:text-red-500 dark:hover:text-red-600 cursor-pointer"
+        onClick={onBack}
+      >
+        Back to lobby
+      </button>
     </div>
   );
 }
