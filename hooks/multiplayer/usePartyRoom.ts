@@ -14,7 +14,7 @@ export function usePartyRoom(roomId: string) {
   const [roomState, setRoomState] = useState<RoomState | null>(null);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
   const searchParams = useSearchParams();
-  const isSpectator = searchParams.get('spectator');
+  const isSpectator = searchParams.get('spectator') === 'true';
 
   const socket = usePartySocket({
     host: process.env.NEXT_PUBLIC_PARTYKIT_HOST ?? 'localhost:1999',

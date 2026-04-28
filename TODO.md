@@ -1,9 +1,8 @@
 1. Mobile site is not looking good, it has to be changed quite a bit
 2. Site changes its height, the site moves a lot during play
 3. ?Add the win reason to captain's log?
-4. /multiplayer/EKtP-hJM?spectator=false allows player to get to room, but not play
-
-A lot of ideas below:
+4. Add a selection before game if spectators are allowed
+   A lot of ideas below:
 
 **Quick**
 _Sound effects — a cannon blast when you win, splash when you draw, creak on each move (using the Web Audio API or small .mp3 files)_
