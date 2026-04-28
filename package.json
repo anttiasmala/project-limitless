@@ -12,12 +12,12 @@
     "lint:fix": "eslint --fix ."
   },
   "dependencies": {
-    "nanoid": "^5.1.7",
-    "next": "16.1.7",
+    "nanoid": "^5.1.9",
+    "next": "16.2.4",
     "partykit": "^0.0.115",
-    "partysocket": "^1.1.16",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "partysocket": "^1.1.18",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
@@ -30,7 +30,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.1.7",
+    "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
