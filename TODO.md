@@ -2,7 +2,8 @@
 2. Site changes its height, the site moves a lot during play
 3. ?Add the win reason to captain's log?
 4. Add a selection before game if spectators are allowed
-   A lot of ideas below:
+
+A lot of ideas below:
 
 **Quick**
 _Sound effects — a cannon blast when you win, splash when you draw, creak on each move (using the Web Audio API or small .mp3 files)_
@@ -25,7 +26,7 @@ _Treasure chest win counter — replace numeric scores with a row of treasure ch
 **Bigger Features**
 _Best-of series mode — play a best-of-3 or best-of-5 series with a grand champion announcement at the end_
 
-Online multiplayer — two players on different devices using WebSockets (e.g. via Pusher or Partykit)
+_Online multiplayer — two players on different devices using WebSockets (e.g. via Pusher or Partykit)_
 
 _Replay system — after a game ends, step through moves one by one to review the match_
 
