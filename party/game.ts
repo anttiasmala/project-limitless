@@ -1,5 +1,7 @@
 // party/game.ts
 
+// @backend — PartyKit backend
+
 import type * as Party from 'partykit/server';
 import {
   Board as BoardType,

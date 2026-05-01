@@ -1,6 +1,6 @@
 // party/lobby.ts
 
-// This file contains the data of free lobbies
+// @backend — PartyKit backend || This file contains the data of free lobbies
 
 import type * as Party from 'partykit/server';
 import type { LobbyEntry } from '@/utils/multiplayer/multiplayerTypes';
