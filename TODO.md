@@ -2,6 +2,7 @@
 2. Site changes its height, the site moves a lot during play
 3. ?Add the win reason to captain's log?
 4. Add a selection before game if spectators are allowed
+5. If game settings are changed in Singleplayer, make the game restart (reset board and scores)
 
 A lot of ideas below:
 

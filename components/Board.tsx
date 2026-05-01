@@ -106,6 +106,8 @@ export default function Board({
 
   const stormLevel = getStormLevel({ board, winner, isDraw: draw, mode });
 
+  const showStarterSelection = !isGameStarted || gameOver;
+
   useEffect(() => {
     onStormLevelChange(stormLevel);
   }, [stormLevel, onStormLevelChange]);
@@ -377,8 +379,12 @@ export default function Board({
         bestOfSeries={bestOfSeries}
       />
 
-      {/* Game Starter */}
-      {(!isGameStarted || gameOver) && (
+      {/* Pick Game Starter Player */}
+      <div
+        className={`overflow-hidden transition-all duration-300 ${
+          showStarterSelection ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
         <StarterPicker
           starterPlayer={starterPlayer}
           aiThinking={aiThinking}
@@ -390,7 +396,7 @@ export default function Board({
             if (mode === 'pvc' && player === AI) setIsGameStarted(true);
           }}
         />
-      )}
+      </div>
 
       {/* Status */}
       <GameStatus
@@ -493,7 +499,7 @@ export default function Board({
 
       {/* Replay Modal */}
 
-      {gameOver && showReplayModal && (
+      {showReplayModal && (
         <ReplayModal
           isDarkTheme={isDarkTheme}
           onClose={() => setShowReplayModal(false)}
