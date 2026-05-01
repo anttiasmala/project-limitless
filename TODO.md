@@ -3,6 +3,7 @@
 3. ?Add the win reason to captain's log?
 4. Add a selection before game if spectators are allowed
 5. If game settings are changed in Singleplayer, make the game restart (reset board and scores)
+6. After a game change starting player
 
 A lot of ideas below:
 
