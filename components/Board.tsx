@@ -379,26 +379,24 @@ export default function Board({
         bestOfSeries={bestOfSeries}
       />
 
-      {/* Game Starter */}
-      {
-        <div
-          className={`overflow-hidden transition-all duration-300 ${
-            showStarterSelection ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
-          }`}
-        >
-          <StarterPicker
-            starterPlayer={starterPlayer}
-            aiThinking={aiThinking}
-            mode={mode}
-            onSelect={(player) => {
-              if (starterPlayer === player || aiThinking) return;
-              setStarterPlayer(player);
-              setCurrentPlayer(player);
-              if (mode === 'pvc' && player === AI) setIsGameStarted(true);
-            }}
-          />
-        </div>
-      }
+      {/* Pick Game Starter Player */}
+      <div
+        className={`overflow-hidden transition-all duration-300 ${
+          showStarterSelection ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <StarterPicker
+          starterPlayer={starterPlayer}
+          aiThinking={aiThinking}
+          mode={mode}
+          onSelect={(player) => {
+            if (starterPlayer === player || aiThinking) return;
+            setStarterPlayer(player);
+            setCurrentPlayer(player);
+            if (mode === 'pvc' && player === AI) setIsGameStarted(true);
+          }}
+        />
+      </div>
 
       {/* Status */}
       <GameStatus
@@ -501,7 +499,7 @@ export default function Board({
 
       {/* Replay Modal */}
 
-      {gameOver && showReplayModal && (
+      {showReplayModal && (
         <ReplayModal
           isDarkTheme={isDarkTheme}
           onClose={() => setShowReplayModal(false)}
