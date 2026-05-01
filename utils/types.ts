@@ -1,3 +1,5 @@
+// utils/types.ts
+
 import { Player } from '@/lib/gameLogic';
 
 // UTILS
@@ -158,4 +160,18 @@ export enum BestOfSeriesNames {
 export type GridMeasurement = {
   cellSize: number;
   gap: number;
+};
+
+export type BaseSettingsProps = {
+  showSettingsModal: boolean;
+  setShowSettingsModal: React.Dispatch<React.SetStateAction<boolean>>;
+  AudioArray: React.RefObject<HTMLAudioElement | null>[];
+  isAudioMuted: boolean;
+  setIsAudioMuted: (value: boolean) => void;
+  volume: number;
+  setVolume: (value: number) => void;
+  isDarkTheme: boolean;
+  setIsDarkTheme: (value: boolean) => void;
+  isArrowKeysEnabled: boolean;
+  setIsArrowKeysEnabled: (value: boolean) => void;
 };

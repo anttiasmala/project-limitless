@@ -1,6 +1,8 @@
 // components/multiplayer/SettingsModal.tsx
 
 import { useKeyPress } from '@/hooks/useKeyPress';
+import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
+import { BaseSettingsProps } from '@/utils/types';
 import { useCallback } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -16,25 +18,14 @@ export function SettingsModal({
   setIsDarkTheme,
   isArrowKeysEnabled,
   setIsArrowKeysEnabled,
-}: {
-  showSettingsModal: boolean;
-  setShowSettingsModal: React.Dispatch<React.SetStateAction<boolean>>;
-  AudioArray: React.RefObject<HTMLAudioElement | null>[];
-  isAudioMuted: boolean;
-  setIsAudioMuted: (value: boolean) => void;
-  volume: number;
-  setVolume: (value: number) => void;
-  isDarkTheme: boolean;
-  setIsDarkTheme: (value: boolean) => void;
-  isArrowKeysEnabled: boolean;
-  setIsArrowKeysEnabled: (value: boolean) => void;
-}) {
+}: BaseSettingsProps) {
   const handleClose = useCallback(
     () => setShowSettingsModal(false),
     [setShowSettingsModal],
   );
 
   useKeyPress('Escape', handleClose, showSettingsModal);
+  usePreventBackgroundScrolling(showSettingsModal);
 
   if (!showSettingsModal) return null;
 
@@ -56,7 +47,7 @@ export function SettingsModal({
         >
           ⚓ Close Window ☠️
         </button>
-        <div className="w-48 max-w-[90vw] h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-red-800 dark:hover:border-yellow-500">
+        <div className="w-48 max-w-[90vw] h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg">
           <div className="mt-3 ml-3 flex flex-col">
             <div className="flex">
               <label className="cursor-pointer select-none">

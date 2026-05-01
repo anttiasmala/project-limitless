@@ -1,3 +1,5 @@
+// components/Square.tsx
+
 import { Player } from '../lib/gameLogic';
 
 interface SquareProps {
@@ -26,17 +28,11 @@ export default function Square({
       ref={cellRef}
       role="gridcell"
       aria-label={label}
-      aria-disabled={disabled}
       tabIndex={tabIndex}
       onClick={onClick}
       onKeyDown={onKeyDown}
       className={`
-         w-[min(28vw,6rem)] h-[min(28vw,6rem)] text-[min(8vw,2rem)] sm:text-5xl font-bold border-4 rounded-lg
-        transition-all duration-300
-        flex items-center justify-center
-      focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 dark:focus-visible:ring-yellow-400
-    
-        
+         w-20 h-20 sm:w-[min(28vw,6rem)] sm:h-[min(28vw,6rem)] text-[min(8vw,2rem)] sm:text-5xl font-bold border-4 rounded-lg transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 dark:focus-visible:ring-yellow-400
         ${
           isWinning
             ? 'border-yellow-400 bg-yellow-100 dark:bg-yellow-900/60 shadow-[0_0_20px_#facc15] scale-105'

@@ -1,6 +1,7 @@
+// components/SeriesWinnerModal.tsx
 'use client';
 
-// components/SeriesWinnerModal.tsx
+import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import { Player } from '@/lib/gameLogic';
 import { createPortal } from 'react-dom';
 
@@ -19,6 +20,8 @@ export default function SeriesWinnerModal({
   isDarkTheme,
   onClose,
 }: SeriesWinnerModalProps) {
+  usePreventBackgroundScrolling(seriesWinner !== null);
+
   if (!seriesWinner) return null;
   const isHuman = seriesWinner === '☠️';
 

@@ -1,7 +1,25 @@
+// components/SettingsModal.tsx
+
 import { useKeyPress } from '@/hooks/useKeyPress';
+import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import { INITIAL_SCORE, Player } from '@/lib/gameLogic';
-import { SetStateAction, useCallback } from 'react';
+import { BaseSettingsProps } from '@/utils/types';
+import { useCallback } from 'react';
 import { createPortal } from 'react-dom';
+
+type SinglePlayerSettingsProps = BaseSettingsProps & {
+  timerEnabled: boolean;
+  setTimerEnabled: (value: boolean) => void;
+  pointSystem: 'treasureChest' | 'number';
+  setPointSystem: (value: 'treasureChest' | 'number') => void;
+  bestOfSeries: 'off' | 'bo3' | 'bo5';
+  setBestOfSeries: (value: 'off' | 'bo3' | 'bo5') => void;
+  setScores: React.Dispatch<React.SetStateAction<Record<Player, number>>>;
+  setBestOfSeriesScores: React.Dispatch<
+    React.SetStateAction<Record<Player, number>>
+  >;
+  resetGame: () => void;
+};
 
 export function SettingsModal({
   showSettingsModal,
@@ -24,34 +42,15 @@ export function SettingsModal({
   setScores,
   setBestOfSeriesScores,
   resetGame,
-}: {
-  showSettingsModal: boolean;
-  setShowSettingsModal: React.Dispatch<React.SetStateAction<boolean>>;
-  AudioArray: React.RefObject<HTMLAudioElement | null>[];
-  isAudioMuted: boolean;
-  setIsAudioMuted: (value: boolean) => void;
-  volume: number;
-  setVolume: (value: number) => void;
-  timerEnabled: boolean;
-  setTimerEnabled: (value: boolean) => void;
-  pointSystem: 'treasureChest' | 'number';
-  setPointSystem: (value: 'treasureChest' | 'number') => void;
-  isDarkTheme: boolean;
-  setIsDarkTheme: (value: boolean) => void;
-  isArrowKeysEnabled: boolean;
-  setIsArrowKeysEnabled: (value: boolean) => void;
-  bestOfSeries: string;
-  setBestOfSeries: (value: 'off' | 'bo3' | 'bo5') => void;
-  setScores: React.Dispatch<SetStateAction<Record<Player, number>>>;
-  setBestOfSeriesScores: React.Dispatch<SetStateAction<Record<Player, number>>>;
-  resetGame: () => void;
-}) {
+}: SinglePlayerSettingsProps) {
   const handleClose = useCallback(
     () => setShowSettingsModal(false),
     [setShowSettingsModal],
   );
 
   useKeyPress('Escape', handleClose, showSettingsModal);
+
+  usePreventBackgroundScrolling(showSettingsModal);
 
   if (!showSettingsModal) return null;
 
@@ -73,7 +72,7 @@ export function SettingsModal({
         >
           ⚓ Close Window ☠️
         </button>
-        <div className="w-48 max-w-[90vw] h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-red-800 dark:hover:border-yellow-500">
+        <div className="w-48 max-w-[90vw] h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg">
           <div className="mt-3 ml-3 flex flex-col">
             <div className="flex">
               <label className="cursor-pointer select-none">

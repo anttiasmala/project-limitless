@@ -11,6 +11,8 @@ import { useGameSettings } from '@/hooks/multiplayer/useGameSettings';
 import { useGameAudio } from '@/hooks/useGameAudio';
 import SvgSettings from '@/icons/settings';
 import type { LobbyEntry } from '@/utils/multiplayer/multiplayerTypes';
+import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
+import { useKeyPress } from '@/hooks/useKeyPress';
 
 type LobbyProps = {
   isDarkTheme: boolean;
@@ -113,21 +115,20 @@ export default function Lobby({ isDarkTheme, setIsDarkTheme }: LobbyProps) {
           Join
         </Button>
       </div>
-      {showSettingsModal && (
-        <SettingsModal
-          AudioArray={[creakAudio, splashAudio, cannonAudio]}
-          setShowSettingsModal={setShowSettingsModal}
-          showSettingsModal={showSettingsModal}
-          setIsArrowKeysEnabled={setIsArrowKeysEnabled}
-          isArrowKeysEnabled={isArrowKeysEnabled}
-          setIsAudioMuted={setIsAudioMuted}
-          isAudioMuted={isAudioMuted}
-          setIsDarkTheme={setIsDarkTheme}
-          isDarkTheme={isDarkTheme}
-          setVolume={setVolume}
-          volume={volume}
-        />
-      )}
+
+      <SettingsModal
+        AudioArray={[creakAudio, splashAudio, cannonAudio]}
+        setShowSettingsModal={setShowSettingsModal}
+        showSettingsModal={showSettingsModal}
+        setIsArrowKeysEnabled={setIsArrowKeysEnabled}
+        isArrowKeysEnabled={isArrowKeysEnabled}
+        setIsAudioMuted={setIsAudioMuted}
+        isAudioMuted={isAudioMuted}
+        setIsDarkTheme={setIsDarkTheme}
+        isDarkTheme={isDarkTheme}
+        setVolume={setVolume}
+        volume={volume}
+      />
 
       {isLobbyModalOpen && (
         <LobbyModal
@@ -155,13 +156,9 @@ function LobbyModal({
   );
   const openLobbies = lobbies.filter((l) => l.connectedCount === 1);
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeModal();
-    };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
-  }, [closeModal]);
+  useKeyPress('Escape', closeModal, true);
+
+  usePreventBackgroundScrolling(true);
 
   return createPortal(
     <div className={isDarkTheme ? 'dark' : ''}>
@@ -184,7 +181,9 @@ function LobbyModal({
         <div className="flex items-center justify-between">
           <button
             className={`text-xl font-bold text-slate-800 dark:text-yellow-300 cursor-pointer border-2 rounded-md ${
-              activeMode === 'openLobby' ? 'dark:bg-red-500' : ''
+              activeMode === 'openLobby'
+                ? 'bg-red-500 text-white dark:bg-red-500'
+                : ''
             }`}
             onClick={() => setActiveMode('openLobby')}
           >
@@ -192,7 +191,9 @@ function LobbyModal({
           </button>
           <button
             className={`text-xl font-bold text-slate-800 dark:text-yellow-300 cursor-pointer border-2 rounded-md ${
-              activeMode === 'spectator' ? 'dark:bg-red-500' : ''
+              activeMode === 'spectator'
+                ? 'bg-red-500 text-white dark:bg-red-500'
+                : ''
             }`}
             onClick={() => setActiveMode('spectator')}
           >

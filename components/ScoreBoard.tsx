@@ -1,3 +1,5 @@
+// components/ScoreBoard.tsx
+
 import { AI, HUMAN, Player } from '@/lib/gameLogic';
 import TreasureChests, { BestOfTreasureChests } from './TreasureChests';
 import { BestOfSeriesNames } from '@/utils/types';
@@ -23,7 +25,7 @@ export default function ScoreBoard({
         scores[HUMAN]
       }, ${mode === 'pvc' ? 'Kraken' : 'Captain Hook'} ${scores[AI]}`}
       role="region"
-      className="bg-white/60 border border-slate-300 text-slate-800 dark:bg-amber-950/50 dark:border-amber-800 dark:text-amber-200 flex gap-4 sm:gap-8 text-lg font-semibold rounded-xl sm:px-8 px-4 py-3"
+      className="bg-white/60 border border-slate-300 text-slate-800 dark:bg-amber-950/50 dark:border-amber-800 dark:text-amber-200 flex flex-col sm:flex-row gap-0 sm:gap-8 text-lg font-semibold rounded-xl sm:px-8 px-4 py-3"
     >
       <div className="flex flex-col items-center gap-1">
         <span className="text-xs text-slate-500 dark:text-amber-500 uppercase tracking-widest">
@@ -34,16 +36,19 @@ export default function ScoreBoard({
         ) : (
           <TreasureChests count={scores[HUMAN]} />
         )}
-        <div>
-          {bestOfSeries !== 'off' && (
-            <BestOfTreasureChests
-              count={bestOfSeriesScores[HUMAN]}
-              max={BestOfSeriesNames[bestOfSeries]}
-            />
-          )}
-        </div>
+        {bestOfSeries !== 'off' && (
+          <BestOfTreasureChests
+            count={bestOfSeriesScores[HUMAN]}
+            max={BestOfSeriesNames[bestOfSeries]}
+          />
+        )}
       </div>
-      <span className="text-slate-400 dark:text-amber-600 self-center">|</span>
+      <span className="self-center text-slate-400 dark:text-amber-600 sm:hidden">
+        —————————
+      </span>
+      <span className="hidden sm:block text-slate-400 dark:text-amber-600 self-center">
+        |
+      </span>
       <div className="flex flex-col items-center gap-1">
         <span className="text-xs dark:text-amber-500 text-amber-700 uppercase tracking-widest">
           {mode === 'pvc' ? '⚓ Kraken' : '⚓ Capt. Hook'}
@@ -53,14 +58,12 @@ export default function ScoreBoard({
         ) : (
           <TreasureChests count={scores[AI]} />
         )}
-        <div>
-          {bestOfSeries !== 'off' && (
-            <BestOfTreasureChests
-              count={bestOfSeriesScores[AI]}
-              max={BestOfSeriesNames[bestOfSeries]}
-            />
-          )}
-        </div>
+        {bestOfSeries !== 'off' && (
+          <BestOfTreasureChests
+            count={bestOfSeriesScores[AI]}
+            max={BestOfSeriesNames[bestOfSeries]}
+          />
+        )}
       </div>
     </div>
   );
