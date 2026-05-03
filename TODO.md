@@ -2,8 +2,9 @@
 2. Site changes its height, the site moves a lot during play
 3. ?Add the win reason to captain's log?
 4. Add a selection before game if spectators are allowed
-5. If game settings are changed in Singleplayer, make the game restart (reset board and scores)
-6. After a game change starting player
+5. After a game change starting player
+6. Add somekind of hook to see if game was forfeited (a player runs out of time)
+7. Reset Score does not reset Best of Series points
 
 A lot of ideas below:
 

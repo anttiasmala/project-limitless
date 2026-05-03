@@ -50,6 +50,7 @@ type BoardProps = {
 };
 
 const INITIAL_BOARD: BoardType = Array(9).fill(null);
+const TIMER_DURATION = 10;
 
 export default function Board({
   scores,
@@ -120,8 +121,6 @@ export default function Board({
     isGameStarted,
   });
 
-  const TIMER_DURATION = 10;
-
   const gameHasMoves = board.some((cell) => cell !== null);
   const isHumanTurn = !gameOver && (mode === 'pvp' || currentPlayer === HUMAN);
 
@@ -154,6 +153,20 @@ export default function Board({
     if (next !== current) focusCell(next);
   }
 
+  const handleForfeit = useCallback(() => {
+    // Treat forfeit as skipping — opponent wins the turn, or just end game
+    const opponent = currentPlayer === HUMAN ? AI : HUMAN;
+    setScores((prev) => ({ ...prev, [opponent]: prev[opponent] + 1 }));
+    playSound(cannonAudio);
+    // Mark board as full to trigger game-over state via a forced win
+    // Simplest: just award the point and reset;
+    setShowForfeitMessage(true);
+
+    const _nextGameStarter = starterPlayer === HUMAN ? AI : HUMAN;
+    setCurrentPlayer(_nextGameStarter);
+    setStarterPlayer(_nextGameStarter);
+  }, [currentPlayer, starterPlayer, playSound, cannonAudio, setScores]);
+
   const { onTouchStart, onTouchEnd } = useSwipeNavigation(gridRef, handleSwipe);
 
   const { timeLeft, reset: resetTimer } = useTimer(
@@ -164,7 +177,6 @@ export default function Board({
 
   const resetGame = useCallback(() => {
     setBoard(INITIAL_BOARD);
-    setCurrentPlayer(starterPlayer);
     setAiThinking(false);
     const aiStarts = mode === 'pvc' && starterPlayer === AI;
     setIsGameStarted(aiStarts);
@@ -261,19 +273,16 @@ export default function Board({
     splashAudio,
   ]);
 
-  function handleForfeit() {
-    // Treat forfeit as skipping — opponent wins the turn, or just end game
-    const loser = currentPlayer;
-    const opponent = loser === HUMAN ? AI : HUMAN;
-    setScores((prev) => ({
-      ...prev,
-      [opponent]: prev[opponent] + 1,
-    }));
-    playSound(cannonAudio);
-    // Mark board as full to trigger game-over state via a forced win
-    // Simplest: just award the point and reset
-    setShowForfeitMessage(true);
-  }
+  useEffect(() => {
+    if (!gameOver) return;
+    // Select to _nextGameStarter the player who did not start
+    // Starter has an advantage so it is fair to change it every game. Not depending was it a win or a draw
+    const _nextGameStarter = starterPlayer === HUMAN ? AI : HUMAN;
+
+    setCurrentPlayer(_nextGameStarter);
+    setStarterPlayer(_nextGameStarter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameOver]);
 
   function handleClick(index: number) {
     if (board[index] || gameOver || aiThinking || showForfeitMessage) return;
@@ -326,6 +335,7 @@ export default function Board({
     setMode(newMode);
     setBoard(INITIAL_BOARD);
     setScores({ ...INITIAL_SCORE });
+    setBestOfSeriesScores({ ...INITIAL_SCORE });
     setAiThinking(false);
     setMoveHistory([]);
     resetTimer();
