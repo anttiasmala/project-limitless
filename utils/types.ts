@@ -116,18 +116,6 @@ export type KeyboardEventKeys =
   | 'Num Lock'
   | 'Scroll Lock';
 
-export enum BoardPlaces {
-  'top left',
-  'top center',
-  'top right',
-  'middle left',
-  'middle center',
-  'middle right',
-  'bottom left',
-  'bottom center',
-  'bottom right',
-}
-
 export enum PlayerNames {
   '☠️' = 'Davy Jones',
   '⚓' = 'Capt. Hook',

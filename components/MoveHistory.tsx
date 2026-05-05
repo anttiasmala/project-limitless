@@ -1,7 +1,7 @@
 // components/MoveHistory.tsx
 
 import { Player } from '@/lib/gameLogic';
-import { BoardPlaces, MoveEntry, PlayerNames } from '@/utils/types';
+import { CELL_LABELS, MoveEntry, PlayerNames } from '@/utils/types';
 
 type MoveHistoryProps = {
   moveHistory: MoveEntry[];
@@ -31,8 +31,7 @@ export default function MoveHistory({
       {/* Header */}
       <div className="px-4 py-2 border-b border-slate-200 bg-slate-50 dark:border-amber-800 dark:bg-amber-950/80">
         <p className="text-amber-700 dark:text-amber-400 text-xs uppercase tracking-widest text-center">
-          {/* &apos; added instead of ' to prevent ESLint error */}⚓
-          Captain&apos;s Log
+          ⚓ Captain&apos;s Log
         </p>
       </div>
 
@@ -57,7 +56,7 @@ export default function MoveHistory({
               </span>
               {' seized '}
               <span className="text-slate-500 dark:text-amber-200 italic">
-                {BoardPlaces[move.index]}
+                {CELL_LABELS[move.index]}
               </span>
             </div>
           ))
