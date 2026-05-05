@@ -8,18 +8,19 @@ import { BaseSettingsProps } from '@/utils/types';
 import { useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-type SinglePlayerSettingsProps = BaseSettingsProps & {
-  timerEnabled: boolean;
-  setTimerEnabled: (value: boolean) => void;
-  pointSystem: 'treasureChest' | 'number';
-  setPointSystem: (value: 'treasureChest' | 'number') => void;
-  bestOfSeries: 'off' | 'bo3' | 'bo5';
-  setBestOfSeries: (value: 'off' | 'bo3' | 'bo5') => void;
-  setScores: React.Dispatch<React.SetStateAction<Record<Player, number>>>;
-  setBestOfSeriesScores: React.Dispatch<
+type SettingsModalProps = BaseSettingsProps & {
+  // Single-player only — omit these in multiplayer
+  timerEnabled?: boolean;
+  setTimerEnabled?: (value: boolean) => void;
+  pointSystem?: 'treasureChest' | 'number';
+  setPointSystem?: (value: 'treasureChest' | 'number') => void;
+  bestOfSeries?: 'off' | 'bo3' | 'bo5';
+  setBestOfSeries?: (value: 'off' | 'bo3' | 'bo5') => void;
+  setScores?: React.Dispatch<React.SetStateAction<Record<Player, number>>>;
+  setBestOfSeriesScores?: React.Dispatch<
     React.SetStateAction<Record<Player, number>>
   >;
-  resetGame: () => void;
+  resetGame?: () => void;
 };
 
 export function SettingsModal({
@@ -30,23 +31,22 @@ export function SettingsModal({
   volume,
   setVolume,
   AudioArray,
+  isArrowKeysEnabled,
+  setIsArrowKeysEnabled,
   timerEnabled,
   setTimerEnabled,
   pointSystem,
   setPointSystem,
-  isArrowKeysEnabled,
-  setIsArrowKeysEnabled,
   bestOfSeries,
   setBestOfSeries,
   setScores,
   setBestOfSeriesScores,
   resetGame,
-}: SinglePlayerSettingsProps) {
+}: SettingsModalProps) {
   const handleClose = useCallback(
     () => setShowSettingsModal(false),
     [setShowSettingsModal],
   );
-
   const [isDarkTheme, setIsDarkTheme] = useLocalStorage('isDarkTheme', true);
 
   useEffect(() => {
@@ -54,7 +54,6 @@ export function SettingsModal({
   }, [isDarkTheme]);
 
   useKeyPress('Escape', handleClose, showSettingsModal);
-
   usePreventBackgroundScrolling(showSettingsModal);
 
   if (!showSettingsModal) return null;
@@ -102,47 +101,52 @@ export function SettingsModal({
                 />
               </label>
             </div>
-            {/* TIMER LOGIC */}
-            <div className="mt-3 flex">
-              <label className="cursor-pointer select-none">
-                Sand timer (10s)
-                <input
-                  type="checkbox"
-                  className="ml-2 w-5 h-5 cursor-pointer align-middle"
-                  checked={timerEnabled}
-                  onChange={(e) => setTimerEnabled(e.target.checked)}
-                />
-              </label>
-            </div>
+            {/* TIMER LOGIC -- single-player only*/}
+            {setTimerEnabled && (
+              <div className="mt-3 flex">
+                <label className="cursor-pointer select-none">
+                  Sand timer (10s)
+                  <input
+                    type="checkbox"
+                    className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                    checked={timerEnabled ?? false}
+                    onChange={(e) => setTimerEnabled(e.target.checked)}
+                  />
+                </label>
+              </div>
+            )}
 
-            {/* Treasure chest or number logic*/}
-
-            <div className="mt-3 flex">
-              <label className="cursor-pointer select-none">
-                Point system:
-                <select
-                  className="border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
-                  name="pointSystem"
-                  onChange={(e) =>
-                    setPointSystem(e.target.value as 'treasureChest' | 'number')
-                  }
-                  value={pointSystem}
-                >
-                  <option
-                    className="text-black dark:text-yellow-300 font-bold"
-                    value={'number'}
+            {/* Treasure chest or number logic -- single-player only*/}
+            {setPointSystem && (
+              <div className="mt-3 flex">
+                <label className="cursor-pointer select-none">
+                  Point system:
+                  <select
+                    className="border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
+                    name="pointSystem"
+                    onChange={(e) =>
+                      setPointSystem(
+                        e.target.value as 'treasureChest' | 'number',
+                      )
+                    }
+                    value={pointSystem}
                   >
-                    Number
-                  </option>
-                  <option
-                    className="text-black dark:text-yellow-300 font-bold"
-                    value={'treasureChest'}
-                  >
-                    Treasure Chest
-                  </option>
-                </select>
-              </label>
-            </div>
+                    <option
+                      className="text-black dark:text-yellow-300 font-bold"
+                      value={'number'}
+                    >
+                      Number
+                    </option>
+                    <option
+                      className="text-black dark:text-yellow-300 font-bold"
+                      value={'treasureChest'}
+                    >
+                      Treasure Chest
+                    </option>
+                  </select>
+                </label>
+              </div>
+            )}
 
             {/* Dark theme logic */}
 
@@ -172,43 +176,44 @@ export function SettingsModal({
               </label>
             </div>
 
-            {/* Best of Series logic */}
-
-            <div className="mt-3 flex">
-              <label className="select-none">
-                Best of Series:
-                <select
-                  className="border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
-                  name="bestOfSeries"
-                  onChange={(e) => {
-                    setBestOfSeries(e.target.value as 'off' | 'bo3' | 'bo5');
-                    setBestOfSeriesScores({ ...INITIAL_SCORE });
-                    setScores({ ...INITIAL_SCORE });
-                    resetGame();
-                  }}
-                  value={bestOfSeries}
-                >
-                  <option
-                    className="text-black dark:text-yellow-300 font-bold"
-                    value={'off'}
+            {/* Best of Series logic -- single-player only */}
+            {setBestOfSeries && (
+              <div className="mt-3 flex">
+                <label className="select-none">
+                  Best of Series:
+                  <select
+                    className="border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
+                    name="bestOfSeries"
+                    onChange={(e) => {
+                      setBestOfSeries(e.target.value as 'off' | 'bo3' | 'bo5');
+                      setBestOfSeriesScores?.({ ...INITIAL_SCORE });
+                      setScores?.({ ...INITIAL_SCORE });
+                      resetGame?.();
+                    }}
+                    value={bestOfSeries}
                   >
-                    Off
-                  </option>
-                  <option
-                    className="text-black dark:text-yellow-300 font-bold"
-                    value={'bo3'}
-                  >
-                    Best of 3
-                  </option>
-                  <option
-                    className="text-black dark:text-yellow-300 font-bold"
-                    value={'bo5'}
-                  >
-                    Best of 5
-                  </option>
-                </select>
-              </label>
-            </div>
+                    <option
+                      className="text-black dark:text-yellow-300 font-bold"
+                      value={'off'}
+                    >
+                      Off
+                    </option>
+                    <option
+                      className="text-black dark:text-yellow-300 font-bold"
+                      value={'bo3'}
+                    >
+                      Best of 3
+                    </option>
+                    <option
+                      className="text-black dark:text-yellow-300 font-bold"
+                      value={'bo5'}
+                    >
+                      Best of 5
+                    </option>
+                  </select>
+                </label>
+              </div>
+            )}
 
             {/* Volume slider logic */}
 

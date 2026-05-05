@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { nanoid } from 'nanoid';
 import { createPortal } from 'react-dom';
 import Button from '../utils/Button';
-import { SettingsModal } from './SettingsModal';
+import { SettingsModal } from '@/components/SettingsModal';
 import { useGameSettings } from '@/hooks/multiplayer/useGameSettings';
 import { useGameAudio } from '@/hooks/useGameAudio';
 import SvgSettings from '@/icons/settings';

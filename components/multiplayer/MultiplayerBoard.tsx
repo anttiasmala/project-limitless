@@ -15,22 +15,15 @@ import { useGridNavigation } from '@/hooks/useGridNavigation';
 import { useGameSettings } from '@/hooks/multiplayer/useGameSettings';
 import { useGameAudio } from '@/hooks/useGameAudio';
 import { useEffect, useRef, useState } from 'react';
-import { SettingsModal } from './SettingsModal';
+import { SettingsModal } from '@/components/SettingsModal';
 import SvgSettings from '@/icons/settings';
 
 type Props = {
   roomId: string;
-  isDarkTheme: boolean;
-  setIsDarkTheme: (value: boolean) => void;
   isSpectator?: boolean;
 };
 
-export default function MultiplayerBoard({
-  roomId,
-  isDarkTheme,
-  setIsDarkTheme,
-  isSpectator,
-}: Props) {
+export default function MultiplayerBoard({ roomId, isSpectator }: Props) {
   const router = useRouter();
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const {
@@ -301,21 +294,18 @@ export default function MultiplayerBoard({
       />
 
       {/* Settings Modal */}
-      {showSettingsModal && (
-        <SettingsModal
-          AudioArray={[creakAudio, splashAudio, cannonAudio]}
-          setShowSettingsModal={setShowSettingsModal}
-          showSettingsModal={showSettingsModal}
-          setIsArrowKeysEnabled={setIsArrowKeysEnabled}
-          isArrowKeysEnabled={isArrowKeysEnabled}
-          setIsAudioMuted={setIsAudioMuted}
-          isAudioMuted={isAudioMuted}
-          setVolume={setVolume}
-          volume={volume}
-          setIsDarkTheme={setIsDarkTheme}
-          isDarkTheme={isDarkTheme}
-        />
-      )}
+
+      <SettingsModal
+        AudioArray={[creakAudio, splashAudio, cannonAudio]}
+        setShowSettingsModal={setShowSettingsModal}
+        showSettingsModal={showSettingsModal}
+        setIsArrowKeysEnabled={setIsArrowKeysEnabled}
+        isArrowKeysEnabled={isArrowKeysEnabled}
+        setIsAudioMuted={setIsAudioMuted}
+        isAudioMuted={isAudioMuted}
+        setVolume={setVolume}
+        volume={volume}
+      />
     </div>
   );
 }
