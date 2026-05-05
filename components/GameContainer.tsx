@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import Board from './Board';
 import ResetScore from './ResetScore';
 import OceanBackground from './OceanBackground';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 function usePersistedScore(key: string) {
   const [score, setScore] = useState({ ...INITIAL_SCORE });
@@ -23,17 +24,13 @@ function usePersistedScore(key: string) {
   return [score, setScore] as const;
 }
 
-export default function GameContainer({
-  isDarkTheme,
-  setIsDarkTheme,
-}: {
-  isDarkTheme: boolean;
-  setIsDarkTheme: (value: boolean) => void;
-}) {
+export default function GameContainer() {
   const [scores, setScores] = usePersistedScore('scores');
   const [stormLevel, setStormLevel] = useState(0);
   const [bestOfSeriesScores, setBestOfSeriesScores] =
     usePersistedScore('bestOfSeriesScores');
+
+  const [isDarkTheme] = useLocalStorage('isDarkTheme', true);
 
   return (
     <>
@@ -43,8 +40,6 @@ export default function GameContainer({
           setScores={setScores}
           bestOfSeriesScores={bestOfSeriesScores}
           setBestOfSeriesScores={setBestOfSeriesScores}
-          isDarkTheme={isDarkTheme}
-          setIsDarkTheme={setIsDarkTheme}
           onStormLevelChange={setStormLevel}
         />
       </div>

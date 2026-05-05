@@ -10,16 +10,11 @@ import { useGridMeasure } from '@/hooks/useGridMeasure';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 
 type Props = {
-  isDarkTheme: boolean;
   onClose: () => void;
   moveHistory: MoveEntry[];
 };
 
-export default function ReplayModal({
-  isDarkTheme,
-  onClose,
-  moveHistory,
-}: Props) {
+export default function ReplayModal({ onClose, moveHistory }: Props) {
   const {
     stepIndex,
     total,
@@ -42,7 +37,7 @@ export default function ReplayModal({
   usePreventBackgroundScrolling(true);
 
   return createPortal(
-    <div className={isDarkTheme ? 'dark' : ''}>
+    <div>
       <div className="fixed inset-0 z-100 bg-black/70 backdrop-blur-sm" />
       <div
         role="dialog"

@@ -1,17 +1,8 @@
 // app/page.tsx
 
-'use client';
 import GameContainer from '@/components/GameContainer';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useEffect } from 'react';
 
 export default function Home() {
-  const [isDarkTheme, setIsDarkTheme] = useLocalStorage('isDarkTheme', true);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkTheme);
-  }, [isDarkTheme]);
-
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-slate-100 dark:bg-[#0a0a1a] px-4">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#bae6fd_0%,#f1f5f9_70%)] dark:bg-[radial-gradient(ellipse_at_top,#1a3a5c_0%,#0a0a1a_70%)] pointer-events-none" />
@@ -26,10 +17,7 @@ export default function Home() {
           </p>
         </div>
 
-        <GameContainer
-          isDarkTheme={isDarkTheme}
-          setIsDarkTheme={setIsDarkTheme}
-        />
+        <GameContainer />
 
         <div className="text-slate-500 dark:text-amber-600 text-sm flex gap-6">
           <span>☠️ = Davy Jones</span>

@@ -8,7 +8,6 @@ import { createPortal } from 'react-dom';
 interface SeriesWinnerModalProps {
   seriesWinner: Player | null;
   mode: 'pvp' | 'pvc';
-  isDarkTheme: boolean;
   onClose: () => void;
 }
 
@@ -17,7 +16,6 @@ const CONFETTI = ['🏴‍☠️', '⚓', '💰', '🌊', '⭐️', '💀'];
 export default function SeriesWinnerModal({
   seriesWinner,
   mode,
-  isDarkTheme,
   onClose,
 }: SeriesWinnerModalProps) {
   usePreventBackgroundScrolling(seriesWinner !== null);
@@ -35,7 +33,7 @@ export default function SeriesWinnerModal({
       : 'Captain Hook is';
 
   return createPortal(
-    <div className={isDarkTheme ? 'dark' : ''}>
+    <div>
       {/* Backdrop */}
       <div className="fixed inset-0 z-100 bg-black/70 backdrop-blur-sm" />
 

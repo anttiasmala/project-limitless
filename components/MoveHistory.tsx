@@ -1,3 +1,5 @@
+// components/MoveHistory.tsx
+
 import { Player } from '@/lib/gameLogic';
 import { BoardPlaces, MoveEntry, PlayerNames } from '@/utils/types';
 

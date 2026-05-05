@@ -1,10 +1,11 @@
 // components/SettingsModal.tsx
 
 import { useKeyPress } from '@/hooks/useKeyPress';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import { INITIAL_SCORE, Player } from '@/lib/gameLogic';
 import { BaseSettingsProps } from '@/utils/types';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 type SinglePlayerSettingsProps = BaseSettingsProps & {
@@ -33,8 +34,6 @@ export function SettingsModal({
   setTimerEnabled,
   pointSystem,
   setPointSystem,
-  isDarkTheme,
-  setIsDarkTheme,
   isArrowKeysEnabled,
   setIsArrowKeysEnabled,
   bestOfSeries,
@@ -48,6 +47,12 @@ export function SettingsModal({
     [setShowSettingsModal],
   );
 
+  const [isDarkTheme, setIsDarkTheme] = useLocalStorage('isDarkTheme', true);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkTheme);
+  }, [isDarkTheme]);
+
   useKeyPress('Escape', handleClose, showSettingsModal);
 
   usePreventBackgroundScrolling(showSettingsModal);
@@ -55,7 +60,7 @@ export function SettingsModal({
   if (!showSettingsModal) return null;
 
   return createPortal(
-    <div className={`${isDarkTheme ? 'dark' : ''}`}>
+    <div>
       <div
         className="fixed top-0 left-0 z-98 h-full w-full bg-black opacity-80"
         onClick={() => setShowSettingsModal(false)}

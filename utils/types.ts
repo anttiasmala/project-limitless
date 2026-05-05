@@ -170,8 +170,6 @@ export type BaseSettingsProps = {
   setIsAudioMuted: (value: boolean) => void;
   volume: number;
   setVolume: (value: number) => void;
-  isDarkTheme: boolean;
-  setIsDarkTheme: (value: boolean) => void;
   isArrowKeysEnabled: boolean;
   setIsArrowKeysEnabled: (value: boolean) => void;
 };

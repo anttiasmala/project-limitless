@@ -44,8 +44,6 @@ type BoardProps = {
   setBestOfSeriesScores: React.Dispatch<
     React.SetStateAction<Record<Player, number>>
   >;
-  isDarkTheme: boolean;
-  setIsDarkTheme: (value: boolean) => void;
   onStormLevelChange: (level: number) => void;
 };
 
@@ -57,8 +55,6 @@ export default function Board({
   setScores,
   bestOfSeriesScores,
   setBestOfSeriesScores,
-  isDarkTheme,
-  setIsDarkTheme,
   onStormLevelChange,
 }: BoardProps) {
   const [isGameStarted, setIsGameStarted] = useState(false);
@@ -471,7 +467,6 @@ export default function Board({
         <SeriesWinnerModal
           seriesWinner={seriesWinner}
           mode={mode}
-          isDarkTheme={isDarkTheme}
           onClose={() => {
             setBestOfSeriesScores({ ...INITIAL_SCORE });
             setScores({ ...INITIAL_SCORE });
@@ -511,7 +506,6 @@ export default function Board({
 
       {showReplayModal && (
         <ReplayModal
-          isDarkTheme={isDarkTheme}
           onClose={() => setShowReplayModal(false)}
           moveHistory={moveHistory}
         />
@@ -537,8 +531,6 @@ export default function Board({
         setTimerEnabled={setTimerEnabled}
         pointSystem={pointSystem}
         setPointSystem={setPointSystem}
-        isDarkTheme={isDarkTheme}
-        setIsDarkTheme={setIsDarkTheme}
         isArrowKeysEnabled={isArrowKeysEnabled}
         setIsArrowKeysEnabled={setIsArrowKeysEnabled}
         bestOfSeries={bestOfSeries}
