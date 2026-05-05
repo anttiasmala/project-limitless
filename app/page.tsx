@@ -1,16 +1,19 @@
+// app/page.tsx
+
 'use client';
 import GameContainer from '@/components/GameContainer';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useEffect } from 'react';
 
 export default function Home() {
   const [isDarkTheme, setIsDarkTheme] = useLocalStorage('isDarkTheme', true);
 
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkTheme);
+  }, [isDarkTheme]);
+
   return (
-    <main
-      className={`${
-        isDarkTheme ? 'dark' : ''
-      } min-h-screen flex flex-col items-center justify-center bg-slate-100 dark:bg-[#0a0a1a] px-4`}
-    >
+    <main className="min-h-screen flex flex-col items-center justify-center bg-slate-100 dark:bg-[#0a0a1a] px-4">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#bae6fd_0%,#f1f5f9_70%)] dark:bg-[radial-gradient(ellipse_at_top,#1a3a5c_0%,#0a0a1a_70%)] pointer-events-none" />
 
       <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-sm sm:max-w-lg">
