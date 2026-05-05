@@ -22,7 +22,7 @@ const config: Config = {
         lines: '#594F47',
         text: '#BC9288',
         primaryText: '#404040',
-        textWhite: '#FFFFF',
+        textWhite: '#FFFFFF',
       },
       keyframes: {
         rainbowBackGroundColor: {
@@ -105,5 +105,6 @@ const config: Config = {
     },
   },
   plugins: [],
+  darkMode: 'class',
 };
 export default config;
