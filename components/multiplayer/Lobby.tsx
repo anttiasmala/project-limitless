@@ -14,12 +14,7 @@ import type { LobbyEntry } from '@/utils/multiplayer/multiplayerTypes';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import { useKeyPress } from '@/hooks/useKeyPress';
 
-type LobbyProps = {
-  isDarkTheme: boolean;
-  setIsDarkTheme: (value: boolean) => void;
-};
-
-export default function Lobby({ isDarkTheme, setIsDarkTheme }: LobbyProps) {
+export default function Lobby() {
   const router = useRouter();
   const [lobbies, setLobbies] = useState<LobbyEntry[]>([]);
   const [isLobbyModalOpen, setIsLobbyModalOpen] = useState(false);
@@ -38,6 +33,8 @@ export default function Lobby({ isDarkTheme, setIsDarkTheme }: LobbyProps) {
     volume,
     isAudioMuted,
   );
+
+  const openLobbyCount = lobbies.filter((l) => l.connectedCount === 1).length;
 
   function createRoom() {
     const id = nanoid(8);
@@ -88,16 +85,14 @@ export default function Lobby({ isDarkTheme, setIsDarkTheme }: LobbyProps) {
       </div>
       {/* Lobby list and create Lobby buttons*/}
       <Button onClick={() => setIsLobbyModalOpen(true)}>
-        Lobby list
-        {lobbies.filter((l) => l.connectedCount === 1).length > 0
-          ? `: ${lobbies.filter((l) => l.connectedCount === 1).length} games`
-          : ''}
+        Lobby list: {openLobbyCount} games
       </Button>
       <Button onClick={createRoom}>🏴‍☠️ Create New Room</Button>
 
       <div className="flex gap-2">
         <input
           value={joinId}
+          aria-label="Room code"
           onChange={(e) => setJoinId(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && joinRoom()}
           placeholder="Enter room code..."
@@ -124,15 +119,12 @@ export default function Lobby({ isDarkTheme, setIsDarkTheme }: LobbyProps) {
         isArrowKeysEnabled={isArrowKeysEnabled}
         setIsAudioMuted={setIsAudioMuted}
         isAudioMuted={isAudioMuted}
-        setIsDarkTheme={setIsDarkTheme}
-        isDarkTheme={isDarkTheme}
         setVolume={setVolume}
         volume={volume}
       />
 
       {isLobbyModalOpen && (
         <LobbyModal
-          isDarkTheme={isDarkTheme}
           closeModal={() => setIsLobbyModalOpen(false)}
           lobbies={lobbies ?? []}
         />
@@ -142,26 +134,22 @@ export default function Lobby({ isDarkTheme, setIsDarkTheme }: LobbyProps) {
 }
 
 function LobbyModal({
-  isDarkTheme,
   closeModal,
   lobbies,
 }: {
-  isDarkTheme: boolean;
   closeModal: () => void;
   lobbies: LobbyEntry[];
 }) {
-  const router = useRouter();
   const [activeMode, setActiveMode] = useState<'openLobby' | 'spectator'>(
     'openLobby',
   );
-  const openLobbies = lobbies.filter((l) => l.connectedCount === 1);
 
   useKeyPress('Escape', closeModal, true);
 
   usePreventBackgroundScrolling(true);
 
   return createPortal(
-    <div className={isDarkTheme ? 'dark' : ''}>
+    <div>
       {/* Backdrop */}
       <div className="fixed inset-0 z-98 bg-black/80" onClick={closeModal} />
 
@@ -210,123 +198,96 @@ function LobbyModal({
         </div>
 
         {/* Table for open lobbies */}
-        {activeMode === 'openLobby' &&
-          (openLobbies.length === 0 ? (
-            <p className="text-center text-slate-500 dark:text-amber-700 py-6">
-              No open lobbies. Be the first to create one!
-            </p>
-          ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr
-                  className="border-b border-amber-300 dark:border-amber-800
-                  text-slate-500 dark:text-amber-600 text-left"
-                >
-                  <th className="pb-2 font-semibold">Room</th>
-                  <th className="pb-2 font-semibold">Players</th>
-                  <th className="pb-2 font-semibold">Status</th>
-                  <th className="pb-2" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-amber-200 dark:divide-amber-900">
-                {openLobbies.map((lobby) => (
-                  <tr
-                    key={lobby.roomId}
-                    className="text-slate-800 dark:text-yellow-200"
-                  >
-                    <td className="py-3 font-mono text-xs">{lobby.roomId}</td>
-                    <td className="py-3">{lobby.connectedCount} / 2</td>
-                    <td className="py-3">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-semibold
-                        ${
-                          lobby.status === 'waiting'
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400'
-                            : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
-                        }`}
-                      >
-                        {lobby.status === 'waiting'
-                          ? '⚓ Waiting'
-                          : lobby.status === 'playing'
-                          ? '⚔️ Playing'
-                          : '⚓ Finished'}
-                      </span>
-                    </td>
-                    <td className="py-3 text-right">
-                      {lobby.status === 'waiting' && (
-                        <Button
-                          onClick={() => {
-                            router.push(`/multiplayer/${lobby.roomId}`);
-                            closeModal();
-                          }}
-                          className="px-3 py-1 text-xs"
-                        >
-                          Join
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ))}
-        {activeMode === 'spectator' && (
-          <table className="w-full text-sm">
-            <thead>
-              <tr
-                className="border-b border-amber-300 dark:border-amber-800
-                  text-slate-500 dark:text-amber-600 text-left"
-              >
-                <th className="pb-2 font-semibold">Room</th>
-                <th className="pb-2 font-semibold">Players</th>
-                <th className="pb-2 font-semibold">Status</th>
-                <th className="pb-2" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-amber-200 dark:divide-amber-900">
-              {lobbies.map((lobby) => (
-                <tr
-                  key={lobby.roomId}
-                  className="text-slate-800 dark:text-yellow-200"
-                >
-                  <td className="py-3 font-mono text-xs">{lobby.roomId}</td>
-                  <td className="py-3">{lobby.connectedCount} / 2</td>
-                  <td className="py-3">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-semibold
-                        ${
-                          lobby.status === 'waiting'
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400'
-                            : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
-                        }`}
-                    >
-                      {lobby.status === 'waiting'
-                        ? '⚓ Waiting'
-                        : lobby.status === 'playing'
-                        ? '⚔️ Playing'
-                        : '⚓ Finished'}
-                    </span>
-                  </td>
-                  <td className="py-3 text-right">
-                    <Button
-                      onClick={() => {
-                        router.push(
-                          `/multiplayer/${lobby.roomId}?spectator=true`,
-                        );
-                        closeModal();
-                      }}
-                      className="px-3 py-1 text-xs"
-                    >
-                      Join
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+
+        <LobbyTable
+          activeMode={activeMode}
+          lobbies={
+            activeMode === 'openLobby'
+              ? lobbies.filter((l) => l.connectedCount === 1)
+              : lobbies
+          }
+          closeModal={closeModal}
+        />
       </div>
     </div>,
     document.body,
+  );
+}
+
+function LobbyTable({
+  lobbies,
+  activeMode,
+  closeModal,
+}: {
+  lobbies: LobbyEntry[];
+  activeMode: 'spectator' | 'openLobby';
+  closeModal: () => void;
+}) {
+  const router = useRouter();
+  if (lobbies.length === 0) {
+    return (
+      <p className="text-center text-slate-500 dark:text-amber-700 py-6">
+        {activeMode === 'openLobby'
+          ? 'No open lobbies. Be the first to create one!'
+          : 'No active games to spectate.'}
+      </p>
+    );
+  }
+
+  return (
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="border-b border-amber-300 dark:border-amber-800 text-slate-500 dark:text-amber-600 text-left">
+          <th className="pb-2 font-semibold">Room</th>
+          <th className="pb-2 font-semibold">Players</th>
+          <th className="pb-2 font-semibold">Status</th>
+          <th className="pb-2" />
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-amber-200 dark:divide-amber-900">
+        {lobbies.map((lobby) => (
+          <tr
+            key={lobby.roomId}
+            className="text-slate-800 dark:text-yellow-200"
+          >
+            <td className="py-3 font-mono text-xs">{lobby.roomId}</td>
+            <td className="py-3">{lobby.connectedCount} / 2</td>
+            <td className="py-3">
+              <span
+                className={`px-2 py-0.5 rounded-full text-xs font-semibold
+                        ${
+                          lobby.status === 'waiting'
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400'
+                            : lobby.status === 'playing'
+                            ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
+                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800/40 dark:text-slate-400'
+                        }`}
+              >
+                {lobby.status === 'waiting'
+                  ? '⚓ Waiting'
+                  : lobby.status === 'playing'
+                  ? '⚔️ Playing'
+                  : '⚓ Finished'}
+              </span>
+            </td>
+            <td className="py-3 text-right">
+              <Button
+                onClick={() => {
+                  router.push(
+                    `/multiplayer/${lobby.roomId}${
+                      activeMode === 'spectator' ? '?spectator=true' : ''
+                    }`,
+                  );
+                  closeModal();
+                }}
+                className="px-3 py-1 text-xs"
+              >
+                Join
+              </Button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
