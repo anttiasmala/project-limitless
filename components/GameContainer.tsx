@@ -1,3 +1,5 @@
+// components/GameContainer.tsx
+
 'use client';
 
 import { AI, HUMAN, INITIAL_SCORE } from '@/lib/gameLogic';
@@ -50,7 +52,13 @@ export default function GameContainer({
       <div>
         <ResetScore
           onReset={() => {
-            if (scores[HUMAN] === 0 && scores[AI] === 0) return;
+            if (
+              scores[HUMAN] === 0 &&
+              scores[AI] === 0 &&
+              bestOfSeriesScores[HUMAN] === 0 &&
+              bestOfSeriesScores[AI] === 0
+            )
+              return;
             setScores({ ...INITIAL_SCORE });
             setBestOfSeriesScores({ ...INITIAL_SCORE });
           }}
