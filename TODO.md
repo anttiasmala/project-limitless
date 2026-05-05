@@ -4,7 +4,7 @@
 4. Add a selection before game if spectators are allowed
 5. After a game change starting player
 6. Add somekind of hook to see if game was forfeited (a player runs out of time)
-7. Reset Score does not reset Best of Series points
+7. Hide full games in Lobby list. Show full games in Spectator lobby list. In the future make spectators disabled if players want it
 
 A lot of ideas below:
 
