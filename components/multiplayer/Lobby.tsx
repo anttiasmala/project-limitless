@@ -3,7 +3,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { nanoid } from 'nanoid';
 import { createPortal } from 'react-dom';
 import Button from '../utils/Button';
 import { SettingsModal } from '@/components/SettingsModal';
@@ -13,12 +12,14 @@ import SvgSettings from '@/icons/settings';
 import type { LobbyEntry } from '@/utils/multiplayer/multiplayerTypes';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import { useKeyPress } from '@/hooks/useKeyPress';
+import CreateRoomModal from './CreateRoomModal';
 
 export default function Lobby() {
   const router = useRouter();
   const [lobbies, setLobbies] = useState<LobbyEntry[]>([]);
   const [isLobbyModalOpen, setIsLobbyModalOpen] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showGameLobbySettings, setShowGameLobbySettings] = useState(false);
   const [joinId, setJoinId] = useState('');
 
   const {
@@ -35,11 +36,6 @@ export default function Lobby() {
   );
 
   const openLobbyCount = lobbies.filter((l) => l.connectedCount === 1).length;
-
-  function createRoom() {
-    const id = nanoid(8);
-    router.push(`/multiplayer/${id}`);
-  }
 
   function joinRoom() {
     if (joinId.trim()) router.push(`/multiplayer/${joinId.trim()}`);
@@ -69,8 +65,7 @@ export default function Lobby() {
       <div className="relative flex items-center gap-6">
         <button
           onClick={() => router.push('/')}
-          className="text-md text-slate-800 hover:text-red-500 dark:text-amber-700
-      dark:hover:text-red-400 cursor-pointer transition-colors"
+          className="text-md text-slate-800 hover:text-red-500 dark:text-amber-700 dark:hover:text-red-400 cursor-pointer transition-colors"
         >
           ✕ Back to main page
         </button>
@@ -87,7 +82,9 @@ export default function Lobby() {
       <Button onClick={() => setIsLobbyModalOpen(true)}>
         Lobby list: {openLobbyCount} games
       </Button>
-      <Button onClick={createRoom}>🏴‍☠️ Create New Room</Button>
+      <Button onClick={() => setShowGameLobbySettings(true)}>
+        🏴‍☠️ Create New Room
+      </Button>
 
       <div className="flex gap-2">
         <input
@@ -128,6 +125,10 @@ export default function Lobby() {
           closeModal={() => setIsLobbyModalOpen(false)}
           lobbies={lobbies ?? []}
         />
+      )}
+
+      {showGameLobbySettings && (
+        <CreateRoomModal onClose={() => setShowGameLobbySettings(false)} />
       )}
     </div>
   );

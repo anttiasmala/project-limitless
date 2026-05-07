@@ -1,25 +1,39 @@
 // hooks/multiplayer/usePartyRoom.ts
 
 import { usePartySocket } from 'partysocket/react';
-import { useState, useCallback } from 'react';
-import type {
-  RoomState,
-  ServerMessage,
-  ClientMessage,
+import { useState, useCallback, useRef } from 'react';
+import {
+  type RoomState,
+  type ServerMessage,
+  type ClientMessage,
+  RoomSettings,
 } from '@/utils/multiplayer/multiplayerTypes';
 import { useSearchParams } from 'next/navigation';
 
-export function usePartyRoom(roomId: string) {
+export function usePartyRoom(roomId: string, initialSettings?: RoomSettings) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [roomState, setRoomState] = useState<RoomState | null>(null);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
   const searchParams = useSearchParams();
   const isSpectator = searchParams.get('spectator') === 'true';
 
+  const settingsSentRef = useRef(false);
+
   const socket = usePartySocket({
     host: process.env.NEXT_PUBLIC_PARTYKIT_HOST ?? 'localhost:1999',
     room: roomId,
     query: { spectator: isSpectator ? 'true' : undefined },
+    onOpen() {
+      // Send settings only once, only if caller provided them (= host)
+      if (initialSettings && !settingsSentRef.current) {
+        settingsSentRef.current = true;
+        const msg: ClientMessage = {
+          type: 'init-settings',
+          settings: initialSettings,
+        };
+        socket.send(JSON.stringify(msg));
+      }
+    },
     onMessage(e) {
       const msg = JSON.parse(e.data) as ServerMessage;
       if (msg.type === 'state-update') {

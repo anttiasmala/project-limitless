@@ -13,11 +13,16 @@ import {
   HUMAN,
 } from '@/lib/gameLogic';
 
-import type {
-  RoomState,
-  ClientMessage,
-  ServerMessage,
+import {
+  type RoomState,
+  type ClientMessage,
+  type ServerMessage,
+  DEFAULT_ROOM_SETTINGS,
 } from '@/utils/multiplayer/multiplayerTypes';
+import { sleep } from '@/utils/utils';
+
+const SERIES_POINT_THRESHOLDS = { bo3: 2, bo5: 3, off: Infinity } as const;
+
 const INITIAL_BOARD: BoardType = Array(9).fill(null);
 
 function makeInitialState(): RoomState {
@@ -29,7 +34,9 @@ function makeInitialState(): RoomState {
     winner: null,
     isDraw: false,
     scores: { ...INITIAL_SCORE },
+    bestOfSeriesScores: { ...INITIAL_SCORE },
     moveHistory: [],
+    settings: { ...DEFAULT_ROOM_SETTINGS },
   };
 }
 
@@ -200,6 +207,29 @@ export default class GameRoom implements Party.Server {
     const senderPlayer = this.state.players[sender.id];
     if (!senderPlayer) return;
 
+    if (msg.type === 'init-settings') {
+      // Only the host (first connected player) can set settings,
+      // and only before the game starts
+      const connectedPlayers = Object.values(this.state.players).filter(
+        (p) => p.connected,
+      );
+      const isHost = connectedPlayers[0]?.id === sender.id;
+      const isBeforeGame = this.state.status === 'waiting';
+
+      if (isHost && isBeforeGame) {
+        // These comments below are used in development, will be deleted when not needed anymore
+        //this.state.scores = { '☠️': 4, '⚓': 0 };
+        //this.state.bestOfSeriesScores = { '☠️': 1, '⚓': 0 };
+
+        this.state.settings = msg.settings;
+        await this.saveAndBroadcast({
+          type: 'state-update',
+          state: this.state,
+        });
+      }
+      return;
+    }
+
     if (msg.type === 'make-move') {
       if (this.state.status !== 'playing') return;
       if (senderPlayer.player !== this.state.currentPlayer) return;
@@ -220,7 +250,33 @@ export default class GameRoom implements Party.Server {
       const { winner } = calculateWinner(newBoard);
       const draw = !winner && isDraw(newBoard);
 
+      const { bestOfSeries } = this.state.settings;
+      const seriesWinTarget = SERIES_POINT_THRESHOLDS[bestOfSeries];
+
       if (winner) {
+        // >= 4 is correct, because increment happens after the check
+        if (this.state.scores[winner] >= 4) {
+          this.state.bestOfSeriesScores[winner] += 1;
+          if (
+            bestOfSeries !== 'off' &&
+            this.state.bestOfSeriesScores[winner] >= seriesWinTarget
+          ) {
+            this.state.seriesWinner = winner;
+          }
+
+          this.state.scores[winner] += 1;
+          this.state.winner = winner;
+          this.state.status = 'finished';
+          this.state.scores = { ...INITIAL_SCORE };
+
+          await this.saveAndBroadcast({
+            type: 'state-update',
+            state: this.state,
+          });
+
+          return;
+        }
+
         this.state.winner = winner;
         this.state.status = 'finished';
         this.state.scores[winner] += 1;
@@ -243,6 +299,7 @@ export default class GameRoom implements Party.Server {
         .every((p) => p.wantsRematch);
 
       if (allWantRematch) {
+        this.state.seriesWinner = undefined;
         // Reset board but keep scores and players
         this.clearBoard();
       }
