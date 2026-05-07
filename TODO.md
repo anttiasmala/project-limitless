@@ -12,6 +12,7 @@
 12. Change winner modal's "New Series" button to like "Close Window" or something like that
 13. Series winner gets a popup that tells they have won. Maybe add a similiar popup for the losing player
 14. Spectator Mode finds games that does not exist anymore, make them dissapear. Most likely they "eat" RAM
+15. Add the Canvas background theme to multiplayer?
 
 A lot of ideas below:
 
