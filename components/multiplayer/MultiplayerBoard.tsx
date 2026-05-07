@@ -8,7 +8,7 @@ import WinningLine from '../WinningLine';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
 import { CELL_LABELS, PlayerNames } from '@/utils/types';
 import MoveHistory from '../MoveHistory';
-import ScoreBoard from '@/components/multiplayer/ScoreBoard';
+import ScoreBoard from '@/components/ScoreBoard';
 import { useRouter } from 'next/navigation';
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { useGridNavigation } from '@/hooks/useGridNavigation';
@@ -218,11 +218,12 @@ export default function MultiplayerBoard({
 
       {/* Scoreboard */}
       <ScoreBoard
+        mode="pvp"
         myPlayer={myPlayer}
         scores={scores}
         bestOfSeriesScores={bestOfSeriesScores}
-        pointSystem={settings.pointSystem ?? 'number'}
-        bestOfSeries={settings.bestOfSeries ?? 'off'}
+        pointSystem={settings.pointSystem}
+        bestOfSeries={settings.bestOfSeries}
       />
 
       {/* Spectator banner */}
