@@ -125,7 +125,7 @@ export default function CreateRoomModal({ onClose }: Props) {
           </label>
         </div>
 
-        {/* Actions */}
+        {/* Buttons */}
         <div className="flex gap-3 pt-2 shrink-0">
           <Button className="flex-1" onClick={onClose}>
             Cancel
