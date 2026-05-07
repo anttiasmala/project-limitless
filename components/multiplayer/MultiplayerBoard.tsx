@@ -83,15 +83,14 @@ export default function MultiplayerBoard({
   useEffect(() => {
     if (seriesWinner && seriesWinner !== prevSeriesWinnerRef.current) {
       prevSeriesWinnerRef.current = seriesWinner;
-      if (seriesWinner === myPlayer) {
-        setShowSeriesWinnerModal(true);
-      }
+      setShowSeriesWinnerModal(true);
     }
     // Reset when seriesWinner clears (new series started)
     if (!seriesWinner) {
       prevSeriesWinnerRef.current = null;
     }
-  }, [seriesWinner, myPlayer]);
+  }, [seriesWinner]);
+
   // ERROR MESSAGE
   if (errorMessage) {
     return (
@@ -284,13 +283,12 @@ export default function MultiplayerBoard({
 
       {/* Series Winner Modal */}
 
-      {showSeriesWinnerModal && (
+      {showSeriesWinnerModal && seriesWinner && (
         <SeriesWinnerModal
           seriesWinner={seriesWinner}
-          mode={'pvp'}
-          onClose={() => {
-            setShowSeriesWinnerModal(false);
-          }}
+          mode="pvp"
+          isWinner={isSpectator ? undefined : seriesWinner === myPlayer}
+          onClose={() => setShowSeriesWinnerModal(false)}
         />
       )}
 
