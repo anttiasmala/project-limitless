@@ -5,6 +5,12 @@
 5. After a game change starting player
 6. Add somekind of hook to see if game was forfeited (a player runs out of time)
 7. Hide full games in Lobby list. Show full games in Spectator lobby list. In the future make spectators disabled if players want it
+8. There is a bug when creating a new room. If no rules were changed, the initialSettings will be undefined
+9. When bestOfSeries is 'bo3' or 'bo5', the series scores need to be tracked in RoomState and passed through — otherwise the scoreboard will always show 0/3 or 0/5. This is a future task, but flag it now so it doesn't get missed when you implement the series win logic on the server.
+10. In multiplayer, starting player changes only changes on win, not everytime
+11. Just an idea, add replay to multiplayer
+12. Change winner modal's "New Series" button to like "Close Window" or something like that
+13. Series winner gets a popup that tells they have won. Maybe add a similiar popup for the losing player
 
 A lot of ideas below:
 
