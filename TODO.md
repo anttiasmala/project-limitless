@@ -11,6 +11,7 @@
 11. Just an idea, add replay to multiplayer
 12. Change winner modal's "New Series" button to like "Close Window" or something like that
 13. Series winner gets a popup that tells they have won. Maybe add a similiar popup for the losing player
+14. Spectator Mode finds games that does not exist anymore, make them dissapear. Most likely they "eat" RAM
 
 A lot of ideas below:
 
@@ -40,6 +41,8 @@ _Online multiplayer — two players on different devices using WebSockets (e.g. 
 _Replay system — after a game ends, step through moves one by one to review the match_
 
 _Animated ocean background — CSS/canvas waves that get stormier as the game progresses toward an endgame_
+
+Change PartyKit to PartyServer — PartKit is not updated anymore
 
 **Polish**
 _Mobile swipe gestures — make the grid feel more native on touchscreens_
