@@ -19,7 +19,6 @@ import {
   type ServerMessage,
   DEFAULT_ROOM_SETTINGS,
 } from '@/utils/multiplayer/multiplayerTypes';
-import { sleep } from '@/utils/utils';
 
 const SERIES_POINT_THRESHOLDS = { bo3: 2, bo5: 3, off: Infinity } as const;
 
@@ -267,7 +266,6 @@ export default class GameRoom implements Party.Server {
           this.state.scores[winner] += 1;
           this.state.winner = winner;
           this.state.status = 'finished';
-          this.state.scores = { ...INITIAL_SCORE };
 
           await this.saveAndBroadcast({
             type: 'state-update',
@@ -299,6 +297,21 @@ export default class GameRoom implements Party.Server {
         .every((p) => p.wantsRematch);
 
       if (allWantRematch) {
+        const _winner = this.state.winner;
+        // Reset round scores after a series point was earned
+        if (_winner && this.state.scores[_winner] >= 5) {
+          this.state.scores = { ...INITIAL_SCORE };
+        }
+
+        // Reset series scores if series is complete
+        if (
+          _winner &&
+          this.state.bestOfSeriesScores[_winner] >=
+            SERIES_POINT_THRESHOLDS[this.state.settings.bestOfSeries]
+        ) {
+          this.state.bestOfSeriesScores = { ...INITIAL_SCORE };
+        }
+        // Reset series winner, there is not a winner anymore
         this.state.seriesWinner = undefined;
         // Reset board but keep scores and players
         this.clearBoard();
