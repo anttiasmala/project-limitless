@@ -51,80 +51,82 @@ export default function CreateRoomModal({ onClose }: Props) {
           w-[90vw] max-w-sm
           bg-amber-50 dark:bg-amber-950
           border-2 border-amber-800 dark:border-amber-700
-          rounded-xl shadow-2xl p-6 flex flex-col gap-5"
+          rounded-xl shadow-2xl p-6 flex flex-col gap-5 max-h-[90vh]"
       >
-        <h2 className="text-lg font-black text-amber-700 dark:text-yellow-400 text-center tracking-wide">
+        <h2 className="text-lg font-black text-amber-700 dark:text-yellow-400 text-center tracking-wide shrink-0">
           🏴‍☠️ Room Settings
         </h2>
 
-        {/* Sand timer */}
-        <label
-          className="flex items-center justify-between cursor-pointer select-none
+        <div className="flex flex-col gap-5 overflow-y-auto min-h-0">
+          {/* Sand timer */}
+          <label
+            className="flex items-center justify-between cursor-pointer select-none
           text-slate-700 dark:text-yellow-300 font-semibold"
-        >
-          Sand timer (10s)
-          <input
-            type="checkbox"
-            className="w-5 h-5 cursor-pointer accent-amber-600"
-            checked={settings.timerEnabled}
-            onChange={(e) =>
-              setSettings((prev) => ({
-                ...prev,
-                timerEnabled: e.target.checked,
-              }))
-            }
-          />
-        </label>
+          >
+            Sand timer (10s)
+            <input
+              type="checkbox"
+              className="w-5 h-5 cursor-pointer accent-amber-600"
+              checked={settings.timerEnabled}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  timerEnabled: e.target.checked,
+                }))
+              }
+            />
+          </label>
 
-        {/* Point system */}
-        <label
-          className="flex items-center justify-between select-none
+          {/* Point system */}
+          <label
+            className="flex items-center justify-between select-none
           text-slate-700 dark:text-yellow-300 font-semibold"
-        >
-          Point system
-          <select
-            className="border-2 border-slate-300 dark:border-amber-700 rounded-md
+          >
+            Point system
+            <select
+              className="border-2 border-slate-300 dark:border-amber-700 rounded-md
               text-slate-800 dark:text-yellow-300 bg-white dark:bg-amber-900
               cursor-pointer px-2 py-1"
-            value={settings.pointSystem}
-            onChange={(e) =>
-              setSettings((prev) => ({
-                ...prev,
-                pointSystem: e.target.value as RoomSettings['pointSystem'],
-              }))
-            }
-          >
-            <option value="number">Number</option>
-            <option value="treasureChest">Treasure Chest</option>
-          </select>
-        </label>
+              value={settings.pointSystem}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  pointSystem: e.target.value as RoomSettings['pointSystem'],
+                }))
+              }
+            >
+              <option value="number">Number</option>
+              <option value="treasureChest">Treasure Chest</option>
+            </select>
+          </label>
 
-        {/* Best of Series */}
-        <label
-          className="flex items-center justify-between select-none
+          {/* Best of Series */}
+          <label
+            className="flex items-center justify-between select-none
           text-slate-700 dark:text-yellow-300 font-semibold"
-        >
-          Best of Series
-          <select
-            className="border-2 border-slate-300 dark:border-amber-700 rounded-md
+          >
+            Best of Series
+            <select
+              className="border-2 border-slate-300 dark:border-amber-700 rounded-md
               text-slate-800 dark:text-yellow-300 bg-white dark:bg-amber-900
               cursor-pointer px-2 py-1"
-            value={settings.bestOfSeries}
-            onChange={(e) =>
-              setSettings((prev) => ({
-                ...prev,
-                bestOfSeries: e.target.value as RoomSettings['bestOfSeries'],
-              }))
-            }
-          >
-            <option value="off">Off</option>
-            <option value="bo3">Best of 3</option>
-            <option value="bo5">Best of 5</option>
-          </select>
-        </label>
+              value={settings.bestOfSeries}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  bestOfSeries: e.target.value as RoomSettings['bestOfSeries'],
+                }))
+              }
+            >
+              <option value="off">Off</option>
+              <option value="bo3">Best of 3</option>
+              <option value="bo5">Best of 5</option>
+            </select>
+          </label>
+        </div>
 
         {/* Actions */}
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 pt-2 shrink-0">
           <Button className="flex-1" onClick={onClose}>
             Cancel
           </Button>
