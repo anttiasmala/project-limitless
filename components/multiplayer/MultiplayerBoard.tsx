@@ -67,10 +67,7 @@ export default function MultiplayerBoard({
   const prevStatusRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!roomState?.timerEndsAt || !roomState.settings.timerEnabled) {
-      setTimeLeft(null);
-      return;
-    }
+    if (!roomState?.timerEndsAt || !roomState.settings.timerEnabled) return;
 
     function tick() {
       const remaining = Math.ceil(
@@ -81,7 +78,10 @@ export default function MultiplayerBoard({
 
     tick();
     const interval = setInterval(tick, 200); // 200ms per a tick for a smooth countdown
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      setTimeLeft(null);
+    };
   }, [roomState?.timerEndsAt, roomState?.settings.timerEnabled]);
 
   // useEffect placed above !roomState to prevent error
