@@ -19,6 +19,7 @@ import { SettingsModal } from '@/components/SettingsModal';
 import SvgSettings from '@/icons/settings';
 import { RoomSettings } from '@/utils/multiplayer/multiplayerTypes';
 import SeriesWinnerModal from '../SeriesWinnerModal';
+import HourglassTimer from '../HourglassTimer';
 
 type Props = {
   roomId: string;
@@ -31,6 +32,7 @@ export default function MultiplayerBoard({
   isSpectator,
   initialSettings,
 }: Props) {
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [showSeriesWinnerModal, setShowSeriesWinnerModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const router = useRouter();
@@ -64,13 +66,31 @@ export default function MultiplayerBoard({
   // useRef placed above !roomState to prevent error
   const prevStatusRef = useRef<string | null>(null);
 
+  useEffect(() => {
+    if (!roomState?.timerEndsAt || !roomState.settings.timerEnabled) {
+      setTimeLeft(null);
+      return;
+    }
+
+    function tick() {
+      const remaining = Math.ceil(
+        (roomState?.timerEndsAt! - Date.now()) / 1000,
+      );
+      setTimeLeft(Math.max(0, remaining));
+    }
+
+    tick();
+    const interval = setInterval(tick, 200); // 200ms per a tick for a smooth countdown
+    return () => clearInterval(interval);
+  }, [roomState?.timerEndsAt, roomState?.settings.timerEnabled]);
+
   // useEffect placed above !roomState to prevent error
   useEffect(() => {
     if (!roomState) return;
-    const { status, winner } = roomState;
+    const { status, winner, forfeitWinner } = roomState;
 
     if (status === 'finished' && prevStatusRef.current !== 'finished') {
-      if (winner) playSound(cannonAudio);
+      if (winner || forfeitWinner) playSound(cannonAudio);
       else playSound(splashAudio);
     }
     prevStatusRef.current = status;
@@ -121,6 +141,7 @@ export default function MultiplayerBoard({
     moveHistory,
     players,
     settings,
+    forfeitWinner,
   } = roomState;
   const { line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
@@ -240,6 +261,12 @@ export default function MultiplayerBoard({
         </p>
       )}
 
+      {/* Sand Timer (10s) */}
+
+      {roomState.settings.timerEnabled && timeLeft !== null && (
+        <HourglassTimer timeLeft={timeLeft} duration={10} />
+      )}
+
       {/* For spectators show whose turn it is instead */}
       {status === 'playing' && isSpectator && (
         <p className="font-semibold dark:text-yellow-300">
@@ -305,10 +332,10 @@ export default function MultiplayerBoard({
       {status === 'finished' && !isSpectator && (
         <div className="text-center flex flex-col items-center gap-3">
           <p className="text-xl font-bold dark:text-yellow-300">
-            {winner === myPlayer
-              ? '🏆 You win!'
-              : draw
+            {draw
               ? '🌊 Draw!'
+              : winner === myPlayer || forfeitWinner === myPlayer
+              ? '🏆 You win!'
               : '💀 You lose!'}
           </p>
           <button

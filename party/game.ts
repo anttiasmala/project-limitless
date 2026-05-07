@@ -36,6 +36,8 @@ function makeInitialState(): RoomState {
     bestOfSeriesScores: { ...INITIAL_SCORE },
     moveHistory: [],
     settings: { ...DEFAULT_ROOM_SETTINGS },
+    timerEndsAt: null,
+    forfeitWinner: null,
   };
 }
 
@@ -44,6 +46,39 @@ export default class GameRoom implements Party.Server {
 
   constructor(readonly room: Party.Room) {
     this.state = makeInitialState();
+  }
+
+  private timerHandle: ReturnType<typeof setTimeout> | null = null;
+
+  startTurnTimer() {
+    this.clearTurnTimer();
+    if (!this.state.settings.timerEnabled) return;
+
+    this.state.timerEndsAt = Date.now() + 10000;
+
+    this.timerHandle = setTimeout(async () => {
+      if (this.state.status !== 'playing') return;
+
+      const loser = this.state.currentPlayer;
+      const opponent = loser === HUMAN ? AI : HUMAN;
+
+      this.state.scores[opponent] += 1;
+      this.state.winner = null;
+      this.state.isDraw = false;
+      this.state.timerEndsAt = null;
+      this.state.status = 'finished';
+      this.state.forfeitWinner = opponent;
+
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
+    }, 10000);
+  }
+
+  clearTurnTimer() {
+    if (this.timerHandle) {
+      clearTimeout(this.timerHandle);
+      this.timerHandle = null;
+    }
+    this.state.timerEndsAt = null;
   }
 
   resetBoard() {
@@ -191,6 +226,7 @@ export default class GameRoom implements Party.Server {
 
       // One player left — notify them
       this.state.status = 'waiting';
+      this.clearTurnTimer();
       this.broadcast({ type: 'opponent-disconnected' });
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
     }
@@ -267,6 +303,7 @@ export default class GameRoom implements Party.Server {
           this.state.winner = winner;
           this.state.status = 'finished';
 
+          this.clearTurnTimer();
           await this.saveAndBroadcast({
             type: 'state-update',
             state: this.state,
@@ -278,13 +315,16 @@ export default class GameRoom implements Party.Server {
         this.state.winner = winner;
         this.state.status = 'finished';
         this.state.scores[winner] += 1;
+        this.clearTurnTimer();
       } else if (draw) {
         this.state.isDraw = true;
         this.state.status = 'finished';
+        this.clearTurnTimer();
       } else {
         // Flip turn
         this.state.currentPlayer =
           this.state.currentPlayer === HUMAN ? AI : HUMAN;
+        this.startTurnTimer();
       }
 
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
@@ -311,10 +351,13 @@ export default class GameRoom implements Party.Server {
         ) {
           this.state.bestOfSeriesScores = { ...INITIAL_SCORE };
         }
+        // Reset possible forfeit winner, there is not a winner anymore
+        this.state.forfeitWinner = null;
         // Reset series winner, there is not a winner anymore
         this.state.seriesWinner = undefined;
         // Reset board but keep scores and players
         this.clearBoard();
+        this.startTurnTimer();
       }
 
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });

@@ -34,6 +34,8 @@ export type RoomState = {
   seriesWinner?: Player;
   moveHistory: MoveEntry[];
   settings: RoomSettings;
+  timerEndsAt: number | null;
+  forfeitWinner: Player | null;
 };
 
 export type ClientMessage =
