@@ -66,13 +66,13 @@ export default function MultiplayerBoard({
   // useRef placed above !roomState to prevent error
   const prevStatusRef = useRef<string | null>(null);
 
+  const timerEndsAt = roomState?.timerEndsAt ?? null;
+
   useEffect(() => {
-    if (!roomState?.timerEndsAt || !roomState.settings.timerEnabled) return;
+    if (!timerEndsAt || !roomState?.settings.timerEnabled) return;
 
     function tick() {
-      const remaining = Math.ceil(
-        (roomState?.timerEndsAt! - Date.now()) / 1000,
-      );
+      const remaining = Math.ceil((timerEndsAt! - Date.now()) / 1000);
       setTimeLeft(Math.max(0, remaining));
     }
 
@@ -82,7 +82,7 @@ export default function MultiplayerBoard({
       clearInterval(interval);
       setTimeLeft(null);
     };
-  }, [roomState?.timerEndsAt, roomState?.settings.timerEnabled]);
+  }, [timerEndsAt, roomState?.settings.timerEnabled]);
 
   // useEffect placed above !roomState to prevent error
   useEffect(() => {
@@ -101,14 +101,18 @@ export default function MultiplayerBoard({
   const prevSeriesWinnerRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (seriesWinner && seriesWinner !== prevSeriesWinnerRef.current) {
-      prevSeriesWinnerRef.current = seriesWinner;
-      setShowSeriesWinnerModal(true);
-    }
     // Reset when seriesWinner clears (new series started)
     if (!seriesWinner) {
       prevSeriesWinnerRef.current = null;
     }
+
+    if (seriesWinner === prevSeriesWinnerRef.current) return;
+
+    prevSeriesWinnerRef.current = seriesWinner;
+
+    // defer to avoid synchronous setState in effect
+    const timeout = setTimeout(() => setShowSeriesWinnerModal(true), 0);
+    return () => clearTimeout(timeout);
   }, [seriesWinner]);
 
   // ERROR MESSAGE
