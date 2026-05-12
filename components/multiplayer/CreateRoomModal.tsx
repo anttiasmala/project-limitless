@@ -165,12 +165,23 @@ export default function CreateRoomModal({ onClose }: Props) {
               type="checkbox"
               className="w-5 h-5 cursor-pointer accent-amber-600"
               checked={settings.allowSpectators}
-              onChange={(e) =>
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSettings((prev) => ({
+                    ...prev,
+                    allowSpectators: e.target.checked,
+                  }));
+                  setSettings((prev) => ({
+                    ...prev,
+                    isPrivateGame: false,
+                  }));
+                  return;
+                }
                 setSettings((prev) => ({
                   ...prev,
                   allowSpectators: e.target.checked,
-                }))
-              }
+                }));
+              }}
             />
           </label>
         </div>
