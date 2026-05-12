@@ -142,6 +142,7 @@ export default class GameRoom implements Party.Server {
           status: this.state.status,
           connectedCount,
           allowSpectators: this.state.settings.allowSpectators,
+          isPrivateGame: this.state.settings.isPrivateGame,
         }),
       });
     } catch (e) {
