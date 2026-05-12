@@ -7,12 +7,14 @@ export type RoomSettings = {
   timerEnabled: boolean;
   pointSystem: 'number' | 'treasureChest';
   bestOfSeries: 'off' | 'bo3' | 'bo5';
+  allowSpectators: boolean;
 };
 
 export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
   timerEnabled: false,
   pointSystem: 'number',
   bestOfSeries: 'off',
+  allowSpectators: true,
 };
 
 export type RoomPlayer = {
@@ -52,4 +54,5 @@ export type LobbyEntry = {
   roomId: string;
   status: 'waiting' | 'playing' | 'finished';
   connectedCount: number;
+  allowSpectators: boolean;
 };

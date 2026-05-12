@@ -46,10 +46,9 @@ export function usePartyRoom(roomId: string, initialSettings?: RoomSettings) {
       if (msg.type === 'error') {
         const message = msg.message;
         console.error(message);
-        if (message == 'Room is full') {
-          setErrorMessage(message);
-          socket.close();
-        }
+
+        setErrorMessage(message);
+        socket.close();
       }
     },
   });

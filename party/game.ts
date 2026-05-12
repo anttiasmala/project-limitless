@@ -62,6 +62,18 @@ export default class GameRoom implements Party.Server {
       const loser = this.state.currentPlayer;
       const opponent = loser === HUMAN ? AI : HUMAN;
 
+      if (this.state.scores[opponent] >= 4) {
+        const { bestOfSeries } = this.state.settings;
+        this.state.bestOfSeriesScores[opponent] += 1;
+        if (
+          bestOfSeries !== 'off' &&
+          this.state.bestOfSeriesScores[opponent] >=
+            SERIES_POINT_THRESHOLDS[bestOfSeries]
+        ) {
+          this.state.seriesWinner = opponent;
+        }
+      }
+
       this.state.scores[opponent] += 1;
       this.state.winner = null;
       this.state.isDraw = false;
@@ -129,6 +141,7 @@ export default class GameRoom implements Party.Server {
           roomId: this.room.id,
           status: this.state.status,
           connectedCount,
+          allowSpectators: this.state.settings.allowSpectators,
         }),
       });
     } catch (e) {
@@ -154,6 +167,15 @@ export default class GameRoom implements Party.Server {
       );
       const url = new URL(ctx.request.url);
       const isSpectator = url.searchParams.get('spectator') === 'true';
+
+      if (isSpectator && this.state.settings.allowSpectators === false) {
+        this.sendTo(conn, {
+          type: 'error',
+          message: '👁️ Spectators are not allowed in this room.',
+        });
+        conn.close();
+        return;
+      }
 
       if (!isSpectator) {
         const connectedPlayers = Object.values(this.state.players).filter(
@@ -337,7 +359,7 @@ export default class GameRoom implements Party.Server {
         .every((p) => p.wantsRematch);
 
       if (allWantRematch) {
-        const _winner = this.state.winner;
+        const _winner = this.state.winner ?? this.state.forfeitWinner;
         // Reset round scores after a series point was earned
         if (_winner && this.state.scores[_winner] >= 5) {
           this.state.scores = { ...INITIAL_SCORE };

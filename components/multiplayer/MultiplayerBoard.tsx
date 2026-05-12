@@ -151,6 +151,15 @@ export default function MultiplayerBoard({
   const draw = !winner && isDraw(board);
   const isMyTurn = status === 'playing' && currentPlayer === myPlayer;
 
+  if (isSpectator && !settings.allowSpectators) {
+    return (
+      <RoomMessage
+        message="👁️ Spectators are not allowed in this room."
+        onBack={() => router.push('/multiplayer/lobby')}
+      />
+    );
+  }
+
   // Does my opponent want a rematch?
   const opponentWantsRematch = Object.values(players).some(
     (p) => p.player !== myPlayer && p.wantsRematch,

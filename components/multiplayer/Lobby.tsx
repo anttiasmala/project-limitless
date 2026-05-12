@@ -205,7 +205,7 @@ function LobbyModal({
             lobbies={
               activeMode === 'openLobby'
                 ? lobbies.filter((l) => l.connectedCount === 1)
-                : lobbies
+                : lobbies.filter((l) => l.allowSpectators)
             }
             closeModal={closeModal}
           />

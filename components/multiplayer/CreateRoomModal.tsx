@@ -28,6 +28,7 @@ export default function CreateRoomModal({ onClose }: Props) {
     const id = nanoid(8);
     const params = new URLSearchParams();
     if (settings.timerEnabled) params.set('timer', '1');
+    params.set('allowSpectators', settings.allowSpectators ? '1' : '0');
     if (settings.pointSystem !== 'number')
       params.set('points', settings.pointSystem);
     if (settings.bestOfSeries !== 'off')
@@ -122,6 +123,24 @@ export default function CreateRoomModal({ onClose }: Props) {
               <option value="bo3">Best of 3</option>
               <option value="bo5">Best of 5</option>
             </select>
+          </label>
+          {/* Allow Spectators */}
+          <label
+            className="flex items-center justify-between cursor-pointer select-none
+          text-slate-700 dark:text-yellow-300 font-semibold"
+          >
+            Allow spectators
+            <input
+              type="checkbox"
+              className="w-5 h-5 cursor-pointer accent-amber-600"
+              checked={settings.allowSpectators}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  allowSpectators: e.target.checked,
+                }))
+              }
+            />
           </label>
         </div>
 

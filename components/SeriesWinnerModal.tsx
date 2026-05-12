@@ -54,7 +54,7 @@ export default function SeriesWinnerModal({
 
   const championText =
     isWinner === undefined
-      ? `${seriesWinner} ${championName} rules the Seven Seas!`
+      ? `${seriesWinner} ${championName} the ruler of the Seven Seas!`
       : isWinner
       ? `${seriesWinner} ${championName} the ruler of the Seven Seas!`
       : `${seriesWinner} has conquered the seas...`;
