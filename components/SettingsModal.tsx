@@ -217,7 +217,8 @@ export function SettingsModal({
 
             {/* Volume slider logic */}
 
-            <div className="mt-3 flex">
+            <p>Volume</p>
+            <div className="flex">
               <input
                 type="range"
                 min={0}
