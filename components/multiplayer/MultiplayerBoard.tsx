@@ -8,7 +8,7 @@ import WinningLine from '../WinningLine';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
 import { CELL_LABELS, PlayerNames } from '@/utils/types';
 import MoveHistory from '../MoveHistory';
-import ScoreBoard from '@/components/multiplayer/ScoreBoard';
+import ScoreBoard from '@/components/ScoreBoard';
 import { useRouter } from 'next/navigation';
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { useGridNavigation } from '@/hooks/useGridNavigation';
@@ -17,15 +17,25 @@ import { useGameAudio } from '@/hooks/useGameAudio';
 import { useEffect, useRef, useState } from 'react';
 import { SettingsModal } from '@/components/SettingsModal';
 import SvgSettings from '@/icons/settings';
+import { RoomSettings } from '@/utils/multiplayer/multiplayerTypes';
+import SeriesWinnerModal from '../SeriesWinnerModal';
+import HourglassTimer from '../HourglassTimer';
 
 type Props = {
   roomId: string;
   isSpectator?: boolean;
+  initialSettings?: RoomSettings;
 };
 
-export default function MultiplayerBoard({ roomId, isSpectator }: Props) {
-  const router = useRouter();
+export default function MultiplayerBoard({
+  roomId,
+  isSpectator,
+  initialSettings,
+}: Props) {
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [showSeriesWinnerModal, setShowSeriesWinnerModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const router = useRouter();
   const {
     roomState,
     myPlayer,
@@ -34,7 +44,7 @@ export default function MultiplayerBoard({ roomId, isSpectator }: Props) {
     errorMessage,
     sendMove,
     sendRematch,
-  } = usePartyRoom(roomId);
+  } = usePartyRoom(roomId, initialSettings);
   const { gridRef, measurement } = useGridMeasure(3);
 
   const {
@@ -56,17 +66,54 @@ export default function MultiplayerBoard({ roomId, isSpectator }: Props) {
   // useRef placed above !roomState to prevent error
   const prevStatusRef = useRef<string | null>(null);
 
+  const timerEndsAt = roomState?.timerEndsAt ?? null;
+
+  useEffect(() => {
+    if (!timerEndsAt || !roomState?.settings.timerEnabled) return;
+
+    function tick() {
+      const remaining = Math.ceil((timerEndsAt! - Date.now()) / 1000);
+      setTimeLeft(Math.max(0, remaining));
+    }
+
+    tick();
+    const interval = setInterval(tick, 200); // 200ms per a tick for a smooth countdown
+    return () => {
+      clearInterval(interval);
+      setTimeLeft(null);
+    };
+  }, [timerEndsAt, roomState?.settings.timerEnabled]);
+
   // useEffect placed above !roomState to prevent error
   useEffect(() => {
     if (!roomState) return;
-    const { status, winner } = roomState;
+    const { status, winner, forfeitWinner } = roomState;
 
     if (status === 'finished' && prevStatusRef.current !== 'finished') {
-      if (winner) playSound(cannonAudio);
+      if (winner || forfeitWinner) playSound(cannonAudio);
       else playSound(splashAudio);
     }
     prevStatusRef.current = status;
   }, [roomState?.status, cannonAudio, splashAudio, playSound]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const seriesWinner = roomState?.seriesWinner ?? null;
+
+  const prevSeriesWinnerRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    // Reset when seriesWinner clears (new series started)
+    if (!seriesWinner) {
+      prevSeriesWinnerRef.current = null;
+    }
+
+    if (seriesWinner === prevSeriesWinnerRef.current) return;
+
+    prevSeriesWinnerRef.current = seriesWinner;
+
+    // defer to avoid synchronous setState in effect
+    const timeout = setTimeout(() => setShowSeriesWinnerModal(true), 0);
+    return () => clearTimeout(timeout);
+  }, [seriesWinner]);
 
   // ERROR MESSAGE
   if (errorMessage) {
@@ -88,11 +135,31 @@ export default function MultiplayerBoard({ roomId, isSpectator }: Props) {
     );
   }
 
-  const { board, currentPlayer, status, winner, scores, moveHistory, players } =
-    roomState;
+  const {
+    board,
+    currentPlayer,
+    status,
+    winner,
+    scores,
+    bestOfSeriesScores,
+    moveHistory,
+    players,
+    settings,
+    forfeitWinner,
+  } = roomState;
   const { line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
   const isMyTurn = status === 'playing' && currentPlayer === myPlayer;
+
+  if (isSpectator && !settings.allowSpectators) {
+    return (
+      <RoomMessage
+        message="👁️ Spectators are not allowed in this room."
+        onBack={() => router.push('/multiplayer/lobby')}
+      />
+    );
+  }
+
   // Does my opponent want a rematch?
   const opponentWantsRematch = Object.values(players).some(
     (p) => p.player !== myPlayer && p.wantsRematch,
@@ -185,11 +252,12 @@ export default function MultiplayerBoard({ roomId, isSpectator }: Props) {
 
       {/* Scoreboard */}
       <ScoreBoard
+        mode="pvp"
         myPlayer={myPlayer}
         scores={scores}
-        bestOfSeriesScores={{ ['☠️']: 0, ['⚓']: 0 }}
-        pointSystem="number"
-        bestOfSeries="off"
+        bestOfSeriesScores={bestOfSeriesScores}
+        pointSystem={settings.pointSystem}
+        bestOfSeries={settings.bestOfSeries}
       />
 
       {/* Spectator banner */}
@@ -204,6 +272,12 @@ export default function MultiplayerBoard({ roomId, isSpectator }: Props) {
         <p className="font-semibold dark:text-yellow-300">
           {isMyTurn ? '⚔️ Your turn' : "⏳ Opponent's turn"}
         </p>
+      )}
+
+      {/* Sand Timer (10s) */}
+
+      {roomState.settings.timerEnabled && timeLeft !== null && (
+        <HourglassTimer timeLeft={timeLeft} duration={10} />
       )}
 
       {/* For spectators show whose turn it is instead */}
@@ -248,6 +322,17 @@ export default function MultiplayerBoard({ roomId, isSpectator }: Props) {
         )}
       </div>
 
+      {/* Series Winner Modal */}
+
+      {showSeriesWinnerModal && seriesWinner && (
+        <SeriesWinnerModal
+          seriesWinner={seriesWinner}
+          mode="pvp"
+          isWinner={isSpectator ? undefined : seriesWinner === myPlayer}
+          onClose={() => setShowSeriesWinnerModal(false)}
+        />
+      )}
+
       {/* Spectator's Game Over */}
 
       {status === 'finished' && isSpectator && (
@@ -260,10 +345,10 @@ export default function MultiplayerBoard({ roomId, isSpectator }: Props) {
       {status === 'finished' && !isSpectator && (
         <div className="text-center flex flex-col items-center gap-3">
           <p className="text-xl font-bold dark:text-yellow-300">
-            {winner === myPlayer
-              ? '🏆 You win!'
-              : draw
+            {draw
               ? '🌊 Draw!'
+              : winner === myPlayer || forfeitWinner === myPlayer
+              ? '🏆 You win!'
               : '💀 You lose!'}
           </p>
           <button

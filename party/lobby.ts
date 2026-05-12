@@ -12,7 +12,7 @@ export default class LobbyServer implements Party.Server {
 
   async onRequest(req: Party.Request) {
     if (req.method === 'GET') {
-      return Response.json(Object.values(this.rooms));
+      return Response.json(Object.values(this.rooms).filter((r) => !r.isPrivateGame));
     }
     if (req.method === 'POST') {
       const entry = (await req.json()) as LobbyEntry;

@@ -378,6 +378,7 @@ export default function Board({
 
       {/* Scoreboard */}
       <ScoreBoard
+        myPlayer={HUMAN}
         bestOfSeriesScores={bestOfSeriesScores}
         pointSystem={pointSystem}
         scores={scores}

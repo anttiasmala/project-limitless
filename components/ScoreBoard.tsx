@@ -6,6 +6,7 @@ import { BestOfSeriesNames } from '@/utils/types';
 
 type Props = {
   mode: 'pvc' | 'pvp';
+  myPlayer?: Player | null;
   scores: Record<Player, number>;
   pointSystem: 'number' | 'treasureChest';
   bestOfSeries: 'off' | 'bo3' | 'bo5';
@@ -14,6 +15,7 @@ type Props = {
 
 export default function ScoreBoard({
   mode,
+  myPlayer,
   scores,
   pointSystem,
   bestOfSeries,
@@ -21,15 +23,14 @@ export default function ScoreBoard({
 }: Props) {
   return (
     <div
-      aria-label={`Scores: ${mode === 'pvc' ? 'You' : 'Davy Jones'} ${
-        scores[HUMAN]
-      }, ${mode === 'pvc' ? 'Kraken' : 'Captain Hook'} ${scores[AI]}`}
+      aria-label={`Scores: Davy Jones ${scores[HUMAN]}, Captain Hook ${scores[AI]}`}
       role="region"
-      className="bg-white/60 border border-slate-300 text-slate-800 dark:bg-amber-950/50 dark:border-amber-800 dark:text-amber-200 flex flex-col sm:flex-row gap-0 sm:gap-8 text-lg font-semibold rounded-xl sm:px-8 px-4 py-3"
+      className="bg-white/60 border border-slate-300 text-slate-800 dark:bg-amber-950/50 dark:border-amber-800 dark:text-amber-200 flex flex-col sm:flex-row gap-4 sm:gap-8 text-lg font-semibold rounded-xl sm:px-8 px-4 py-3"
     >
       <div className="flex flex-col items-center gap-1">
         <span className="text-xs text-slate-500 dark:text-amber-500 uppercase tracking-widest">
-          {mode === 'pvc' ? '☠️ You' : '☠️ Davy Jones'}
+          ☠️ Davy Jones{' '}
+          {myPlayer === HUMAN ? '(You)' : mode === 'pvc' ? '(AI)' : ''}
         </span>
         {pointSystem === 'number' ? (
           <p>{scores[HUMAN]}</p>
@@ -51,7 +52,8 @@ export default function ScoreBoard({
       </span>
       <div className="flex flex-col items-center gap-1">
         <span className="text-xs dark:text-amber-500 text-amber-700 uppercase tracking-widest">
-          {mode === 'pvc' ? '⚓ Kraken' : '⚓ Capt. Hook'}
+          ⚓ Capt. Hook{' '}
+          {myPlayer === AI ? '(You)' : mode === 'pvc' ? '(AI)' : ''}
         </span>
         {pointSystem === 'number' ? (
           <p>{scores[AI]}</p>

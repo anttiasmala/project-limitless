@@ -3,7 +3,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { nanoid } from 'nanoid';
 import { createPortal } from 'react-dom';
 import Button from '../utils/Button';
 import { SettingsModal } from '@/components/SettingsModal';
@@ -13,12 +12,14 @@ import SvgSettings from '@/icons/settings';
 import type { LobbyEntry } from '@/utils/multiplayer/multiplayerTypes';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import { useKeyPress } from '@/hooks/useKeyPress';
+import CreateRoomModal from './CreateRoomModal';
 
 export default function Lobby() {
   const router = useRouter();
   const [lobbies, setLobbies] = useState<LobbyEntry[]>([]);
   const [isLobbyModalOpen, setIsLobbyModalOpen] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showGameLobbySettings, setShowGameLobbySettings] = useState(false);
   const [joinId, setJoinId] = useState('');
 
   const {
@@ -35,11 +36,6 @@ export default function Lobby() {
   );
 
   const openLobbyCount = lobbies.filter((l) => l.connectedCount === 1).length;
-
-  function createRoom() {
-    const id = nanoid(8);
-    router.push(`/multiplayer/${id}`);
-  }
 
   function joinRoom() {
     if (joinId.trim()) router.push(`/multiplayer/${joinId.trim()}`);
@@ -69,8 +65,7 @@ export default function Lobby() {
       <div className="relative flex items-center gap-6">
         <button
           onClick={() => router.push('/')}
-          className="text-md text-slate-800 hover:text-red-500 dark:text-amber-700
-      dark:hover:text-red-400 cursor-pointer transition-colors"
+          className="text-slate-800 hover:text-red-500 dark:text-amber-700 dark:hover:text-red-400 cursor-pointer transition-colors"
         >
           ✕ Back to main page
         </button>
@@ -87,7 +82,9 @@ export default function Lobby() {
       <Button onClick={() => setIsLobbyModalOpen(true)}>
         Lobby list: {openLobbyCount} games
       </Button>
-      <Button onClick={createRoom}>🏴‍☠️ Create New Room</Button>
+      <Button onClick={() => setShowGameLobbySettings(true)}>
+        🏴‍☠️ Create New Room
+      </Button>
 
       <div className="flex gap-2">
         <input
@@ -96,7 +93,7 @@ export default function Lobby() {
           onChange={(e) => setJoinId(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && joinRoom()}
           placeholder="Enter room code..."
-          className="px-4 py-2 rounded-lg border-2 border-slate-400 bg-amber-400 text-black
+          className="w-48 sm:w-auto px-2 sm:px-4 py-2 rounded-lg border-2 border-slate-400 bg-amber-400 text-black
             dark:border-amber-800 dark:bg-amber-950/40 dark:text-yellow-300
             focus:outline-none focus:ring-2 focus:ring-amber-400"
         />
@@ -128,6 +125,10 @@ export default function Lobby() {
           closeModal={() => setIsLobbyModalOpen(false)}
           lobbies={lobbies ?? []}
         />
+      )}
+
+      {showGameLobbySettings && (
+        <CreateRoomModal onClose={() => setShowGameLobbySettings(false)} />
       )}
     </div>
   );
@@ -163,10 +164,10 @@ function LobbyModal({
           bg-amber-50 dark:bg-amber-950
           border-2 border-amber-800 dark:border-amber-700
           rounded-xl shadow-2xl
-          p-6 flex flex-col gap-4"
+          p-6 flex flex-col gap-4 max-h-[90vh]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between shrink-0">
           <button
             className={`text-xl font-bold text-slate-800 dark:text-yellow-300 cursor-pointer border-2 rounded-md ${
               activeMode === 'openLobby'
@@ -185,12 +186,12 @@ function LobbyModal({
             }`}
             onClick={() => setActiveMode('spectator')}
           >
-            Spectator Mode
+            👁️ Spectator
           </button>
           <button
             onClick={closeModal}
             className="text-slate-500 hover:text-red-500 dark:text-amber-600
-              dark:hover:text-red-400 transition-colors cursor-pointer text-lg"
+              dark:hover:text-red-400 transition-colors cursor-pointer text-lg ml-2"
             aria-label="Close modal"
           >
             ✕
@@ -198,16 +199,17 @@ function LobbyModal({
         </div>
 
         {/* Table for open lobbies */}
-
-        <LobbyTable
-          activeMode={activeMode}
-          lobbies={
-            activeMode === 'openLobby'
-              ? lobbies.filter((l) => l.connectedCount === 1)
-              : lobbies
-          }
-          closeModal={closeModal}
-        />
+        <div className="overflow-y-auto min-h-0">
+          <LobbyTable
+            activeMode={activeMode}
+            lobbies={
+              activeMode === 'openLobby'
+                ? lobbies.filter((l) => l.connectedCount === 1)
+                : lobbies.filter((l) => l.allowSpectators)
+            }
+            closeModal={closeModal}
+          />
+        </div>
       </div>
     </div>,
     document.body,
@@ -237,9 +239,9 @@ function LobbyTable({
   return (
     <table className="w-full text-sm">
       <thead>
-        <tr className="border-b border-amber-300 dark:border-amber-800 text-slate-500 dark:text-amber-600 text-left">
+        <tr className="border-b border-amber-300 dark:border-amber-800 text-slate-500 dark:text-amber-600 text-left sticky top-0 bg-amber-50 dark:bg-amber-950">
           <th className="pb-2 font-semibold">Room</th>
-          <th className="pb-2 font-semibold">Players</th>
+          <th className="pb-2 font-semibold pr-2 sm:pr-0">Players</th>
           <th className="pb-2 font-semibold">Status</th>
           <th className="pb-2" />
         </tr>
@@ -250,7 +252,9 @@ function LobbyTable({
             key={lobby.roomId}
             className="text-slate-800 dark:text-yellow-200"
           >
-            <td className="py-3 font-mono text-xs">{lobby.roomId}</td>
+            <td className="py-3 font-mono text-xs sm:px-0 px-1">
+              {lobby.roomId}
+            </td>
             <td className="py-3">{lobby.connectedCount} / 2</td>
             <td className="py-3">
               <span

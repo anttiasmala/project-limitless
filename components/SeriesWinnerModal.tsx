@@ -9,14 +9,18 @@ interface SeriesWinnerModalProps {
   seriesWinner: Player | null;
   mode: 'pvp' | 'pvc';
   onClose: () => void;
+  isWinner?: boolean;
 }
 
-const CONFETTI = ['🏴‍☠️', '⚓', '💰', '🌊', '⭐️', '💀'];
+const WINNER_CONFETTI = ['🏴‍☠️', '⚓', '💰', '🌊', '⭐️', '💀'];
+const LOSER_CONFETTI = ['💀', '🌊', '⚓', '🦑', '🌑', '🪦'];
+const NEUTRAL_CONFETTI = ['🏴‍☠️', '⚓', '🌊', '⭐️', '🦑', '💀'];
 
 export default function SeriesWinnerModal({
   seriesWinner,
   mode,
   onClose,
+  isWinner,
 }: SeriesWinnerModalProps) {
   usePreventBackgroundScrolling(seriesWinner !== null);
 
@@ -32,6 +36,43 @@ export default function SeriesWinnerModal({
       ? 'Davy Jones is'
       : 'Captain Hook is';
 
+  const confetti =
+    isWinner === undefined
+      ? NEUTRAL_CONFETTI
+      : isWinner
+      ? WINNER_CONFETTI
+      : LOSER_CONFETTI;
+
+  const trophy = isWinner === undefined ? '⚓' : isWinner ? '🏆' : '💀';
+
+  const title =
+    isWinner === undefined
+      ? 'Series Complete!'
+      : isWinner
+      ? 'Grand Champion!'
+      : 'Defeated!';
+
+  const championText =
+    isWinner === undefined
+      ? `${seriesWinner} ${championName} the ruler of the Seven Seas!`
+      : isWinner
+      ? `${seriesWinner} ${championName} the ruler of the Seven Seas!`
+      : `${seriesWinner} has conquered the seas...`;
+
+  const subtitleText =
+    isWinner === undefined
+      ? 'The battle for the seas has ended.'
+      : isWinner
+      ? 'The Seven Seas bow before you!'
+      : 'Your ship has sunk to the depths.';
+
+  const buttonText =
+    isWinner === undefined
+      ? '👁️ Continue Watching'
+      : isWinner
+      ? '⚓ New Series ☠️'
+      : '🌊 Try Again';
+
   return createPortal(
     <div>
       {/* Backdrop */}
@@ -44,10 +85,18 @@ export default function SeriesWinnerModal({
         aria-label="Series winner announcement"
         className="fixed inset-0 z-101 flex items-center justify-center p-4"
       >
-        <div className="relative bg-white dark:bg-[#1a0a00] border-4 border-amber-500 dark:border-yellow-500 rounded-2xl p-8 max-w-sm w-full text-center shadow-[0_0_60px_#facc15]">
+        <div
+          className={`relative bg-white dark:bg-[#1a0a00] border-4 rounded-2xl p-8 max-w-sm w-full text-center ${
+            isWinner === undefined
+              ? 'border-amber-400 dark:border-amber-600 shadow-[0_0_60px_#92400e]'
+              : isWinner
+              ? 'border-amber-500 dark:border-yellow-500 shadow-[0_0_60px_#facc15]'
+              : 'border-slate-500 dark:border-blue-900 shadow-[0_0_60px_#1e3a5f]'
+          }`}
+        >
           {/* Floating confetti */}
           <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
-            {CONFETTI.map((emoji, i) => (
+            {confetti.map((emoji, i) => (
               <span
                 key={i}
                 className="absolute text-2xl animate-bounce"
@@ -63,18 +112,18 @@ export default function SeriesWinnerModal({
             ))}
           </div>
 
-          <p className="text-5xl mb-4">🏆</p>
+          <p className="text-5xl mb-4">{trophy}</p>
 
           <h2 className="text-2xl font-black text-amber-700 dark:text-yellow-400 tracking-wide mb-2">
-            Grand Champion!
+            {title}
           </h2>
 
           <p className="text-lg font-bold text-slate-700 dark:text-amber-200 mb-1">
-            {seriesWinner} {championName}
+            {championText}
           </p>
 
           <p className="text-slate-500 dark:text-amber-500 text-sm mb-6 uppercase tracking-widest">
-            the ruler of the Seven Seas!
+            {subtitleText}
           </p>
 
           <button
@@ -85,7 +134,7 @@ export default function SeriesWinnerModal({
               cursor-pointer transition-all duration-200 text-base tracking-wide
               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400"
           >
-            ⚓ New Series ☠️
+            {buttonText}
           </button>
         </div>
       </div>

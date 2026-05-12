@@ -1,10 +1,13 @@
-1. Mobile site is not looking good, it has to be changed quite a bit
-2. Site changes its height, the site moves a lot during play
-3. ?Add the win reason to captain's log?
-4. Add a selection before game if spectators are allowed
-5. After a game change starting player
-6. Add somekind of hook to see if game was forfeited (a player runs out of time)
-7. Hide full games in Lobby list. Show full games in Spectator lobby list. In the future make spectators disabled if players want it
+1. After a game change starting player (multiplayer)
+2. Add somekind of hook to see if game was forfeited (a player runs out of time)
+3. In multiplayer, starting player changes only changes on win, not everytime
+4. Just an idea, add replay to multiplayer
+5. Change winner modal's "New Series" button to like "Close Window" or something like that
+6. Series winner gets a popup that tells they have won. Maybe add a similiar popup for the losing player
+7. Spectator Mode finds games that does not exist anymore, make them dissapear. Most likely they "eat" RAM
+8. Add the Canvas background theme to multiplayer?
+9. When in mobile view (Smallest screen needed (320x420)) in Replay, the winline is quite a bit off the center. Same in multiplayer game when winline is 3,6,9 squares (top right, middle right, bottom right)
+10. Add 10x10 or even bigger gamemode
 
 A lot of ideas below:
 
@@ -34,6 +37,8 @@ _Online multiplayer — two players on different devices using WebSockets (e.g. 
 _Replay system — after a game ends, step through moves one by one to review the match_
 
 _Animated ocean background — CSS/canvas waves that get stormier as the game progresses toward an endgame_
+
+Change PartyKit to PartyServer — PartKit is not updated in a long time
 
 **Polish**
 _Mobile swipe gestures — make the grid feel more native on touchscreens_

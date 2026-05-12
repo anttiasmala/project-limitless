@@ -13,11 +13,15 @@ import {
   HUMAN,
 } from '@/lib/gameLogic';
 
-import type {
-  RoomState,
-  ClientMessage,
-  ServerMessage,
+import {
+  type RoomState,
+  type ClientMessage,
+  type ServerMessage,
+  DEFAULT_ROOM_SETTINGS,
 } from '@/utils/multiplayer/multiplayerTypes';
+
+const SERIES_POINT_THRESHOLDS = { bo3: 2, bo5: 3, off: Infinity } as const;
+
 const INITIAL_BOARD: BoardType = Array(9).fill(null);
 
 function makeInitialState(): RoomState {
@@ -29,7 +33,11 @@ function makeInitialState(): RoomState {
     winner: null,
     isDraw: false,
     scores: { ...INITIAL_SCORE },
+    bestOfSeriesScores: { ...INITIAL_SCORE },
     moveHistory: [],
+    settings: { ...DEFAULT_ROOM_SETTINGS },
+    timerEndsAt: null,
+    forfeitWinner: null,
   };
 }
 
@@ -38,6 +46,51 @@ export default class GameRoom implements Party.Server {
 
   constructor(readonly room: Party.Room) {
     this.state = makeInitialState();
+  }
+
+  private timerHandle: ReturnType<typeof setTimeout> | null = null;
+
+  startTurnTimer() {
+    this.clearTurnTimer();
+    if (!this.state.settings.timerEnabled) return;
+
+    this.state.timerEndsAt = Date.now() + 10000;
+
+    this.timerHandle = setTimeout(async () => {
+      if (this.state.status !== 'playing') return;
+
+      const loser = this.state.currentPlayer;
+      const opponent = loser === HUMAN ? AI : HUMAN;
+
+      if (this.state.scores[opponent] >= 4) {
+        const { bestOfSeries } = this.state.settings;
+        this.state.bestOfSeriesScores[opponent] += 1;
+        if (
+          bestOfSeries !== 'off' &&
+          this.state.bestOfSeriesScores[opponent] >=
+            SERIES_POINT_THRESHOLDS[bestOfSeries]
+        ) {
+          this.state.seriesWinner = opponent;
+        }
+      }
+
+      this.state.scores[opponent] += 1;
+      this.state.winner = null;
+      this.state.isDraw = false;
+      this.state.timerEndsAt = null;
+      this.state.status = 'finished';
+      this.state.forfeitWinner = opponent;
+
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
+    }, 10000);
+  }
+
+  clearTurnTimer() {
+    if (this.timerHandle) {
+      clearTimeout(this.timerHandle);
+      this.timerHandle = null;
+    }
+    this.state.timerEndsAt = null;
   }
 
   resetBoard() {
@@ -88,6 +141,8 @@ export default class GameRoom implements Party.Server {
           roomId: this.room.id,
           status: this.state.status,
           connectedCount,
+          allowSpectators: this.state.settings.allowSpectators,
+          isPrivateGame: this.state.settings.isPrivateGame,
         }),
       });
     } catch (e) {
@@ -113,6 +168,15 @@ export default class GameRoom implements Party.Server {
       );
       const url = new URL(ctx.request.url);
       const isSpectator = url.searchParams.get('spectator') === 'true';
+
+      if (isSpectator && this.state.settings.allowSpectators === false) {
+        this.sendTo(conn, {
+          type: 'error',
+          message: '👁️ Spectators are not allowed in this room.',
+        });
+        conn.close();
+        return;
+      }
 
       if (!isSpectator) {
         const connectedPlayers = Object.values(this.state.players).filter(
@@ -185,6 +249,7 @@ export default class GameRoom implements Party.Server {
 
       // One player left — notify them
       this.state.status = 'waiting';
+      this.clearTurnTimer();
       this.broadcast({ type: 'opponent-disconnected' });
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
     }
@@ -199,6 +264,29 @@ export default class GameRoom implements Party.Server {
     }
     const senderPlayer = this.state.players[sender.id];
     if (!senderPlayer) return;
+
+    if (msg.type === 'init-settings') {
+      // Only the host (first connected player) can set settings,
+      // and only before the game starts
+      const connectedPlayers = Object.values(this.state.players).filter(
+        (p) => p.connected,
+      );
+      const isHost = connectedPlayers[0]?.id === sender.id;
+      const isBeforeGame = this.state.status === 'waiting';
+
+      if (isHost && isBeforeGame) {
+        // These comments below are used in development, will be deleted when not needed anymore
+        //this.state.scores = { '☠️': 4, '⚓': 0 };
+        //this.state.bestOfSeriesScores = { '☠️': 1, '⚓': 0 };
+
+        this.state.settings = msg.settings;
+        await this.saveAndBroadcast({
+          type: 'state-update',
+          state: this.state,
+        });
+      }
+      return;
+    }
 
     if (msg.type === 'make-move') {
       if (this.state.status !== 'playing') return;
@@ -220,17 +308,46 @@ export default class GameRoom implements Party.Server {
       const { winner } = calculateWinner(newBoard);
       const draw = !winner && isDraw(newBoard);
 
+      const { bestOfSeries } = this.state.settings;
+      const seriesWinTarget = SERIES_POINT_THRESHOLDS[bestOfSeries];
+
       if (winner) {
+        // >= 4 is correct, because increment happens after the check
+        if (this.state.scores[winner] >= 4) {
+          this.state.bestOfSeriesScores[winner] += 1;
+          if (
+            bestOfSeries !== 'off' &&
+            this.state.bestOfSeriesScores[winner] >= seriesWinTarget
+          ) {
+            this.state.seriesWinner = winner;
+          }
+
+          this.state.scores[winner] += 1;
+          this.state.winner = winner;
+          this.state.status = 'finished';
+
+          this.clearTurnTimer();
+          await this.saveAndBroadcast({
+            type: 'state-update',
+            state: this.state,
+          });
+
+          return;
+        }
+
         this.state.winner = winner;
         this.state.status = 'finished';
         this.state.scores[winner] += 1;
+        this.clearTurnTimer();
       } else if (draw) {
         this.state.isDraw = true;
         this.state.status = 'finished';
+        this.clearTurnTimer();
       } else {
         // Flip turn
         this.state.currentPlayer =
           this.state.currentPlayer === HUMAN ? AI : HUMAN;
+        this.startTurnTimer();
       }
 
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
@@ -243,8 +360,27 @@ export default class GameRoom implements Party.Server {
         .every((p) => p.wantsRematch);
 
       if (allWantRematch) {
+        const _winner = this.state.winner ?? this.state.forfeitWinner;
+        // Reset round scores after a series point was earned
+        if (_winner && this.state.scores[_winner] >= 5) {
+          this.state.scores = { ...INITIAL_SCORE };
+        }
+
+        // Reset series scores if series is complete
+        if (
+          _winner &&
+          this.state.bestOfSeriesScores[_winner] >=
+            SERIES_POINT_THRESHOLDS[this.state.settings.bestOfSeries]
+        ) {
+          this.state.bestOfSeriesScores = { ...INITIAL_SCORE };
+        }
+        // Reset possible forfeit winner, there is not a winner anymore
+        this.state.forfeitWinner = null;
+        // Reset series winner, there is not a winner anymore
+        this.state.seriesWinner = undefined;
         // Reset board but keep scores and players
         this.clearBoard();
+        this.startTurnTimer();
       }
 
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });

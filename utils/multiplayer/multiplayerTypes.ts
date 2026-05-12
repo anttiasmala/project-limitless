@@ -1,5 +1,23 @@
+// utils/multiplayer/multiplayerTypes.ts
+
 import type { Board as BoardType, Player } from '@/lib/gameLogic';
 import type { MoveEntry } from '../types';
+
+export type RoomSettings = {
+  timerEnabled: boolean;
+  pointSystem: 'number' | 'treasureChest';
+  bestOfSeries: 'off' | 'bo3' | 'bo5';
+  allowSpectators: boolean;
+  isPrivateGame: boolean;
+};
+
+export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
+  timerEnabled: false,
+  pointSystem: 'number',
+  bestOfSeries: 'off',
+  allowSpectators: true,
+  isPrivateGame: false,
+};
 
 export type RoomPlayer = {
   id: string;
@@ -16,12 +34,18 @@ export type RoomState = {
   winner: Player | null;
   isDraw: boolean;
   scores: Record<Player, number>;
+  bestOfSeriesScores: Record<Player, number>;
+  seriesWinner?: Player;
   moveHistory: MoveEntry[];
+  settings: RoomSettings;
+  timerEndsAt: number | null;
+  forfeitWinner: Player | null;
 };
 
 export type ClientMessage =
   | { type: 'make-move'; index: number }
-  | { type: 'request-rematch' };
+  | { type: 'request-rematch' }
+  | { type: 'init-settings'; settings: RoomSettings };
 
 export type ServerMessage =
   | { type: 'state-update'; state: RoomState }
@@ -32,4 +56,6 @@ export type LobbyEntry = {
   roomId: string;
   status: 'waiting' | 'playing' | 'finished';
   connectedCount: number;
+  allowSpectators: boolean;
+  isPrivateGame: boolean;
 };
