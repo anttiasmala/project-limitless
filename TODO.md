@@ -1,20 +1,13 @@
-1. Mobile site is not looking good, it has to be changed quite a bit
-2. Site changes its height, the site moves a lot during play
-3. ?Add the win reason to captain's log?
-4. Add a selection before game if spectators are allowed
-5. After a game change starting player
-6. Add somekind of hook to see if game was forfeited (a player runs out of time)
-7. Hide full games in Lobby list. Show full games in Spectator lobby list. In the future make spectators disabled if players want it
-8. There is a bug when creating a new room. If no rules were changed, the initialSettings will be undefined
-9. When bestOfSeries is 'bo3' or 'bo5', the series scores need to be tracked in RoomState and passed through — otherwise the scoreboard will always show 0/3 or 0/5. This is a future task, but flag it now so it doesn't get missed when you implement the series win logic on the server.
-10. In multiplayer, starting player changes only changes on win, not everytime
-11. Just an idea, add replay to multiplayer
-12. Change winner modal's "New Series" button to like "Close Window" or something like that
-13. Series winner gets a popup that tells they have won. Maybe add a similiar popup for the losing player
-14. Spectator Mode finds games that does not exist anymore, make them dissapear. Most likely they "eat" RAM
-15. Add the Canvas background theme to multiplayer?
-16. When in mobile view (Smallest screen needed (320x420)) in Replay, the winline is quite a bit off the center. Same in multiplayer game when winline is 3,6,9 squares (top right, middle right, bottom right)
-17. Add 10x10 or even bigger gamemode
+1. After a game change starting player (multiplayer)
+2. Add somekind of hook to see if game was forfeited (a player runs out of time)
+3. In multiplayer, starting player changes only changes on win, not everytime
+4. Just an idea, add replay to multiplayer
+5. Change winner modal's "New Series" button to like "Close Window" or something like that
+6. Series winner gets a popup that tells they have won. Maybe add a similiar popup for the losing player
+7. Spectator Mode finds games that does not exist anymore, make them dissapear. Most likely they "eat" RAM
+8. Add the Canvas background theme to multiplayer?
+9. When in mobile view (Smallest screen needed (320x420)) in Replay, the winline is quite a bit off the center. Same in multiplayer game when winline is 3,6,9 squares (top right, middle right, bottom right)
+10. Add 10x10 or even bigger gamemode
 
 A lot of ideas below:
 
