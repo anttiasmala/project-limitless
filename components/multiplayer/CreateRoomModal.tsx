@@ -29,6 +29,7 @@ export default function CreateRoomModal({ onClose }: Props) {
     const params = new URLSearchParams();
     if (settings.timerEnabled) params.set('timer', '1');
     params.set('allowSpectators', settings.allowSpectators ? '1' : '0');
+    params.set('isPrivateGame', settings.isPrivateGame ? '1' : '0');
     if (settings.pointSystem !== 'number')
       params.set('points', settings.pointSystem);
     if (settings.bestOfSeries !== 'off')
@@ -75,6 +76,36 @@ export default function CreateRoomModal({ onClose }: Props) {
                   timerEnabled: e.target.checked,
                 }))
               }
+            />
+          </label>
+
+          {/* Private game */}
+          <label
+            className="flex items-center justify-between cursor-pointer select-none
+          text-slate-700 dark:text-yellow-300 font-semibold"
+          >
+            Private game
+            <input
+              type="checkbox"
+              className="w-5 h-5 cursor-pointer accent-amber-600"
+              checked={settings.isPrivateGame}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSettings((prev) => ({
+                    ...prev,
+                    isPrivateGame: e.target.checked,
+                  }));
+                  setSettings((prev) => ({
+                    ...prev,
+                    allowSpectators: false,
+                  }));
+                  return;
+                }
+                setSettings((prev) => ({
+                  ...prev,
+                  isPrivateGame: e.target.checked,
+                }));
+              }}
             />
           </label>
 
