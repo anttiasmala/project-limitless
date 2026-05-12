@@ -1,39 +1,26 @@
-1. Add 10x10 or even bigger gamemode
+1. Add 10x10, maybe smaller, 10x10 is 100 gametiles
 
 A lot of ideas below:
 
 **Quick**
-_Sound effects — a cannon blast when you win, splash when you draw, creak on each move (using the Web Audio API or small .mp3 files)_
-
-_Animated winning line — draw a crossed-out line through the winning three squares instead of just highlighting them_
-
-_First player toggle — let players choose who goes first before each round, rather than always starting with ☠️_
-
-_Move history — show a log like "Turn 3: Davy Jones played center" in a pirate scroll-style sidebar_
+Undo last move — single undo button in PvP mode, common in casual games
+Win streak badge — show "3 in a row! 🔥" when someone dominates a series
+Game stats overlay — lifetime win/loss/draw % stored in localStorage, shown in settings
 
 **Medium Effort**
-_Kraken avatar reactions — show a small Kraken illustration that changes expression (calm → angry → victorious) based on game state_
-
-_Local storage persistence — remember scores across page refreshes so a session survives an accidental reload_
-
-_Timed moves — optional sand timer (e.g. 10 seconds per move) that auto-forfeits if time runs out, with a pirate hourglass UI_
-
-_Treasure chest win counter — replace numeric scores with a row of treasure chest icons that fill up as you win rounds_
+5×5 board (4-in-a-row) — a natural middle ground between 3×3 and 10×10; also gives the AI a meaningful challenge without being overwhelming
+Hint button — flashes the AI's suggested move for beginners (reuses getAIMove logic you already have)
+Computer vs Computer — a "watch" mode where two AIs play each other, fun to observe with the storm/kraken animations
+Custom emoji symbols — let players pick their pirate token (🦜, 🗡️, 💀, 🐙…) instead of always ☠️ / ⚓
 
 **Bigger Features**
-_Best-of series mode — play a best-of-3 or best-of-5 series with a grand champion announcement at the end_
-
-_Online multiplayer — two players on different devices using WebSockets (e.g. via Pusher or Partykit)_
-
-_Replay system — after a game ends, step through moves one by one to review the match_
-
-_Animated ocean background — CSS/canvas waves that get stormier as the game progresses toward an endgame_
-
+Tournament bracket — 4-player round-robin or knockout using the existing multiplayer rooms
+Spectator mode in multiplayer — others can watch an ongoing game live
+Emoji reactions in multiplayer — tap to send 🏴‍☠️ 💥 😤 during opponent's turn
+Move timer on opponent in multiplayer — currently only in single-player, but the server could enforce it
 Change PartyKit to PartyServer — PartKit is not updated in a long time
 
 **Polish**
-_Mobile swipe gestures — make the grid feel more native on touchscreens_
-
-_Dark/light mode — a "day at sea" vs "night voyage" theme toggle_
-
-_Accessibility — keyboard navigation for the grid and proper ARIA labels for screen readers_
+Transition animation when switching board sizes — right now it snaps; a fade/scale would feel smoother
+Responsive 10×10 on very small screens — the board might get tight on 320px phones; a horizontal scroll wrapper or zoom-to-fit would help
+PartyKit → PartyServer migration — already on your TODO, PartyKit is unmaintained
