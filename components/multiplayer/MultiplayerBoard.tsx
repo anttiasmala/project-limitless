@@ -20,6 +20,7 @@ import SvgSettings from '@/icons/settings';
 import { RoomSettings } from '@/utils/multiplayer/multiplayerTypes';
 import SeriesWinnerModal from '../SeriesWinnerModal';
 import HourglassTimer from '../HourglassTimer';
+import ReplayModal from '../ReplayModal';
 
 type Props = {
   roomId: string;
@@ -33,6 +34,7 @@ export default function MultiplayerBoard({
   initialSettings,
 }: Props) {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [showReplayModal, setShowReplayModal] = useState(false);
   const [showSeriesWinnerModal, setShowSeriesWinnerModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const router = useRouter();
@@ -341,6 +343,15 @@ export default function MultiplayerBoard({
         </p>
       )}
 
+      {/* Replay Modal */}
+
+      {showReplayModal && (
+        <ReplayModal
+          onClose={() => setShowReplayModal(false)}
+          moveHistory={moveHistory}
+        />
+      )}
+
       {/* Game over */}
       {status === 'finished' && !isSpectator && (
         <div className="text-center flex flex-col items-center gap-3">
@@ -366,6 +377,16 @@ export default function MultiplayerBoard({
               : myWantsRematch
               ? '⏳ Rematch Request Sent'
               : '🔁 Request Rematch'}
+          </button>
+          <button
+            aria-label="Replay the game"
+            onClick={() => setShowReplayModal(true)}
+            className="px-6 py-3 bg-amber-600 border-2 border-amber-800 text-white
+              dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
+              font-bold rounded-lg hover:bg-amber-500 dark:hover:bg-amber-600
+              cursor-pointer transition-all duration-200 tracking-wide"
+          >
+            ▶ Replay game ◀
           </button>
         </div>
       )}

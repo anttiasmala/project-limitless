@@ -1,8 +1,7 @@
-1. Just an idea, add replay to multiplayer
-2. Change winner modal's "New Series" button to like "Close Window" or something like that
-3. Series winner gets a popup that tells they have won. Maybe add a similiar popup for the losing player
-4. When in mobile view (Smallest screen needed (320x420)) in Replay, the winline is quite a bit off the center. Same in multiplayer game when winline is 3,6,9 squares (top right, middle right, bottom right)
-5. Add 10x10 or even bigger gamemode
+1. Change winner modal's "New Series" button to like "Close Window" or something like that
+2. Series winner gets a popup that tells they have won. Maybe add a similiar popup for the losing player
+3. When in mobile view (Smallest screen needed (320x420)) in Replay, the winline is quite a bit off the center. Same in multiplayer game when winline is 3,6,9 squares (top right, middle right, bottom right)
+4. Add 10x10 or even bigger gamemode
 
 A lot of ideas below:
 
