@@ -8,6 +8,7 @@ export type RoomSettings = {
   pointSystem: 'number' | 'treasureChest';
   bestOfSeries: 'off' | 'bo3' | 'bo5';
   allowSpectators: boolean;
+  isPrivateGame: boolean;
 };
 
 export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
@@ -15,6 +16,7 @@ export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
   pointSystem: 'number',
   bestOfSeries: 'off',
   allowSpectators: true,
+  isPrivateGame: false,
 };
 
 export type RoomPlayer = {
