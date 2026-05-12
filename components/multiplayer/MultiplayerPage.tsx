@@ -16,13 +16,15 @@ export default function MultiplayerPage({ roomId }: { roomId: string }) {
   const bestOfSeries = (searchParams.get('series') ??
     'off') as RoomSettings['bestOfSeries'];
   const allowSpectators = searchParams.get('allowSpectators') === '1';
+  const isPrivateGame = searchParams.get('isPrivateGame') === '1';
 
   const initialSettings: RoomSettings | undefined =
     searchParams.get('timer') ||
     searchParams.get('points') ||
     searchParams.get('series') ||
-    searchParams.get('allowSpectators')
-      ? { timerEnabled, pointSystem, bestOfSeries, allowSpectators }
+    searchParams.get('allowSpectators') ||
+    searchParams.get('isPrivateGame')
+      ? { timerEnabled, pointSystem, bestOfSeries, allowSpectators, isPrivateGame }
       : undefined; // joining players pass undefined — only host sends settings
 
   return (
