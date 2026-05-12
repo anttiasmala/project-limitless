@@ -14,6 +14,7 @@
 14. Spectator Mode finds games that does not exist anymore, make them dissapear. Most likely they "eat" RAM
 15. Add the Canvas background theme to multiplayer?
 16. When in mobile view (Smallest screen needed (320x420)) in Replay, the winline is quite a bit off the center. Same in multiplayer game when winline is 3,6,9 squares (top right, middle right, bottom right)
+17. Add 10x10 or even bigger gamemode
 
 A lot of ideas below:
 
