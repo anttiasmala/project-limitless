@@ -24,3 +24,22 @@ Change PartyKit to PartyServer — PartKit is not updated in a long time
 Transition animation when switching board sizes — right now it snaps; a fade/scale would feel smoother
 Responsive 10×10 on very small screens — the board might get tight on 320px phones; a horizontal scroll wrapper or zoom-to-fit would help
 PartyKit → PartyServer migration — already on your TODO, PartyKit is unmaintained
+
+Ideas:
+
+1. Custom player names/symbols - Let players set their pirate name and maybe choose their symbol
+2. Win streak tracking - Track how many games won in a row
+3. Tournament mode - Play against multiple AI opponents in a bracket
+4. AI difficulty improvements for 10x10 - Better AI with threat detection
+5. Sound effects for 10x10 - Maybe different sounds for the larger board
+6. Game statistics - Win/loss/draw percentage over time, stored in localStorage
+7. Undo move - Allow undoing the last move in PvP mode
+8. Board themes - Different visual themes (darker/lighter, different emoji sets)
+9. Confetti/celebration effects - When you win
+10. Chat in multiplayer - Simple emoji reactions or chat
+11. Share/export game - Export the game as a shareable link or image
+12. Custom board sizes - 4x4, 5x5, etc. (beyond just 3x3 and 10x10)
+13. Time-based scoring - Bonus points for winning quickly
+14. Computer vs Computer - Watch AI play itself
+15. Hint system - Show the best move for beginners
+16. 5x5 board with 4-in-a-row - A middle ground between 3x3 and 10x10
