@@ -57,4 +57,5 @@ export type LobbyEntry = {
   status: 'waiting' | 'playing' | 'finished';
   connectedCount: number;
   allowSpectators: boolean;
+  isPrivateGame: boolean;
 };
