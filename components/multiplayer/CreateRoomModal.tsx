@@ -89,23 +89,12 @@ export default function CreateRoomModal({ onClose }: Props) {
               type="checkbox"
               className="w-5 h-5 cursor-pointer accent-amber-600"
               checked={settings.isPrivateGame}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setSettings((prev) => ({
-                    ...prev,
-                    isPrivateGame: e.target.checked,
-                  }));
-                  setSettings((prev) => ({
-                    ...prev,
-                    allowSpectators: false,
-                  }));
-                  return;
-                }
+              onChange={(e) =>
                 setSettings((prev) => ({
                   ...prev,
                   isPrivateGame: e.target.checked,
-                }));
-              }}
+                }))
+              }
             />
           </label>
 
@@ -165,23 +154,12 @@ export default function CreateRoomModal({ onClose }: Props) {
               type="checkbox"
               className="w-5 h-5 cursor-pointer accent-amber-600"
               checked={settings.allowSpectators}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setSettings((prev) => ({
-                    ...prev,
-                    allowSpectators: e.target.checked,
-                  }));
-                  setSettings((prev) => ({
-                    ...prev,
-                    isPrivateGame: false,
-                  }));
-                  return;
-                }
+              onChange={(e) =>
                 setSettings((prev) => ({
                   ...prev,
                   allowSpectators: e.target.checked,
-                }));
-              }}
+                }))
+              }
             />
           </label>
         </div>
