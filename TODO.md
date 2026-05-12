@@ -4,9 +4,8 @@
 4. Just an idea, add replay to multiplayer
 5. Change winner modal's "New Series" button to like "Close Window" or something like that
 6. Series winner gets a popup that tells they have won. Maybe add a similiar popup for the losing player
-7. Add the Canvas background theme to multiplayer?
-8. When in mobile view (Smallest screen needed (320x420)) in Replay, the winline is quite a bit off the center. Same in multiplayer game when winline is 3,6,9 squares (top right, middle right, bottom right)
-9. Add 10x10 or even bigger gamemode
+7. When in mobile view (Smallest screen needed (320x420)) in Replay, the winline is quite a bit off the center. Same in multiplayer game when winline is 3,6,9 squares (top right, middle right, bottom right)
+8. Add 10x10 or even bigger gamemode
 
 A lot of ideas below:
 
