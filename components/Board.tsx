@@ -36,6 +36,7 @@ import DifficultySelector from './DifficultySelector';
 import ReplayModal from './ReplayModal';
 import { getStormLevel } from '@/utils/stormLevel';
 import { useRouter } from 'next/navigation';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -88,6 +89,10 @@ export default function Board({
     bestOfSeries,
     setBestOfSeries,
   } = useGameSettings();
+
+  const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
+  const [playerTwo] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
+  const playerIcons = { '☠️': playerOne.icon, '⚓': playerTwo.icon } as Record<Player, string>;
 
   const { winner, line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
@@ -436,6 +441,7 @@ export default function Board({
             <Square
               key={i}
               value={cell}
+              displayValue={cell ? playerIcons[cell] : undefined}
               onClick={() => handleClick(i)}
               onKeyDown={(e) =>
                 isArrowKeysEnabled ? handleKeyDown(e, i) : null
