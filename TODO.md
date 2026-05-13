@@ -45,3 +45,8 @@ Ideas:
 16. 5x5 board with 4-in-a-row - A middle ground between 3x3 and 10x10
 17. Allow player to cancel the rematch propose
 18. In Multiplayer "Replay Game" uses old hardcoded icons instead of player selected icons
+19. In Multiplayer SeriesWinnerModal doesn't show custom icons. That is because of "const displayIcon = isHuman ? playerOne.icon : playerTwo.icon;", fix would be to take the icon as a parameter?
+
+# Notes
+
+1. In Multiplayer theoretically a player could change their name longer than 20 characters by modifying the name in Local Storage
