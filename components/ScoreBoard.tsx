@@ -3,6 +3,7 @@
 import { AI, HUMAN, Player } from '@/lib/gameLogic';
 import TreasureChests, { BestOfTreasureChests } from './TreasureChests';
 import { BestOfSeriesNames } from '@/utils/types';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 type Props = {
   mode: 'pvc' | 'pvp';
@@ -21,6 +22,15 @@ export default function ScoreBoard({
   bestOfSeries,
   bestOfSeriesScores,
 }: Props) {
+  const [playerOne] = useLocalStorage('playerOne', {
+    name: 'Davy Jones',
+    icon: '☠️',
+  });
+  const [playerTwo] = useLocalStorage('playerTwo', {
+    name: 'Capt. Hook',
+    icon: '⚓',
+  });
+
   return (
     <div
       aria-label={`Scores: Davy Jones ${scores[HUMAN]}, Captain Hook ${scores[AI]}`}
@@ -29,7 +39,7 @@ export default function ScoreBoard({
     >
       <div className="flex flex-col items-center gap-1">
         <span className="text-xs text-slate-500 dark:text-amber-500 uppercase tracking-widest">
-          ☠️ Davy Jones{' '}
+          {playerOne.icon} {playerOne.name}{' '}
           {myPlayer === HUMAN ? '(You)' : mode === 'pvc' ? '(AI)' : ''}
         </span>
         {pointSystem === 'number' ? (
@@ -52,7 +62,7 @@ export default function ScoreBoard({
       </span>
       <div className="flex flex-col items-center gap-1">
         <span className="text-xs dark:text-amber-500 text-amber-700 uppercase tracking-widest">
-          ⚓ Capt. Hook{' '}
+          {playerTwo.icon} {playerTwo.name}{' '}
           {myPlayer === AI ? '(You)' : mode === 'pvc' ? '(AI)' : ''}
         </span>
         {pointSystem === 'number' ? (
