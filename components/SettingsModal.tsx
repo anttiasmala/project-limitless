@@ -23,6 +23,7 @@ type SettingsModalProps = BaseSettingsProps & {
     React.SetStateAction<Record<Player, number>>
   >;
   resetGame?: () => void;
+  showPlayerSettings?: boolean;
 };
 
 export function SettingsModal({
@@ -44,6 +45,7 @@ export function SettingsModal({
   setScores,
   setBestOfSeriesScores,
   resetGame,
+  showPlayerSettings,
 }: SettingsModalProps) {
   const handleClose = useCallback(
     () => setShowSettingsModal(false),
@@ -91,28 +93,30 @@ export function SettingsModal({
         >
           ⚓ Close Window ☠️
         </button>
-        <div className="flex mb-1">
-          <Button
-            onClick={() => setSettingMenu('settings')}
-            className={`px-3 ${
-              settingMenu === 'settings'
-                ? 'dark:bg-red-700 bg-red-700 '
-                : 'bg-red-700'
-            }`}
-          >
-            Settings
-          </Button>
-          <Button
-            onClick={() => setSettingMenu('players')}
-            className={`px-3 ml-1 ${
-              settingMenu === 'players'
-                ? 'dark:bg-red-700 bg-red-700 '
-                : 'bg-red-700'
-            }`}
-          >
-            Players
-          </Button>
-        </div>
+        {showPlayerSettings ? (
+          <div className="flex mb-1">
+            <Button
+              onClick={() => setSettingMenu('settings')}
+              className={`px-3 ${
+                settingMenu === 'settings'
+                  ? 'dark:bg-red-700 bg-red-700 '
+                  : 'bg-red-700'
+              }`}
+            >
+              Settings
+            </Button>
+            <Button
+              onClick={() => setSettingMenu('players')}
+              className={`px-3 ml-1 ${
+                settingMenu === 'players'
+                  ? 'dark:bg-red-700 bg-red-700 '
+                  : 'bg-red-700'
+              }`}
+            >
+              Players
+            </Button>
+          </div>
+        ) : null}
         {settingMenu === 'settings' ? (
           <div>
             <div className="w-48 max-w-[90vw] h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg">

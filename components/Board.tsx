@@ -90,9 +90,18 @@ export default function Board({
     setBestOfSeries,
   } = useGameSettings();
 
-  const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
-  const [playerTwo] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
-  const playerIcons = { '☠️': playerOne.icon, '⚓': playerTwo.icon } as Record<Player, string>;
+  const [playerOne] = useLocalStorage('playerOne', {
+    name: 'Davy Jones',
+    icon: '☠️',
+  });
+  const [playerTwo] = useLocalStorage('playerTwo', {
+    name: 'Capt. Hook',
+    icon: '⚓',
+  });
+  const playerIcons = { '☠️': playerOne.icon, '⚓': playerTwo.icon } as Record<
+    Player,
+    string
+  >;
 
   const { winner, line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
@@ -545,6 +554,7 @@ export default function Board({
         setScores={setScores}
         setBestOfSeriesScores={setBestOfSeriesScores}
         resetGame={resetGame}
+        showPlayerSettings={true}
       />
     </div>
   );
