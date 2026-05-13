@@ -10,7 +10,11 @@ import {
 } from '@/utils/multiplayer/multiplayerTypes';
 import { useSearchParams } from 'next/navigation';
 
-export function usePartyRoom(roomId: string, initialSettings?: RoomSettings) {
+export function usePartyRoom(
+  roomId: string,
+  initialSettings?: RoomSettings,
+  profile?: { name: string; icon: string },
+) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [roomState, setRoomState] = useState<RoomState | null>(null);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
@@ -18,6 +22,7 @@ export function usePartyRoom(roomId: string, initialSettings?: RoomSettings) {
   const isSpectator = searchParams.get('spectator') === 'true';
 
   const settingsSentRef = useRef(false);
+  const profileSentRef = useRef(false);
 
   const socket = usePartySocket({
     host: process.env.NEXT_PUBLIC_PARTYKIT_HOST ?? 'localhost:1999',
@@ -30,6 +35,15 @@ export function usePartyRoom(roomId: string, initialSettings?: RoomSettings) {
         const msg: ClientMessage = {
           type: 'init-settings',
           settings: initialSettings,
+        };
+        socket.send(JSON.stringify(msg));
+      }
+      if (profile && !profileSentRef.current) {
+        profileSentRef.current = true;
+        const msg: ClientMessage = {
+          type: 'set-profile',
+          name: profile.name,
+          icon: profile.icon,
         };
         socket.send(JSON.stringify(msg));
       }

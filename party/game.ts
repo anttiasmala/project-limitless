@@ -202,6 +202,8 @@ export default class GameRoom implements Party.Server {
           player: assignedPlayer,
           connected: true,
           wantsRematch: false,
+          name: assignedPlayer === HUMAN ? 'Davy Jones' : 'Capt. Hook',
+          icon: assignedPlayer === HUMAN ? '☠️' : '⚓',
         };
         if (
           Object.values(this.state.players).filter((p) => p.connected)
@@ -264,6 +266,14 @@ export default class GameRoom implements Party.Server {
     }
     const senderPlayer = this.state.players[sender.id];
     if (!senderPlayer) return;
+
+    if (msg.type === 'set-profile') {
+      const trimmed = msg.name.trim().slice(0, 20);
+      if (trimmed) this.state.players[sender.id].name = trimmed;
+      if (msg.icon) this.state.players[sender.id].icon = msg.icon;
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
+      return;
+    }
 
     if (msg.type === 'init-settings') {
       // Only the host (first connected player) can set settings,

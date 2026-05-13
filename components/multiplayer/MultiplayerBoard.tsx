@@ -1,7 +1,7 @@
 // components/multiplayer/MultiplayerBoard.tsx
 
 'use client';
-import { calculateWinner, isDraw } from '@/lib/gameLogic';
+import { calculateWinner, isDraw, HUMAN, AI } from '@/lib/gameLogic';
 import { usePartyRoom } from '@/hooks/multiplayer/usePartyRoom';
 import Square from '../Square';
 import WinningLine from '../WinningLine';
@@ -15,6 +15,7 @@ import { useGridNavigation } from '@/hooks/useGridNavigation';
 import { useGameSettings } from '@/hooks/multiplayer/useGameSettings';
 import { useGameAudio } from '@/hooks/useGameAudio';
 import { useEffect, useRef, useState } from 'react';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { SettingsModal } from '@/components/SettingsModal';
 import SvgSettings from '@/icons/settings';
 import { RoomSettings } from '@/utils/multiplayer/multiplayerTypes';
@@ -38,6 +39,11 @@ export default function MultiplayerBoard({
   const [showSeriesWinnerModal, setShowSeriesWinnerModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const router = useRouter();
+  const [multiplayerProfile] = useLocalStorage('multiplayerProfile', {
+    name: 'Davy Jones',
+    icon: '☠️',
+  });
+
   const {
     roomState,
     myPlayer,
@@ -46,7 +52,7 @@ export default function MultiplayerBoard({
     errorMessage,
     sendMove,
     sendRematch,
-  } = usePartyRoom(roomId, initialSettings);
+  } = usePartyRoom(roomId, initialSettings, multiplayerProfile);
   const { gridRef, measurement } = useGridMeasure(3);
 
   const {
@@ -152,6 +158,17 @@ export default function MultiplayerBoard({
   const { line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
   const isMyTurn = status === 'playing' && currentPlayer === myPlayer;
+
+  const humanEntry = Object.values(players).find((p) => p.player === HUMAN);
+  const aiEntry = Object.values(players).find((p) => p.player === AI);
+  const playerIcons: Record<string, string> = {
+    [HUMAN]: humanEntry?.icon ?? HUMAN,
+    [AI]: aiEntry?.icon ?? AI,
+  };
+  const currentPlayerName =
+    currentPlayer === HUMAN
+      ? humanEntry?.name ?? 'Davy Jones'
+      : aiEntry?.name ?? 'Capt. Hook';
 
   if (isSpectator && !settings.allowSpectators) {
     return (
@@ -260,6 +277,14 @@ export default function MultiplayerBoard({
         bestOfSeriesScores={bestOfSeriesScores}
         pointSystem={settings.pointSystem}
         bestOfSeries={settings.bestOfSeries}
+        playerOneOverride={
+          humanEntry
+            ? { name: humanEntry.name, icon: humanEntry.icon }
+            : undefined
+        }
+        playerTwoOverride={
+          aiEntry ? { name: aiEntry.name, icon: aiEntry.icon } : undefined
+        }
       />
 
       {/* Spectator banner */}
@@ -285,7 +310,7 @@ export default function MultiplayerBoard({
       {/* For spectators show whose turn it is instead */}
       {status === 'playing' && isSpectator && (
         <p className="font-semibold dark:text-yellow-300">
-          ⚔️ {PlayerNames[currentPlayer]}&apos;s turn {currentPlayer}
+          ⚔️ {currentPlayerName}&apos;s turn {currentPlayer}
         </p>
       )}
 
@@ -301,6 +326,7 @@ export default function MultiplayerBoard({
             <Square
               key={i}
               value={cell}
+              displayValue={cell ? playerIcons[cell] : undefined}
               onClick={() => handleClick(i)}
               onKeyDown={(e) =>
                 isArrowKeysEnabled ? handleKeyDown(e, i) : null

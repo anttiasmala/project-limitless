@@ -24,6 +24,8 @@ export type RoomPlayer = {
   player: Player;
   connected: boolean;
   wantsRematch: boolean;
+  name: string;
+  icon: string;
 };
 
 export type RoomState = {
@@ -45,7 +47,8 @@ export type RoomState = {
 export type ClientMessage =
   | { type: 'make-move'; index: number }
   | { type: 'request-rematch' }
-  | { type: 'init-settings'; settings: RoomSettings };
+  | { type: 'init-settings'; settings: RoomSettings }
+  | { type: 'set-profile'; name: string; icon: string };
 
 export type ServerMessage =
   | { type: 'state-update'; state: RoomState }
