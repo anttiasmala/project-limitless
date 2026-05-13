@@ -1,6 +1,7 @@
 // components/SeriesWinnerModal.tsx
 'use client';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import { Player } from '@/lib/gameLogic';
 import { createPortal } from 'react-dom';
@@ -22,10 +23,14 @@ export default function SeriesWinnerModal({
   onClose,
   isWinner,
 }: SeriesWinnerModalProps) {
+  const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
+  const [playerTwo] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
+
   usePreventBackgroundScrolling(seriesWinner !== null);
 
   if (!seriesWinner) return null;
   const isHuman = seriesWinner === '☠️';
+  const displayIcon = isHuman ? playerOne.icon : playerTwo.icon;
 
   const championName =
     mode === 'pvc'
@@ -33,8 +38,8 @@ export default function SeriesWinnerModal({
         ? 'You are'
         : 'The Kraken is'
       : isHuman
-      ? 'Davy Jones is'
-      : 'Captain Hook is';
+      ? `${playerOne.name} is`
+      : `${playerTwo.name} is`;
 
   const confetti =
     isWinner === undefined
@@ -54,10 +59,10 @@ export default function SeriesWinnerModal({
 
   const championText =
     isWinner === undefined
-      ? `${seriesWinner} ${championName} the ruler of the Seven Seas!`
+      ? `${displayIcon} ${championName} the ruler of the Seven Seas!`
       : isWinner
-      ? `${seriesWinner} ${championName} the ruler of the Seven Seas!`
-      : `${seriesWinner} has conquered the seas...`;
+      ? `${displayIcon} ${championName} the ruler of the Seven Seas!`
+      : `${displayIcon} has conquered the seas...`;
 
   const subtitleText =
     isWinner === undefined
