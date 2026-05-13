@@ -1,3 +1,4 @@
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { AI, HUMAN, Player } from '@/lib/gameLogic';
 
 type Props = {
@@ -13,6 +14,9 @@ export default function StarterPicker({
   mode,
   onSelect,
 }: Props) {
+  const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
+  const [playerTwo] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
+
   return (
     <div className="flex flex-col items-center gap-2">
       <span className="text-slate-500 dark:text-amber-500 text-xs uppercase tracking-widest">
@@ -40,11 +44,11 @@ export default function StarterPicker({
           >
             {player === HUMAN
               ? mode === 'pvc'
-                ? '☠️ You'
-                : '☠️ Pirate'
+                ? `${playerOne.icon} You`
+                : `${playerOne.icon} ${playerOne.name}`
               : mode === 'pvc'
-              ? '⚓ Kraken'
-              : '⚓ Anchor'}
+              ? `${playerTwo.icon} Kraken`
+              : `${playerTwo.icon} ${playerTwo.name}`}
           </button>
         ))}
       </div>
