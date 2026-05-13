@@ -43,3 +43,5 @@ Ideas:
 14. Computer vs Computer - Watch AI play itself
 15. Hint system - Show the best move for beginners
 16. 5x5 board with 4-in-a-row - A middle ground between 3x3 and 10x10
+17. Allow player to cancel the rematch propose
+18. In Multiplayer "Replay Game" uses old hardcoded icons instead of player selected icons
