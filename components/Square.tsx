@@ -4,6 +4,7 @@ import { Player } from '../lib/gameLogic';
 
 interface SquareProps {
   value: Player | null;
+  displayValue?: string;
   onClick: () => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLButtonElement>) => void;
   isWinning: boolean;
@@ -15,6 +16,7 @@ interface SquareProps {
 
 export default function Square({
   value,
+  displayValue,
   onClick,
   onKeyDown,
   isWinning,
@@ -41,7 +43,7 @@ export default function Square({
         ${disabled || value ? 'cursor-not-allowed' : 'cursor-pointer'}
       `}
     >
-      {value ?? <span className="sr-only">Empty</span>}
+      {value ? (displayValue ?? value) : <span className="sr-only">Empty</span>}
     </button>
   );
 }
