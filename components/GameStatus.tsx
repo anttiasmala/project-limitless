@@ -1,3 +1,4 @@
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { FORFEIT_MESSAGE } from '@/utils/utils';
 import { Player } from '../lib/gameLogic';
 
@@ -10,11 +11,6 @@ interface GameStatusProps {
   showForfeitMessage: boolean;
 }
 
-const PVP_NAMES: Record<Player, string> = {
-  '☠️': 'Davy Jones (☠️)',
-  '⚓': 'Captain Hook (⚓)',
-};
-
 export default function GameStatus({
   winner,
   isDraw,
@@ -23,6 +19,12 @@ export default function GameStatus({
   aiThinking,
   showForfeitMessage,
 }: GameStatusProps) {
+  const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
+  const [playerTwo] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
+  const pvpNames: Record<Player, string> = {
+    '☠️': `${playerOne.icon} ${playerOne.name}`,
+    '⚓': `${playerTwo.icon} ${playerTwo.name}`,
+  };
   const isGameOver = !!winner || isDraw || showForfeitMessage;
 
   if (showForfeitMessage) {
@@ -42,7 +44,7 @@ export default function GameStatus({
         ? winner === '☠️'
           ? 'You claim'
           : 'The Kraken claims'
-        : `${PVP_NAMES[winner]} claims`;
+        : `${pvpNames[winner]} claims`;
     return (
       <div
         role="alert"
@@ -79,9 +81,9 @@ export default function GameStatus({
   const label =
     mode === 'pvc'
       ? currentPlayer === '☠️'
-        ? 'Your turn, Pirate! (☠️)'
-        : 'Kraken is thinking… (⚓)'
-      : `${PVP_NAMES[currentPlayer]}'s turn`;
+        ? `Your turn, Pirate! (${playerOne.icon})`
+        : `Kraken is thinking… (${playerTwo.icon})`
+      : `${pvpNames[currentPlayer]}'s turn`;
   return (
     <div
       role="status"
