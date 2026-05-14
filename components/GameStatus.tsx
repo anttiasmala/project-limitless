@@ -21,7 +21,7 @@ export default function GameStatus({
 }: GameStatusProps) {
   const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
   const [playerTwo] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
-  const pvpNames: Record<Player, string> = {
+  const playerNames: Record<Player, string> = {
     '☠️': `${playerOne.icon} ${playerOne.name}`,
     '⚓': `${playerTwo.icon} ${playerTwo.name}`,
   };
@@ -39,19 +39,13 @@ export default function GameStatus({
     );
   }
   if (winner) {
-    const name =
-      mode === 'pvc'
-        ? winner === '☠️'
-          ? 'You claim'
-          : 'The Kraken claims'
-        : `${pvpNames[winner]} claims`;
     return (
       <div
         role="alert"
         aria-live="assertive"
         className="text-center text-2xl font-bold text-amber-700 dark:text-yellow-400 animate-bounce"
       >
-        🏴‍☠️ {name} the treasure! 🏴‍☠️
+        🏴‍☠️ {playerNames[winner]} claims the treasure! 🏴‍☠️
       </div>
     );
   }
@@ -71,19 +65,19 @@ export default function GameStatus({
       <div
         role="status"
         aria-live="polite"
-        aria-label="Kraken is thinking"
+        aria-label={`${playerTwo.name} is thinking`}
         className="text-center text-xl text-red-600 dark:text-red-400 animate-pulse"
       >
-        🐙 The Kraken stirs in the deep…
+        🐙 {playerTwo.icon} {playerTwo.name} stirs in the deep…
       </div>
     );
   }
   const label =
     mode === 'pvc'
       ? currentPlayer === '☠️'
-        ? `Your turn, Pirate! (${playerOne.icon})`
-        : `Kraken is thinking… (${playerTwo.icon})`
-      : `${pvpNames[currentPlayer]}'s turn`;
+        ? `${playerNames['☠️']}'s turn`
+        : `${playerNames['⚓']} is thinking…`
+      : `${playerNames[currentPlayer]}'s turn`;
   return (
     <div
       role="status"

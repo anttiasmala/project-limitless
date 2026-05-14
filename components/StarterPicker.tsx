@@ -4,14 +4,12 @@ import { AI, HUMAN, Player } from '@/lib/gameLogic';
 type Props = {
   starterPlayer: Player;
   aiThinking: boolean;
-  mode: 'pvp' | 'pvc';
   onSelect: (player: Player) => void;
 };
 
 export default function StarterPicker({
   starterPlayer,
   aiThinking,
-  mode,
   onSelect,
 }: Props) {
   const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
@@ -43,11 +41,7 @@ export default function StarterPicker({
               ${aiThinking ? 'cursor-not-allowed' : 'cursor-pointer'}`}
           >
             {player === HUMAN
-              ? mode === 'pvc'
-                ? `${playerOne.icon} You`
-                : `${playerOne.icon} ${playerOne.name}`
-              : mode === 'pvc'
-              ? `${playerTwo.icon} Kraken`
+              ? `${playerOne.icon} ${playerOne.name}`
               : `${playerTwo.icon} ${playerTwo.name}`}
           </button>
         ))}

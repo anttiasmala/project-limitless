@@ -24,6 +24,7 @@ type SettingsModalProps = BaseSettingsProps & {
   >;
   resetGame?: () => void;
   showPlayerSettings?: boolean;
+  mode?: 'pvp' | 'pvc';
 };
 
 export function SettingsModal({
@@ -46,6 +47,7 @@ export function SettingsModal({
   setBestOfSeriesScores,
   resetGame,
   showPlayerSettings,
+  mode,
 }: SettingsModalProps) {
   const handleClose = useCallback(
     () => setShowSettingsModal(false),
@@ -293,7 +295,7 @@ export function SettingsModal({
           <>
             <div className="flex flex-col">
               <label className="select-none text-black dark:text-yellow-300">
-                Player 1:
+                {mode === 'pvc' ? 'You (Player 1):' : 'Player 1:'}
               </label>
               <div className="flex">
                 <Input
@@ -323,7 +325,7 @@ export function SettingsModal({
             </div>
             <div className="flex flex-col mt-4">
               <label className="select-none text-black dark:text-yellow-300">
-                Player 2:
+                {mode === 'pvc' ? 'AI / Kraken (Player 2):' : 'Player 2:'}
               </label>
               <div className="flex">
                 <Input
@@ -375,6 +377,7 @@ function IconModal({
     '🏴‍☠️',
     '⚓',
     '💰',
+    '🦜',
     '🌊',
     '⭐️',
     '💀',
@@ -382,6 +385,11 @@ function IconModal({
     '🌑',
     '🪦',
     '☠️',
+    '🗡️',
+    '🪙',
+    '💎',
+    '🍺',
+    '🔱',
   ];
 
   return (
