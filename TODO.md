@@ -46,6 +46,7 @@ Ideas:
 17. Allow player to cancel the rematch propose
 18. In Multiplayer "Replay Game" uses old hardcoded icons instead of player selected icons
 19. In Multiplayer SeriesWinnerModal doesn't show custom icons. That is because of "const displayIcon = isHuman ? playerOne.icon : playerTwo.icon;", fix would be to take the icon as a parameter?
+20. In Single-player when selecting custom icon, make icons already taken impossible to be selected. That would prevent players having same icon
 
 # Notes
 
