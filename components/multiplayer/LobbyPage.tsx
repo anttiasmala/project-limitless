@@ -111,9 +111,20 @@ function ProfileModal({
           border-2 border-amber-800 dark:border-amber-700
           rounded-xl shadow-2xl p-6 flex flex-col gap-5"
         >
-          <h2 className="text-lg font-black text-amber-700 dark:text-yellow-400 text-center tracking-wide">
-            ☠️ Pirate Profile
-          </h2>
+          <div className="flex items-center justify-center">
+            <h2 className="text-lg font-black text-amber-700 dark:text-yellow-400 text-center tracking-wide">
+              ☠️ Pirate Profile
+            </h2>
+            <button
+              className="absolute right-4 hover:cursor-pointer"
+              onClick={() => {
+                setProfile({ icon: '☠️', name: 'Davy Jones' });
+                onClose();
+              }}
+            >
+              🔄
+            </button>
+          </div>
 
           {/* Preview */}
           <div className="text-center text-5xl" aria-hidden="true">
