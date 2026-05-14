@@ -50,3 +50,4 @@ Ideas:
 # Notes
 
 1. In Multiplayer theoretically a player could change their name longer than 20 characters by modifying the name in Local Storage
+2. In Multiplayer Pirate Profile the selected icon is not centered with "Smallest screen needed" mobile view
