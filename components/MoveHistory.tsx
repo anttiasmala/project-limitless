@@ -1,28 +1,30 @@
 // components/MoveHistory.tsx
+'use client';
 
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Player } from '@/lib/gameLogic';
-import { CELL_LABELS, MoveEntry, PlayerNames } from '@/utils/types';
+import { CELL_LABELS, MoveEntry } from '@/utils/types';
 
 type MoveHistoryProps = {
   moveHistory: MoveEntry[];
-  mode: 'pvp' | 'pvc';
   winner: Player | null;
   isDraw: boolean;
 };
 
-function getPlayerLabel(player: Player, mode: 'pvp' | 'pvc'): string {
-  if (mode === 'pvc') {
-    return player === '☠️' ? 'You' : 'Kraken';
-  }
-  return PlayerNames[player];
-}
-
 export default function MoveHistory({
   moveHistory,
-  mode,
   winner,
   isDraw,
 }: MoveHistoryProps) {
+  const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
+  const [playerTwo] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
+
+  function getPlayerLabel(player: Player): string {
+    return player === '☠️'
+      ? `${playerOne.icon} ${playerOne.name}`
+      : `${playerTwo.icon} ${playerTwo.name}`;
+  }
+
   return (
     <aside
       className="flex flex-col w-full max-w-sm min-h-24 max-h-48
@@ -52,7 +54,7 @@ export default function MoveHistory({
               </span>
               {' · '}
               <span className="text-slate-800 dark:text-yellow-300">
-                {getPlayerLabel(move.player, mode)}
+                {getPlayerLabel(move.player)}
               </span>
               {' seized '}
               <span className="text-slate-500 dark:text-amber-200 italic">
@@ -65,11 +67,7 @@ export default function MoveHistory({
         {/* Game result entry */}
         {winner && (
           <div className="mt-1 text-xs font-bold text-amber-700 dark:text-yellow-400 text-center border-t border-slate-200 dark:border-amber-700 pt-2">
-            🏴‍☠️{' '}
-            {getPlayerLabel(winner, mode) === 'You'
-              ? 'You claim'
-              : `${getPlayerLabel(winner, mode)} claims`}{' '}
-            the treasure! 🏴‍☠️
+            🏴‍☠️ {getPlayerLabel(winner)} claims the treasure! 🏴‍☠️
           </div>
         )}
         {isDraw && (
