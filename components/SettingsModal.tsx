@@ -297,9 +297,22 @@ export function SettingsModal({
               <div className="flex gap-3 p-3">
                 {/* Player 1 Card */}
                 <div className="flex-1 flex flex-col items-center gap-2 bg-slate-50 dark:bg-red-800/60 rounded-lg p-3 border border-slate-200 dark:border-red-600">
-                  <p className="text-xs font-bold text-slate-500 dark:text-yellow-400 uppercase tracking-wider">
-                    {mode === 'pvc' ? 'You' : 'Player 1'}
-                  </p>
+                  <div className="flex items-center">
+                    <p className="text-xs font-bold text-slate-500 dark:text-yellow-400 uppercase tracking-wider">
+                      {mode === 'pvc' ? 'You' : 'Player 1'}
+                    </p>
+                    <button
+                      onClick={() =>
+                        setPlayerOne({
+                          name: 'Davy Jones',
+                          icon: '☠️',
+                        })
+                      }
+                      className="ml-1 cursor-pointer hover:dark:bg-red-500 hover:bg-slate-300"
+                    >
+                      🔄
+                    </button>
+                  </div>
                   <button
                     onClick={() => setShowIconModalPlayerOne(true)}
                     title="Click to change icon"
@@ -325,9 +338,22 @@ export function SettingsModal({
 
                 {/* Player 2 Card */}
                 <div className="flex-1 flex flex-col items-center gap-2 bg-slate-50 dark:bg-red-800/60 rounded-lg p-3 border border-slate-200 dark:border-red-600">
-                  <p className="text-xs font-bold text-slate-500 dark:text-yellow-400 uppercase tracking-wider">
-                    {mode === 'pvc' ? 'AI / Kraken' : 'Player 2'}
-                  </p>
+                  <div className="flex items-center">
+                    <p className="text-xs font-bold text-slate-500 dark:text-yellow-400 uppercase tracking-wider">
+                      {mode === 'pvc' ? 'AI / Kraken' : 'Player 2'}
+                    </p>
+                    <button
+                      onClick={() =>
+                        setPlayerTwo({
+                          name: 'Capt. Hook',
+                          icon: '⚓',
+                        })
+                      }
+                      className="ml-1 cursor-pointer hover:dark:bg-red-500 hover:bg-slate-300"
+                    >
+                      🔄
+                    </button>
+                  </div>
                   <button
                     onClick={() => setShowIconModalPlayerTwo(true)}
                     title="Click to change icon"
