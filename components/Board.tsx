@@ -409,7 +409,6 @@ export default function Board({
         <StarterPicker
           starterPlayer={starterPlayer}
           aiThinking={aiThinking}
-          mode={mode}
           onSelect={(player) => {
             if (starterPlayer === player || aiThinking) return;
             setStarterPlayer(player);
@@ -530,7 +529,6 @@ export default function Board({
       {/* Sidebar */}
       <MoveHistory
         moveHistory={moveHistory}
-        mode={mode}
         winner={winner}
         isDraw={draw}
       />
@@ -555,6 +553,7 @@ export default function Board({
         setBestOfSeriesScores={setBestOfSeriesScores}
         resetGame={resetGame}
         showPlayerSettings={true}
+        mode={mode}
       />
     </div>
   );
