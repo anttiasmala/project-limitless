@@ -115,15 +115,20 @@ function ProfileModal({
             <h2 className="text-lg font-black text-amber-700 dark:text-yellow-400 text-center tracking-wide">
               ☠️ Pirate Profile
             </h2>
-            <button
-              className="absolute right-4 hover:cursor-pointer"
-              onClick={() => {
-                setProfile({ icon: '☠️', name: 'Davy Jones' });
-                onClose();
-              }}
-            >
-              🔄
-            </button>
+            <span className="absolute right-4 group">
+              <button
+                className="hover:cursor-pointer"
+                onClick={() => {
+                  setProfile({ icon: '☠️', name: 'Davy Jones' });
+                  onClose();
+                }}
+              >
+                🔄
+              </button>
+              <span className="pointer-events-none absolute top-full right-0 mt-1 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
+                Reset profile
+              </span>
+            </span>
           </div>
 
           {/* Preview */}

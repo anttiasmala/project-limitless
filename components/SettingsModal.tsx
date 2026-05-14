@@ -301,17 +301,22 @@ export function SettingsModal({
                     <p className="text-xs font-bold text-slate-500 dark:text-yellow-400 uppercase tracking-wider">
                       {mode === 'pvc' ? 'You' : 'Player 1'}
                     </p>
-                    <button
-                      onClick={() =>
-                        setPlayerOne({
-                          name: 'Davy Jones',
-                          icon: '☠️',
-                        })
-                      }
-                      className="ml-1 cursor-pointer hover:dark:bg-red-500 hover:bg-slate-300"
-                    >
-                      🔄
-                    </button>
+                    <span className="ml-1 relative group">
+                      <button
+                        onClick={() =>
+                          setPlayerOne({
+                            name: 'Davy Jones',
+                            icon: '☠️',
+                          })
+                        }
+                        className="cursor-pointer hover:dark:bg-red-500 hover:bg-slate-300"
+                      >
+                        🔄
+                      </button>
+                      <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
+                        Reset to default
+                      </span>
+                    </span>
                   </div>
                   <button
                     onClick={() => setShowIconModalPlayerOne(true)}
@@ -342,17 +347,22 @@ export function SettingsModal({
                     <p className="text-xs font-bold text-slate-500 dark:text-yellow-400 uppercase tracking-wider">
                       {mode === 'pvc' ? 'AI / Kraken' : 'Player 2'}
                     </p>
-                    <button
-                      onClick={() =>
-                        setPlayerTwo({
-                          name: 'Capt. Hook',
-                          icon: '⚓',
-                        })
-                      }
-                      className="ml-1 cursor-pointer hover:dark:bg-red-500 hover:bg-slate-300"
-                    >
-                      🔄
-                    </button>
+                    <span className="ml-1 relative group">
+                      <button
+                        onClick={() =>
+                          setPlayerTwo({
+                            name: 'Capt. Hook',
+                            icon: '⚓',
+                          })
+                        }
+                        className="cursor-pointer hover:dark:bg-red-500 hover:bg-slate-300"
+                      >
+                        🔄
+                      </button>
+                      <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
+                        Reset to default
+                      </span>
+                    </span>
                   </div>
                   <button
                     onClick={() => setShowIconModalPlayerTwo(true)}
