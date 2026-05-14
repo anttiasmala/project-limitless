@@ -422,7 +422,6 @@ export default function MultiplayerBoard({
       {/* Move history */}
       <MoveHistory
         moveHistory={moveHistory}
-        mode="pvp"
         winner={winner}
         isDraw={draw}
       />
