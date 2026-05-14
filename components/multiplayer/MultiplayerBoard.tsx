@@ -358,6 +358,8 @@ export default function MultiplayerBoard({
           mode="pvp"
           isWinner={isSpectator ? undefined : seriesWinner === myPlayer}
           onClose={() => setShowSeriesWinnerModal(false)}
+          playerOneOverride={humanEntry ? { name: humanEntry.name, icon: humanEntry.icon } : undefined}
+          playerTwoOverride={aiEntry ? { name: aiEntry.name, icon: aiEntry.icon } : undefined}
         />
       )}
 

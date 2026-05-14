@@ -11,6 +11,8 @@ interface SeriesWinnerModalProps {
   mode: 'pvp' | 'pvc';
   onClose: () => void;
   isWinner?: boolean;
+  playerOneOverride?: { name: string; icon: string };
+  playerTwoOverride?: { name: string; icon: string };
 }
 
 const WINNER_CONFETTI = ['🏴‍☠️', '⚓', '💰', '🌊', '⭐️', '💀'];
@@ -22,9 +24,20 @@ export default function SeriesWinnerModal({
   mode,
   onClose,
   isWinner,
+  playerOneOverride,
+  playerTwoOverride,
 }: SeriesWinnerModalProps) {
-  const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
-  const [playerTwo] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
+  const [playerOneStored] = useLocalStorage('playerOne', {
+    name: 'Davy Jones',
+    icon: '☠️',
+  });
+  const [playerTwoStored] = useLocalStorage('playerTwo', {
+    name: 'Capt. Hook',
+    icon: '⚓',
+  });
+
+  const playerOne = playerOneOverride ?? playerOneStored;
+  const playerTwo = playerTwoOverride ?? playerTwoStored;
 
   usePreventBackgroundScrolling(seriesWinner !== null);
 
