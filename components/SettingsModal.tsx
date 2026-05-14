@@ -360,12 +360,14 @@ export function SettingsModal({
           showModal={showIconModalPlayerOne}
           setPlayer={setPlayerOne}
           player={playerOne}
+          otherPlayer={playerTwo}
           onClose={() => setShowIconModalPlayerOne(false)}
         />
         <IconPickerModal
           showModal={showIconModalPlayerTwo}
           setPlayer={setPlayerTwo}
           player={playerTwo}
+          otherPlayer={playerOne}
           onClose={() => setShowIconModalPlayerTwo(false)}
         />
       </div>
@@ -397,11 +399,13 @@ function IconPickerModal({
   showModal,
   setPlayer,
   player,
+  otherPlayer,
   onClose,
 }: {
   showModal: boolean;
   setPlayer: ({ icon, name }: { icon: string; name: string }) => void;
   player: { icon: string; name: string };
+  otherPlayer: { icon: string; name: string };
   onClose: () => void;
 }) {
   if (!showModal) return null;
@@ -421,10 +425,11 @@ function IconPickerModal({
                 setPlayer({ ...player, icon });
                 onClose();
               }}
-              className={`text-3xl w-full aspect-square flex items-center justify-center rounded-lg border-2 transition-all duration-150 cursor-pointer ${
-                player.icon === icon
-                  ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/40 scale-110 shadow-md'
-                  : 'border-slate-200 dark:border-red-700 bg-white dark:bg-red-900 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-red-800 hover:scale-105'
+              disabled={player.icon === icon || otherPlayer.icon === icon}
+              className={`text-3xl w-full aspect-square flex items-center justify-center rounded-lg border-2 transition-all duration-150 ${
+                player.icon === icon || otherPlayer.icon === icon
+                  ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/40 scale-110 shadow-md cursor-not-allowed'
+                  : 'border-slate-200 dark:border-red-700 bg-white dark:bg-red-900 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-red-800 hover:scale-105 cursor-pointer'
               }`}
             >
               {icon}
