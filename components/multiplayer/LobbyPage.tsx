@@ -97,7 +97,7 @@ function ProfileModal({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Game replay"
+        aria-label="Pirate Profile"
         className="fixed inset-0 z-101 flex items-center justify-center p-4 overflow-y-auto"
       >
         {/* Modal */}
