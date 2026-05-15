@@ -1,7 +1,5 @@
 # TODO:
 
-1. Update packages
-
 A lot of ideas below:
 
 **Quick**
