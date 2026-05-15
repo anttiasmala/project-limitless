@@ -11,27 +11,28 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },
+  "type": "module",
   "dependencies": {
-    "nanoid": "^5.1.9",
-    "next": "16.2.4",
+    "nanoid": "^5.1.11",
+    "next": "16.2.6",
     "partykit": "^0.0.115",
-    "partysocket": "^1.1.18",
-    "react": "19.2.5",
-    "react-dom": "19.2.5",
-    "tailwind-merge": "^3.5.0"
+    "partysocket": "^1.1.19",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
-    "@eslint/js": "^9.0.0",
+    "@eslint/js": "^9",
     "@svgr/cli": "^8.1.0",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^6"
   }
 }
