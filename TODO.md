@@ -1,5 +1,7 @@
 # TODO:
 
+1. Currently if a player is playing against AI, they cannot move to PvP mode if game has started, check if that is good or should it be changed to allow game mode change
+
 A lot of ideas below:
 
 **Quick**
