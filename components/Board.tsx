@@ -72,6 +72,13 @@ export default function Board({
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showReplayModal, setShowReplayModal] = useState(false);
+  const [winStreaks, setWinStreaks] = useState<Record<Player, number>>({
+    '☠️': 0,
+    '⚓': 0,
+  });
+  const [streakBadgePlayer, setStreakBadgePlayer] = useState<Player | null>(
+    null,
+  );
 
   const router = useRouter();
 
@@ -171,6 +178,12 @@ export default function Board({
     // Mark board as full to trigger game-over state via a forced win
     // Simplest: just award the point and reset;
     setShowForfeitMessage(true);
+    setWinStreaks((prev) => ({
+      ...prev,
+      // opponent is the winner
+      [opponent]: prev[opponent] + 1,
+      [currentPlayer]: 0,
+    }));
 
     const _nextGameStarter = starterPlayer === HUMAN ? AI : HUMAN;
     setCurrentPlayer(_nextGameStarter);
@@ -241,6 +254,17 @@ export default function Board({
     return () => clearTimeout(timeout);
   }, [showForfeitMessage, resetGame]);
 
+  useEffect(() => {
+    if (winStreaks[HUMAN] === 3) setStreakBadgePlayer(HUMAN);
+    else if (winStreaks[AI] === 3) setStreakBadgePlayer(AI);
+  }, [winStreaks]);
+
+  useEffect(() => {
+    if (!streakBadgePlayer) return;
+    const timeout = setTimeout(() => setStreakBadgePlayer(null), 3500);
+    return () => clearTimeout(timeout);
+  }, [streakBadgePlayer]);
+
   // AI move logic
 
   useEffect(() => {
@@ -268,8 +292,14 @@ export default function Board({
         const newScores = { ...scores, [_winner]: scores[_winner] + 1 };
         setScores(newScores);
         handleScores(_winner, newScores);
+        setWinStreaks((prev) => ({
+          ...prev,
+          [_winner]: prev[_winner] + 1,
+          [_winner === HUMAN ? AI : HUMAN]: 0,
+        }));
       } else if (_isDraw) {
         playSound(splashAudio);
+        setWinStreaks({ '☠️': 0, '⚓': 0 });
       } else {
         setCurrentPlayer(HUMAN);
         resetTimer();
@@ -345,8 +375,14 @@ export default function Board({
       const newScores = { ...scores, [_winner]: scores[_winner] + 1 };
       setScores(newScores);
       handleScores(_winner, newScores);
+      setWinStreaks((prev) => ({
+        ...prev,
+        [_winner]: prev[_winner] + 1,
+        [_winner === HUMAN ? AI : HUMAN]: 0,
+      }));
     } else if (_isDraw) {
       playSound(splashAudio);
+      setWinStreaks({ '☠️': 0, '⚓': 0 });
     } else {
       setCurrentPlayer(
         mode === 'pvp' ? (currentPlayer === HUMAN ? AI : HUMAN) : AI,
@@ -364,6 +400,8 @@ export default function Board({
     setMoveHistory([]);
     resetTimer();
     setShowForfeitMessage(false);
+    setWinStreaks({ '☠️': 0, '⚓': 0 });
+    setStreakBadgePlayer(null);
 
     if (newMode === 'pvc') {
       setStarterPlayer(HUMAN);
@@ -413,6 +451,13 @@ export default function Board({
         mode={mode}
         bestOfSeries={bestOfSeries}
       />
+
+      {/* Win streak badge */}
+      {streakBadgePlayer && (
+        <div className="animate-bounce bg-amber-500 border-2 border-amber-700 text-white dark:bg-yellow-600 dark:border-yellow-400 dark:text-black font-bold px-4 py-2 rounded-lg text-center text-lg shadow-lg">
+          {playerIcons[streakBadgePlayer]} 3 in a row! 🔥
+        </div>
+      )}
 
       {/* Pick Game Starter Player */}
       <div
