@@ -3,7 +3,6 @@
 A lot of ideas below:
 
 **Quick**
-Undo last move — single undo button in PvP mode, common in casual games
 Win streak badge — show "3 in a row! 🔥" when someone dominates a series
 Game stats overlay — lifetime win/loss/draw % stored in localStorage, shown in settings
 
