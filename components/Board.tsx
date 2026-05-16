@@ -196,6 +196,19 @@ export default function Board({
     setShowForfeitMessage(false);
   }, [starterPlayer, mode, resetTimer, resetFocus]);
 
+  function undoPreviousMove() {
+    if (moveHistory.length === 0) return;
+    const lastMoveData = moveHistory[moveHistory.length - 1];
+    const newMoveHistory = moveHistory.slice(0, -1);
+    const newBoard = [...board];
+    newBoard[lastMoveData.index] = null;
+    setMoveHistory(newMoveHistory);
+    setBoard(newBoard);
+    setCurrentPlayer((_currentPlayer) =>
+      _currentPlayer === '☠️' ? '⚓' : '☠️',
+    );
+  }
+
   // moved upwards due to this error: Error: Cannot access variable before it is declared
   const handleScores = useCallback(
     (winner: Player, currentScores: Record<Player, number>) => {
@@ -489,6 +502,22 @@ export default function Board({
           }}
         />
       )}
+      {/* Undo button */}
+      {mode === 'pvp' && (
+        <button
+          onClick={undoPreviousMove}
+          disabled={moveHistory.length === 0 || gameOver}
+          aria-label="Undo previous move"
+          className="px-6 py-3 bg-slate-600 border-2 border-slate-800 text-white
+      dark:bg-slate-700 dark:border-slate-500 dark:text-yellow-300
+      font-bold rounded-lg hover:bg-slate-500 dark:hover:bg-slate-600
+      hover:border-slate-600 dark:hover:border-yellow-500 cursor-pointer
+      transition-all duration-200 text-lg tracking-wide
+      disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          ↩️ Undo
+        </button>
+      )}
 
       {/* Reset Game*/}
       <button
@@ -527,11 +556,7 @@ export default function Board({
       )}
 
       {/* Sidebar */}
-      <MoveHistory
-        moveHistory={moveHistory}
-        winner={winner}
-        isDraw={draw}
-      />
+      <MoveHistory moveHistory={moveHistory} winner={winner} isDraw={draw} />
       {/* Settings Modal */}
       <SettingsModal
         showSettingsModal={showSettingsModal}
