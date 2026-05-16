@@ -194,6 +194,7 @@ export default function Board({
     resetTimer();
     resetFocus(0);
     setShowForfeitMessage(false);
+    setCurrentPlayer(starterPlayer);
   }, [starterPlayer, mode, resetTimer, resetFocus]);
 
   function undoPreviousMove() {
