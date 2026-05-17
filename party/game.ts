@@ -395,6 +395,10 @@ export default class GameRoom implements Party.Server {
 
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
     }
+    if (msg.type === 'cancel-request-rematch') {
+      this.state.players[sender.id].wantsRematch = false;
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
+    }
   }
 }
 

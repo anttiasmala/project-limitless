@@ -80,6 +80,11 @@ export function usePartyRoom(
     socket.send(JSON.stringify(msg));
   }, [socket]);
 
+  const sendCancelRematch = useCallback(() => {
+    const msg: ClientMessage = { type: 'cancel-request-rematch' };
+    socket.send(JSON.stringify(msg));
+  }, [socket]);
+
   const myId = socket.id ?? '';
 
   // Derive my assigned player from room state
@@ -93,5 +98,6 @@ export function usePartyRoom(
     errorMessage,
     sendMove,
     sendRematch,
+    sendCancelRematch,
   };
 }

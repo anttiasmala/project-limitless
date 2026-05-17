@@ -53,6 +53,7 @@ export default function MultiplayerBoard({
     errorMessage,
     sendMove,
     sendRematch,
+    sendCancelRematch,
   } = usePartyRoom(roomId, initialSettings, multiplayerProfile);
   const { gridRef, measurement } = useGridMeasure(3);
 
@@ -106,7 +107,6 @@ export default function MultiplayerBoard({
   }, [roomState?.status, cannonAudio, splashAudio, playSound]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    console.log(roomState?.winStreakPlayer);
     if (!roomState?.winStreakPlayer) return;
     setShowWinStreakText(true);
     const timeout = setTimeout(() => setShowWinStreakText(false), 3500);
@@ -416,19 +416,24 @@ export default function MultiplayerBoard({
               : '💀 You lose!'}
           </p>
           <button
-            onClick={sendRematch}
+            onClick={() => {
+              if (myWantsRematch) {
+                sendCancelRematch();
+                return;
+              }
+              sendRematch();
+            }}
             className="px-6 py-3 bg-amber-600 border-2 border-amber-800 text-white
               dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
               font-bold rounded-lg hover:bg-amber-500 cursor-pointer
               transition-all duration-200 disabled:cursor-not-allowed"
-            disabled={myWantsRematch}
           >
             {opponentWantsRematch && myWantsRematch
               ? '✅ Both ready — Starting game!'
               : opponentWantsRematch
               ? '✅ Opponent ready — Start rematch!'
               : myWantsRematch
-              ? '⏳ Rematch Request Sent'
+              ? '✕ Cancel Rematch Request'
               : '🔁 Request Rematch'}
           </button>
           <button

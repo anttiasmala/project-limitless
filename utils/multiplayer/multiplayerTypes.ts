@@ -49,6 +49,7 @@ export type RoomState = {
 export type ClientMessage =
   | { type: 'make-move'; index: number }
   | { type: 'request-rematch' }
+  | { type: 'cancel-request-rematch' }
   | { type: 'init-settings'; settings: RoomSettings }
   | { type: 'set-profile'; name: string; icon: string };
 
