@@ -31,6 +31,8 @@ function makeInitialState(): RoomState {
     players: {},
     status: 'waiting',
     winner: null,
+    winStreak: { '☠️': 0, '⚓': 0 },
+    winStreakPlayer: null,
     isDraw: false,
     scores: { ...INITIAL_SCORE },
     bestOfSeriesScores: { ...INITIAL_SCORE },
@@ -322,8 +324,10 @@ export default class GameRoom implements Party.Server {
       const seriesWinTarget = SERIES_POINT_THRESHOLDS[bestOfSeries];
 
       if (winner) {
-        // >= 4 is correct, because increment happens after the check
-        if (this.state.scores[winner] >= 4) {
+        const loser = winner === HUMAN ? AI : HUMAN;
+        this.state.scores[winner] += 1;
+
+        if (this.state.scores[winner] >= 5) {
           this.state.bestOfSeriesScores[winner] += 1;
           if (
             bestOfSeries !== 'off' &&
@@ -331,30 +335,23 @@ export default class GameRoom implements Party.Server {
           ) {
             this.state.seriesWinner = winner;
           }
-
-          this.state.scores[winner] += 1;
-          this.state.winner = winner;
-          this.state.status = 'finished';
-
-          this.clearTurnTimer();
-          await this.saveAndBroadcast({
-            type: 'state-update',
-            state: this.state,
-          });
-
-          return;
         }
 
         this.state.winner = winner;
         this.state.status = 'finished';
-        this.state.scores[winner] += 1;
+        this.state.winStreak[winner] += 1;
+        this.state.winStreak[loser] = 0;
+        if (this.state.winStreak[winner] >= 2) {
+          this.state.winStreakPlayer = winner;
+        }
         this.clearTurnTimer();
       } else if (draw) {
         this.state.isDraw = true;
         this.state.status = 'finished';
+        this.state.winStreak = { ...INITIAL_SCORE };
+        this.state.winStreakPlayer = null;
         this.clearTurnTimer();
       } else {
-        // Flip turn
         this.state.currentPlayer =
           this.state.currentPlayer === HUMAN ? AI : HUMAN;
         this.startTurnTimer();
@@ -384,12 +381,15 @@ export default class GameRoom implements Party.Server {
         ) {
           this.state.bestOfSeriesScores = { ...INITIAL_SCORE };
         }
+        // Reset winstreak player
+        this.state.winStreakPlayer = null;
         // Reset possible forfeit winner, there is not a winner anymore
         this.state.forfeitWinner = null;
         // Reset series winner, there is not a winner anymore
         this.state.seriesWinner = undefined;
         // Reset board but keep scores and players
         this.clearBoard();
+
         this.startTurnTimer();
       }
 

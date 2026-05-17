@@ -34,6 +34,8 @@ export type RoomState = {
   players: Record<string, RoomPlayer>;
   status: 'waiting' | 'playing' | 'finished';
   winner: Player | null;
+  winStreak: Record<Player, number>;
+  winStreakPlayer: Player | null;
   isDraw: boolean;
   scores: Record<Player, number>;
   bestOfSeriesScores: Record<Player, number>;

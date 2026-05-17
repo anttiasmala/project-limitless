@@ -35,6 +35,7 @@ export default function MultiplayerBoard({
   initialSettings,
 }: Props) {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [showWinStreakText, setShowWinStreakText] = useState(false);
   const [showReplayModal, setShowReplayModal] = useState(false);
   const [showSeriesWinnerModal, setShowSeriesWinnerModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -104,6 +105,14 @@ export default function MultiplayerBoard({
     prevStatusRef.current = status;
   }, [roomState?.status, cannonAudio, splashAudio, playSound]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    console.log(roomState?.winStreakPlayer);
+    if (!roomState?.winStreakPlayer) return;
+    setShowWinStreakText(true);
+    const timeout = setTimeout(() => setShowWinStreakText(false), 3500);
+    return () => clearTimeout(timeout);
+  }, [roomState?.winStreakPlayer, setShowWinStreakText]);
+
   const seriesWinner = roomState?.seriesWinner ?? null;
 
   const prevSeriesWinnerRef = useRef<string | null>(null);
@@ -148,6 +157,8 @@ export default function MultiplayerBoard({
     currentPlayer,
     status,
     winner,
+    winStreak,
+    winStreakPlayer,
     scores,
     bestOfSeriesScores,
     moveHistory,
@@ -287,6 +298,14 @@ export default function MultiplayerBoard({
         }
       />
 
+      {/* Win streak badge */}
+      {winStreakPlayer && showWinStreakText && (
+        <div className="animate-bounce bg-amber-500 border-2 border-amber-700 text-white dark:bg-yellow-600 dark:border-yellow-400 dark:text-black font-bold px-4 py-2 rounded-lg text-center text-lg shadow-lg">
+          {playerIcons[winStreakPlayer]} {winStreak[winStreakPlayer]} in a row!
+          🔥
+        </div>
+      )}
+
       {/* Spectator banner */}
       {isSpectator && (
         <p className="text-xs text-amber-500 dark:text-amber-400 font-semibold tracking-widest uppercase">
@@ -358,8 +377,14 @@ export default function MultiplayerBoard({
           mode="pvp"
           isWinner={isSpectator ? undefined : seriesWinner === myPlayer}
           onClose={() => setShowSeriesWinnerModal(false)}
-          playerOneOverride={humanEntry ? { name: humanEntry.name, icon: humanEntry.icon } : undefined}
-          playerTwoOverride={aiEntry ? { name: aiEntry.name, icon: aiEntry.icon } : undefined}
+          playerOneOverride={
+            humanEntry
+              ? { name: humanEntry.name, icon: humanEntry.icon }
+              : undefined
+          }
+          playerTwoOverride={
+            aiEntry ? { name: aiEntry.name, icon: aiEntry.icon } : undefined
+          }
         />
       )}
 
@@ -420,11 +445,7 @@ export default function MultiplayerBoard({
       )}
 
       {/* Move history */}
-      <MoveHistory
-        moveHistory={moveHistory}
-        winner={winner}
-        isDraw={draw}
-      />
+      <MoveHistory moveHistory={moveHistory} winner={winner} isDraw={draw} />
 
       {/* Settings Modal */}
 
