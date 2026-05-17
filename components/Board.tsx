@@ -17,7 +17,13 @@ import {
 } from '@/lib/gameLogic';
 import WinningLine from './WinningLine';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
-import { BestOfSeriesNames, CELL_LABELS, MoveEntry } from '@/utils/types';
+import {
+  BestOfSeriesNames,
+  CELL_LABELS,
+  INITIAL_WIN_LOSS_DRAW,
+  MoveEntry,
+  WinLossDrawStats,
+} from '@/utils/types';
 import MoveHistory from './MoveHistory';
 import { useTimer } from '@/hooks/useTimer';
 import HourglassTimer from './HourglassTimer';
@@ -78,6 +84,10 @@ export default function Board({
   });
   const [streakBadgePlayer, setStreakBadgePlayer] = useState<Player | null>(
     null,
+  );
+  const [winLossDraw, setWinLossDraw] = useLocalStorage<WinLossDrawStats>(
+    'winLossDraw',
+    INITIAL_WIN_LOSS_DRAW,
   );
 
   const router = useRouter();
@@ -264,6 +274,46 @@ export default function Board({
     const timeout = setTimeout(() => setStreakBadgePlayer(null), 3500);
     return () => clearTimeout(timeout);
   }, [streakBadgePlayer]);
+
+  useEffect(() => {
+    if (!winner && !draw) return;
+
+    if (mode === 'pvc') {
+      if (winner === AI) {
+        setWinLossDraw((prev) => ({
+          ...prev,
+          '☠️': { ...prev['☠️'], loss: prev['☠️'].loss + 1 },
+        }));
+      } else if (draw) {
+        setWinLossDraw((prev) => ({
+          ...prev,
+          '☠️': { ...prev['☠️'], draw: prev['☠️'].draw + 1 },
+        }));
+      } else {
+        setWinLossDraw((prev) => ({
+          ...prev,
+          '☠️': { ...prev['☠️'], win: prev['☠️'].win + 1 },
+        }));
+      }
+    } else if (mode === 'pvp') {
+      if (draw) {
+        setWinLossDraw((prev) => ({
+          '⚓': { ...prev['⚓'], draw: prev['⚓'].draw + 1 },
+          '☠️': { ...prev['☠️'], draw: prev['☠️'].draw + 1 },
+        }));
+      } else if (winner === '☠️') {
+        setWinLossDraw((prev) => ({
+          '⚓': { ...prev['⚓'], loss: prev['⚓'].loss + 1 },
+          '☠️': { ...prev['☠️'], win: prev['☠️'].win + 1 },
+        }));
+      } else {
+        setWinLossDraw((prev) => ({
+          '⚓': { ...prev['⚓'], win: prev['⚓'].win + 1 },
+          '☠️': { ...prev['☠️'], loss: prev['☠️'].loss + 1 },
+        }));
+      }
+    }
+  }, [winner, draw, mode]);
 
   // AI move logic
 
@@ -622,6 +672,8 @@ export default function Board({
         resetGame={resetGame}
         showPlayerSettings={true}
         mode={mode}
+        winLossDraw={winLossDraw}
+        onResetStats={() => setWinLossDraw(INITIAL_WIN_LOSS_DRAW)}
       />
     </div>
   );

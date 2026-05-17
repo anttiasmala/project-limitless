@@ -150,6 +150,16 @@ export type GridMeasurement = {
   gap: number;
 };
 
+export type WinLossDrawStats = Record<
+  Player,
+  { win: number; loss: number; draw: number }
+>;
+
+export const INITIAL_WIN_LOSS_DRAW: WinLossDrawStats = {
+  '☠️': { win: 0, loss: 0, draw: 0 },
+  '⚓': { win: 0, loss: 0, draw: 0 },
+};
+
 export type BaseSettingsProps = {
   showSettingsModal: boolean;
   setShowSettingsModal: React.Dispatch<React.SetStateAction<boolean>>;
