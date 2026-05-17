@@ -1,7 +1,5 @@
 # TODO:
 
-1. Currently if a player is playing against AI, they cannot move to PvP mode if game has started, check if that is good or should it be changed to allow game mode change
-
 A lot of ideas below:
 
 **Quick**
@@ -19,7 +17,7 @@ Tournament bracket — 4-player round-robin or knockout using the existing multi
 Spectator mode in multiplayer — others can watch an ongoing game live
 Emoji reactions in multiplayer — tap to send 🏴‍☠️ 💥 😤 during opponent's turn
 Move timer on opponent in multiplayer — currently only in single-player, but the server could enforce it
-Change PartyKit to PartyServer — PartKit is not updated in a long time
+Change PartyKit to PartyServer — PartyKit is not updated in a long time
 
 **Polish**
 Transition animation when switching board sizes — right now it snaps; a fade/scale would feel smoother
