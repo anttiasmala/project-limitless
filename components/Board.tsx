@@ -391,7 +391,6 @@ export default function Board({
   }
 
   function switchMode(newMode: 'pvp' | 'pvc') {
-    if (gameHasMoves && !gameOver) return;
     setMode(newMode);
     setBoard(INITIAL_BOARD);
     setScores({ ...INITIAL_SCORE });
@@ -424,8 +423,6 @@ export default function Board({
       {/* Mode selector */}
       <ModeSelector
         mode={mode}
-        gameHasMoves={gameHasMoves}
-        gameOver={gameOver}
         showSettingsModal={showSettingsModal}
         onSwitchMode={switchMode}
         onOpenSettings={() => setShowSettingsModal(true)}

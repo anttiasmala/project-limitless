@@ -2,8 +2,6 @@ import SvgSettings from '@/icons/settings';
 
 type Props = {
   mode: 'pvp' | 'pvc';
-  gameHasMoves: boolean;
-  gameOver: boolean;
   showSettingsModal: boolean;
   onSwitchMode: (mode: 'pvp' | 'pvc') => void;
   onOpenSettings: () => void;
@@ -11,8 +9,6 @@ type Props = {
 
 export default function ModeSelector({
   mode,
-  gameHasMoves,
-  gameOver,
   showSettingsModal,
   onSwitchMode,
   onOpenSettings,
@@ -33,11 +29,7 @@ export default function ModeSelector({
                 ? 'bg-amber-600 border-amber-800 text-white dark:bg-amber-700 dark:border-yellow-400 dark:text-yellow-300'
                 : 'bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:bg-amber-950/50 dark:hover:bg-amber-900/50 dark:border-amber-800 dark:text-amber-400 dark:hover:border-amber-600'
             }
-            ${
-              gameHasMoves && !gameOver
-                ? 'cursor-not-allowed'
-                : 'cursor-pointer'
-            }`}
+            cursor-pointer`}
         >
           {_mode === 'pvp' ? '⚔️ Two Pirates' : '🤖 Vs the Kraken'}
         </button>
