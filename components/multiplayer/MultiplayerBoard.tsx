@@ -108,9 +108,12 @@ export default function MultiplayerBoard({
 
   useEffect(() => {
     if (!roomState?.winStreakPlayer) return;
-    setShowWinStreakText(true);
-    const timeout = setTimeout(() => setShowWinStreakText(false), 3500);
-    return () => clearTimeout(timeout);
+    const showTimeout = setTimeout(() => setShowWinStreakText(true), 0);
+    const hideTimeout = setTimeout(() => setShowWinStreakText(false), 3500);
+    return () => {
+      clearTimeout(showTimeout);
+      clearTimeout(hideTimeout);
+    };
   }, [roomState?.winStreakPlayer, setShowWinStreakText]);
 
   const seriesWinner = roomState?.seriesWinner ?? null;

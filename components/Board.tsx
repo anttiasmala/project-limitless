@@ -313,6 +313,7 @@ export default function Board({
         }));
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [winner, draw, mode]);
 
   // AI move logic
