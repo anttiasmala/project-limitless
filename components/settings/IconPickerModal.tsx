@@ -1,4 +1,4 @@
-// components/IconPickerModal.tsx
+// components/settings/IconPickerModal.tsx
 
 import { createPortal } from 'react-dom';
 

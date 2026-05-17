@@ -1,6 +1,9 @@
-// components/StatsPanel.tsx
+// components/settings/StatsPanel.tsx
 
 import { WinLossDrawStats } from '@/utils/types';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
+import Button from '../utils/Button';
 
 function StatRow({
   icon,
@@ -66,6 +69,7 @@ export function StatsPanel({
   playerTwo: { icon: string; name: string };
   onResetStats?: () => void;
 }) {
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   return (
     <div className="w-72 max-w-[90vw] bg-white border-2 border-slate-300 dark:bg-red-900 dark:border-red-700 rounded-lg overflow-hidden">
       <div className="bg-slate-100 dark:bg-red-800 px-4 py-2 border-b border-slate-200 dark:border-red-700">
@@ -85,14 +89,66 @@ export function StatsPanel({
           stats={winLossDraw['⚓']}
         />
         {onResetStats && (
-          <button
-            onClick={onResetStats}
-            className="mt-1 w-full py-2 bg-slate-200 dark:bg-red-950 text-slate-700 dark:text-yellow-300/70 rounded-lg font-bold hover:bg-slate-300 dark:hover:bg-red-800 hover:text-slate-900 dark:hover:text-yellow-300 border-2 border-slate-300 dark:border-red-700 transition-all cursor-pointer text-xs"
-          >
-            🗑️ Reset Stats
-          </button>
+          <>
+            <ConfirmationModal
+              onClose={() => setShowConfirmationModal(false)}
+              showConfirmationModal={showConfirmationModal}
+              onReset={onResetStats}
+            />
+            <button
+              onClick={() => setShowConfirmationModal(true)}
+              className="mt-1 w-full py-2 bg-slate-200 dark:bg-red-950 text-slate-700 dark:text-yellow-300/70 rounded-lg font-bold hover:bg-slate-300 dark:hover:bg-red-800 hover:text-slate-900 dark:hover:text-yellow-300 border-2 border-slate-300 dark:border-red-700 transition-all cursor-pointer text-xs"
+            >
+              🗑️ Reset Stats
+            </button>
+          </>
         )}
       </div>
     </div>
+  );
+}
+
+function ConfirmationModal({
+  onClose,
+  showConfirmationModal,
+  onReset,
+}: {
+  onClose: () => void;
+  showConfirmationModal: boolean;
+  onReset: () => void;
+}) {
+  if (!showConfirmationModal) return null;
+  return createPortal(
+    <div>
+      <div
+        className="fixed top-0 left-0 z-100 h-full w-full bg-black opacity-80"
+        onClick={onClose}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Reset score confirmation"
+        className="fixed top-1/2 left-1/2 z-101 -translate-x-1/2 -translate-y-1/2"
+      >
+        <div className="flex flex-col items-center gap-4 bg-white dark:bg-red-900 border-slate-300 dark:border-red-700 border-2 rounded-lg p-6">
+          <p className="text-slate-800 dark:text-yellow-300 font-bold text-center">
+            Reset Score?
+          </p>
+          <div className="flex gap-4">
+            <Button onClick={onClose}>No</Button>
+            <Button
+              className="bg-green-600 border-green-800 hover:bg-green-500 dark:bg-green-600 dark:border-green-600 dark:hover:bg-green-500"
+              onClick={() => {
+                onReset();
+                onClose();
+              }}
+            >
+              Yes
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }

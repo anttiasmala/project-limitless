@@ -1,4 +1,4 @@
-// components/PlayersPanel.tsx
+// components/settings/PlayersPanel.tsx
 
 import { useState } from 'react';
 import { IconPickerModal } from './IconPickerModal';
