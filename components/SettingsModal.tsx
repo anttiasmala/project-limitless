@@ -7,6 +7,8 @@ import { INITIAL_SCORE, Player } from '@/lib/gameLogic';
 import { BaseSettingsProps, WinLossDrawStats } from '@/utils/types';
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { PlayersPanel } from './settings/PlayersPanel';
+import { StatsPanel } from './settings/StatsPanel';
 
 type SettingsModalProps = BaseSettingsProps & {
   // Single-player only — omit these in multiplayer
@@ -55,8 +57,6 @@ export function SettingsModal({
     () => setShowSettingsModal(false),
     [setShowSettingsModal],
   );
-  const [showIconModalPlayerOne, setShowIconModalPlayerOne] = useState(false);
-  const [showIconModalPlayerTwo, setShowIconModalPlayerTwo] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useLocalStorage('isDarkTheme', true);
   const [playerOne, setPlayerOne] = useLocalStorage('playerOne', {
     name: 'Davy Jones',
@@ -311,291 +311,15 @@ export function SettingsModal({
               onResetStats={onResetStats}
             />
           ) : (
-            <div className="w-72 max-w-[90vw] bg-white border-2 border-slate-300 dark:bg-red-900 dark:border-red-700 rounded-lg overflow-hidden">
-              <div className="bg-slate-100 dark:bg-red-800 px-4 py-2 border-b border-slate-200 dark:border-red-700">
-                <h3 className="text-center font-bold text-slate-700 dark:text-yellow-300 tracking-wide">
-                  ⚓ Your Crew ☠️
-                </h3>
-              </div>
-              <div className="flex gap-3 p-3">
-                {/* Player 1 Card */}
-                <div className="flex-1 flex flex-col items-center gap-2 bg-slate-50 dark:bg-red-800/60 rounded-lg p-3 border border-slate-200 dark:border-red-600">
-                  <div className="flex items-center">
-                    <p className="text-xs font-bold text-slate-500 dark:text-yellow-400 uppercase tracking-wider">
-                      {mode === 'pvc' ? 'You' : 'Player 1'}
-                    </p>
-                    <span className="ml-1 relative group">
-                      <button
-                        onClick={() =>
-                          setPlayerOne({
-                            name: 'Davy Jones',
-                            icon: '☠️',
-                          })
-                        }
-                        className="cursor-pointer hover:dark:bg-red-500 hover:bg-slate-300"
-                      >
-                        🔄
-                      </button>
-                      <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
-                        Reset to default
-                      </span>
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setShowIconModalPlayerOne(true)}
-                    title="Click to change icon"
-                    className="text-4xl w-16 h-16 flex items-center justify-center rounded-full border-4 border-slate-300 dark:border-red-600 hover:border-amber-500 dark:hover:border-yellow-400 hover:scale-110 transition-all duration-200 cursor-pointer bg-white dark:bg-red-950 shadow-md"
-                  >
-                    {playerOne.icon}
-                  </button>
-                  <p className="text-xs text-slate-400 dark:text-red-300/70 select-none">
-                    tap to change
-                  </p>
-                  <input
-                    value={playerOne.name}
-                    onChange={(e) =>
-                      setPlayerOne({
-                        ...playerOne,
-                        name: e.currentTarget.value,
-                      })
-                    }
-                    maxLength={16}
-                    className="w-full text-center bg-white dark:bg-red-950 border-2 border-slate-300 dark:border-red-700 text-slate-800 dark:text-yellow-300 font-bold rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-amber-500 dark:focus:border-yellow-400 transition-all duration-200"
-                  />
-                </div>
-
-                {/* Player 2 Card */}
-                <div className="flex-1 flex flex-col items-center gap-2 bg-slate-50 dark:bg-red-800/60 rounded-lg p-3 border border-slate-200 dark:border-red-600">
-                  <div className="flex items-center">
-                    <p className="text-xs font-bold text-slate-500 dark:text-yellow-400 uppercase tracking-wider">
-                      {mode === 'pvc' ? 'AI / Kraken' : 'Player 2'}
-                    </p>
-                    <span className="ml-1 relative group">
-                      <button
-                        onClick={() =>
-                          setPlayerTwo({
-                            name: 'Capt. Hook',
-                            icon: '⚓',
-                          })
-                        }
-                        className="cursor-pointer hover:dark:bg-red-500 hover:bg-slate-300"
-                      >
-                        🔄
-                      </button>
-                      <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
-                        Reset to default
-                      </span>
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setShowIconModalPlayerTwo(true)}
-                    title="Click to change icon"
-                    className="text-4xl w-16 h-16 flex items-center justify-center rounded-full border-4 border-slate-300 dark:border-red-600 hover:border-amber-500 dark:hover:border-yellow-400 hover:scale-110 transition-all duration-200 cursor-pointer bg-white dark:bg-red-950 shadow-md"
-                  >
-                    {playerTwo.icon}
-                  </button>
-                  <p className="text-xs text-slate-400 dark:text-red-300/70 select-none">
-                    tap to change
-                  </p>
-                  <input
-                    value={playerTwo.name}
-                    onChange={(e) =>
-                      setPlayerTwo({
-                        ...playerTwo,
-                        name: e.currentTarget.value,
-                      })
-                    }
-                    maxLength={16}
-                    className="w-full text-center bg-white dark:bg-red-950 border-2 border-slate-300 dark:border-red-700 text-slate-800 dark:text-yellow-300 font-bold rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-amber-500 dark:focus:border-yellow-400 transition-all duration-200"
-                  />
-                </div>
-              </div>
-            </div>
+            <PlayersPanel
+              playerOne={playerOne}
+              setPlayerOne={setPlayerOne}
+              playerTwo={playerTwo}
+              setPlayerTwo={setPlayerTwo}
+              mode={mode}
+            />
           )}
         </div>
-
-        {/* Icon pickers rendered as portals to avoid clipping */}
-        <IconPickerModal
-          showModal={showIconModalPlayerOne}
-          setPlayer={setPlayerOne}
-          player={playerOne}
-          otherPlayer={playerTwo}
-          onClose={() => setShowIconModalPlayerOne(false)}
-        />
-        <IconPickerModal
-          showModal={showIconModalPlayerTwo}
-          setPlayer={setPlayerTwo}
-          player={playerTwo}
-          otherPlayer={playerOne}
-          onClose={() => setShowIconModalPlayerTwo(false)}
-        />
-      </div>
-    </div>,
-    document.body,
-  );
-}
-
-function StatRow({
-  icon,
-  name,
-  stats,
-}: {
-  icon: string;
-  name: string;
-  stats: { win: number; loss: number; draw: number };
-}) {
-  const total = stats.win + stats.loss + stats.draw;
-  const winW = total === 0 ? 0 : (stats.win / total) * 100;
-  const lossW = total === 0 ? 0 : (stats.loss / total) * 100;
-  const drawW = total === 0 ? 0 : (stats.draw / total) * 100;
-
-  return (
-    <div className="mb-4">
-      <div className="flex items-center gap-1 mb-1">
-        <span className="text-base">{icon}</span>
-        <span className="font-bold text-slate-700 dark:text-yellow-300 text-sm">
-          {name}
-        </span>
-      </div>
-      {total === 0 ? (
-        <p className="text-xs text-slate-400 dark:text-red-300/60">
-          No games recorded
-        </p>
-      ) : (
-        <>
-          <div className="flex h-2 rounded overflow-hidden mb-1">
-            <div className="bg-green-500" style={{ width: `${winW}%` }} />
-            <div className="bg-red-500" style={{ width: `${lossW}%` }} />
-            <div className="bg-yellow-400" style={{ width: `${drawW}%` }} />
-          </div>
-          <div className="flex gap-3 text-xs">
-            <span className="text-green-600 dark:text-green-400">
-              W {stats.win} ({Math.round(winW)}%)
-            </span>
-            <span className="text-red-600 dark:text-red-400">
-              L {stats.loss} ({Math.round(lossW)}%)
-            </span>
-            <span className="text-yellow-600 dark:text-yellow-400">
-              D {stats.draw} ({Math.round(drawW)}%)
-            </span>
-          </div>
-          <p className="text-xs text-slate-400 dark:text-red-300/60 mt-0.5">
-            {total} games total
-          </p>
-        </>
-      )}
-    </div>
-  );
-}
-
-function StatsPanel({
-  winLossDraw,
-  playerOne,
-  playerTwo,
-  onResetStats,
-}: {
-  winLossDraw: WinLossDrawStats;
-  playerOne: { icon: string; name: string };
-  playerTwo: { icon: string; name: string };
-  onResetStats?: () => void;
-}) {
-  return (
-    <div className="w-72 max-w-[90vw] bg-white border-2 border-slate-300 dark:bg-red-900 dark:border-red-700 rounded-lg overflow-hidden">
-      <div className="bg-slate-100 dark:bg-red-800 px-4 py-2 border-b border-slate-200 dark:border-red-700">
-        <h3 className="text-center font-bold text-slate-700 dark:text-yellow-300 tracking-wide">
-          📊 Battle Record
-        </h3>
-      </div>
-      <div className="p-4">
-        <StatRow
-          icon={playerOne.icon}
-          name={playerOne.name}
-          stats={winLossDraw['☠️']}
-        />
-        <StatRow
-          icon={playerTwo.icon}
-          name={playerTwo.name}
-          stats={winLossDraw['⚓']}
-        />
-        {onResetStats && (
-          <button
-            onClick={onResetStats}
-            className="mt-1 w-full py-2 bg-slate-200 dark:bg-red-950 text-slate-700 dark:text-yellow-300/70 rounded-lg font-bold hover:bg-slate-300 dark:hover:bg-red-800 hover:text-slate-900 dark:hover:text-yellow-300 border-2 border-slate-300 dark:border-red-700 transition-all cursor-pointer text-xs"
-          >
-            🗑️ Reset Stats
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-const ICON_LIST = [
-  '🏴‍☠️',
-  '⚓',
-  '💰',
-  '🦜',
-  '🌊',
-  '⭐️',
-  '💀',
-  '🦑',
-  '🌑',
-  '🪦',
-  '☠️',
-  '🗡️',
-  '🪙',
-  '💎',
-  '🍺',
-  '🔱',
-];
-
-function IconPickerModal({
-  showModal,
-  setPlayer,
-  player,
-  otherPlayer,
-  onClose,
-}: {
-  showModal: boolean;
-  setPlayer: ({ icon, name }: { icon: string; name: string }) => void;
-  player: { icon: string; name: string };
-  otherPlayer: { icon: string; name: string };
-  onClose: () => void;
-}) {
-  if (!showModal) return null;
-
-  return createPortal(
-    <div>
-      <div className="fixed inset-0 z-100 bg-black/70" onClick={onClose} />
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-101 bg-white dark:bg-red-950 border-2 border-slate-300 dark:border-red-700 rounded-xl p-4 shadow-2xl w-64 max-w-[90vw]">
-        <h3 className="text-center font-bold text-slate-700 dark:text-yellow-300 mb-3 text-sm uppercase tracking-wider">
-          Choose Your Icon
-        </h3>
-        <div className="grid grid-cols-4 gap-2">
-          {ICON_LIST.map((icon, index) => (
-            <button
-              key={`icon_${index}`}
-              onClick={() => {
-                setPlayer({ ...player, icon });
-                onClose();
-              }}
-              disabled={player.icon === icon || otherPlayer.icon === icon}
-              className={`text-3xl w-full aspect-square flex items-center justify-center rounded-lg border-2 transition-all duration-150 ${
-                player.icon === icon || otherPlayer.icon === icon
-                  ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/40 scale-110 shadow-md cursor-not-allowed'
-                  : 'border-slate-200 dark:border-red-700 bg-white dark:bg-red-900 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-red-800 hover:scale-105 cursor-pointer'
-              }`}
-            >
-              {icon}
-            </button>
-          ))}
-        </div>
-        <button
-          onClick={onClose}
-          className="mt-3 w-full py-2 bg-red-700 dark:bg-red-800 text-white dark:text-yellow-300 rounded-lg font-bold hover:bg-red-600 dark:hover:bg-red-700 border-2 border-red-900 dark:border-red-600 transition-all cursor-pointer text-sm"
-        >
-          ✕ Cancel
-        </button>
       </div>
     </div>,
     document.body,
