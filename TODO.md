@@ -1,10 +1,9 @@
 # TODO:
 
-A lot of ideas below:
+1. Game statistics - Win/loss/draw percentage over time, stored in localStorage
+1. Game stats overlay — lifetime win/loss/draw % stored in localStorage, shown in settings
 
-**Quick**
-Win streak badge — show "3 in a row! 🔥" when someone dominates a series
-Game stats overlay — lifetime win/loss/draw % stored in localStorage, shown in settings
+A lot of ideas below:
 
 **Medium Effort**
 5×5 board (4-in-a-row) — a natural middle ground between 3×3 and 10×10; also gives the AI a meaningful challenge without being overwhelming
@@ -31,21 +30,19 @@ Ideas:
 3. Tournament mode - Play against multiple AI opponents in a bracket
 4. AI difficulty improvements for 10x10 - Better AI with threat detection
 5. Sound effects for 10x10 - Maybe different sounds for the larger board
-6. Game statistics - Win/loss/draw percentage over time, stored in localStorage
-7. Undo move - Allow undoing the last move in PvP mode
-8. Board themes - Different visual themes (darker/lighter, different emoji sets)
-9. Confetti/celebration effects - When you win
-10. Chat in multiplayer - Simple emoji reactions or chat
-11. Share/export game - Export the game as a shareable link or image
-12. Custom board sizes - 4x4, 5x5, etc. (beyond just 3x3 and 10x10)
-13. Time-based scoring - Bonus points for winning quickly
-14. Computer vs Computer - Watch AI play itself
-15. Hint system - Show the best move for beginners
-16. 5x5 board with 4-in-a-row - A middle ground between 3x3 and 10x10
-17. Allow player to cancel the rematch propose
-18. In Multiplayer "Replay Game" uses old hardcoded icons instead of player selected icons
-19. In Multiplayer SeriesWinnerModal doesn't show custom icons. That is because of "const displayIcon = isHuman ? playerOne.icon : playerTwo.icon;", fix would be to take the icon as a parameter?
-20. In Single-player name does not get instantly changes, requires a refresh to change
+6. Undo move - Allow undoing the last move in PvP mode
+7. Board themes - Different visual themes (darker/lighter, different emoji sets)
+8. Confetti/celebration effects - When you win
+9. Chat in multiplayer - Simple emoji reactions or chat
+10. Share/export game - Export the game as a shareable link or image
+11. Custom board sizes - 4x4, 5x5, etc. (beyond just 3x3 and 10x10)
+12. Time-based scoring - Bonus points for winning quickly
+13. Computer vs Computer - Watch AI play itself
+14. Hint system - Show the best move for beginners
+15. 5x5 board with 4-in-a-row - A middle ground between 3x3 and 10x10
+16. In Multiplayer "Replay Game" uses old hardcoded icons instead of player selected icons
+17. In Multiplayer SeriesWinnerModal doesn't show custom icons. That is because of "const displayIcon = isHuman ? playerOne.icon : playerTwo.icon;", fix would be to take the icon as a parameter?
+18. In Single-player name does not get instantly changes, requires a refresh to change
 
 # Notes
 
