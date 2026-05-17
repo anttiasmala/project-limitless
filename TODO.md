@@ -1,8 +1,5 @@
 # TODO:
 
-1. Game statistics - Win/loss/draw percentage over time, stored in localStorage
-1. Game stats overlay — lifetime win/loss/draw % stored in localStorage, shown in settings
-
 A lot of ideas below:
 
 **Medium Effort**
