@@ -21,5 +21,6 @@ export function getStormLevel({
   if (isDraw) return 0.75; // Draw — stormy
 
   const movesPlayed = board.filter(Boolean).length;
-  return movesPlayed / 8; // 0 → 0.0, 8 → 1.0
+  // Scale to ~20 moves max so larger boards still show storm buildup
+  return Math.min(movesPlayed / Math.min(board.length - 1, 20), 1.0);
 }

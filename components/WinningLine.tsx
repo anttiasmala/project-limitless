@@ -2,17 +2,19 @@ import React from 'react';
 
 type WinningLineProps = {
   winLine: number[];
-  cellSize?: number; // single cell width/height in px
-  gap?: number; // gap between cells in px
+  cellSize?: number;
+  gap?: number;
+  cols?: number;
 };
 
 function getCellCenter(
   index: number,
   cellSize: number,
   gap: number,
+  cols: number,
 ): { x: number; y: number } {
-  const col = index % 3;
-  const row = Math.floor(index / 3);
+  const col = index % cols;
+  const row = Math.floor(index / cols);
   const step = cellSize + gap;
   return {
     x: col * step + cellSize / 2,
@@ -22,15 +24,16 @@ function getCellCenter(
 
 export default function WinningLine({
   winLine,
-  cellSize = 96, // w-24 = 96px
-  gap = 12, // gap-3 = 12px
+  cellSize = 96,
+  gap = 12,
+  cols = 3,
 }: WinningLineProps) {
   if (winLine.length < 2) return null;
 
-  const gridSize = cellSize * 3 + gap * 2;
+  const gridSize = cellSize * cols + gap * (cols - 1);
 
-  const start = getCellCenter(winLine[0], cellSize, gap);
-  const end = getCellCenter(winLine[winLine.length - 1], cellSize, gap);
+  const start = getCellCenter(winLine[0], cellSize, gap, cols);
+  const end = getCellCenter(winLine[winLine.length - 1], cellSize, gap, cols);
 
   const length = Math.sqrt(
     Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2),

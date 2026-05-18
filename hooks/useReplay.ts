@@ -2,10 +2,12 @@ import { Board as BoardType } from '@/lib/gameLogic';
 import { MoveEntry } from '@/utils/types';
 import { useEffect, useState } from 'react';
 
-const EMPTY_BOARD: BoardType = Array(9).fill(null);
-
-function buildBoardAtStep(moves: MoveEntry[], step: number): BoardType {
-  const board = [...EMPTY_BOARD] as BoardType;
+function buildBoardAtStep(
+  moves: MoveEntry[],
+  step: number,
+  boardSize: number,
+): BoardType {
+  const board = Array(boardSize * boardSize).fill(null) as BoardType;
   for (let i = 0; i < step; i++) {
     board[moves[i].index] = moves[i].player;
   }
@@ -15,12 +17,13 @@ function buildBoardAtStep(moves: MoveEntry[], step: number): BoardType {
 export default function useReplay(
   moveHistory: MoveEntry[],
   autoPlayDelay = 800,
+  boardSize: 3 | 10 = 3,
 ) {
   const [stepIndex, setStepIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const total = moveHistory.length;
-  const replayBoard = buildBoardAtStep(moveHistory, stepIndex);
+  const replayBoard = buildBoardAtStep(moveHistory, stepIndex, boardSize);
   const canGoBack = stepIndex > 0;
   const canGoForward = stepIndex < total;
 

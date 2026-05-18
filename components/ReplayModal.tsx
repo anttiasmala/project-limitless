@@ -2,7 +2,7 @@
 
 import { createPortal } from 'react-dom';
 import Square from './Square';
-import { calculateWinner } from '@/lib/gameLogic';
+import { calculateWinner, calculateWinner10 } from '@/lib/gameLogic';
 import WinningLine from './WinningLine';
 import { MoveEntry } from '@/utils/types';
 import useReplay from '@/hooks/useReplay';
@@ -12,9 +12,14 @@ import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling
 type Props = {
   onClose: () => void;
   moveHistory: MoveEntry[];
+  boardSize?: 3 | 10;
 };
 
-export default function ReplayModal({ onClose, moveHistory }: Props) {
+export default function ReplayModal({
+  onClose,
+  moveHistory,
+  boardSize = 3,
+}: Props) {
   const {
     stepIndex,
     total,
@@ -27,14 +32,17 @@ export default function ReplayModal({ onClose, moveHistory }: Props) {
     reset,
     jumpToEnd,
     togglePlay,
-  } = useReplay(moveHistory);
+  } = useReplay(moveHistory, 800, boardSize);
 
-  const { gridRef, measurement } = useGridMeasure(3);
-  const { winner, line: winLine } = calculateWinner(replayBoard);
-  // Only show winning line on the final step
+  const { gridRef, measurement } = useGridMeasure(boardSize);
+  const calcWinner =
+    boardSize === 10 ? calculateWinner10 : calculateWinner;
+  const { winner, line: winLine } = calcWinner(replayBoard);
   const showWin = stepIndex === total && !!winner;
 
   usePreventBackgroundScrolling(true);
+
+  const compact = boardSize === 10;
 
   return createPortal(
     <div>
@@ -52,8 +60,10 @@ export default function ReplayModal({ onClose, moveHistory }: Props) {
           </p>
 
           {/* Board */}
-          <div className="relative mb-6" ref={gridRef}>
-            <div className="grid grid-cols-3 gap-3">
+          <div className="relative mb-6 flex justify-center" ref={gridRef}>
+            <div
+              className={`grid gap-1 ${boardSize === 10 ? 'grid-cols-10' : 'grid-cols-3 gap-3'}`}
+            >
               {replayBoard.map((cell, i) => (
                 <Square
                   key={i}
@@ -65,6 +75,7 @@ export default function ReplayModal({ onClose, moveHistory }: Props) {
                   tabIndex={-1}
                   cellRef={() => null}
                   label={`Square ${i}`}
+                  compact={compact}
                 />
               ))}
             </div>
@@ -73,6 +84,7 @@ export default function ReplayModal({ onClose, moveHistory }: Props) {
                 winLine={winLine}
                 cellSize={measurement.cellSize}
                 gap={measurement.gap}
+                cols={boardSize}
               />
             )}
           </div>

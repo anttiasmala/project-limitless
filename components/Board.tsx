@@ -9,8 +9,10 @@ import {
   Player,
   Difficulty,
   calculateWinner,
+  calculateWinner10,
   isDraw,
   getAIMove,
+  getAIMove10,
   AI,
   HUMAN,
   INITIAL_SCORE,
@@ -54,8 +56,14 @@ type BoardProps = {
   onStormLevelChange: (level: number) => void;
 };
 
-const INITIAL_BOARD: BoardType = Array(9).fill(null);
 const TIMER_DURATION = 10;
+
+function makeCellLabel(index: number, boardSize: 3 | 10): string {
+  if (boardSize === 3) return CELL_LABELS[index] ?? `Cell ${index + 1}`;
+  const row = String.fromCharCode(65 + Math.floor(index / boardSize));
+  const col = (index % boardSize) + 1;
+  return `${row}${col}`;
+}
 
 export default function Board({
   scores,
@@ -64,8 +72,9 @@ export default function Board({
   setBestOfSeriesScores,
   onStormLevelChange,
 }: BoardProps) {
+  const [boardSize, setBoardSize] = useState<3 | 10>(3);
   const [isGameStarted, setIsGameStarted] = useState(false);
-  const [board, setBoard] = useState<BoardType>(INITIAL_BOARD);
+  const [board, setBoard] = useState<BoardType>(Array(9).fill(null));
   const [currentPlayer, setCurrentPlayer] = useState<Player>('☠️');
   const [starterPlayer, setStarterPlayer] = useState<Player>('☠️');
 
@@ -107,6 +116,11 @@ export default function Board({
     setBestOfSeries,
   } = useGameSettings();
 
+  const calcWinner = useCallback(
+    (b: BoardType) =>
+      boardSize === 10 ? calculateWinner10(b) : calculateWinner(b),
+    [boardSize],
+  );
   const [playerOne] = useLocalStorage('playerOne', {
     name: 'Davy Jones',
     icon: '☠️',
@@ -120,12 +134,12 @@ export default function Board({
     string
   >;
 
-  const { winner, line: winLine } = calculateWinner(board);
+  const { winner, line: winLine } = calcWinner(board);
   const draw = !winner && isDraw(board);
   const gameOver = !!winner || draw;
 
   const { setRef, handleKeyDown, activeIndex, resetFocus, focusCell } =
-    useGridNavigation(3);
+    useGridNavigation(boardSize);
 
   const { cannonAudio, creakAudio, playSound, splashAudio } = useGameAudio(
     volume,
@@ -161,32 +175,27 @@ export default function Board({
       ? AI
       : null;
 
-  // Measurement logic
-  const { gridRef, measurement } = useGridMeasure(3);
+  const { gridRef, measurement } = useGridMeasure(boardSize);
 
-  // Swipe Gestures
   function handleSwipe(direction: 'left' | 'right' | 'up' | 'down') {
     const current = activeIndex.current;
-    const col = current % 3;
-    const row = Math.floor(current / 3);
+    const col = current % boardSize;
+    const row = Math.floor(current / boardSize);
 
     const next = {
       left: col > 0 ? current - 1 : current,
-      right: col < 2 ? current + 1 : current,
-      up: row > 0 ? current - 3 : current,
-      down: row < 2 ? current + 3 : current,
+      right: col < boardSize - 1 ? current + 1 : current,
+      up: row > 0 ? current - boardSize : current,
+      down: row < boardSize - 1 ? current + boardSize : current,
     }[direction];
 
     if (next !== current) focusCell(next);
   }
 
   const handleForfeit = useCallback(() => {
-    // Treat forfeit as skipping — opponent wins the turn, or just end game
     const opponent = currentPlayer === HUMAN ? AI : HUMAN;
     setScores((prev) => ({ ...prev, [opponent]: prev[opponent] + 1 }));
     playSound(cannonAudio);
-    // Mark board as full to trigger game-over state via a forced win
-    // Simplest: just award the point and reset;
     setShowForfeitMessage(true);
     setWinStreaks((prev) => ({
       ...prev,
@@ -209,7 +218,7 @@ export default function Board({
   );
 
   const resetGame = useCallback(() => {
-    setBoard(INITIAL_BOARD);
+    setBoard(Array(boardSize * boardSize).fill(null) as BoardType);
     setAiThinking(false);
     const aiStarts = mode === 'pvc' && starterPlayer === AI;
     setIsGameStarted(aiStarts);
@@ -218,7 +227,7 @@ export default function Board({
     resetFocus(0);
     setShowForfeitMessage(false);
     setCurrentPlayer(starterPlayer);
-  }, [starterPlayer, mode, resetTimer, resetFocus]);
+  }, [boardSize, starterPlayer, mode, resetTimer, resetFocus]);
 
   function undoPreviousMove() {
     if (moveHistory.length === 0) return;
@@ -255,8 +264,6 @@ export default function Board({
     },
     [setScores, resetGame, setBestOfSeriesScores, bestOfSeries, pointSystem],
   );
-
-  // Reset forfeit message
 
   useEffect(() => {
     if (!showForfeitMessage) return;
@@ -317,15 +324,16 @@ export default function Board({
   }, [winner, draw, mode]);
 
   // AI move logic
-
   useEffect(() => {
     if (mode !== 'pvc' || gameOver || currentPlayer !== AI || !isGameStarted)
       return;
-    // this thinkingTimeout added to prevent ESLint error, but having the aiThinking to be set immediately
     const thinkingTimeout = setTimeout(() => setAiThinking(true), 0);
 
     const moveTimeout = setTimeout(() => {
-      const move = getAIMove(board, AI, HUMAN, difficulty);
+      const move =
+        boardSize === 10
+          ? getAIMove10(board, AI, HUMAN, difficulty)
+          : getAIMove(board, AI, HUMAN, difficulty);
       const newBoard = [...board];
       newBoard[move] = AI;
       setBoard(newBoard);
@@ -336,7 +344,7 @@ export default function Board({
         { turn: prev.length + 1, player: AI, index: move },
       ]);
 
-      const { winner: _winner } = calculateWinner(newBoard);
+      const { winner: _winner } = calcWinner(newBoard);
       const _isDraw = isDraw(newBoard);
       if (_winner) {
         playSound(cannonAudio);
@@ -356,7 +364,7 @@ export default function Board({
         resetTimer();
       }
       setAiThinking(false);
-    }, 400); // slight delay so it feels alive
+    }, 400);
 
     return () => {
       clearTimeout(thinkingTimeout);
@@ -364,6 +372,7 @@ export default function Board({
     };
   }, [
     board,
+    boardSize,
     currentPlayer,
     mode,
     difficulty,
@@ -376,14 +385,12 @@ export default function Board({
     cannonAudio,
     playSound,
     splashAudio,
+    calcWinner,
   ]);
 
   useEffect(() => {
     if (!gameOver) return;
-    // Select to _nextGameStarter the player who did not start
-    // Starter has an advantage so it is fair to change it every game. Not depending was it a win or a draw
     const _nextGameStarter = starterPlayer === HUMAN ? AI : HUMAN;
-
     setCurrentPlayer(_nextGameStarter);
     setStarterPlayer(_nextGameStarter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -414,10 +421,9 @@ export default function Board({
       if (target !== -1) focusCell(target);
     }
 
-    const { winner: _winner } = calculateWinner(newBoard);
+    const { winner: _winner } = calcWinner(newBoard);
     const _isDraw = isDraw(newBoard);
 
-    // Game has no winner and is not draw, creak sound can be played
     if (!_winner && !_isDraw) {
       playSound(creakAudio);
     }
@@ -443,7 +449,7 @@ export default function Board({
 
   function switchMode(newMode: 'pvp' | 'pvc') {
     setMode(newMode);
-    setBoard(INITIAL_BOARD);
+    setBoard(Array(boardSize * boardSize).fill(null) as BoardType);
     setScores({ ...INITIAL_SCORE });
     setBestOfSeriesScores({ ...INITIAL_SCORE });
     setAiThinking(false);
@@ -457,9 +463,23 @@ export default function Board({
       setStarterPlayer(HUMAN);
       setCurrentPlayer(HUMAN);
     }
-    // this prevents game starting too early
     setIsGameStarted(false);
   }
+
+  function switchBoardSize(newSize: 3 | 10) {
+    if (gameHasMoves && !gameOver) return;
+    setBoardSize(newSize);
+    setBoard(Array(newSize * newSize).fill(null) as BoardType);
+    setScores({ ...INITIAL_SCORE });
+    setBestOfSeriesScores({ ...INITIAL_SCORE });
+    setAiThinking(false);
+    setMoveHistory([]);
+    resetTimer();
+    setShowForfeitMessage(false);
+    setIsGameStarted(false);
+  }
+
+  const compact = boardSize === 10;
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -478,6 +498,32 @@ export default function Board({
         onSwitchMode={switchMode}
         onOpenSettings={() => setShowSettingsModal(true)}
       />
+
+      {/* Board size selector */}
+      <div className="flex gap-2">
+        {([3, 10] as const).map((size) => (
+          <button
+            key={size}
+            onClick={() => switchBoardSize(size)}
+            disabled={gameHasMoves && !gameOver}
+            aria-pressed={boardSize === size}
+            className={`px-3 py-1.5 rounded-lg border-2 font-bold text-sm transition-all duration-200
+              ${
+                boardSize === size
+                  ? 'bg-amber-600 border-amber-800 text-white dark:bg-amber-700 dark:border-yellow-400 dark:text-yellow-300'
+                  : 'bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:bg-amber-950/50 dark:hover:bg-amber-900/50 dark:border-amber-800 dark:text-amber-400 dark:hover:border-amber-600'
+              }
+              ${
+                gameHasMoves && !gameOver
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'cursor-pointer'
+              }
+            `}
+          >
+            {size === 3 ? '3×3' : '10×10'}
+          </button>
+        ))}
+      </div>
 
       {/* Difficulty selector (only in PvC mode) */}
       {mode === 'pvc' && (
@@ -536,7 +582,6 @@ export default function Board({
       />
 
       {/* Kraken mood */}
-
       {mode === 'pvc' && <KrakenAvatar mood={krakenMood} />}
 
       {/* Hourglass timer */}
@@ -548,7 +593,9 @@ export default function Board({
       <div className="relative">
         <div
           ref={gridRef}
-          className="grid grid-cols-3 gap-3"
+          className={`grid ${
+            compact ? 'grid-cols-10 gap-1' : 'grid-cols-3 gap-3'
+          }`}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
@@ -569,9 +616,10 @@ export default function Board({
               }
               tabIndex={i === activeIndex.current ? 0 : -1}
               cellRef={(el) => setRef(el, i)}
-              label={`${CELL_LABELS[i]}, ${
+              label={`${makeCellLabel(i, boardSize)}, ${
                 cell ? (cell === HUMAN ? 'skull' : 'anchor') : 'empty'
               }`}
+              compact={compact}
             />
           ))}
         </div>
@@ -580,6 +628,7 @@ export default function Board({
             winLine={winLine}
             cellSize={measurement.cellSize}
             gap={measurement.gap}
+            cols={boardSize}
           />
         )}
       </div>
@@ -641,16 +690,23 @@ export default function Board({
       )}
 
       {/* Replay Modal */}
-
       {showReplayModal && (
         <ReplayModal
           onClose={() => setShowReplayModal(false)}
           moveHistory={moveHistory}
+          boardSize={boardSize}
         />
       )}
 
       {/* Sidebar */}
-      <MoveHistory moveHistory={moveHistory} winner={winner} isDraw={draw} />
+      <MoveHistory
+        moveHistory={moveHistory}
+        mode={mode}
+        winner={winner}
+        isDraw={draw}
+        boardSize={boardSize}
+      />
+
       {/* Settings Modal */}
       <SettingsModal
         showSettingsModal={showSettingsModal}
