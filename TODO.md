@@ -1,9 +1,11 @@
 # TODO:
 
+1. 5×5 board (4-in-a-row) — a natural middle ground between 3×3 and 10×10; also gives the AI a meaningful challenge without being overwhelming
+2. On Replay Modal the winline is out of place
+
 A lot of ideas below:
 
 **Medium Effort**
-5×5 board (4-in-a-row) — a natural middle ground between 3×3 and 10×10; also gives the AI a meaningful challenge without being overwhelming
 Hint button — flashes the AI's suggested move for beginners (reuses getAIMove logic you already have)
 Computer vs Computer — a "watch" mode where two AIs play each other, fun to observe with the storm/kraken animations
 Custom emoji symbols — let players pick their pirate token (🦜, 🗡️, 💀, 🐙…) instead of always ☠️ / ⚓
@@ -40,6 +42,7 @@ Ideas:
 16. In Multiplayer "Replay Game" uses old hardcoded icons instead of player selected icons
 17. In Multiplayer SeriesWinnerModal doesn't show custom icons. That is because of "const displayIcon = isHuman ? playerOne.icon : playerTwo.icon;", fix would be to take the icon as a parameter?
 18. In Single-player name does not get instantly changes, requires a refresh to change
+19. Add a selection of Pirate One font and "normal" one in settings
 
 # Notes
 
