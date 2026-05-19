@@ -128,6 +128,109 @@ export function getAIMove(
   }
 }
 
+// ─── 5x5 GAME LOGIC (4-in-a-row) ──────────────────────────────────────────────
+
+const SIZE_5 = 5;
+
+export function calculateWinner5(board: Board): {
+  winner: Player | null;
+  line: number[] | null;
+} {
+  const dirs: [number, number][] = [[0, 1], [1, 0], [1, 1], [1, -1]];
+  for (let row = 0; row < SIZE_5; row++) {
+    for (let col = 0; col < SIZE_5; col++) {
+      const player = board[row * SIZE_5 + col];
+      if (!player) continue;
+      for (const [dr, dc] of dirs) {
+        const pr = row - dr;
+        const pc = col - dc;
+        if (
+          pr >= 0 && pr < SIZE_5 && pc >= 0 && pc < SIZE_5 &&
+          board[pr * SIZE_5 + pc] === player
+        ) continue;
+
+        const line: number[] = [row * SIZE_5 + col];
+        let r = row + dr;
+        let c = col + dc;
+        while (r >= 0 && r < SIZE_5 && c >= 0 && c < SIZE_5 && board[r * SIZE_5 + c] === player) {
+          line.push(r * SIZE_5 + c);
+          r += dr;
+          c += dc;
+        }
+        if (line.length >= 4) {
+          return { winner: player, line: line.slice(0, 4) };
+        }
+      }
+    }
+  }
+  return { winner: null, line: null };
+}
+
+function countDir5(board: Board, row: number, col: number, dr: number, dc: number, player: Player): number {
+  let count = 0;
+  let r = row + dr;
+  let c = col + dc;
+  while (r >= 0 && r < SIZE_5 && c >= 0 && c < SIZE_5 && board[r * SIZE_5 + c] === player) {
+    count++;
+    r += dr;
+    c += dc;
+  }
+  return count;
+}
+
+function maxLine5(board: Board, index: number, player: Player): number {
+  const row = Math.floor(index / SIZE_5);
+  const col = index % SIZE_5;
+  const dirs: [number, number][] = [[0, 1], [1, 0], [1, 1], [1, -1]];
+  let max = 0;
+  for (const [dr, dc] of dirs) {
+    const len = countDir5(board, row, col, dr, dc, player) + countDir5(board, row, col, -dr, -dc, player) + 1;
+    if (len > max) max = len;
+  }
+  return max;
+}
+
+export function getAIMove5(
+  board: Board,
+  aiPlayer: Player,
+  humanPlayer: Player,
+  difficulty: Difficulty,
+): number {
+  const CELLS = SIZE_5 * SIZE_5;
+
+  if (difficulty === 'easy') return getRandomMove(board);
+
+  for (let i = 0; i < CELLS; i++) {
+    if (board[i] !== null) continue;
+    const test = [...board];
+    test[i] = aiPlayer;
+    if (calculateWinner5(test).winner) return i;
+  }
+
+  for (let i = 0; i < CELLS; i++) {
+    if (board[i] !== null) continue;
+    const test = [...board];
+    test[i] = humanPlayer;
+    if (calculateWinner5(test).winner) return i;
+  }
+
+  if (difficulty === 'medium') return getRandomMove(board);
+
+  let bestScore = -Infinity;
+  let bestMove = -1;
+  for (let i = 0; i < CELLS; i++) {
+    if (board[i] !== null) continue;
+    const aiLine = maxLine5(board, i, aiPlayer);
+    const humanLine = maxLine5(board, i, humanPlayer);
+    const score = Math.pow(aiLine, 3) + Math.pow(humanLine, 3) * 0.9;
+    if (score > bestScore) {
+      bestScore = score;
+      bestMove = i;
+    }
+  }
+  return bestMove !== -1 ? bestMove : getRandomMove(board);
+}
+
 // ─── 10x10 GAME LOGIC (5-in-a-row) ────────────────────────────────────────────
 
 const SIZE_10 = 10;

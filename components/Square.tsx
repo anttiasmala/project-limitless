@@ -12,7 +12,7 @@ interface SquareProps {
   tabIndex: number;
   cellRef: (el: HTMLButtonElement | null) => void;
   label: string;
-  compact?: boolean;
+  size?: 'sm' | 'md';
 }
 
 export default function Square({
@@ -25,7 +25,7 @@ export default function Square({
   tabIndex,
   cellRef,
   label,
-  compact = false,
+  size,
 }: SquareProps) {
   return (
     <button
@@ -37,8 +37,10 @@ export default function Square({
       onKeyDown={onKeyDown}
       className={`
         ${
-          compact
+          size === 'sm'
             ? 'w-7 h-7 sm:w-8 sm:h-8 text-[10px] sm:text-xs border-2 rounded'
+            : size === 'md'
+            ? 'w-12 h-12 sm:w-14 sm:h-14 text-xl sm:text-2xl border-2 rounded-md'
             : 'w-20 h-20 sm:w-[min(28vw,6rem)] sm:h-[min(28vw,6rem)] text-[min(8vw,2rem)] sm:text-5xl border-4 rounded-lg'
         }
         font-bold transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 dark:focus-visible:ring-yellow-400

@@ -9,9 +9,11 @@ import {
   Player,
   Difficulty,
   calculateWinner,
+  calculateWinner5,
   calculateWinner10,
   isDraw,
   getAIMove,
+  getAIMove5,
   getAIMove10,
   AI,
   HUMAN,
@@ -58,7 +60,7 @@ type BoardProps = {
 
 const TIMER_DURATION = 10;
 
-function makeCellLabel(index: number, boardSize: 3 | 10): string {
+function makeCellLabel(index: number, boardSize: 3 | 5 | 10): string {
   if (boardSize === 3) return CELL_LABELS[index] ?? `Cell ${index + 1}`;
   const row = String.fromCharCode(65 + Math.floor(index / boardSize));
   const col = (index % boardSize) + 1;
@@ -72,7 +74,7 @@ export default function Board({
   setBestOfSeriesScores,
   onStormLevelChange,
 }: BoardProps) {
-  const [boardSize, setBoardSize] = useState<3 | 10>(3);
+  const [boardSize, setBoardSize] = useState<3 | 5 | 10>(3);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [board, setBoard] = useState<BoardType>(Array(9).fill(null));
   const [currentPlayer, setCurrentPlayer] = useState<Player>('☠️');
@@ -118,7 +120,11 @@ export default function Board({
 
   const calcWinner = useCallback(
     (b: BoardType) =>
-      boardSize === 10 ? calculateWinner10(b) : calculateWinner(b),
+      boardSize === 10
+        ? calculateWinner10(b)
+        : boardSize === 5
+        ? calculateWinner5(b)
+        : calculateWinner(b),
     [boardSize],
   );
   const [playerOne] = useLocalStorage('playerOne', {
@@ -333,6 +339,8 @@ export default function Board({
       const move =
         boardSize === 10
           ? getAIMove10(board, AI, HUMAN, difficulty)
+          : boardSize === 5
+          ? getAIMove5(board, AI, HUMAN, difficulty)
           : getAIMove(board, AI, HUMAN, difficulty);
       const newBoard = [...board];
       newBoard[move] = AI;
@@ -466,7 +474,7 @@ export default function Board({
     setIsGameStarted(false);
   }
 
-  function switchBoardSize(newSize: 3 | 10) {
+  function switchBoardSize(newSize: 3 | 5 | 10) {
     if (gameHasMoves && !gameOver) return;
     setBoardSize(newSize);
     setBoard(Array(newSize * newSize).fill(null) as BoardType);
@@ -479,7 +487,8 @@ export default function Board({
     setIsGameStarted(false);
   }
 
-  const compact = boardSize === 10;
+  const squareSize =
+    boardSize === 10 ? 'sm' : boardSize === 5 ? 'md' : undefined;
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -501,7 +510,7 @@ export default function Board({
 
       {/* Board size selector */}
       <div className="flex gap-2">
-        {([3, 10] as const).map((size) => (
+        {([3, 5, 10] as const).map((size) => (
           <button
             key={size}
             onClick={() => switchBoardSize(size)}
@@ -520,7 +529,7 @@ export default function Board({
               }
             `}
           >
-            {size === 3 ? '3×3' : '10×10'}
+            {size === 3 ? '3x3' : size === 5 ? '5x5' : '10x10'}
           </button>
         ))}
       </div>
@@ -594,7 +603,11 @@ export default function Board({
         <div
           ref={gridRef}
           className={`grid ${
-            compact ? 'grid-cols-10 gap-1' : 'grid-cols-3 gap-3'
+            boardSize === 10
+              ? 'grid-cols-10 gap-1'
+              : boardSize === 5
+              ? 'grid-cols-5 gap-2'
+              : 'grid-cols-3 gap-3'
           }`}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
@@ -619,7 +632,7 @@ export default function Board({
               label={`${makeCellLabel(i, boardSize)}, ${
                 cell ? (cell === HUMAN ? 'skull' : 'anchor') : 'empty'
               }`}
-              compact={compact}
+              size={squareSize}
             />
           ))}
         </div>

@@ -17,7 +17,7 @@ function buildBoardAtStep(
 export default function useReplay(
   moveHistory: MoveEntry[],
   autoPlayDelay = 800,
-  boardSize: 3 | 10 = 3,
+  boardSize: 3 | 5 | 10 = 3,
 ) {
   const [stepIndex, setStepIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);

@@ -2,7 +2,7 @@
 
 import { createPortal } from 'react-dom';
 import Square from './Square';
-import { calculateWinner, calculateWinner10 } from '@/lib/gameLogic';
+import { calculateWinner, calculateWinner5, calculateWinner10 } from '@/lib/gameLogic';
 import WinningLine from './WinningLine';
 import { MoveEntry } from '@/utils/types';
 import useReplay from '@/hooks/useReplay';
@@ -12,7 +12,7 @@ import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling
 type Props = {
   onClose: () => void;
   moveHistory: MoveEntry[];
-  boardSize?: 3 | 10;
+  boardSize?: 3 | 5 | 10;
 };
 
 export default function ReplayModal({
@@ -36,13 +36,13 @@ export default function ReplayModal({
 
   const { gridRef, measurement } = useGridMeasure(boardSize);
   const calcWinner =
-    boardSize === 10 ? calculateWinner10 : calculateWinner;
+    boardSize === 10 ? calculateWinner10 : boardSize === 5 ? calculateWinner5 : calculateWinner;
   const { winner, line: winLine } = calcWinner(replayBoard);
   const showWin = stepIndex === total && !!winner;
 
   usePreventBackgroundScrolling(true);
 
-  const compact = boardSize === 10;
+  const squareSize = boardSize === 10 ? 'sm' : boardSize === 5 ? 'md' : undefined;
 
   return createPortal(
     <div>
@@ -62,7 +62,7 @@ export default function ReplayModal({
           {/* Board */}
           <div className="relative mb-6 flex justify-center" ref={gridRef}>
             <div
-              className={`grid gap-1 ${boardSize === 10 ? 'grid-cols-10' : 'grid-cols-3 gap-3'}`}
+              className={`grid ${boardSize === 10 ? 'grid-cols-10 gap-1' : boardSize === 5 ? 'grid-cols-5 gap-2' : 'grid-cols-3 gap-3'}`}
             >
               {replayBoard.map((cell, i) => (
                 <Square
@@ -75,7 +75,7 @@ export default function ReplayModal({
                   tabIndex={-1}
                   cellRef={() => null}
                   label={`Square ${i}`}
-                  compact={compact}
+                  size={squareSize}
                 />
               ))}
             </div>

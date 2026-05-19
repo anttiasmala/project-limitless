@@ -9,11 +9,11 @@ type MoveHistoryProps = {
   moveHistory: MoveEntry[];
   winner: Player | null;
   isDraw: boolean;
-  boardSize?: 3 | 10;
+  boardSize?: 3 | 5 | 10;
   mode: 'pvp' | 'pvc';
 };
 
-function getCellLabel(index: number, boardSize: 3 | 10 = 3): string {
+function getCellLabel(index: number, boardSize: 3 | 5 | 10 = 3): string {
   if (boardSize === 3) return CELL_LABELS[index] ?? `Cell ${index + 1}`;
   const row = String.fromCharCode(65 + Math.floor(index / boardSize));
   const col = (index % boardSize) + 1;
