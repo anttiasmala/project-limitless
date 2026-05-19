@@ -132,7 +132,7 @@ function ConfirmationModal({
       >
         <div className="flex flex-col items-center gap-4 bg-white dark:bg-red-900 border-slate-300 dark:border-red-700 border-2 rounded-lg p-6">
           <p className="text-slate-800 dark:text-yellow-300 font-bold text-center">
-            Reset Score?
+            Reset Stats?
           </p>
           <div className="flex gap-4">
             <Button onClick={onClose}>No</Button>
