@@ -2,7 +2,11 @@
 
 import { createPortal } from 'react-dom';
 import Square from './Square';
-import { calculateWinner, calculateWinner5, calculateWinner10 } from '@/lib/gameLogic';
+import {
+  calculateWinner,
+  calculateWinner5,
+  calculateWinner10,
+} from '@/lib/gameLogic';
 import WinningLine from './WinningLine';
 import { MoveEntry } from '@/utils/types';
 import useReplay from '@/hooks/useReplay';
@@ -36,13 +40,18 @@ export default function ReplayModal({
 
   const { gridRef, measurement } = useGridMeasure(boardSize);
   const calcWinner =
-    boardSize === 10 ? calculateWinner10 : boardSize === 5 ? calculateWinner5 : calculateWinner;
+    boardSize === 10
+      ? calculateWinner10
+      : boardSize === 5
+      ? calculateWinner5
+      : calculateWinner;
   const { winner, line: winLine } = calcWinner(replayBoard);
   const showWin = stepIndex === total && !!winner;
 
   usePreventBackgroundScrolling(true);
 
-  const squareSize = boardSize === 10 ? 'sm' : boardSize === 5 ? 'md' : undefined;
+  const squareSize =
+    boardSize === 10 ? 'sm' : boardSize === 5 ? 'md' : undefined;
 
   return createPortal(
     <div>
@@ -60,33 +69,42 @@ export default function ReplayModal({
           </p>
 
           {/* Board */}
-          <div className="relative mb-6 flex justify-center" ref={gridRef}>
-            <div
-              className={`grid ${boardSize === 10 ? 'grid-cols-10 gap-1' : boardSize === 5 ? 'grid-cols-5 gap-2' : 'grid-cols-3 gap-3'}`}
-            >
-              {replayBoard.map((cell, i) => (
-                <Square
-                  key={i}
-                  value={cell}
-                  isWinning={showWin ? winLine?.includes(i) ?? false : false}
-                  disabled={true}
-                  onClick={() => null}
-                  onKeyDown={() => null}
-                  tabIndex={-1}
-                  cellRef={() => null}
-                  label={`Square ${i}`}
-                  size={squareSize}
+          <div className="mb-6 flex justify-center">
+            <div className="relative">
+              <div
+                ref={gridRef}
+                className={`grid ${
+                  boardSize === 10
+                    ? 'grid-cols-10 gap-1'
+                    : boardSize === 5
+                    ? 'grid-cols-5 gap-2'
+                    : 'grid-cols-3 gap-3'
+                }`}
+              >
+                {replayBoard.map((cell, i) => (
+                  <Square
+                    key={i}
+                    value={cell}
+                    isWinning={showWin ? winLine?.includes(i) ?? false : false}
+                    disabled={true}
+                    onClick={() => null}
+                    onKeyDown={() => null}
+                    tabIndex={-1}
+                    cellRef={() => null}
+                    label={`Square ${i}`}
+                    size={squareSize}
+                  />
+                ))}
+              </div>
+              {showWin && winLine && (
+                <WinningLine
+                  winLine={winLine}
+                  cellSize={measurement.cellSize}
+                  gap={measurement.gap}
+                  cols={boardSize}
                 />
-              ))}
+              )}
             </div>
-            {showWin && winLine && (
-              <WinningLine
-                winLine={winLine}
-                cellSize={measurement.cellSize}
-                gap={measurement.gap}
-                cols={boardSize}
-              />
-            )}
           </div>
 
           {/* Controls */}
