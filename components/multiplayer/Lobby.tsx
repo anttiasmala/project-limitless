@@ -63,20 +63,23 @@ export default function Lobby() {
       </h1>
       {/* Exit button */}
       <div className="relative flex items-center gap-6">
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => router.push('/')}
-          className="text-slate-800 hover:text-red-500 dark:text-amber-700 dark:hover:text-red-400 cursor-pointer transition-colors"
+          className="text-slate-800 dark:text-amber-700 px-0 py-0 text-base"
         >
           ✕ Back to main page
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="unstyled"
           aria-label="Open settings"
           aria-expanded={showSettingsModal}
-          className="relative cursor-pointer"
+          className="relative"
           onClick={() => setShowSettingsModal(true)}
         >
           <SvgSettings className="w-8 h-8 fill-none dark:text-white text-amber-700" />
-        </button>
+        </Button>
       </div>
       {/* Lobby list and create Lobby buttons*/}
       <Button onClick={() => setIsLobbyModalOpen(true)}>
@@ -168,8 +171,9 @@ function LobbyModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between shrink-0">
-          <button
-            className={`text-xl font-bold text-slate-800 dark:text-yellow-300 cursor-pointer border-2 rounded-md ${
+          <Button
+            variant="unstyled"
+            className={`text-xl text-slate-800 dark:text-yellow-300 border-2 ${
               activeMode === 'openLobby'
                 ? 'bg-red-500 text-white dark:bg-red-500'
                 : ''
@@ -177,9 +181,10 @@ function LobbyModal({
             onClick={() => setActiveMode('openLobby')}
           >
             🏴‍☠️ Open Lobbies
-          </button>
-          <button
-            className={`text-xl font-bold text-slate-800 dark:text-yellow-300 cursor-pointer border-2 rounded-md ${
+          </Button>
+          <Button
+            variant="unstyled"
+            className={`text-xl text-slate-800 dark:text-yellow-300 border-2 ${
               activeMode === 'spectator'
                 ? 'bg-red-500 text-white dark:bg-red-500'
                 : ''
@@ -187,15 +192,16 @@ function LobbyModal({
             onClick={() => setActiveMode('spectator')}
           >
             👁️ Spectator
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={closeModal}
-            className="text-slate-500 hover:text-red-500 dark:text-amber-600
-              dark:hover:text-red-400 transition-colors cursor-pointer text-lg ml-2"
+            className="text-slate-500 dark:text-amber-600 text-lg ml-2 px-0 py-0"
             aria-label="Close modal"
           >
             ✕
-          </button>
+          </Button>
         </div>
 
         {/* Table for open lobbies */}

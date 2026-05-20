@@ -22,6 +22,7 @@ import { RoomSettings } from '@/utils/multiplayer/multiplayerTypes';
 import SeriesWinnerModal from '../SeriesWinnerModal';
 import HourglassTimer from '../HourglassTimer';
 import ReplayModal from '../ReplayModal';
+import Button from '../utils/Button';
 
 type Props = {
   roomId: string;
@@ -254,21 +255,23 @@ export default function MultiplayerBoard({
 
       {/* Exit button and Settings Button*/}
       <div className="relative flex items-center gap-6">
-        <button
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => router.push('/multiplayer/lobby')}
-          className="text-xs text-slate-400 hover:text-red-500 dark:text-amber-700
-      dark:hover:text-red-400 cursor-pointer transition-colors"
+          className="text-xs px-0 py-0 text-slate-400 dark:text-amber-700"
         >
           ✕ Leave
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="unstyled"
           aria-label="Open settings"
           aria-expanded={showSettingsModal}
-          className="relative cursor-pointer"
+          className="relative"
           onClick={() => setShowSettingsModal(true)}
         >
           <SvgSettings className="w-8 h-8 fill-none dark:text-white text-amber-700" />
-        </button>
+        </Button>
       </div>
 
       {/* Waiting state */}
@@ -418,7 +421,8 @@ export default function MultiplayerBoard({
               ? '🏆 You win!'
               : '💀 You lose!'}
           </p>
-          <button
+          <Button
+            variant="gold"
             onClick={() => {
               if (myWantsRematch) {
                 sendCancelRematch();
@@ -426,10 +430,6 @@ export default function MultiplayerBoard({
               }
               sendRematch();
             }}
-            className="px-6 py-3 bg-amber-600 border-2 border-amber-800 text-white
-              dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
-              font-bold rounded-lg hover:bg-amber-500 cursor-pointer
-              transition-all duration-200 disabled:cursor-not-allowed"
           >
             {opponentWantsRematch && myWantsRematch
               ? '✅ Both ready — Starting game!'
@@ -438,17 +438,15 @@ export default function MultiplayerBoard({
               : myWantsRematch
               ? '✕ Cancel Rematch Request'
               : '🔁 Request Rematch'}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="gold"
             aria-label="Replay the game"
             onClick={() => setShowReplayModal(true)}
-            className="px-6 py-3 bg-amber-600 border-2 border-amber-800 text-white
-              dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
-              font-bold rounded-lg hover:bg-amber-500 dark:hover:bg-amber-600
-              cursor-pointer transition-all duration-200 tracking-wide"
+            className="tracking-wide"
           >
             ▶ Replay game ◀
-          </button>
+          </Button>
         </div>
       )}
 
@@ -482,12 +480,14 @@ function RoomMessage({
   return (
     <div className="flex flex-col items-center gap-4">
       <p className="text-center dark:text-yellow-300">{message}</p>
-      <button
-        className="text-black dark:text-red-500 dark:hover:text-red-600 cursor-pointer"
+      <Button
+        variant="ghost"
+        size="sm"
+        className="text-black dark:text-red-500 dark:hover:text-red-600"
         onClick={onBack}
       >
         Back to lobby
-      </button>
+      </Button>
     </div>
   );
 }

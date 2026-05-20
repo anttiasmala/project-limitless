@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { IconPickerModal } from './IconPickerModal';
+import Button from '../utils/Button';
 
 type PlayersPanelProps = {
   playerOne: { icon: string; name: string };
@@ -37,29 +38,31 @@ export function PlayersPanel({
                 {mode === 'pvc' ? 'You' : 'Player 1'}
               </p>
               <span className="ml-1 relative group">
-                <button
+                <Button
+                  variant="unstyled"
                   onClick={() =>
                     setPlayerOne({
                       name: 'Davy Jones',
                       icon: '☠️',
                     })
                   }
-                  className="cursor-pointer hover:dark:bg-red-500 hover:bg-slate-300"
+                  className="hover:dark:bg-red-500 hover:bg-slate-300"
                 >
                   🔄
-                </button>
+                </Button>
                 <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
                   Reset to default
                 </span>
               </span>
             </div>
-            <button
+            <Button
+              variant="unstyled"
               onClick={() => setShowIconModalPlayerOne(true)}
               title="Click to change icon"
-              className="text-4xl w-16 h-16 flex items-center justify-center rounded-full border-4 border-slate-300 dark:border-red-600 hover:border-amber-500 dark:hover:border-yellow-400 hover:scale-110 transition-all duration-200 cursor-pointer bg-white dark:bg-red-950 shadow-md"
+              className="text-4xl w-16 h-16 rounded-full border-4 border-slate-300 dark:border-red-600 hover:border-amber-500 dark:hover:border-yellow-400 hover:scale-110 bg-white dark:bg-red-950 shadow-md"
             >
               {playerOne.icon}
-            </button>
+            </Button>
             <p className="text-xs text-slate-400 dark:text-red-300/70 select-none">
               tap to change
             </p>
@@ -83,29 +86,31 @@ export function PlayersPanel({
                 {mode === 'pvc' ? 'AI / Kraken' : 'Player 2'}
               </p>
               <span className="ml-1 relative group">
-                <button
+                <Button
+                  variant="unstyled"
                   onClick={() =>
                     setPlayerTwo({
                       name: 'Capt. Hook',
                       icon: '⚓',
                     })
                   }
-                  className="cursor-pointer hover:dark:bg-red-500 hover:bg-slate-300"
+                  className="hover:dark:bg-red-500 hover:bg-slate-300"
                 >
                   🔄
-                </button>
+                </Button>
                 <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
                   Reset to default
                 </span>
               </span>
             </div>
-            <button
+            <Button
+              variant="unstyled"
               onClick={() => setShowIconModalPlayerTwo(true)}
               title="Click to change icon"
-              className="text-4xl w-16 h-16 flex items-center justify-center rounded-full border-4 border-slate-300 dark:border-red-600 hover:border-amber-500 dark:hover:border-yellow-400 hover:scale-110 transition-all duration-200 cursor-pointer bg-white dark:bg-red-950 shadow-md"
+              className="text-4xl w-16 h-16 rounded-full border-4 border-slate-300 dark:border-red-600 hover:border-amber-500 dark:hover:border-yellow-400 hover:scale-110 bg-white dark:bg-red-950 shadow-md"
             >
               {playerTwo.icon}
-            </button>
+            </Button>
             <p className="text-xs text-slate-400 dark:text-red-300/70 select-none">
               tap to change
             </p>

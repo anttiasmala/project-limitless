@@ -37,18 +37,19 @@ export default function LobbyPage() {
         dark:border-amber-800 rounded-2xl p-4 sm:p-8 w-full max-w-lg"
       >
         <div className="flex justify-end mb-2">
-          <button
+          <Button
+            variant="unstyled"
             onClick={() => setShowProfileModal(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border-2
+            className="flex items-center gap-2 px-3 py-1.5 border-2
               border-slate-300 dark:border-amber-700
               bg-white/60 dark:bg-amber-900/40
               text-slate-700 dark:text-yellow-300
               hover:border-amber-500 dark:hover:border-amber-500
-              transition-colors text-sm font-semibold cursor-pointer"
+              text-sm"
           >
             <span className="text-lg leading-none">{profile.icon}</span>
             <span>{profile.name}</span>
-          </button>
+          </Button>
         </div>
         <Lobby />
         {showProfileModal && (
@@ -116,15 +117,15 @@ function ProfileModal({
               ☠️ Pirate Profile
             </h2>
             <span className="absolute right-4 group">
-              <button
-                className="hover:cursor-pointer"
+              <Button
+                variant="unstyled"
                 onClick={() => {
                   setProfile({ icon: '☠️', name: 'Davy Jones' });
                   onClose();
                 }}
               >
                 🔄
-              </button>
+              </Button>
               <span className="pointer-events-none absolute top-full right-0 mt-1 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
                 Reset profile
               </span>
@@ -164,10 +165,11 @@ function ProfileModal({
             </span>
             <div className="grid grid-cols-5 gap-2">
               {PIRATE_ICONS.map((icon) => (
-                <button
+                <Button
                   key={icon}
+                  variant="unstyled"
                   onClick={() => setLocalIcon(icon)}
-                  className={`text-2xl p-2 rounded-lg border-2 transition-all cursor-pointer
+                  className={`text-2xl p-2 border-2
                   ${
                     localIcon === icon
                       ? 'border-amber-600 bg-amber-100 dark:bg-amber-800 dark:border-amber-400'
@@ -177,7 +179,7 @@ function ProfileModal({
                   aria-pressed={localIcon === icon}
                 >
                   {icon}
-                </button>
+                </Button>
               ))}
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { Difficulty } from '@/lib/gameLogic';
+import Button from './utils/Button';
 
 type Props = {
   difficulty: Difficulty;
@@ -28,14 +29,15 @@ export default function DifficultySelector({
       </span>
       <div className="flex gap-2 flex-wrap justify-center">
         {(['easy', 'medium', 'hard'] as Difficulty[]).map((_difficulty) => (
-          <button
+          <Button
             key={_difficulty}
+            variant="unstyled"
             onClick={() => {
               if (gameHasMoves && !gameOver) return;
               if (difficulty !== _difficulty) onReset();
               onSelect(_difficulty);
             }}
-            className={`px-3 py-1.5 rounded-lg border-2 font-semibold text-xs transition-all duration-200
+            className={`px-3 py-1.5 border-2 font-semibold text-xs
               ${
                 difficulty === _difficulty
                   ? 'bg-amber-600 border-amber-800 text-white dark:bg-red-900 dark:border-red-500 dark:text-yellow-300'
@@ -44,7 +46,7 @@ export default function DifficultySelector({
               ${
                 gameHasMoves && difficulty !== _difficulty && !gameOver
                   ? 'cursor-not-allowed'
-                  : 'cursor-pointer'
+                  : ''
               }`}
           >
             <span className="sm:hidden">
@@ -53,7 +55,7 @@ export default function DifficultySelector({
             <span className="hidden sm:inline">
               {DIFFICULTY_LABELS[_difficulty].long}
             </span>
-          </button>
+          </Button>
         ))}
       </div>
     </div>

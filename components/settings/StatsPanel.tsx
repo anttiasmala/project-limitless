@@ -95,12 +95,13 @@ export function StatsPanel({
               showConfirmationModal={showConfirmationModal}
               onReset={onResetStats}
             />
-            <button
+            <Button
+              variant="unstyled"
               onClick={() => setShowConfirmationModal(true)}
-              className="mt-1 w-full py-2 bg-slate-200 dark:bg-red-950 text-slate-700 dark:text-yellow-300/70 rounded-lg font-bold hover:bg-slate-300 dark:hover:bg-red-800 hover:text-slate-900 dark:hover:text-yellow-300 border-2 border-slate-300 dark:border-red-700 transition-all cursor-pointer text-xs"
+              className="mt-1 w-full py-2 bg-slate-200 dark:bg-red-950 text-slate-700 dark:text-yellow-300/70 hover:bg-slate-300 dark:hover:bg-red-800 hover:text-slate-900 dark:hover:text-yellow-300 border-2 border-slate-300 dark:border-red-700 text-xs"
             >
               🗑️ Reset Stats
-            </button>
+            </Button>
           </>
         )}
       </div>

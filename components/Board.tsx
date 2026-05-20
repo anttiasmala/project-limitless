@@ -43,6 +43,7 @@ import ReplayModal from './ReplayModal';
 import { getStormLevel } from '@/utils/stormLevel';
 import { useRouter } from 'next/navigation';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import Button from './utils/Button';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -464,12 +465,13 @@ export default function Board({
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Multiplayer button */}
-      <button
-        className="py-2 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg hover:bg-slate-100 hover:border-amber-500 dark:hover:bg-red-800 dark:hover:border-yellow-500 cursor-pointer transition-all duration-200 tracking-wide w-full mb-2"
+      <Button
+        variant="unstyled"
+        className="py-2 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 hover:bg-slate-100 hover:border-amber-500 dark:hover:bg-red-800 dark:hover:border-yellow-500 tracking-wide w-full mb-2"
         onClick={() => router.push('/multiplayer/lobby')}
       >
         Multiplayer
-      </button>
+      </Button>
 
       {/* Mode selector */}
       <ModeSelector
@@ -598,46 +600,41 @@ export default function Board({
       )}
       {/* Undo button */}
       {mode === 'pvp' && (
-        <button
+        <Button
+          variant="unstyled"
           onClick={undoPreviousMove}
           disabled={moveHistory.length === 0 || gameOver}
           aria-label="Undo previous move"
           className="px-6 py-3 bg-slate-600 border-2 border-slate-800 text-white
       dark:bg-slate-700 dark:border-slate-500 dark:text-yellow-300
-      font-bold rounded-lg hover:bg-slate-500 dark:hover:bg-slate-600
-      hover:border-slate-600 dark:hover:border-yellow-500 cursor-pointer
-      transition-all duration-200 text-lg tracking-wide
-      disabled:opacity-40 disabled:cursor-not-allowed"
+      hover:bg-slate-500 dark:hover:bg-slate-600
+      hover:border-slate-600 dark:hover:border-yellow-500
+      text-lg tracking-wide"
         >
           ↩️ Undo
-        </button>
+        </Button>
       )}
 
       {/* Reset Game*/}
-      <button
+      <Button
+        variant="primary"
         onClick={resetGame}
         aria-label="Start a new game"
-        className="mt-4 px-6 py-3 bg-red-700 border-2 border-red-900 text-white
-      dark:bg-red-900 dark:border-red-700 dark:text-yellow-300
-        font-bold rounded-lg hover:bg-red-600 dark:hover:bg-red-800
-      hover:border-red-700 dark:hover:border-yellow-500 cursor-pointer
-        transition-all duration-200 text-lg tracking-wide"
+        className="mt-4 hover:border-red-700 dark:hover:border-yellow-500 tracking-wide"
       >
         🏴‍☠️ New Voyage
-      </button>
+      </Button>
 
       {/* Replay the Game */}
       {gameOver && (
-        <button
+        <Button
+          variant="gold"
           aria-label="Replay the game"
           onClick={() => setShowReplayModal(true)}
-          className="px-6 py-3 bg-amber-600 border-2 border-amber-800 text-white
-      dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
-      font-bold rounded-lg hover:bg-amber-500 dark:hover:bg-amber-600
-      cursor-pointer transition-all duration-200 text-lg tracking-wide"
+          className="tracking-wide"
         >
           ▶ Replay game ◀
-        </button>
+        </Button>
       )}
 
       {/* Replay Modal */}
