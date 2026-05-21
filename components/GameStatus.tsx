@@ -6,7 +6,7 @@ interface GameStatusProps {
   winner: Player | null;
   isDraw: boolean;
   currentPlayer: Player;
-  mode: 'pvp' | 'pvc';
+  mode: 'pvp' | 'pvc' | 'watch';
   aiThinking: boolean;
   showForfeitMessage: boolean;
 }

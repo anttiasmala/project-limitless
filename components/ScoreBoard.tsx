@@ -8,7 +8,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 type PlayerDisplay = { name: string; icon: string };
 
 type Props = {
-  mode: 'pvc' | 'pvp';
+  mode: 'pvc' | 'pvp' | 'watch';
   myPlayer?: Player | null;
   scores: Record<Player, number>;
   pointSystem: 'number' | 'treasureChest';

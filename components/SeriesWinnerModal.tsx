@@ -9,7 +9,7 @@ import Button from './utils/Button';
 
 interface SeriesWinnerModalProps {
   seriesWinner: Player | null;
-  mode: 'pvp' | 'pvc';
+  mode: 'pvp' | 'pvc' | 'watch';
   onClose: () => void;
   isWinner?: boolean;
   playerOneOverride?: { name: string; icon: string };
