@@ -12,6 +12,7 @@ import { MoveEntry } from '@/utils/types';
 import useReplay from '@/hooks/useReplay';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
+import Button from './utils/Button';
 
 type Props = {
   onClose: () => void;
@@ -135,48 +136,40 @@ export default function ReplayModal({
                 aria: 'Go to end',
               },
             ].map(({ label, action, disabled, aria }) => (
-              <button
+              <Button
                 key={aria}
+                variant="gold"
+                size="md"
                 onClick={action}
                 disabled={disabled}
                 aria-label={aria}
-                className="px-3 py-2 rounded-lg border-2 font-bold text-lg
-        bg-amber-600 border-amber-800 text-white
-        dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
-        hover:bg-amber-500 dark:hover:bg-amber-600
-        disabled:opacity-30 disabled:cursor-not-allowed
-        cursor-pointer transition-all duration-200"
+                className="text-lg disabled:opacity-30"
               >
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
 
           {/* Auto-play toggle */}
           <div className="mb-6">
-            <button
+            <Button
+              variant="gold"
+              size="md"
               onClick={togglePlay}
               aria-label={isPlaying ? 'Pause auto-play' : 'Start auto-play'}
-              className="px-5 py-2 rounded-lg border-2 font-bold text-sm
-      bg-amber-600 border-amber-800 text-white
-      dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300
-      hover:bg-amber-500 dark:hover:bg-amber-600
-      cursor-pointer transition-all duration-200"
+              className="px-5"
             >
               {isPlaying ? '⏸ Pause' : '▶ Auto-play'}
-            </button>
+            </Button>
           </div>
 
-          <button
+          <Button
+            variant="gold"
             onClick={onClose}
-            className="px-6 py-3 bg-amber-600 border-2 border-amber-800 text-white
-              dark:bg-yellow-600 dark:border-yellow-400 dark:text-black
-              font-bold rounded-lg hover:bg-amber-500 dark:hover:bg-yellow-500
-              cursor-pointer transition-all duration-200 text-base tracking-wide
-              focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400"
+            className="text-base tracking-wide dark:bg-yellow-600 dark:border-yellow-400 dark:text-black dark:hover:bg-yellow-500 focus-visible:ring-4"
           >
             ⚓ Close Window ☠️
-          </button>
+          </Button>
         </div>
       </div>
     </div>,

@@ -5,6 +5,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import { Player } from '@/lib/gameLogic';
 import { createPortal } from 'react-dom';
+import Button from './utils/Button';
 
 interface SeriesWinnerModalProps {
   seriesWinner: Player | null;
@@ -144,16 +145,13 @@ export default function SeriesWinnerModal({
             {subtitleText}
           </p>
 
-          <button
+          <Button
+            variant="gold"
             onClick={onClose}
-            className="px-6 py-3 bg-amber-600 border-2 border-amber-800 text-white
-              dark:bg-yellow-600 dark:border-yellow-400 dark:text-black
-              font-bold rounded-lg hover:bg-amber-500 dark:hover:bg-yellow-500
-              cursor-pointer transition-all duration-200 text-base tracking-wide
-              focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400"
+            className="text-base tracking-wide dark:bg-yellow-600 dark:border-yellow-400 dark:text-black dark:hover:bg-yellow-500 focus-visible:ring-4"
           >
             {buttonText}
-          </button>
+          </Button>
         </div>
       </div>
     </div>,

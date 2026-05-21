@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { PlayersPanel } from './settings/PlayersPanel';
 import { StatsPanel } from './settings/StatsPanel';
+import Button from './utils/Button';
 
 type SettingsModalProps = BaseSettingsProps & {
   // Single-player only — omit these in multiplayer
@@ -91,46 +92,50 @@ export function SettingsModal({
         aria-label="Game settings"
         className="fixed top-1/2 left-1/2 z-99 -translate-x-1/2 -translate-y-1/2 flex flex-col max-h-[90dvh]"
       >
-        <button
-          className="py-2 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg hover:bg-slate-100 hover:border-amber-500 dark:hover:bg-red-800 dark:hover:border-yellow-500 cursor-pointer transition-all duration-200 tracking-wide w-full mb-2 shrink-0"
+        <Button
+          variant="unstyled"
+          className="py-2 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 hover:bg-slate-100 hover:border-amber-500 dark:hover:bg-red-800 dark:hover:border-yellow-500 tracking-wide w-full mb-2 shrink-0"
           onClick={() => setShowSettingsModal(false)}
         >
           ⚓ Close Window ☠️
-        </button>
+        </Button>
 
         {showPlayerSettings ? (
           <div className="flex mb-2 gap-1 shrink-0">
-            <button
+            <Button
+              variant="unstyled"
               onClick={() => setSettingMenu('settings')}
-              className={`flex-1 py-2 px-3 rounded-lg font-bold text-sm transition-all duration-200 border-2 cursor-pointer ${
+              className={`flex-1 py-2 px-3 text-sm border-2 ${
                 settingMenu === 'settings'
                   ? 'bg-amber-600 border-amber-500 text-white'
                   : 'bg-red-900 border-red-700 text-yellow-300/60 hover:text-yellow-300 hover:bg-red-800'
               }`}
             >
               ⚙️ Settings
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="unstyled"
               onClick={() => setSettingMenu('players')}
-              className={`flex-1 py-2 px-3 rounded-lg font-bold text-sm transition-all duration-200 border-2 cursor-pointer ${
+              className={`flex-1 py-2 px-3 text-sm border-2 ${
                 settingMenu === 'players'
                   ? 'bg-amber-600 border-amber-500 text-white'
                   : 'bg-red-900 border-red-700 text-yellow-300/60 hover:text-yellow-300 hover:bg-red-800'
               }`}
             >
               🏴‍☠️ Players
-            </button>
+            </Button>
             {winLossDraw && (
-              <button
+              <Button
+                variant="unstyled"
                 onClick={() => setSettingMenu('stats')}
-                className={`flex-1 py-2 px-3 rounded-lg font-bold text-sm transition-all duration-200 border-2 cursor-pointer ${
+                className={`flex-1 py-2 px-3 text-sm border-2 ${
                   settingMenu === 'stats'
                     ? 'bg-amber-600 border-amber-500 text-white'
                     : 'bg-red-900 border-red-700 text-yellow-300/60 hover:text-yellow-300 hover:bg-red-800'
                 }`}
               >
                 📊 Stats
-              </button>
+              </Button>
             )}
           </div>
         ) : null}

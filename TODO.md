@@ -1,12 +1,11 @@
 # TODO:
 
 1. 5×5 board (4-in-a-row) — a natural middle ground between 3×3 and 10×10; also gives the AI a meaningful challenge without being overwhelming
-2. On Replay Modal the winline is out of place
 
 A lot of ideas below:
 
 **Medium Effort**
-Hint button — flashes the AI's suggested move for beginners (reuses getAIMove logic you already have)
+5×5 board (4-in-a-row) — a natural middle ground between 3×3 and 10×10; also gives the AI a meaningful challenge without being overwhelming
 Computer vs Computer — a "watch" mode where two AIs play each other, fun to observe with the storm/kraken animations
 Custom emoji symbols — let players pick their pirate token (🦜, 🗡️, 💀, 🐙…) instead of always ☠️ / ⚓
 

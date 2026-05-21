@@ -1,5 +1,6 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { AI, HUMAN, Player } from '@/lib/gameLogic';
+import Button from './utils/Button';
 
 type Props = {
   starterPlayer: Player;
@@ -29,21 +30,22 @@ export default function StarterPicker({
           }}
         />
         {([HUMAN, AI] as Player[]).map((player) => (
-          <button
+          <Button
             key={player}
+            variant="unstyled"
             onClick={() => onSelect(player)}
-            className={`relative z-10 px-5 py-1.5 rounded-full text-sm font-bold transition-colors duration-200
+            className={`relative z-10 px-5 py-1.5 rounded-full text-sm
               ${
                 starterPlayer === player
                   ? 'text-white dark:text-yellow-300'
                   : 'text-slate-500 dark:text-amber-500 hover:text-slate-700 dark:hover:text-amber-300'
               }
-              ${aiThinking ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+              ${aiThinking ? 'cursor-not-allowed' : ''}`}
           >
             {player === HUMAN
               ? `${playerOne.icon} ${playerOne.name}`
               : `${playerTwo.icon} ${playerTwo.name}`}
-          </button>
+          </Button>
         ))}
       </div>
     </div>

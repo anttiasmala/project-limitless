@@ -25,6 +25,7 @@ export function usePartyRoom(
   const profileSentRef = useRef(false);
 
   const socket = usePartySocket({
+    // Check internal IP and put it into .env.local in testing
     host: process.env.NEXT_PUBLIC_PARTYKIT_HOST ?? 'localhost:1999',
     room: roomId,
     query: { spectator: isSpectator ? 'true' : undefined },

@@ -1,6 +1,7 @@
 // components/settings/IconPickerModal.tsx
 
 import { createPortal } from 'react-dom';
+import Button from '../utils/Button';
 
 export const ICON_LIST = [
   '🏴‍☠️',
@@ -45,29 +46,31 @@ export function IconPickerModal({
         </h3>
         <div className="grid grid-cols-4 gap-2">
           {ICON_LIST.map((icon, index) => (
-            <button
+            <Button
               key={`icon_${index}`}
+              variant="unstyled"
               onClick={() => {
                 setPlayer({ ...player, icon });
                 onClose();
               }}
               disabled={player.icon === icon || otherPlayer.icon === icon}
-              className={`text-3xl w-full aspect-square flex items-center justify-center rounded-lg border-2 transition-all duration-150 ${
+              className={`text-3xl w-full aspect-square border-2 ${
                 player.icon === icon || otherPlayer.icon === icon
-                  ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/40 scale-110 shadow-md cursor-not-allowed'
-                  : 'border-slate-200 dark:border-red-700 bg-white dark:bg-red-900 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-red-800 hover:scale-105 cursor-pointer'
+                  ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/40 scale-110 shadow-md cursor-not-allowed disabled:opacity-100'
+                  : 'border-slate-200 dark:border-red-700 bg-white dark:bg-red-900 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-red-800 hover:scale-105'
               }`}
             >
               {icon}
-            </button>
+            </Button>
           ))}
         </div>
-        <button
+        <Button
+          variant="primary"
           onClick={onClose}
-          className="mt-3 w-full py-2 bg-red-700 dark:bg-red-800 text-white dark:text-yellow-300 rounded-lg font-bold hover:bg-red-600 dark:hover:bg-red-700 border-2 border-red-900 dark:border-red-600 transition-all cursor-pointer text-sm"
+          className="mt-3 w-full py-2 dark:bg-red-800 dark:hover:bg-red-700 dark:border-red-600 text-sm"
         >
           ✕ Cancel
-        </button>
+        </Button>
       </div>
     </div>,
     document.body,
