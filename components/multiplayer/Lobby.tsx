@@ -43,7 +43,7 @@ export default function Lobby() {
 
   const fetchLobbies = useCallback(async () => {
     try {
-      const res = await fetch('/api', { method: 'GET' });
+      const res = await fetch('/api/lobbies', { method: 'GET' });
       if (!res.ok) return;
       const data = (await res.json()) as LobbyEntry[];
       if (Array.isArray(data)) {
