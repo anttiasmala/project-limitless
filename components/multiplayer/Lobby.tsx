@@ -1,7 +1,7 @@
 // components/multiplayer/Lobby.tsx
 
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import Button from '../utils/Button';
@@ -40,21 +40,28 @@ export default function Lobby() {
   function joinRoom() {
     if (joinId.trim()) router.push(`/multiplayer/${joinId.trim()}`);
   }
-  useEffect(() => {
-    const fetchLobbies = async () => {
+
+  const fetchLobbies = useCallback(async () => {
+    try {
       const res = await fetch('/api', { method: 'GET' });
+      if (!res.ok) return;
       const data = (await res.json()) as LobbyEntry[];
       if (Array.isArray(data)) {
         setLobbies(data);
       }
-    };
+    } catch {
+      // network/parse error — keep the previously fetched lobbies
+    }
+  }, []);
+
+  useEffect(() => {
     // this is here to get the lobbies immediately when user connects to Lobby
     fetchLobbies();
 
     const interval = setInterval(fetchLobbies, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchLobbies]);
 
   return (
     <div className="flex flex-col items-center gap-6 p-8">
@@ -126,7 +133,8 @@ export default function Lobby() {
       {isLobbyModalOpen && (
         <LobbyModal
           closeModal={() => setIsLobbyModalOpen(false)}
-          lobbies={lobbies ?? []}
+          lobbies={lobbies}
+          fetchLobbies={fetchLobbies}
         />
       )}
 
@@ -140,13 +148,26 @@ export default function Lobby() {
 function LobbyModal({
   closeModal,
   lobbies,
+  fetchLobbies,
 }: {
   closeModal: () => void;
   lobbies: LobbyEntry[];
+  fetchLobbies: () => Promise<void>;
 }) {
   const [activeMode, setActiveMode] = useState<'openLobby' | 'spectator'>(
     'openLobby',
   );
+  const [isRefetching, setIsRefetching] = useState(false);
+
+  async function handleRefetch() {
+    if (isRefetching) return;
+    setIsRefetching(true);
+    try {
+      await fetchLobbies();
+    } finally {
+      setIsRefetching(false);
+    }
+  }
 
   useKeyPress('Escape', closeModal, true);
 
@@ -193,11 +214,28 @@ function LobbyModal({
           >
             👁️ Spectator
           </Button>
+
+          <span className="ml-1 relative group">
+            <Button
+              aria-label="Refetch lobbies"
+              size="sm"
+              variant="unstyled"
+              onClick={handleRefetch}
+              disabled={isRefetching}
+              className={isRefetching ? 'inline-block animate-spin' : ''}
+            >
+              🔄
+            </Button>
+            <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block bg-slate-800 text-white text-xs rounded whitespace-nowrap px-2 py-1">
+              Refetch lobbies
+            </span>
+          </span>
+
           <Button
             variant="ghost"
             size="sm"
             onClick={closeModal}
-            className="text-slate-500 dark:text-amber-600 text-lg ml-2 px-0 py-0"
+            className="text-slate-500 dark:text-amber-600 text-lg px-0 py-0"
             aria-label="Close modal"
           >
             ✕
