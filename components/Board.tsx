@@ -35,7 +35,6 @@ import KrakenAvatar from './KrakenAvatar';
 import { getKrakenMood } from '@/utils/krakenMood';
 import { SettingsModal } from './SettingsModal';
 import { useGridNavigation } from '@/hooks/useGridNavigation';
-import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import SeriesWinnerModal from './SeriesWinnerModal';
 import { useGameAudio } from '@/hooks/useGameAudio';
 import { useGameSettings } from '@/hooks/useGameSettings';
@@ -185,21 +184,6 @@ export default function Board({
 
   const { gridRef, measurement } = useGridMeasure(boardSize);
 
-  function handleSwipe(direction: 'left' | 'right' | 'up' | 'down') {
-    const current = activeIndex.current;
-    const col = current % boardSize;
-    const row = Math.floor(current / boardSize);
-
-    const next = {
-      left: col > 0 ? current - 1 : current,
-      right: col < boardSize - 1 ? current + 1 : current,
-      up: row > 0 ? current - boardSize : current,
-      down: row < boardSize - 1 ? current + boardSize : current,
-    }[direction];
-
-    if (next !== current) focusCell(next);
-  }
-
   const handleForfeit = useCallback(() => {
     const opponent = currentPlayer === HUMAN ? AI : HUMAN;
     setScores((prev) => ({ ...prev, [opponent]: prev[opponent] + 1 }));
@@ -216,8 +200,6 @@ export default function Board({
     setCurrentPlayer(_nextGameStarter);
     setStarterPlayer(_nextGameStarter);
   }, [currentPlayer, starterPlayer, playSound, cannonAudio, setScores]);
-
-  const { onTouchStart, onTouchEnd } = useSwipeNavigation(gridRef, handleSwipe);
 
   const { timeLeft, reset: resetTimer } = useTimer(
     timerEnabled && isHumanTurn && isGameStarted,
@@ -628,8 +610,6 @@ export default function Board({
               ? 'grid-cols-5 gap-2'
               : 'grid-cols-3 gap-3'
           }`}
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
         >
           {board.map((cell, i) => (
             <Square
