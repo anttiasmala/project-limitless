@@ -1,7 +1,4 @@
-import { Difficulty } from '@/lib/gameLogic';
 import { useLocalStorage } from './useLocalStorage';
-
-export type WatchSpeed = 'slow' | 'normal' | 'fast';
 
 export function useGameSettings() {
   const [isAudioMuted, setIsAudioMuted] = useLocalStorage('muted', false);
@@ -21,20 +18,6 @@ export function useGameSettings() {
     'off' | 'bo3' | 'bo5'
   >('bestOfSeries', 'off');
 
-  // Watch mode (computer vs computer) settings — persisted, reused fresh each move
-  const [watchSpeed, setWatchSpeed] = useLocalStorage<WatchSpeed>(
-    'watchSpeed',
-    'normal',
-  );
-  const [watchDifficultyOne, setWatchDifficultyOne] = useLocalStorage<Difficulty>(
-    'watchDifficultyOne',
-    'medium',
-  );
-  const [watchDifficultyTwo, setWatchDifficultyTwo] = useLocalStorage<Difficulty>(
-    'watchDifficultyTwo',
-    'medium',
-  );
-
   return {
     isAudioMuted,
     setIsAudioMuted,
@@ -48,11 +31,5 @@ export function useGameSettings() {
     setPointSystem,
     bestOfSeries,
     setBestOfSeries,
-    watchSpeed,
-    setWatchSpeed,
-    watchDifficultyOne,
-    setWatchDifficultyOne,
-    watchDifficultyTwo,
-    setWatchDifficultyTwo,
   };
 }

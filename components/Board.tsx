@@ -34,6 +34,7 @@ import { useGridNavigation } from '@/hooks/useGridNavigation';
 import SeriesWinnerModal from './SeriesWinnerModal';
 import { useGameAudio } from '@/hooks/useGameAudio';
 import { useGameSettings } from '@/hooks/useGameSettings';
+import { useWatchMode } from '@/hooks/useWatchMode';
 import StarterPicker from './StarterPicker';
 import ModeSelector from './ModeSelector';
 import ScoreBoard from './ScoreBoard';
@@ -44,6 +45,7 @@ import { getStormLevel } from '@/utils/stormLevel';
 import { useRouter } from 'next/navigation';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import Button from './utils/Button';
+import SvgSettings from '@/icons/settings';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -57,16 +59,6 @@ type BoardProps = {
 
 const INITIAL_BOARD: BoardType = Array(9).fill(null);
 const TIMER_DURATION = 10;
-
-// Watch mode: ms between auto-moves per speed setting (Normal ~800ms per spec)
-const WATCH_SPEED_MS: Record<'slow' | 'normal' | 'fast', number> = {
-  slow: 1500,
-  normal: 800,
-  fast: 350,
-};
-// Breathing pause on game-over before the next game starts, so the winning
-// line + kraken mood + storm peak register before reset.
-const WATCH_PAUSE_MS = 2000;
 
 export default function Board({
   scores,
@@ -117,12 +109,6 @@ export default function Board({
     setPointSystem,
     bestOfSeries,
     setBestOfSeries,
-    watchSpeed,
-    setWatchSpeed,
-    watchDifficultyOne,
-    setWatchDifficultyOne,
-    watchDifficultyTwo,
-    setWatchDifficultyTwo,
   } = useGameSettings();
 
   const [playerOne] = useLocalStorage('playerOne', {
@@ -175,7 +161,9 @@ export default function Board({
 
   const gameHasMoves = board.some((cell) => cell !== null);
   const isHumanTurn =
-    !gameOver && mode !== 'watch' && (mode === 'pvp' || currentPlayer === HUMAN);
+    !gameOver &&
+    mode !== 'watch' &&
+    (mode === 'pvp' || currentPlayer === HUMAN);
 
   const SERIES_WINS_NEEDED = BestOfSeriesNames[bestOfSeries];
   const seriesWinner =
@@ -209,7 +197,6 @@ export default function Board({
     setCurrentPlayer(_nextGameStarter);
     setStarterPlayer(_nextGameStarter);
   }, [currentPlayer, starterPlayer, playSound, cannonAudio, setScores]);
-
 
   const { timeLeft, reset: resetTimer } = useTimer(
     timerEnabled && isHumanTurn && isGameStarted,
@@ -406,66 +393,28 @@ export default function Board({
     splashAudio,
   ]);
 
-  // Watch mode auto-move loop (computer vs computer). Two AIs alternate; the
-  // moving side's difficulty is read fresh each move. On game-over a ~2s
-  // breathing pause lets the winning line / kraken mood / storm peak register,
-  // then the board resets and the loop continues (the game-over effect below
-  // has already alternated the starter). Muted by design — no sounds played.
-  useEffect(() => {
-    if (mode !== 'watch' || !isGameStarted) return;
-
-    if (gameOver) {
-      const restart = setTimeout(() => resetGame(), WATCH_PAUSE_MS);
-      return () => clearTimeout(restart);
-    }
-
-    const movingPlayer = currentPlayer;
-    const opponent = movingPlayer === '☠️' ? '⚓' : '☠️';
-    const moveDifficulty =
-      movingPlayer === '☠️' ? watchDifficultyOne : watchDifficultyTwo;
-
-    const thinkingTimeout = setTimeout(() => setAiThinking(true), 0);
-    const moveTimeout = setTimeout(() => {
-      const move = getAIMove(board, movingPlayer, opponent, moveDifficulty);
-      if (move === -1) {
-        setAiThinking(false);
-        return;
-      }
-      const newBoard = [...board];
-      newBoard[move] = movingPlayer;
-      setBoard(newBoard);
-      setMoveHistory((prev) => [
-        ...prev,
-        { turn: prev.length + 1, player: movingPlayer, index: move },
-      ]);
-
-      const { winner: _winner } = calculateWinner(newBoard);
-      const _isDraw = isDraw(newBoard);
-      if (_winner) {
-        // In-session scoreboard only — climbs freely, no handleScores / stats.
-        setScores((prev) => ({ ...prev, [_winner]: prev[_winner] + 1 }));
-      } else if (!_isDraw) {
-        setCurrentPlayer(opponent);
-      }
-      setAiThinking(false);
-    }, WATCH_SPEED_MS[watchSpeed]);
-
-    return () => {
-      clearTimeout(thinkingTimeout);
-      clearTimeout(moveTimeout);
-    };
-  }, [
+  const {
+    watchSpeed,
+    setWatchSpeed,
+    watchPaused,
+    setWatchPaused,
+    watchDifficultyOne,
+    setWatchDifficultyOne,
+    watchDifficultyTwo,
+    setWatchDifficultyTwo,
+  } = useWatchMode({
     mode,
     isGameStarted,
     gameOver,
     board,
     currentPlayer,
-    watchSpeed,
-    watchDifficultyOne,
-    watchDifficultyTwo,
     resetGame,
     setScores,
-  ]);
+    setBoard,
+    setMoveHistory,
+    setCurrentPlayer,
+    setAiThinking,
+  });
 
   useEffect(() => {
     if (!gameOver) return;
@@ -533,6 +482,7 @@ export default function Board({
 
   function switchMode(newMode: 'pvp' | 'pvc' | 'watch') {
     setMode(newMode);
+    setWatchPaused(false);
     setBoard(INITIAL_BOARD);
     // Watch keeps an in-session scoreboard only — resets to 0–0 on entry.
     setScores({ ...INITIAL_SCORE });
@@ -555,6 +505,18 @@ export default function Board({
 
   return (
     <div className="flex flex-col items-center gap-6">
+      {/* Settings cog */}
+      <div>
+        <Button
+          variant="unstyled"
+          aria-label="Open settings"
+          aria-expanded={showSettingsModal}
+          onClick={() => setShowSettingsModal(true)}
+          className="absolute right-0 top-0 sm:right-0 sm:top-0"
+        >
+          <SvgSettings className="w-8 h-8 fill-none dark:text-white text-amber-700" />
+        </Button>
+      </div>
       {/* Multiplayer button */}
       <Button
         variant="unstyled"
@@ -565,12 +527,7 @@ export default function Board({
       </Button>
 
       {/* Mode selector */}
-      <ModeSelector
-        mode={mode}
-        showSettingsModal={showSettingsModal}
-        onSwitchMode={switchMode}
-        onOpenSettings={() => setShowSettingsModal(true)}
-      />
+      <ModeSelector mode={mode} onSwitchMode={switchMode} />
 
       {/* Difficulty selector (only in PvC mode) */}
       {mode === 'pvc' && (
@@ -606,7 +563,23 @@ export default function Board({
               onReset={() => {}}
             />
           </div>
-          <SpeedSelector speed={watchSpeed} onSelect={setWatchSpeed} />
+          <div className="flex items-end gap-3">
+            <SpeedSelector speed={watchSpeed} onSelect={setWatchSpeed} />
+            <Button
+              variant="unstyled"
+              aria-label={
+                watchPaused ? 'Resume watch mode' : 'Pause watch mode'
+              }
+              aria-pressed={watchPaused}
+              onClick={() => setWatchPaused((p) => !p)}
+              className="px-3 py-1.5 border-2 font-semibold text-lg
+                bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500
+                dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-500 dark:hover:border-amber-600
+                mb-0.5"
+            >
+              {watchPaused ? '▶️' : '⏸️'}
+            </Button>
+          </div>
         </div>
       )}
 
@@ -620,8 +593,8 @@ export default function Board({
         bestOfSeries={bestOfSeries}
       />
 
-      {/* Win streak badge */}
-      {streakBadgePlayer && (
+      {/* Win streak badge — hidden in watch mode (no human, no streaks) */}
+      {mode !== 'watch' && streakBadgePlayer && (
         <div className="animate-bounce bg-amber-500 border-2 border-amber-700 text-white dark:bg-yellow-600 dark:border-yellow-400 dark:text-black font-bold px-4 py-2 rounded-lg text-center text-lg shadow-lg">
           {playerIcons[streakBadgePlayer]} 3 in a row! 🔥
         </div>
@@ -670,10 +643,7 @@ export default function Board({
 
       {/* Grid */}
       <div className="relative">
-        <div
-          ref={gridRef}
-          className="grid grid-cols-3 gap-3"
-        >
+        <div ref={gridRef} className="grid grid-cols-3 gap-3">
           {board.map((cell, i) => (
             <Square
               key={i}
@@ -708,8 +678,8 @@ export default function Board({
         )}
       </div>
 
-      {/* Series Winner Modal */}
-      {bestOfSeries !== 'off' && (
+      {/* Series Winner Modal — hidden in watch mode (in-session scores only) */}
+      {mode !== 'watch' && bestOfSeries !== 'off' && (
         <SeriesWinnerModal
           seriesWinner={seriesWinner}
           mode={mode}

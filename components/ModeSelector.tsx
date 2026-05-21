@@ -1,11 +1,8 @@
-import SvgSettings from '@/icons/settings';
 import Button from './utils/Button';
 
 type Props = {
   mode: 'pvp' | 'pvc' | 'watch';
-  showSettingsModal: boolean;
   onSwitchMode: (mode: 'pvp' | 'pvc' | 'watch') => void;
-  onOpenSettings: () => void;
 };
 
 const MODE_LABELS: Record<Props['mode'], { label: string; aria: string }> = {
@@ -14,14 +11,9 @@ const MODE_LABELS: Record<Props['mode'], { label: string; aria: string }> = {
   watch: { label: '👀 Watch', aria: 'Watch mode (computer versus computer)' },
 };
 
-export default function ModeSelector({
-  mode,
-  showSettingsModal,
-  onSwitchMode,
-  onOpenSettings,
-}: Props) {
+export default function ModeSelector({ mode, onSwitchMode }: Props) {
   return (
-    <div className="flex gap-3 pr-10 sm:pr-0">
+    <div className="w-full flex items-center gap-3">
       {(['pvp', 'pvc', 'watch'] as const).map((_mode) => (
         <Button
           key={_mode}
@@ -39,17 +31,6 @@ export default function ModeSelector({
           {MODE_LABELS[_mode].label}
         </Button>
       ))}
-      <div className="relative flex flex-col items-center gap-6">
-        <Button
-          variant="unstyled"
-          aria-label="Open settings"
-          aria-expanded={showSettingsModal}
-          className="absolute -left-1.5 sm:left-3 top-0"
-          onClick={onOpenSettings}
-        >
-          <SvgSettings className="w-8 h-8 fill-none dark:text-white text-amber-700" />
-        </Button>
-      </div>
     </div>
   );
 }

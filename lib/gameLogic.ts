@@ -64,7 +64,7 @@ function getBestMove(
   humanPlayer: Player,
 ): number {
   let bestScore = -Infinity;
-  let bestMove = -1;
+  const bestMoves: number[] = [];
 
   for (let i = 0; i < 9; i++) {
     if (board[i] !== null) continue;
@@ -73,10 +73,13 @@ function getBestMove(
     const score = minimax(next, false, aiPlayer, humanPlayer);
     if (score > bestScore) {
       bestScore = score;
-      bestMove = i;
+      bestMoves.length = 0;
+      bestMoves.push(i);
+    } else if (score === bestScore) {
+      bestMoves.push(i);
     }
   }
-  return bestMove;
+  return bestMoves[Math.floor(Math.random() * bestMoves.length)];
 }
 
 function getRandomMove(board: Board): number {

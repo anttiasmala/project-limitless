@@ -1,4 +1,4 @@
-import { WatchSpeed } from '@/hooks/useGameSettings';
+import { WatchSpeed } from '@/hooks/useWatchMode';
 import Button from './utils/Button';
 
 type Props = {
