@@ -323,10 +323,7 @@ export default function MultiplayerBoard({
 
       {/* Grid */}
       <div className="relative">
-        <div
-          ref={gridRef}
-          className="grid grid-cols-3 gap-3"
-        >
+        <div ref={gridRef} className="grid grid-cols-3 gap-3">
           {board.map((cell, i) => (
             <Square
               key={i}
@@ -388,6 +385,7 @@ export default function MultiplayerBoard({
         <ReplayModal
           onClose={() => setShowReplayModal(false)}
           moveHistory={moveHistory}
+          playerIcons={playerIcons}
         />
       )}
 
