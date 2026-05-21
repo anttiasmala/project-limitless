@@ -683,6 +683,7 @@ export default function Board({
         <SeriesWinnerModal
           seriesWinner={seriesWinner}
           mode={mode}
+          isWinner={seriesWinner !== null}
           onClose={() => {
             setBestOfSeriesScores({ ...INITIAL_SCORE });
             setScores({ ...INITIAL_SCORE });
