@@ -8,6 +8,7 @@ interface SquareProps {
   onClick: () => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLButtonElement>) => void;
   isWinning: boolean;
+  isHint?: boolean;
   disabled: boolean;
   tabIndex: number;
   cellRef: (el: HTMLButtonElement | null) => void;
@@ -20,6 +21,7 @@ export default function Square({
   onClick,
   onKeyDown,
   isWinning,
+  isHint,
   disabled,
   tabIndex,
   cellRef,
@@ -38,6 +40,8 @@ export default function Square({
         ${
           isWinning
             ? 'border-yellow-400 bg-yellow-100 dark:bg-yellow-900/60 shadow-[0_0_20px_#facc15] scale-105'
+            : isHint
+            ? 'border-emerald-400 bg-emerald-100 dark:bg-emerald-900/60 shadow-[0_0_20px_#34d399] scale-105 animate-pulse'
             : 'border-slate-300 bg-slate-100 hover:bg-slate-200 hover:border-amber-500 dark:border-amber-800 dark:bg-amber-950/70 dark:hover:bg-amber-900/60 dark:hover:border-yellow-600'
         }
         ${disabled || value ? 'cursor-not-allowed' : 'cursor-pointer'}
