@@ -10,7 +10,6 @@ import { CELL_LABELS, PlayerNames } from '@/utils/types';
 import MoveHistory from '../MoveHistory';
 import ScoreBoard from '@/components/ScoreBoard';
 import { useRouter } from 'next/navigation';
-import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import { useGridNavigation } from '@/hooks/useGridNavigation';
 import { useGameSettings } from '@/hooks/multiplayer/useGameSettings';
 import { useGameAudio } from '@/hooks/useGameAudio';
@@ -73,7 +72,6 @@ export default function MultiplayerBoard({
 
   const { setRef, handleKeyDown, activeIndex, focusCell } =
     useGridNavigation(3);
-  const { onTouchStart, onTouchEnd } = useSwipeNavigation(gridRef, handleSwipe);
   // useRef placed above !roomState to prevent error
   const prevStatusRef = useRef<string | null>(null);
 
@@ -204,22 +202,6 @@ export default function MultiplayerBoard({
     ? players[myId]?.wantsRematch ?? false
     : false;
 
-  // Swipe Gestures
-  function handleSwipe(direction: 'left' | 'right' | 'up' | 'down') {
-    const current = activeIndex.current;
-    const col = current % 3;
-    const row = Math.floor(current / 3);
-
-    const next = {
-      left: col > 0 ? current - 1 : current,
-      right: col < 2 ? current + 1 : current,
-      up: row > 0 ? current - 3 : current,
-      down: row < 2 ? current + 3 : current,
-    }[direction];
-
-    if (next !== current) focusCell(next);
-  }
-
   function handleClick(index: number) {
     // board[index] added to prevent sound playing when clicking already taken square
     if (!isMyTurn || isSpectator || board[index]) return;
@@ -344,8 +326,6 @@ export default function MultiplayerBoard({
         <div
           ref={gridRef}
           className="grid grid-cols-3 gap-3"
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
         >
           {board.map((cell, i) => (
             <Square

@@ -31,7 +31,6 @@ import KrakenAvatar from './KrakenAvatar';
 import { getKrakenMood } from '@/utils/krakenMood';
 import { SettingsModal } from './SettingsModal';
 import { useGridNavigation } from '@/hooks/useGridNavigation';
-import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 import SeriesWinnerModal from './SeriesWinnerModal';
 import { useGameAudio } from '@/hooks/useGameAudio';
 import { useGameSettings } from '@/hooks/useGameSettings';
@@ -76,6 +75,7 @@ export default function Board({
 
   const [moveHistory, setMoveHistory] = useState<MoveEntry[]>([]);
   const [showForfeitMessage, setShowForfeitMessage] = useState(false);
+  const [hintIndex, setHintIndex] = useState<number | null>(null);
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showReplayModal, setShowReplayModal] = useState(false);
@@ -165,22 +165,6 @@ export default function Board({
   // Measurement logic
   const { gridRef, measurement } = useGridMeasure(3);
 
-  // Swipe Gestures
-  function handleSwipe(direction: 'left' | 'right' | 'up' | 'down') {
-    const current = activeIndex.current;
-    const col = current % 3;
-    const row = Math.floor(current / 3);
-
-    const next = {
-      left: col > 0 ? current - 1 : current,
-      right: col < 2 ? current + 1 : current,
-      up: row > 0 ? current - 3 : current,
-      down: row < 2 ? current + 3 : current,
-    }[direction];
-
-    if (next !== current) focusCell(next);
-  }
-
   const handleForfeit = useCallback(() => {
     // Treat forfeit as skipping — opponent wins the turn, or just end game
     const opponent = currentPlayer === HUMAN ? AI : HUMAN;
@@ -201,7 +185,6 @@ export default function Board({
     setStarterPlayer(_nextGameStarter);
   }, [currentPlayer, starterPlayer, playSound, cannonAudio, setScores]);
 
-  const { onTouchStart, onTouchEnd } = useSwipeNavigation(gridRef, handleSwipe);
 
   const { timeLeft, reset: resetTimer } = useTimer(
     timerEnabled && isHumanTurn && isGameStarted,
@@ -264,6 +247,22 @@ export default function Board({
     const timeout = setTimeout(() => resetGame(), 2000);
     return () => clearTimeout(timeout);
   }, [showForfeitMessage, resetGame]);
+
+  // Hint flash — clear after 1.5s or when the board changes
+  useEffect(() => {
+    if (hintIndex === null) return;
+    const timeout = setTimeout(() => setHintIndex(null), 1500);
+    return () => clearTimeout(timeout);
+  }, [hintIndex]);
+
+  useEffect(() => {
+    setHintIndex(null);
+  }, [board]);
+
+  function handleHint() {
+    const move = getAIMove(board, HUMAN, AI, 'hard');
+    setHintIndex(move);
+  }
 
   useEffect(() => {
     if (winStreaks[HUMAN] === 3) setStreakBadgePlayer(HUMAN);
@@ -551,8 +550,6 @@ export default function Board({
         <div
           ref={gridRef}
           className="grid grid-cols-3 gap-3"
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
         >
           {board.map((cell, i) => (
             <Square
@@ -564,6 +561,7 @@ export default function Board({
                 isArrowKeysEnabled ? handleKeyDown(e, i) : null
               }
               isWinning={winLine?.includes(i) ?? false}
+              isHint={hintIndex === i}
               disabled={
                 gameOver ||
                 aiThinking ||
@@ -612,6 +610,23 @@ export default function Board({
       text-lg tracking-wide"
         >
           ↩️ Undo
+        </Button>
+      )}
+
+      {/* Hint button */}
+      {mode === 'pvc' && (
+        <Button
+          onClick={handleHint}
+          disabled={!isHumanTurn || !isGameStarted || aiThinking}
+          aria-label="Show a hint for your next move"
+          className="px-6 py-3 bg-emerald-700 border-2 border-emerald-900 text-white
+      dark:bg-emerald-900 dark:border-emerald-700 dark:text-yellow-300
+      font-bold rounded-lg hover:bg-emerald-600 dark:hover:bg-emerald-800
+      hover:border-emerald-700 dark:hover:border-yellow-500 cursor-pointer
+      transition-all duration-200 text-lg tracking-wide
+      disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          💡 Hint
         </Button>
       )}
 
