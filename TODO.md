@@ -17,7 +17,7 @@ Transition animation when switching board sizes — right now it snaps; a fade/s
 Responsive 10×10 on very small screens — the board might get tight on 320px phones; a horizontal scroll wrapper or zoom-to-fit would help
 PartyKit → PartyServer migration — already on your TODO, PartyKit is unmaintained
 
-Ideas:
+# Ideas:
 
 1. Win streak tracking - Track how many games won in a row
 2. Tournament mode - Play against multiple AI opponents in a bracket
@@ -30,8 +30,7 @@ Ideas:
 9. Custom board sizes - 4x4, 5x5, etc. (beyond just 3x3 and 10x10)
 10. Time-based scoring - Bonus points for winning quickly
 11. In Single-player name does not get instantly changes, requires a refresh to change
+12. In Multiplayer theoretically a player could change their name longer than 20 characters by modifying the name in Local Storage
+13. In Multiplayer Pirate Profile the selected icon is not centered with "Smallest screen needed" mobile view
 
 # Notes
-
-1. In Multiplayer theoretically a player could change their name longer than 20 characters by modifying the name in Local Storage
-2. In Multiplayer Pirate Profile the selected icon is not centered with "Smallest screen needed" mobile view
