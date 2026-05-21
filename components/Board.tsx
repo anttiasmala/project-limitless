@@ -752,6 +752,7 @@ export default function Board({
         <ReplayModal
           onClose={() => setShowReplayModal(false)}
           moveHistory={moveHistory}
+          playerIcons={playerIcons}
         />
       )}
 

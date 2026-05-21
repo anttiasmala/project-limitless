@@ -2,7 +2,7 @@
 
 import { createPortal } from 'react-dom';
 import Square from './Square';
-import { calculateWinner } from '@/lib/gameLogic';
+import { calculateWinner, Player } from '@/lib/gameLogic';
 import WinningLine from './WinningLine';
 import { MoveEntry } from '@/utils/types';
 import useReplay from '@/hooks/useReplay';
@@ -13,9 +13,14 @@ import Button from './utils/Button';
 type Props = {
   onClose: () => void;
   moveHistory: MoveEntry[];
+  playerIcons: Record<Player, string>;
 };
 
-export default function ReplayModal({ onClose, moveHistory }: Props) {
+export default function ReplayModal({
+  onClose,
+  moveHistory,
+  playerIcons,
+}: Props) {
   const {
     stepIndex,
     total,
@@ -59,10 +64,11 @@ export default function ReplayModal({ onClose, moveHistory }: Props) {
                 <Square
                   key={i}
                   value={cell}
+                  displayValue={cell ? playerIcons[cell] : undefined}
                   isWinning={showWin ? winLine?.includes(i) ?? false : false}
-                  disabled={true}
-                  onClick={() => null}
-                  onKeyDown={() => null}
+                  disabled
+                  onClick={() => {}}
+                  onKeyDown={() => {}}
                   tabIndex={-1}
                   cellRef={() => null}
                   label={`Square ${i}`}
