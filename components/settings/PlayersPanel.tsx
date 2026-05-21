@@ -9,7 +9,7 @@ type PlayersPanelProps = {
   setPlayerOne: (value: { icon: string; name: string }) => void;
   playerTwo: { icon: string; name: string };
   setPlayerTwo: (value: { icon: string; name: string }) => void;
-  mode?: 'pvp' | 'pvc';
+  mode?: 'pvp' | 'pvc' | 'watch';
 };
 
 export function PlayersPanel({

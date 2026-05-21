@@ -6,6 +6,7 @@ import {
   calculateWinner,
   calculateWinner5,
   calculateWinner10,
+  Player,
 } from '@/lib/gameLogic';
 import WinningLine from './WinningLine';
 import { MoveEntry } from '@/utils/types';
@@ -18,12 +19,14 @@ type Props = {
   onClose: () => void;
   moveHistory: MoveEntry[];
   boardSize?: 3 | 5 | 10;
+  playerIcons: Record<Player, string>;
 };
 
 export default function ReplayModal({
   onClose,
   moveHistory,
   boardSize = 3,
+  playerIcons,
 }: Props) {
   const {
     stepIndex,
@@ -86,6 +89,7 @@ export default function ReplayModal({
                   <Square
                     key={i}
                     value={cell}
+                    displayValue={cell ? playerIcons[cell] : undefined}
                     isWinning={showWin ? winLine?.includes(i) ?? false : false}
                     disabled={true}
                     onClick={() => null}

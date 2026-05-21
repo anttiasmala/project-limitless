@@ -38,15 +38,18 @@ import { useGridNavigation } from '@/hooks/useGridNavigation';
 import SeriesWinnerModal from './SeriesWinnerModal';
 import { useGameAudio } from '@/hooks/useGameAudio';
 import { useGameSettings } from '@/hooks/useGameSettings';
+import { useWatchMode } from '@/hooks/useWatchMode';
 import StarterPicker from './StarterPicker';
 import ModeSelector from './ModeSelector';
 import ScoreBoard from './ScoreBoard';
 import DifficultySelector from './DifficultySelector';
+import SpeedSelector from './SpeedSelector';
 import ReplayModal from './ReplayModal';
 import { getStormLevel } from '@/utils/stormLevel';
 import { useRouter } from 'next/navigation';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import Button from './utils/Button';
+import SvgSettings from '@/icons/settings';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -80,7 +83,7 @@ export default function Board({
   const [currentPlayer, setCurrentPlayer] = useState<Player>('☠️');
   const [starterPlayer, setStarterPlayer] = useState<Player>('☠️');
 
-  const [mode, setMode] = useState<'pvp' | 'pvc'>('pvp');
+  const [mode, setMode] = useState<'pvp' | 'pvc' | 'watch'>('pvp');
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [aiThinking, setAiThinking] = useState(false);
 
@@ -153,7 +156,14 @@ export default function Board({
     isAudioMuted,
   );
 
-  const stormLevel = getStormLevel({ board, winner, isDraw: draw, mode });
+  // Task 5: Watch reuses the ⚓-centric PvC path unchanged — storm rages when ⚓
+  // wins, calm when it loses. getStormLevel/getKrakenMood stay untouched.
+  const stormLevel = getStormLevel({
+    board,
+    winner,
+    isDraw: draw,
+    mode: mode === 'watch' ? 'pvc' : mode,
+  });
 
   const showStarterSelection = !isGameStarted || gameOver;
 
@@ -170,7 +180,10 @@ export default function Board({
   });
 
   const gameHasMoves = board.some((cell) => cell !== null);
-  const isHumanTurn = !gameOver && (mode === 'pvp' || currentPlayer === HUMAN);
+  const isHumanTurn =
+    !gameOver &&
+    mode !== 'watch' &&
+    (mode === 'pvp' || currentPlayer === HUMAN);
 
   const SERIES_WINS_NEEDED = BestOfSeriesNames[bestOfSeries];
   const seriesWinner =
@@ -210,8 +223,11 @@ export default function Board({
   const resetGame = useCallback(() => {
     setBoard(Array(boardSize * boardSize).fill(null) as BoardType);
     setAiThinking(false);
-    const aiStarts = mode === 'pvc' && starterPlayer === AI;
-    setIsGameStarted(aiStarts);
+    // In watch mode the loop keeps running across games; PvC auto-starts only
+    // when the Kraken (AI) is the starter.
+    const startImmediately =
+      mode === 'watch' || (mode === 'pvc' && starterPlayer === AI);
+    setIsGameStarted(startImmediately);
     setMoveHistory([]);
     resetTimer();
     resetFocus(0);
@@ -396,6 +412,29 @@ export default function Board({
     calcWinner,
   ]);
 
+  const {
+    watchSpeed,
+    setWatchSpeed,
+    watchPaused,
+    setWatchPaused,
+    watchDifficultyOne,
+    setWatchDifficultyOne,
+    watchDifficultyTwo,
+    setWatchDifficultyTwo,
+  } = useWatchMode({
+    mode,
+    isGameStarted,
+    gameOver,
+    board,
+    currentPlayer,
+    resetGame,
+    setScores,
+    setBoard,
+    setMoveHistory,
+    setCurrentPlayer,
+    setAiThinking,
+  });
+
   useEffect(() => {
     if (!gameOver) return;
     const _nextGameStarter = starterPlayer === HUMAN ? AI : HUMAN;
@@ -406,6 +445,7 @@ export default function Board({
 
   function handleClick(index: number) {
     if (board[index] || gameOver || aiThinking || showForfeitMessage) return;
+    if (mode === 'watch') return; // both sides are AI — grid is non-interactive
     if (mode === 'pvc' && currentPlayer === AI) return;
     setIsGameStarted(true);
     setShowForfeitMessage(false);
@@ -455,9 +495,11 @@ export default function Board({
     }
   }
 
-  function switchMode(newMode: 'pvp' | 'pvc') {
+  function switchMode(newMode: 'pvp' | 'pvc' | 'watch') {
     setMode(newMode);
     setBoard(Array(boardSize * boardSize).fill(null) as BoardType);
+    setWatchPaused(false);
+    // Watch keeps an in-session scoreboard only — resets to 0–0 on entry.
     setScores({ ...INITIAL_SCORE });
     setBestOfSeriesScores({ ...INITIAL_SCORE });
     setAiThinking(false);
@@ -467,10 +509,12 @@ export default function Board({
     setWinStreaks({ '☠️': 0, '⚓': 0 });
     setStreakBadgePlayer(null);
 
-    if (newMode === 'pvc') {
+    if (newMode === 'pvc' || newMode === 'watch') {
       setStarterPlayer(HUMAN);
       setCurrentPlayer(HUMAN);
     }
+    // this prevents game starting too early — watch stays armed until the user
+    // taps a starter via StarterPicker.
     setIsGameStarted(false);
   }
 
@@ -492,6 +536,18 @@ export default function Board({
 
   return (
     <div className="flex flex-col items-center gap-6">
+      {/* Settings cog */}
+      <div>
+        <Button
+          variant="unstyled"
+          aria-label="Open settings"
+          aria-expanded={showSettingsModal}
+          onClick={() => setShowSettingsModal(true)}
+          className="absolute right-0 top-0 sm:right-0 sm:top-0"
+        >
+          <SvgSettings className="w-8 h-8 fill-none dark:text-white text-amber-700" />
+        </Button>
+      </div>
       {/* Multiplayer button */}
       <Button
         variant="unstyled"
@@ -502,12 +558,7 @@ export default function Board({
       </Button>
 
       {/* Mode selector */}
-      <ModeSelector
-        mode={mode}
-        showSettingsModal={showSettingsModal}
-        onSwitchMode={switchMode}
-        onOpenSettings={() => setShowSettingsModal(true)}
-      />
+      <ModeSelector mode={mode} onSwitchMode={switchMode} />
 
       {/* Board size selector */}
       <div className="flex gap-2">
@@ -546,6 +597,49 @@ export default function Board({
         />
       )}
 
+      {/* Watch mode: two difficulty pickers (one per AI) + speed buttons.
+          ☠️ → difficultyOne, ⚓ → difficultyTwo. Changes apply on the next
+          move (the loop reads them fresh), so no mid-game lock. */}
+      {mode === 'watch' && (
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-wrap items-start justify-center gap-6">
+            <DifficultySelector
+              label={`${playerOne.icon} ${playerOne.name}`}
+              difficulty={watchDifficultyOne}
+              gameHasMoves={false}
+              gameOver={gameOver}
+              onSelect={setWatchDifficultyOne}
+              onReset={() => {}}
+            />
+            <DifficultySelector
+              label={`${playerTwo.icon} ${playerTwo.name}`}
+              difficulty={watchDifficultyTwo}
+              gameHasMoves={false}
+              gameOver={gameOver}
+              onSelect={setWatchDifficultyTwo}
+              onReset={() => {}}
+            />
+          </div>
+          <div className="flex items-end gap-3">
+            <SpeedSelector speed={watchSpeed} onSelect={setWatchSpeed} />
+            <Button
+              variant="unstyled"
+              aria-label={
+                watchPaused ? 'Resume watch mode' : 'Pause watch mode'
+              }
+              aria-pressed={watchPaused}
+              onClick={() => setWatchPaused((p) => !p)}
+              className="px-3 py-1.5 border-2 font-semibold text-lg
+                bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500
+                dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-500 dark:hover:border-amber-600
+                mb-0.5"
+            >
+              {watchPaused ? '▶️' : '⏸️'}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Scoreboard */}
       <ScoreBoard
         myPlayer={HUMAN}
@@ -556,8 +650,8 @@ export default function Board({
         bestOfSeries={bestOfSeries}
       />
 
-      {/* Win streak badge */}
-      {streakBadgePlayer && (
+      {/* Win streak badge — hidden in watch mode (no human, no streaks) */}
+      {mode !== 'watch' && streakBadgePlayer && (
         <div className="animate-bounce bg-amber-500 border-2 border-amber-700 text-white dark:bg-yellow-600 dark:border-yellow-400 dark:text-black font-bold px-4 py-2 rounded-lg text-center text-lg shadow-lg">
           {playerIcons[streakBadgePlayer]} 3 in a row! 🔥
         </div>
@@ -577,6 +671,8 @@ export default function Board({
             setStarterPlayer(player);
             setCurrentPlayer(player);
             if (mode === 'pvc' && player === AI) setIsGameStarted(true);
+            // Watch mode is armed-but-idle until a starter is picked.
+            if (mode === 'watch') setIsGameStarted(true);
           }}
         />
       </div>
@@ -592,7 +688,10 @@ export default function Board({
       />
 
       {/* Kraken mood */}
-      {mode === 'pvc' && <KrakenAvatar mood={krakenMood} />}
+
+      {(mode === 'pvc' || mode === 'watch') && (
+        <KrakenAvatar mood={krakenMood} />
+      )}
 
       {/* Hourglass timer */}
       {timerEnabled && isHumanTurn && isGameStarted && (
@@ -625,6 +724,7 @@ export default function Board({
               disabled={
                 gameOver ||
                 aiThinking ||
+                mode === 'watch' ||
                 (mode === 'pvc' && currentPlayer === AI)
               }
               tabIndex={i === activeIndex.current ? 0 : -1}
@@ -646,11 +746,12 @@ export default function Board({
         )}
       </div>
 
-      {/* Series Winner Modal */}
-      {bestOfSeries !== 'off' && (
+      {/* Series Winner Modal — hidden in watch mode (in-session scores only) */}
+      {mode !== 'watch' && bestOfSeries !== 'off' && (
         <SeriesWinnerModal
           seriesWinner={seriesWinner}
           mode={mode}
+          isWinner={seriesWinner !== null}
           onClose={() => {
             setBestOfSeriesScores({ ...INITIAL_SCORE });
             setScores({ ...INITIAL_SCORE });
@@ -720,6 +821,7 @@ export default function Board({
           onClose={() => setShowReplayModal(false)}
           moveHistory={moveHistory}
           boardSize={boardSize}
+          playerIcons={playerIcons}
         />
       )}
 

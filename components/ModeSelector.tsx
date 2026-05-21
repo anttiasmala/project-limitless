@@ -1,30 +1,26 @@
-import SvgSettings from '@/icons/settings';
 import Button from './utils/Button';
 
 type Props = {
-  mode: 'pvp' | 'pvc';
-  showSettingsModal: boolean;
-  onSwitchMode: (mode: 'pvp' | 'pvc') => void;
-  onOpenSettings: () => void;
+  mode: 'pvp' | 'pvc' | 'watch';
+  onSwitchMode: (mode: 'pvp' | 'pvc' | 'watch') => void;
 };
 
-export default function ModeSelector({
-  mode,
-  showSettingsModal,
-  onSwitchMode,
-  onOpenSettings,
-}: Props) {
+const MODE_LABELS: Record<Props['mode'], { label: string; aria: string }> = {
+  pvp: { label: '⚔️ Two Pirates', aria: 'Two Pirates mode' },
+  pvc: { label: '🤖 Vs the Kraken', aria: 'Versus the Kraken mode' },
+  watch: { label: '👀 Watch', aria: 'Watch mode (computer versus computer)' },
+};
+
+export default function ModeSelector({ mode, onSwitchMode }: Props) {
   return (
-    <div className="flex gap-3 pr-10 sm:pr-0">
-      {(['pvp', 'pvc'] as const).map((_mode) => (
+    <div className="w-full flex items-center gap-3">
+      {(['pvp', 'pvc', 'watch'] as const).map((_mode) => (
         <Button
           key={_mode}
           variant="unstyled"
           onClick={() => onSwitchMode(_mode)}
           aria-pressed={mode === _mode}
-          aria-label={
-            _mode === 'pvp' ? 'Two Pirates mode' : 'Versus the Kraken mode'
-          }
+          aria-label={MODE_LABELS[_mode].aria}
           className={`px-4 py-2 border-2 text-sm
             ${
               mode === _mode
@@ -32,20 +28,9 @@ export default function ModeSelector({
                 : 'bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:bg-amber-950/50 dark:hover:bg-amber-900/50 dark:border-amber-800 dark:text-amber-400 dark:hover:border-amber-600'
             }`}
         >
-          {_mode === 'pvp' ? '⚔️ Two Pirates' : '🤖 Vs the Kraken'}
+          {MODE_LABELS[_mode].label}
         </Button>
       ))}
-      <div className="relative flex flex-col items-center gap-6">
-        <Button
-          variant="unstyled"
-          aria-label="Open settings"
-          aria-expanded={showSettingsModal}
-          className="absolute -left-1.5 sm:left-3 top-0"
-          onClick={onOpenSettings}
-        >
-          <SvgSettings className="w-8 h-8 fill-none dark:text-white text-amber-700" />
-        </Button>
-      </div>
     </div>
   );
 }

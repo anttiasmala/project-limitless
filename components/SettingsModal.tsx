@@ -25,7 +25,7 @@ type SettingsModalProps = BaseSettingsProps & {
   >;
   resetGame?: () => void;
   showPlayerSettings?: boolean;
-  mode?: 'pvp' | 'pvc';
+  mode?: 'pvp' | 'pvc' | 'watch';
   winLossDraw?: WinLossDrawStats;
   onResetStats?: () => void;
 };

@@ -7,6 +7,7 @@ type Props = {
   gameOver: boolean;
   onSelect: (difficulty: Difficulty) => void;
   onReset: () => void;
+  label?: string;
 };
 
 const DIFFICULTY_LABELS: Record<Difficulty, { short: string; long: string }> = {
@@ -21,11 +22,12 @@ export default function DifficultySelector({
   gameOver,
   onSelect,
   onReset,
+  label = 'Kraken Strength',
 }: Props) {
   return (
     <div className="flex flex-col items-center gap-2">
       <span className="text-slate-500 dark:text-amber-500 text-xs uppercase tracking-widest">
-        Kraken Strength
+        {label}
       </span>
       <div className="flex gap-2 flex-wrap justify-center">
         {(['easy', 'medium', 'hard'] as Difficulty[]).map((_difficulty) => (
