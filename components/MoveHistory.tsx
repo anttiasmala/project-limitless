@@ -9,15 +9,31 @@ type MoveHistoryProps = {
   moveHistory: MoveEntry[];
   winner: Player | null;
   isDraw: boolean;
+  boardSize?: 3 | 5 | 10;
+  mode: 'pvp' | 'pvc' | 'watch';
 };
+
+function getCellLabel(index: number, boardSize: 3 | 5 | 10 = 3): string {
+  if (boardSize === 3) return CELL_LABELS[index] ?? `Cell ${index + 1}`;
+  const row = String.fromCharCode(65 + Math.floor(index / boardSize));
+  const col = (index % boardSize) + 1;
+  return `${row}${col}`;
+}
 
 export default function MoveHistory({
   moveHistory,
   winner,
   isDraw,
+  boardSize = 3,
 }: MoveHistoryProps) {
-  const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
-  const [playerTwo] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
+  const [playerOne] = useLocalStorage('playerOne', {
+    name: 'Davy Jones',
+    icon: '☠️',
+  });
+  const [playerTwo] = useLocalStorage('playerTwo', {
+    name: 'Capt. Hook',
+    icon: '⚓',
+  });
 
   function getPlayerLabel(player: Player): string {
     return player === '☠️'
@@ -58,7 +74,7 @@ export default function MoveHistory({
               </span>
               {' seized '}
               <span className="text-slate-500 dark:text-amber-200 italic">
-                {CELL_LABELS[move.index]}
+                {getCellLabel(move.index, boardSize)}
               </span>
             </div>
           ))

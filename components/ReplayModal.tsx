@@ -2,7 +2,12 @@
 
 import { createPortal } from 'react-dom';
 import Square from './Square';
-import { calculateWinner, Player } from '@/lib/gameLogic';
+import {
+  calculateWinner,
+  calculateWinner5,
+  calculateWinner10,
+  Player,
+} from '@/lib/gameLogic';
 import WinningLine from './WinningLine';
 import { MoveEntry } from '@/utils/types';
 import useReplay from '@/hooks/useReplay';
@@ -13,12 +18,14 @@ import Button from './utils/Button';
 type Props = {
   onClose: () => void;
   moveHistory: MoveEntry[];
+  boardSize?: 3 | 5 | 10;
   playerIcons: Record<Player, string>;
 };
 
 export default function ReplayModal({
   onClose,
   moveHistory,
+  boardSize = 3,
   playerIcons,
 }: Props) {
   const {
@@ -33,14 +40,22 @@ export default function ReplayModal({
     reset,
     jumpToEnd,
     togglePlay,
-  } = useReplay(moveHistory);
+  } = useReplay(moveHistory, 800, boardSize);
 
-  const { gridRef, measurement } = useGridMeasure(3);
-  const { winner, line: winLine } = calculateWinner(replayBoard);
-  // Only show winning line on the final step
+  const { gridRef, measurement } = useGridMeasure(boardSize);
+  const calcWinner =
+    boardSize === 10
+      ? calculateWinner10
+      : boardSize === 5
+      ? calculateWinner5
+      : calculateWinner;
+  const { winner, line: winLine } = calcWinner(replayBoard);
   const showWin = stepIndex === total && !!winner;
 
   usePreventBackgroundScrolling(true);
+
+  const squareSize =
+    boardSize === 10 ? 'sm' : boardSize === 5 ? 'md' : undefined;
 
   return createPortal(
     <div>
@@ -58,30 +73,43 @@ export default function ReplayModal({
           </p>
 
           {/* Board */}
-          <div className="relative mb-6" ref={gridRef}>
-            <div className="grid grid-cols-3 gap-3">
-              {replayBoard.map((cell, i) => (
-                <Square
-                  key={i}
-                  value={cell}
-                  displayValue={cell ? playerIcons[cell] : undefined}
-                  isWinning={showWin ? winLine?.includes(i) ?? false : false}
-                  disabled
-                  onClick={() => {}}
-                  onKeyDown={() => {}}
-                  tabIndex={-1}
-                  cellRef={() => null}
-                  label={`Square ${i}`}
+          <div className="mb-6 flex justify-center">
+            <div className="relative">
+              <div
+                ref={gridRef}
+                className={`grid ${
+                  boardSize === 10
+                    ? 'grid-cols-10 gap-1'
+                    : boardSize === 5
+                    ? 'grid-cols-5 gap-2'
+                    : 'grid-cols-3 gap-3'
+                }`}
+              >
+                {replayBoard.map((cell, i) => (
+                  <Square
+                    key={i}
+                    value={cell}
+                    displayValue={cell ? playerIcons[cell] : undefined}
+                    isWinning={showWin ? winLine?.includes(i) ?? false : false}
+                    disabled={true}
+                    onClick={() => null}
+                    onKeyDown={() => null}
+                    tabIndex={-1}
+                    cellRef={() => null}
+                    label={`Square ${i}`}
+                    size={squareSize}
+                  />
+                ))}
+              </div>
+              {showWin && winLine && (
+                <WinningLine
+                  winLine={winLine}
+                  cellSize={measurement.cellSize}
+                  gap={measurement.gap}
+                  cols={boardSize}
                 />
-              ))}
+              )}
             </div>
-            {showWin && winLine && (
-              <WinningLine
-                winLine={winLine}
-                cellSize={measurement.cellSize}
-                gap={measurement.gap}
-              />
-            )}
           </div>
 
           {/* Controls */}
