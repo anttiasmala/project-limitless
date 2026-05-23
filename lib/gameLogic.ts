@@ -40,10 +40,14 @@ function minimax(
   isMaximizing: boolean,
   aiPlayer: Player,
   humanPlayer: Player,
+  depth = 0,
 ): number {
   const { winner } = calculateWinner(board);
-  if (winner === aiPlayer) return 10;
-  if (winner === humanPlayer) return -10;
+  // Depth-aware scoring: prefer winning sooner and losing later. This makes the
+  // engine still block an immediate threat even when the position is ultimately
+  // lost (delaying the loss scores higher than allowing it next move).
+  if (winner === aiPlayer) return 10 - depth;
+  if (winner === humanPlayer) return depth - 10;
   if (isDraw(board)) return 0;
 
   const scores: number[] = [];
@@ -52,7 +56,7 @@ function minimax(
     if (board[i] !== null) continue;
     const next = [...board];
     next[i] = isMaximizing ? aiPlayer : humanPlayer;
-    scores.push(minimax(next, !isMaximizing, aiPlayer, humanPlayer));
+    scores.push(minimax(next, !isMaximizing, aiPlayer, humanPlayer, depth + 1));
   }
 
   return isMaximizing ? Math.max(...scores) : Math.min(...scores);
