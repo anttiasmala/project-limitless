@@ -19,18 +19,17 @@ PartyKit → PartyServer migration — already on your TODO, PartyKit is unmaint
 
 # Ideas:
 
-1. Win streak tracking - Track how many games won in a row
-2. Tournament mode - Play against multiple AI opponents in a bracket
-3. AI difficulty improvements for 10x10 - Better AI with threat detection
-4. Sound effects for 10x10 - Maybe different sounds for the larger board
-5. Board themes - Different visual themes (darker/lighter, different emoji sets)
-6. Confetti/celebration effects - When you win
-7. Chat in multiplayer - Simple emoji reactions or chat
-8. Share/export game - Export the game as a shareable link or image
-9. Custom board sizes - 4x4, 5x5, etc. (beyond just 3x3 and 10x10)
-10. Time-based scoring - Bonus points for winning quickly
-11. In Single-player name does not get instantly changes, requires a refresh to change
-12. In Multiplayer theoretically a player could change their name longer than 20 characters by modifying the name in Local Storage
-13. In Multiplayer Pirate Profile the selected icon is not centered with "Smallest screen needed" mobile view
+1. Tournament mode - Play against multiple AI opponents in a bracket
+2. AI difficulty improvements for 10x10 - Better AI with threat detection
+3. Sound effects for 10x10 - Maybe different sounds for the larger board
+4. Board themes - Different visual themes (darker/lighter, different emoji sets)
+5. Confetti/celebration effects - When you win
+6. Chat in multiplayer - Simple emoji reactions or chat
+7. Share/export game - Export the game as a shareable link or image
+8. Custom board sizes - 4x4, 5x5, etc. (beyond just 3x3 and 10x10)
+9. Time-based scoring - Bonus points for winning quickly
+10. In Single-player name does not get instantly changes, requires a refresh to change
+11. In Multiplayer theoretically a player could change their name longer than 20 characters by modifying the name in Local Storage
+12. In Multiplayer Pirate Profile the selected icon is not centered with "Smallest screen needed" mobile view
 
 # Notes
