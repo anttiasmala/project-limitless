@@ -142,7 +142,7 @@ export function SettingsModal({
 
         <div className="overflow-y-auto">
           {settingMenu === 'settings' ? (
-            <div className="w-auto max-w-[90vw] h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg">
+            <div className="w-72 max-w-[90vw] h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg">
               <div className="mt-3 ml-3 flex flex-col">
                 <div className="flex">
                   <label className="cursor-pointer select-none">
