@@ -1,5 +1,7 @@
 # TODO:
 
+1. 5×5 board (4-in-a-row) — a natural middle ground between 3×3 and 10×10; also gives the AI a meaningful challenge without being overwhelming
+
 A lot of ideas below:
 
 **Medium Effort**
