@@ -1,6 +1,8 @@
 # TODO:
 
 1. 5×5 board (4-in-a-row) — a natural middle ground between 3×3 and 10×10; also gives the AI a meaningful challenge without being overwhelming
+2. Add a background color to recent move. 5x5 and 10x10 board it is hard to detect where previous move landed
+3. Add 5x5 and 10x10 to Multiplayer
 
 A lot of ideas below:
 
