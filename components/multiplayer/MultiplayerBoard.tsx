@@ -171,6 +171,8 @@ export default function MultiplayerBoard({
   const { line: winLine } = calculateWinner(board);
   const draw = !winner && isDraw(board);
   const isMyTurn = status === 'playing' && currentPlayer === myPlayer;
+  const latestSquareSeized =
+    moveHistory.length > 0 ? moveHistory[moveHistory.length - 1].index : null;
 
   const humanEntry = Object.values(players).find((p) => p.player === HUMAN);
   const aiEntry = Object.values(players).find((p) => p.player === AI);
@@ -334,6 +336,7 @@ export default function MultiplayerBoard({
                 isArrowKeysEnabled ? handleKeyDown(e, i) : null
               }
               isWinning={winLine?.includes(i) ?? false}
+              isLatestMove={i === latestSquareSeized}
               disabled={
                 !isMyTurn || status !== 'playing' || !!board[i] || !!isSpectator
               }
@@ -429,7 +432,12 @@ export default function MultiplayerBoard({
       )}
 
       {/* Move history */}
-      <MoveHistory moveHistory={moveHistory} winner={winner} isDraw={draw} />
+      <MoveHistory
+        mode="pvp"
+        moveHistory={moveHistory}
+        winner={winner}
+        isDraw={draw}
+      />
 
       {/* Settings Modal */}
 

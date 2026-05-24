@@ -88,6 +88,8 @@ export default function Board({
   const [aiThinking, setAiThinking] = useState(false);
 
   const [moveHistory, setMoveHistory] = useState<MoveEntry[]>([]);
+  const latestSquareSeized =
+    moveHistory.length > 0 ? moveHistory[moveHistory.length - 1].index : null;
   const [showForfeitMessage, setShowForfeitMessage] = useState(false);
   const [hintIndex, setHintIndex] = useState<number | null>(null);
 
@@ -721,6 +723,7 @@ export default function Board({
               }
               isWinning={winLine?.includes(i) ?? false}
               isHint={hintIndex === i}
+              isLatestMove={i === latestSquareSeized}
               disabled={
                 gameOver ||
                 aiThinking ||
