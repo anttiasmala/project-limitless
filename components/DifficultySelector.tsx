@@ -14,6 +14,7 @@ const DIFFICULTY_LABELS: Record<Difficulty, { short: string; long: string }> = {
   easy: { short: '🌊 Easy', long: '🌊 Calm Seas (Easy)' },
   medium: { short: '⛈️ Medium', long: '⛈️ Stormy Waters (Medium)' },
   hard: { short: '💀 Hard', long: "💀 Davy Jones' Wrath (Hard)" },
+  insane: { short: '🌀 Insane', long: '🌀 Maelstrom (Insane)' },
 };
 
 export default function DifficultySelector({
@@ -30,7 +31,7 @@ export default function DifficultySelector({
         {label}
       </span>
       <div className="flex gap-2 flex-wrap justify-center">
-        {(['easy', 'medium', 'hard'] as Difficulty[]).map((_difficulty) => (
+        {(['easy', 'medium', 'hard', 'insane'] as Difficulty[]).map((_difficulty) => (
           <Button
             key={_difficulty}
             variant="unstyled"

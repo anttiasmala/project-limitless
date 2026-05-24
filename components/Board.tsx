@@ -289,7 +289,7 @@ export default function Board({
   }, [board]);
 
   function handleHint() {
-    const move = getAIMove(board, HUMAN, AI, 'hard');
+    const move = getAIMove(board, HUMAN, AI, 'insane');
     setHintIndex(move);
   }
 
