@@ -291,7 +291,12 @@ export default function Board({
   }, [board]);
 
   function handleHint() {
-    const move = getAIMove(board, HUMAN, AI, 'insane');
+    const move =
+      boardSize === 10
+        ? getAIMove10(board, HUMAN, AI, 'insane')
+        : boardSize === 5
+        ? getAIMove5(board, HUMAN, AI, 'insane')
+        : getAIMove(board, HUMAN, AI, 'insane');
     setHintIndex(move);
   }
 
