@@ -7,6 +7,7 @@ export type RoomSettings = {
   timerEnabled: boolean;
   pointSystem: 'number' | 'treasureChest';
   bestOfSeries: 'off' | 'bo3' | 'bo5';
+  boardSize: '3' | '5' | '10';
   allowSpectators: boolean;
   isPrivateGame: boolean;
 };
@@ -15,6 +16,7 @@ export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
   timerEnabled: false,
   pointSystem: 'number',
   bestOfSeries: 'off',
+  boardSize: '3',
   allowSpectators: true,
   isPrivateGame: false,
 };

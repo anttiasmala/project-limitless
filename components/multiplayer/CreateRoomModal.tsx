@@ -34,6 +34,7 @@ export default function CreateRoomModal({ onClose }: Props) {
       params.set('points', settings.pointSystem);
     if (settings.bestOfSeries !== 'off')
       params.set('series', settings.bestOfSeries);
+    params.set('boardSize', settings.boardSize);
     const query = params.toString();
     router.push(`/multiplayer/${id}${query ? `?${query}` : ''}`);
     onClose();
@@ -163,6 +164,30 @@ export default function CreateRoomModal({ onClose }: Props) {
             />
           </label>
         </div>
+
+        {/* Size of Board */}
+        <label
+          className="flex items-center justify-between select-none
+          text-slate-700 dark:text-yellow-300 font-semibold"
+        >
+          Board Size
+          <select
+            className="border-2 border-slate-300 dark:border-amber-700 rounded-md
+              text-slate-800 dark:text-yellow-300 bg-white dark:bg-amber-900
+              cursor-pointer px-2 py-1"
+            value={settings.boardSize}
+            onChange={(e) =>
+              setSettings((prev) => ({
+                ...prev,
+                boardSize: e.target.value as RoomSettings['boardSize'],
+              }))
+            }
+          >
+            <option value="3">3x3</option>
+            <option value="5">5x5</option>
+            <option value="10">10x10</option>
+          </select>
+        </label>
 
         {/* Buttons */}
         <div className="flex gap-3 pt-2 shrink-0">

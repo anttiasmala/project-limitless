@@ -1,7 +1,15 @@
 // components/multiplayer/MultiplayerBoard.tsx
 
 'use client';
-import { calculateWinner, isDraw, HUMAN, AI } from '@/lib/gameLogic';
+import {
+  calculateWinner,
+  isDraw,
+  HUMAN,
+  AI,
+  calculateWinner5,
+  calculateWinner10,
+  Board as BoardType,
+} from '@/lib/gameLogic';
 import { usePartyRoom } from '@/hooks/multiplayer/usePartyRoom';
 import Square from '../Square';
 import WinningLine from '../WinningLine';
@@ -22,6 +30,14 @@ import SeriesWinnerModal from '../SeriesWinnerModal';
 import HourglassTimer from '../HourglassTimer';
 import ReplayModal from '../ReplayModal';
 import Button from '../utils/Button';
+
+const BOARD_COLS = { '3': 3, '5': 5, '10': 10 } as const;
+
+function checkWinner(board: BoardType, boardSize: RoomSettings['boardSize']) {
+  if (boardSize === '3') return calculateWinner(board);
+  if (boardSize === '5') return calculateWinner5(board);
+  return calculateWinner10(board);
+}
 
 type Props = {
   roomId: string;
@@ -55,7 +71,8 @@ export default function MultiplayerBoard({
     sendRematch,
     sendCancelRematch,
   } = usePartyRoom(roomId, initialSettings, multiplayerProfile);
-  const { gridRef, measurement } = useGridMeasure(3);
+  const cols = BOARD_COLS[roomState?.settings.boardSize ?? '3'];
+  const { gridRef, measurement } = useGridMeasure(cols);
 
   const {
     setIsArrowKeysEnabled,
@@ -71,7 +88,7 @@ export default function MultiplayerBoard({
   );
 
   const { setRef, handleKeyDown, activeIndex, focusCell } =
-    useGridNavigation(3);
+    useGridNavigation(cols);
   // useRef placed above !roomState to prevent error
   const prevStatusRef = useRef<string | null>(null);
 
@@ -168,7 +185,15 @@ export default function MultiplayerBoard({
     settings,
     forfeitWinner,
   } = roomState;
-  const { line: winLine } = calculateWinner(board);
+
+  const squareSize =
+    settings.boardSize === '10'
+      ? 'sm'
+      : settings.boardSize === '5'
+      ? 'md'
+      : undefined;
+
+  const { line: winLine } = checkWinner(board, settings.boardSize);
   const draw = !winner && isDraw(board);
   const isMyTurn = status === 'playing' && currentPlayer === myPlayer;
   const latestSquareSeized =
@@ -210,7 +235,7 @@ export default function MultiplayerBoard({
 
     const newBoard = [...board];
     newBoard[index] = currentPlayer;
-    const { winner: predictedWinner } = calculateWinner(newBoard);
+    const { winner: predictedWinner } = checkWinner(newBoard, settings.boardSize);
     const predictedDraw = !predictedWinner && isDraw(newBoard);
 
     // this if, else if, else blocks in winning situation to cannon and creak sound playing at the same time
@@ -325,7 +350,16 @@ export default function MultiplayerBoard({
 
       {/* Grid */}
       <div className="relative">
-        <div ref={gridRef} className="grid grid-cols-3 gap-3">
+        <div
+          ref={gridRef}
+          className={`grid ${
+            settings.boardSize === '10'
+              ? 'grid-cols-10 gap-1'
+              : settings.boardSize === '5'
+              ? 'grid-cols-5 gap-2'
+              : 'grid-cols-3 gap-3'
+          }`}
+        >
           {board.map((cell, i) => (
             <Square
               key={i}
@@ -343,6 +377,7 @@ export default function MultiplayerBoard({
               tabIndex={i === activeIndex.current ? 0 : -1}
               cellRef={(el) => setRef(el, i)}
               label={`${CELL_LABELS[i]}, ${cell ?? 'empty'}`}
+              size={squareSize}
             />
           ))}
         </div>
@@ -351,6 +386,7 @@ export default function MultiplayerBoard({
             winLine={winLine}
             cellSize={measurement.cellSize}
             gap={measurement.gap}
+            cols={cols}
           />
         )}
       </div>
