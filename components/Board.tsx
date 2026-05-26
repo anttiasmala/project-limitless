@@ -395,14 +395,23 @@ export default function Board({
       : difficulty;
 
     const moveTimeout = setTimeout(() => {
-      const move =
-        mode === 'tournament'
-          ? getAIMove(board, AI, HUMAN, effectiveDifficulty)
-          : boardSize === 10
-          ? getAIMove10(board, AI, HUMAN, difficulty)
-          : boardSize === 5
-          ? getAIMove5(board, AI, HUMAN, difficulty)
-          : getAIMove(board, AI, HUMAN, difficulty);
+      let move: number;
+      if (mode === 'tournament') {
+        move =
+          boardSize === 3
+            ? getAIMove(board, AI, HUMAN, effectiveDifficulty)
+            : boardSize === 5
+            ? getAIMove5(board, AI, HUMAN, effectiveDifficulty)
+            : getAIMove10(board, AI, HUMAN, effectiveDifficulty);
+      } else {
+        move =
+          boardSize === 10
+            ? getAIMove10(board, AI, HUMAN, difficulty)
+            : boardSize === 5
+            ? getAIMove5(board, AI, HUMAN, difficulty)
+            : getAIMove(board, AI, HUMAN, difficulty);
+      }
+
       const newBoard = [...board];
       newBoard[move] = AI;
       setBoard(newBoard);
@@ -504,12 +513,14 @@ export default function Board({
     if (tournamentOutcome) return;
 
     if (draw) {
+      // These moved out of setTimeout so the starting player will be changed visually
+      // Before player barely could see the visual change
+      setStarterPlayer((prevValue) => (prevValue === HUMAN ? AI : HUMAN));
+      setCurrentPlayer((prevValue) => (prevValue === HUMAN ? AI : HUMAN));
       const t = setTimeout(() => {
         setBoard(INITIAL_BOARD);
         setMoveHistory([]);
         setScores({ ...INITIAL_SCORE });
-        setStarterPlayer(HUMAN);
-        setCurrentPlayer(HUMAN);
         resetTimer();
       }, 1500);
       return () => clearTimeout(t);
@@ -528,8 +539,10 @@ export default function Board({
           setBoard(INITIAL_BOARD);
           setMoveHistory([]);
           setScores({ ...INITIAL_SCORE });
-          setStarterPlayer(HUMAN);
-          setCurrentPlayer(HUMAN);
+          // 50% chance the player starts; otherwise the Kraken (AI) starts.
+          const randomStarter = Math.random() < 0.5 ? HUMAN : AI;
+          setStarterPlayer(randomStarter);
+          setCurrentPlayer(randomStarter);
           resetTimer();
         }, 1800);
         return () => clearTimeout(t);
@@ -620,13 +633,23 @@ export default function Board({
     setWinStreaks({ '☠️': 0, '⚓': 0 });
     setStreakBadgePlayer(null);
 
-    if (newMode === 'pvc' || newMode === 'watch' || newMode === 'tournament') {
+    if (newMode === 'pvc' || newMode === 'watch') {
       setStarterPlayer(HUMAN);
       setCurrentPlayer(HUMAN);
+      // this prevents game starting too early — watch stays armed until the user
+      // taps a starter via StarterPicker.
+      setIsGameStarted(false);
+    } else if (newMode === 'tournament') {
+      // 50% chance the player starts; otherwise the Kraken (AI) starts.
+      const randomStarter = Math.random() < 0.5 ? HUMAN : AI;
+      setStarterPlayer(randomStarter);
+      setCurrentPlayer(randomStarter);
+      // When AI is the starter, kick the game off immediately so the AI-move
+      // effect fires; otherwise wait for the player's first tap.
+      setIsGameStarted(randomStarter === AI);
+    } else {
+      setIsGameStarted(false);
     }
-    // this prevents game starting too early — watch stays armed until the user
-    // taps a starter via StarterPicker.
-    setIsGameStarted(false);
 
     // Tournament: spin up a fresh bracket on entry; clear it on exit.
     if (newMode === 'tournament') {
