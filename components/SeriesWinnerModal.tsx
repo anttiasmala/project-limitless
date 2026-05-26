@@ -4,12 +4,13 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import { Player } from '@/lib/gameLogic';
+import { GameMode } from '@/utils/types';
 import { createPortal } from 'react-dom';
 import Button from './utils/Button';
 
 interface SeriesWinnerModalProps {
   seriesWinner: Player | null;
-  mode: 'pvp' | 'pvc' | 'watch';
+  mode: GameMode;
   onClose: () => void;
   isWinner?: boolean;
   playerOneOverride?: { name: string; icon: string };

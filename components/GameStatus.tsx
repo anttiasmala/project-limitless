@@ -1,12 +1,13 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { FORFEIT_MESSAGE } from '@/utils/utils';
+import { GameMode } from '@/utils/types';
 import { Player } from '../lib/gameLogic';
 
 interface GameStatusProps {
   winner: Player | null;
   isDraw: boolean;
   currentPlayer: Player;
-  mode: 'pvp' | 'pvc' | 'watch';
+  mode: GameMode;
   aiThinking: boolean;
   showForfeitMessage: boolean;
 }

@@ -8,7 +8,7 @@ import {
   getAIMove,
   isDraw,
 } from '@/lib/gameLogic';
-import { MoveEntry } from '@/utils/types';
+import { GameMode, MoveEntry } from '@/utils/types';
 import { useLocalStorage } from './useLocalStorage';
 
 export type WatchSpeed = 'slow' | 'normal' | 'fast';
@@ -21,7 +21,7 @@ const WATCH_SPEED_MS: Record<WatchSpeed, number> = {
 const WATCH_PAUSE_MS = 2000;
 
 type Params = {
-  mode: 'pvp' | 'pvc' | 'watch';
+  mode: GameMode;
   isGameStarted: boolean;
   gameOver: boolean;
   board: Board;

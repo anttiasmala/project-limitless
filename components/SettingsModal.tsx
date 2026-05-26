@@ -4,7 +4,7 @@ import { useKeyPress } from '@/hooks/useKeyPress';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import { INITIAL_SCORE, Player } from '@/lib/gameLogic';
-import { BaseSettingsProps, WinLossDrawStats } from '@/utils/types';
+import { BaseSettingsProps, GameMode, WinLossDrawStats } from '@/utils/types';
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { PlayersPanel } from './settings/PlayersPanel';
@@ -25,7 +25,7 @@ type SettingsModalProps = BaseSettingsProps & {
   >;
   resetGame?: () => void;
   showPlayerSettings?: boolean;
-  mode?: 'pvp' | 'pvc' | 'watch';
+  mode?: GameMode;
   winLossDraw?: WinLossDrawStats;
   onResetStats?: () => void;
 };

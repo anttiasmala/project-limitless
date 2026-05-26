@@ -1,6 +1,7 @@
 // components/settings/PlayersPanel.tsx
 
 import { useState } from 'react';
+import { GameMode } from '@/utils/types';
 import { IconPickerModal } from './IconPickerModal';
 import Button from '../utils/Button';
 
@@ -9,7 +10,7 @@ type PlayersPanelProps = {
   setPlayerOne: (value: { icon: string; name: string }) => void;
   playerTwo: { icon: string; name: string };
   setPlayerTwo: (value: { icon: string; name: string }) => void;
-  mode?: 'pvp' | 'pvc' | 'watch';
+  mode?: GameMode;
 };
 
 export function PlayersPanel({

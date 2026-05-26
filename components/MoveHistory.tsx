@@ -10,7 +10,7 @@ type MoveHistoryProps = {
   winner: Player | null;
   isDraw: boolean;
   boardSize?: 3 | 5 | 10;
-  mode: 'pvp' | 'pvc' | 'watch';
+  mode: 'pvp' | 'pvc' | 'watch' | 'tournament';
 };
 
 function getCellLabel(index: number, boardSize: 3 | 5 | 10 = 3): string {

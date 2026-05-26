@@ -17,6 +17,7 @@ const DIFFICULTY_RANK: Record<Difficulty, number> = {
   easy: 0,
   medium: 1,
   hard: 2,
+  insane: 3,
 };
 
 // Higher difficulty tends to win; equal difficulty falls back to a coin flip.

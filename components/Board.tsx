@@ -24,10 +24,19 @@ import { useGridMeasure } from '@/hooks/useGridMeasure';
 import {
   BestOfSeriesNames,
   CELL_LABELS,
+  GameMode,
   INITIAL_WIN_LOSS_DRAW,
   MoveEntry,
   WinLossDrawStats,
 } from '@/utils/types';
+import {
+  TournamentState,
+  currentOpponent,
+  makeTournament,
+  simulateMatch,
+} from '@/lib/tournament';
+import TournamentBracket from './TournamentBracket';
+import TournamentResultModal from './TournamentResultModal';
 import MoveHistory from './MoveHistory';
 import { useTimer } from '@/hooks/useTimer';
 import HourglassTimer from './HourglassTimer';
@@ -80,10 +89,15 @@ export default function Board({
   const [boardSize, setBoardSize] = useState<3 | 5 | 10>(3);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [board, setBoard] = useState<BoardType>(Array(9).fill(null));
+  const INITIAL_BOARD = Array(boardSize * boardSize).fill(null) as BoardType;
   const [currentPlayer, setCurrentPlayer] = useState<Player>('☠️');
   const [starterPlayer, setStarterPlayer] = useState<Player>('☠️');
 
-  const [mode, setMode] = useState<'pvp' | 'pvc' | 'watch'>('pvp');
+  const [mode, setMode] = useState<GameMode>('pvp');
+  const [tournament, setTournament] = useState<TournamentState | null>(null);
+  const [tournamentOutcome, setTournamentOutcome] = useState<
+    'champion' | 'eliminated' | null
+  >(null);
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [aiThinking, setAiThinking] = useState(false);
 
@@ -137,10 +151,20 @@ export default function Board({
     name: 'Davy Jones',
     icon: '☠️',
   });
-  const [playerTwo] = useLocalStorage('playerTwo', {
+  const [playerTwoStored] = useLocalStorage('playerTwo', {
     name: 'Capt. Hook',
     icon: '⚓',
   });
+  // In tournament mode, the AI side is the current bracket opponent — their
+  // icon and name override the stored "Player 2" so the board, status, and
+  // scoreboard all reflect who you're actually facing.
+  const playerTwo =
+    mode === 'tournament' && tournament
+      ? (() => {
+          const opp = currentOpponent(tournament);
+          return opp ? { name: opp.name, icon: opp.icon } : playerTwoStored;
+        })()
+      : playerTwoStored;
   const playerIcons = { '☠️': playerOne.icon, '⚓': playerTwo.icon } as Record<
     Player,
     string
@@ -164,7 +188,7 @@ export default function Board({
     board,
     winner,
     isDraw: draw,
-    mode: mode === 'watch' ? 'pvc' : mode,
+    mode: mode === 'watch' || mode === 'tournament' ? 'pvc' : mode,
   });
 
   const showStarterSelection = !isGameStarted || gameOver;
@@ -223,12 +247,13 @@ export default function Board({
   );
 
   const resetGame = useCallback(() => {
-    setBoard(Array(boardSize * boardSize).fill(null) as BoardType);
+    setBoard(INITIAL_BOARD);
     setAiThinking(false);
     // In watch mode the loop keeps running across games; PvC auto-starts only
     // when the Kraken (AI) is the starter.
     const startImmediately =
-      mode === 'watch' || (mode === 'pvc' && starterPlayer === AI);
+      mode === 'watch' ||
+      ((mode === 'pvc' || mode === 'tournament') && starterPlayer === AI);
     setIsGameStarted(startImmediately);
     setMoveHistory([]);
     resetTimer();
@@ -354,13 +379,26 @@ export default function Board({
 
   // AI move logic
   useEffect(() => {
-    if (mode !== 'pvc' || gameOver || currentPlayer !== AI || !isGameStarted)
+    if (
+      (mode !== 'pvc' && mode !== 'tournament') ||
+      gameOver ||
+      currentPlayer !== AI ||
+      !isGameStarted
+    )
       return;
     const thinkingTimeout = setTimeout(() => setAiThinking(true), 0);
 
+    const tournamentOpp =
+      mode === 'tournament' && tournament ? currentOpponent(tournament) : null;
+    const effectiveDifficulty: Difficulty = tournamentOpp
+      ? tournamentOpp.difficulty
+      : difficulty;
+
     const moveTimeout = setTimeout(() => {
       const move =
-        boardSize === 10
+        mode === 'tournament'
+          ? getAIMove(board, AI, HUMAN, effectiveDifficulty)
+          : boardSize === 10
           ? getAIMove10(board, AI, HUMAN, difficulty)
           : boardSize === 5
           ? getAIMove5(board, AI, HUMAN, difficulty)
@@ -407,6 +445,7 @@ export default function Board({
     currentPlayer,
     mode,
     difficulty,
+    tournament,
     gameOver,
     setScores,
     isGameStarted,
@@ -444,16 +483,81 @@ export default function Board({
 
   useEffect(() => {
     if (!gameOver) return;
+    // Tournament mode runs its own advance logic — don't flip starter here or
+    // we'd race the bracket transition.
+    if (mode === 'tournament') return;
+    // Select to _nextGameStarter the player who did not start
+    // Starter has an advantage so it is fair to change it every game. Not depending was it a win or a draw
     const _nextGameStarter = starterPlayer === HUMAN ? AI : HUMAN;
     setCurrentPlayer(_nextGameStarter);
     setStarterPlayer(_nextGameStarter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameOver]);
 
+  // Tournament progression: on match end, advance the bracket.
+  // - Win: simulate the other semi (if still in semis) and load the final;
+  //   on final win, mark champion.
+  // - Loss: mark eliminated (or runner-up if it happened in the final).
+  // - Draw: replay the same match against the same opponent.
+  useEffect(() => {
+    if (mode !== 'tournament' || !tournament || !gameOver) return;
+    if (tournamentOutcome) return;
+
+    if (draw) {
+      const t = setTimeout(() => {
+        setBoard(INITIAL_BOARD);
+        setMoveHistory([]);
+        setScores({ ...INITIAL_SCORE });
+        setStarterPlayer(HUMAN);
+        setCurrentPlayer(HUMAN);
+        resetTimer();
+      }, 1500);
+      return () => clearTimeout(t);
+    }
+
+    if (winner === HUMAN) {
+      if (tournament.stage === 'semi') {
+        const otherWinner = simulateMatch(...tournament.otherSemiPair);
+        const t = setTimeout(() => {
+          setTournament({
+            ...tournament,
+            stage: 'final',
+            otherSemiWinner: otherWinner,
+            finalOpponent: otherWinner,
+          });
+          setBoard(INITIAL_BOARD);
+          setMoveHistory([]);
+          setScores({ ...INITIAL_SCORE });
+          setStarterPlayer(HUMAN);
+          setCurrentPlayer(HUMAN);
+          resetTimer();
+        }, 1800);
+        return () => clearTimeout(t);
+      }
+      if (tournament.stage === 'final') {
+        setTournament({ ...tournament, stage: 'champion' });
+        setTournamentOutcome('champion');
+      }
+    } else if (winner === AI) {
+      setTournament({ ...tournament, stage: 'eliminated' });
+      setTournamentOutcome('eliminated');
+    }
+  }, [
+    gameOver,
+    mode,
+    tournament,
+    tournamentOutcome,
+    winner,
+    draw,
+    setScores,
+    resetTimer,
+  ]);
+
   function handleClick(index: number) {
     if (board[index] || gameOver || aiThinking || showForfeitMessage) return;
     if (mode === 'watch') return; // both sides are AI — grid is non-interactive
-    if (mode === 'pvc' && currentPlayer === AI) return;
+    if ((mode === 'pvc' || mode === 'tournament') && currentPlayer === AI)
+      return;
     setIsGameStarted(true);
     setShowForfeitMessage(false);
 
@@ -502,9 +606,9 @@ export default function Board({
     }
   }
 
-  function switchMode(newMode: 'pvp' | 'pvc' | 'watch') {
+  function switchMode(newMode: GameMode) {
     setMode(newMode);
-    setBoard(Array(boardSize * boardSize).fill(null) as BoardType);
+    setBoard(INITIAL_BOARD);
     setWatchPaused(false);
     // Watch keeps an in-session scoreboard only — resets to 0–0 on entry.
     setScores({ ...INITIAL_SCORE });
@@ -516,13 +620,22 @@ export default function Board({
     setWinStreaks({ '☠️': 0, '⚓': 0 });
     setStreakBadgePlayer(null);
 
-    if (newMode === 'pvc' || newMode === 'watch') {
+    if (newMode === 'pvc' || newMode === 'watch' || newMode === 'tournament') {
       setStarterPlayer(HUMAN);
       setCurrentPlayer(HUMAN);
     }
     // this prevents game starting too early — watch stays armed until the user
     // taps a starter via StarterPicker.
     setIsGameStarted(false);
+
+    // Tournament: spin up a fresh bracket on entry; clear it on exit.
+    if (newMode === 'tournament') {
+      setTournament(makeTournament());
+      setTournamentOutcome(null);
+    } else {
+      setTournament(null);
+      setTournamentOutcome(null);
+    }
   }
 
   function switchBoardSize(newSize: 3 | 5 | 10) {
@@ -647,6 +760,15 @@ export default function Board({
         </div>
       )}
 
+      {/* Tournament bracket */}
+      {mode === 'tournament' && tournament && (
+        <TournamentBracket
+          tournament={tournament}
+          youIcon={playerOne.icon}
+          youName={playerOne.name}
+        />
+      )}
+
       {/* Scoreboard */}
       <ScoreBoard
         myPlayer={HUMAN}
@@ -654,7 +776,8 @@ export default function Board({
         pointSystem={pointSystem}
         scores={scores}
         mode={mode}
-        bestOfSeries={bestOfSeries}
+        bestOfSeries={mode === 'tournament' ? 'off' : bestOfSeries}
+        playerTwoOverride={mode === 'tournament' ? playerTwo : undefined}
       />
 
       {/* Win streak badge — hidden in watch mode (no human, no streaks) */}
@@ -677,7 +800,8 @@ export default function Board({
             if (starterPlayer === player || aiThinking) return;
             setStarterPlayer(player);
             setCurrentPlayer(player);
-            if (mode === 'pvc' && player === AI) setIsGameStarted(true);
+            if ((mode === 'pvc' || mode === 'tournament') && player === AI)
+              setIsGameStarted(true);
             // Watch mode is armed-but-idle until a starter is picked.
             if (mode === 'watch') setIsGameStarted(true);
           }}
@@ -733,7 +857,8 @@ export default function Board({
                 gameOver ||
                 aiThinking ||
                 mode === 'watch' ||
-                (mode === 'pvc' && currentPlayer === AI)
+                ((mode === 'pvc' || mode === 'tournament') &&
+                  currentPlayer === AI)
               }
               tabIndex={i === activeIndex.current ? 0 : -1}
               cellRef={(el) => setRef(el, i)}
@@ -754,8 +879,29 @@ export default function Board({
         )}
       </div>
 
+      {/* Tournament result modal */}
+      {mode === 'tournament' && (
+        <TournamentResultModal
+          outcome={tournamentOutcome}
+          defeatedAtFinal={
+            tournament?.stage === 'eliminated' && !!tournament?.finalOpponent
+          }
+          onRestart={() => {
+            setTournament(makeTournament());
+            setTournamentOutcome(null);
+            setBoard(INITIAL_BOARD);
+            setMoveHistory([]);
+            setScores({ ...INITIAL_SCORE });
+            setStarterPlayer(HUMAN);
+            setCurrentPlayer(HUMAN);
+            resetTimer();
+          }}
+          onExit={() => switchMode('pvc')}
+        />
+      )}
+
       {/* Series Winner Modal — hidden in watch mode (in-session scores only) */}
-      {mode !== 'watch' && bestOfSeries !== 'off' && (
+      {mode !== 'watch' && mode !== 'tournament' && bestOfSeries !== 'off' && (
         <SeriesWinnerModal
           seriesWinner={seriesWinner}
           mode={mode}
@@ -801,18 +947,20 @@ export default function Board({
         </Button>
       )}
 
-      {/* Reset Game*/}
-      <Button
-        variant="primary"
-        onClick={resetGame}
-        aria-label="Start a new game"
-        className="mt-4 hover:border-red-700 dark:hover:border-yellow-500 tracking-wide"
-      >
-        🏴‍☠️ New Voyage
-      </Button>
+      {/* Reset Game — hidden in tournament (matches auto-advance) */}
+      {mode !== 'tournament' && (
+        <Button
+          variant="primary"
+          onClick={resetGame}
+          aria-label="Start a new game"
+          className="mt-4 hover:border-red-700 dark:hover:border-yellow-500 tracking-wide"
+        >
+          🏴‍☠️ New Voyage
+        </Button>
+      )}
 
       {/* Replay the Game */}
-      {gameOver && (
+      {gameOver && mode !== 'tournament' && (
         <Button
           variant="gold"
           aria-label="Replay the game"

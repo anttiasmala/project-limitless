@@ -2,6 +2,8 @@
 
 import { Player } from '@/lib/gameLogic';
 
+export type GameMode = 'pvp' | 'pvc' | 'watch' | 'tournament';
+
 // UTILS
 export type KeyboardEventKeys =
   | ' ' // Space

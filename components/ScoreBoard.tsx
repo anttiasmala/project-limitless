@@ -2,13 +2,13 @@
 
 import { AI, HUMAN, Player } from '@/lib/gameLogic';
 import TreasureChests, { BestOfTreasureChests } from './TreasureChests';
-import { BestOfSeriesNames } from '@/utils/types';
+import { BestOfSeriesNames, GameMode } from '@/utils/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 type PlayerDisplay = { name: string; icon: string };
 
 type Props = {
-  mode: 'pvc' | 'pvp' | 'watch';
+  mode: GameMode;
   myPlayer?: Player | null;
   scores: Record<Player, number>;
   pointSystem: 'number' | 'treasureChest';
@@ -49,7 +49,7 @@ export default function ScoreBoard({
       <div className="flex flex-col items-center gap-1">
         <span className="text-xs text-slate-500 dark:text-amber-500 uppercase tracking-widest">
           {p1.icon} {p1.name}{' '}
-          {myPlayer === HUMAN ? '(You)' : mode === 'pvc' ? '(AI)' : ''}
+          {myPlayer === HUMAN ? '(You)' : mode === 'pvc' || mode === 'tournament' ? '(AI)' : ''}
         </span>
         {pointSystem === 'number' ? (
           <p>{scores[HUMAN]}</p>
@@ -72,7 +72,7 @@ export default function ScoreBoard({
       <div className="flex flex-col items-center gap-1">
         <span className="text-xs dark:text-amber-500 text-amber-700 uppercase tracking-widest">
           {p2.icon} {p2.name}{' '}
-          {myPlayer === AI ? '(You)' : mode === 'pvc' ? '(AI)' : ''}
+          {myPlayer === AI ? '(You)' : mode === 'pvc' || mode === 'tournament' ? '(AI)' : ''}
         </span>
         {pointSystem === 'number' ? (
           <p>{scores[AI]}</p>
