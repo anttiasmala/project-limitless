@@ -10,6 +10,17 @@ type Props = {
 
 type SlotState = 'pending' | 'active' | 'winner' | 'loser';
 
+const SLOT_CLASSES: Record<SlotState, string> = {
+  pending:
+    'bg-slate-100 border-slate-300 text-slate-500 dark:bg-amber-950/30 dark:border-amber-900 dark:text-amber-600',
+  active:
+    'bg-amber-100 border-amber-500 text-slate-800 dark:bg-amber-800/50 dark:border-yellow-400 dark:text-yellow-300 animate-pulse',
+  winner:
+    'bg-emerald-100 border-emerald-500 text-slate-800 dark:bg-emerald-900/60 dark:border-emerald-500 dark:text-emerald-200',
+  loser:
+    'bg-slate-200 border-slate-400 text-slate-400 line-through dark:bg-red-950/40 dark:border-red-900 dark:text-red-500',
+};
+
 function Slot({
   icon,
   name,
@@ -19,19 +30,9 @@ function Slot({
   name: string;
   state: SlotState;
 }) {
-  const stateClasses: Record<SlotState, string> = {
-    pending:
-      'bg-slate-100 border-slate-300 text-slate-500 dark:bg-amber-950/30 dark:border-amber-900 dark:text-amber-600',
-    active:
-      'bg-amber-100 border-amber-500 text-slate-800 dark:bg-amber-800/50 dark:border-yellow-400 dark:text-yellow-300 animate-pulse',
-    winner:
-      'bg-emerald-100 border-emerald-500 text-slate-800 dark:bg-emerald-900/60 dark:border-emerald-500 dark:text-emerald-200',
-    loser:
-      'bg-slate-200 border-slate-400 text-slate-400 line-through dark:bg-red-950/40 dark:border-red-900 dark:text-red-500',
-  };
   return (
     <div
-      className={`flex items-center gap-1 px-2 py-1 border-2 rounded text-xs whitespace-nowrap ${stateClasses[state]}`}
+      className={`flex items-center gap-1 px-2 py-1 border-2 rounded text-xs whitespace-nowrap ${SLOT_CLASSES[state]}`}
     >
       <span aria-hidden>{icon}</span>
       <span className="font-semibold">{name}</span>
@@ -44,49 +45,38 @@ export default function TournamentBracket({
   youIcon,
   youName,
 }: Props) {
-  const { stage, semiOpponent, otherSemiPair, otherSemiWinner, finalOpponent } =
-    tournament;
+  const { stage, semiOpponent, otherSemiPair, otherSemiWinner } = tournament;
 
-  const userInSemi = stage === 'semi';
-  const userWonSemi =
-    stage === 'final' || stage === 'champion' || (stage === 'eliminated' && !!finalOpponent);
+  // The user only reaches the final if they won their semi, so 'final' /
+  // 'champion' / 'eliminated-with-otherSemiWinner' all imply a semi win.
+  const userPastSemi =
+    stage === 'final' || stage === 'champion' || (stage === 'eliminated' && !!otherSemiWinner);
+  const inSemi = stage === 'semi';
 
-  const youSemiState: SlotState = userInSemi
-    ? 'active'
-    : userWonSemi
-    ? 'winner'
-    : 'loser';
+  const youSemiState: SlotState = inSemi ? 'active' : userPastSemi ? 'winner' : 'loser';
+  const semiOppState: SlotState = inSemi ? 'active' : userPastSemi ? 'loser' : 'winner';
 
-  const semiOppState: SlotState = userInSemi
-    ? 'active'
-    : userWonSemi
-    ? 'loser'
-    : 'winner';
-
-  const otherSemiResolved = !!otherSemiWinner;
   const [pairA, pairB] = otherSemiPair;
-  const otherSemiAState: SlotState = !otherSemiResolved
+  const otherSemiAState: SlotState = !otherSemiWinner
     ? 'pending'
-    : otherSemiWinner!.id === pairA.id
+    : otherSemiWinner.id === pairA.id
     ? 'winner'
     : 'loser';
-  const otherSemiBState: SlotState = !otherSemiResolved
+  const otherSemiBState: SlotState = !otherSemiWinner
     ? 'pending'
-    : otherSemiWinner!.id === pairB.id
+    : otherSemiWinner.id === pairB.id
     ? 'winner'
     : 'loser';
 
-  const inFinal = stage === 'final';
-  const youInFinal = userWonSemi;
   const youFinalState: SlotState =
     stage === 'champion'
       ? 'winner'
-      : stage === 'eliminated' && finalOpponent
+      : stage === 'eliminated' && otherSemiWinner
       ? 'loser'
-      : inFinal
+      : stage === 'final'
       ? 'active'
       : 'pending';
-  const finalOppState: SlotState = !finalOpponent
+  const finalOppState: SlotState = !otherSemiWinner
     ? 'pending'
     : stage === 'champion'
     ? 'loser'
@@ -131,15 +121,15 @@ export default function TournamentBracket({
           <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-amber-600">
             Final
           </p>
-          {youInFinal ? (
+          {userPastSemi ? (
             <Slot icon={youIcon} name={youName} state={youFinalState} />
           ) : (
             <Slot icon="❓" name="TBD" state="pending" />
           )}
-          {finalOpponent ? (
+          {otherSemiWinner ? (
             <Slot
-              icon={finalOpponent.icon}
-              name={finalOpponent.name}
+              icon={otherSemiWinner.icon}
+              name={otherSemiWinner.name}
               state={finalOppState}
             />
           ) : (

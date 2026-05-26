@@ -5,12 +5,17 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Player } from '@/lib/gameLogic';
 import { CELL_LABELS, MoveEntry } from '@/utils/types';
 
+type PlayerDisplay = { name: string; icon: string };
+
 type MoveHistoryProps = {
   moveHistory: MoveEntry[];
   winner: Player | null;
   isDraw: boolean;
   boardSize?: 3 | 5 | 10;
   mode: 'pvp' | 'pvc' | 'watch' | 'tournament';
+  // Tournament passes the current bracket opponent so the log uses the right
+  // pirate name (Salty Sam etc.) rather than the stored Player 2.
+  playerTwoOverride?: PlayerDisplay;
 };
 
 function getCellLabel(index: number, boardSize: 3 | 5 | 10 = 3): string {
@@ -25,15 +30,17 @@ export default function MoveHistory({
   winner,
   isDraw,
   boardSize = 3,
+  playerTwoOverride,
 }: MoveHistoryProps) {
   const [playerOne] = useLocalStorage('playerOne', {
     name: 'Davy Jones',
     icon: '☠️',
   });
-  const [playerTwo] = useLocalStorage('playerTwo', {
+  const [playerTwoStored] = useLocalStorage('playerTwo', {
     name: 'Capt. Hook',
     icon: '⚓',
   });
+  const playerTwo = playerTwoOverride ?? playerTwoStored;
 
   function getPlayerLabel(player: Player): string {
     return player === '☠️'

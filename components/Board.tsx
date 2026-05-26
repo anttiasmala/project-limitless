@@ -1,7 +1,7 @@
 // components/Board.tsx
 
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Square from './Square';
 import GameStatus from './GameStatus';
 import {
@@ -29,12 +29,7 @@ import {
   MoveEntry,
   WinLossDrawStats,
 } from '@/utils/types';
-import {
-  TournamentState,
-  currentOpponent,
-  makeTournament,
-  simulateMatch,
-} from '@/lib/tournament';
+import { useTournament } from '@/hooks/useTournament';
 import TournamentBracket from './TournamentBracket';
 import TournamentResultModal from './TournamentResultModal';
 import MoveHistory from './MoveHistory';
@@ -89,15 +84,14 @@ export default function Board({
   const [boardSize, setBoardSize] = useState<3 | 5 | 10>(3);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [board, setBoard] = useState<BoardType>(Array(9).fill(null));
-  const INITIAL_BOARD = Array(boardSize * boardSize).fill(null) as BoardType;
+  const INITIAL_BOARD = useMemo<BoardType>(
+    () => Array(boardSize * boardSize).fill(null),
+    [boardSize],
+  );
   const [currentPlayer, setCurrentPlayer] = useState<Player>('☠️');
   const [starterPlayer, setStarterPlayer] = useState<Player>('☠️');
 
   const [mode, setMode] = useState<GameMode>('pvp');
-  const [tournament, setTournament] = useState<TournamentState | null>(null);
-  const [tournamentOutcome, setTournamentOutcome] = useState<
-    'champion' | 'eliminated' | null
-  >(null);
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [aiThinking, setAiThinking] = useState(false);
 
@@ -155,20 +149,6 @@ export default function Board({
     name: 'Capt. Hook',
     icon: '⚓',
   });
-  // In tournament mode, the AI side is the current bracket opponent — their
-  // icon and name override the stored "Player 2" so the board, status, and
-  // scoreboard all reflect who you're actually facing.
-  const playerTwo =
-    mode === 'tournament' && tournament
-      ? (() => {
-          const opp = currentOpponent(tournament);
-          return opp ? { name: opp.name, icon: opp.icon } : playerTwoStored;
-        })()
-      : playerTwoStored;
-  const playerIcons = { '☠️': playerOne.icon, '⚓': playerTwo.icon } as Record<
-    Player,
-    string
-  >;
 
   const { winner, line: winLine } = calcWinner(board);
   const draw = !winner && isDraw(board);
@@ -246,6 +226,41 @@ export default function Board({
     handleForfeit,
   );
 
+  // Wipe the per-match playing state (board, history, points-for-this-match,
+  // timer). Used by tournament advance, draw replay, and switchMode.
+  const resetMatchState = useCallback(() => {
+    setBoard(INITIAL_BOARD);
+    setMoveHistory([]);
+    setScores({ ...INITIAL_SCORE });
+    resetTimer();
+  }, [INITIAL_BOARD, setScores, resetTimer]);
+
+  const {
+    tournament,
+    tournamentOutcome,
+    opponent: tournamentOpponent,
+    defeatedAtFinal,
+    resolveDifficulty,
+    begin: beginTournament,
+    clear: clearTournament,
+  } = useTournament({
+    active: mode === 'tournament',
+    winner,
+    draw,
+    gameOver,
+    resetMatchState,
+    setStarterPlayer,
+    setCurrentPlayer,
+  });
+
+  // In tournament mode the AI side shows the current bracket opponent so the
+  // board, status line, scoreboard, and move log all reflect who you're facing.
+  const playerTwo = tournamentOpponent ?? playerTwoStored;
+  const playerIcons = { '☠️': playerOne.icon, '⚓': playerTwo.icon } as Record<
+    Player,
+    string
+  >;
+
   const resetGame = useCallback(() => {
     setBoard(INITIAL_BOARD);
     setAiThinking(false);
@@ -260,7 +275,7 @@ export default function Board({
     resetFocus(0);
     setShowForfeitMessage(false);
     setCurrentPlayer(starterPlayer);
-  }, [boardSize, starterPlayer, mode, resetTimer, resetFocus]);
+  }, [INITIAL_BOARD, starterPlayer, mode, resetTimer, resetFocus]);
 
   function undoPreviousMove() {
     if (moveHistory.length === 0) return;
@@ -388,29 +403,15 @@ export default function Board({
       return;
     const thinkingTimeout = setTimeout(() => setAiThinking(true), 0);
 
-    const tournamentOpp =
-      mode === 'tournament' && tournament ? currentOpponent(tournament) : null;
-    const effectiveDifficulty: Difficulty = tournamentOpp
-      ? tournamentOpp.difficulty
-      : difficulty;
+    const effectiveDifficulty = resolveDifficulty(difficulty);
 
     const moveTimeout = setTimeout(() => {
-      let move: number;
-      if (mode === 'tournament') {
-        move =
-          boardSize === 3
-            ? getAIMove(board, AI, HUMAN, effectiveDifficulty)
-            : boardSize === 5
-            ? getAIMove5(board, AI, HUMAN, effectiveDifficulty)
-            : getAIMove10(board, AI, HUMAN, effectiveDifficulty);
-      } else {
-        move =
-          boardSize === 10
-            ? getAIMove10(board, AI, HUMAN, difficulty)
-            : boardSize === 5
-            ? getAIMove5(board, AI, HUMAN, difficulty)
-            : getAIMove(board, AI, HUMAN, difficulty);
-      }
+      const move =
+        boardSize === 10
+          ? getAIMove10(board, AI, HUMAN, effectiveDifficulty)
+          : boardSize === 5
+          ? getAIMove5(board, AI, HUMAN, effectiveDifficulty)
+          : getAIMove(board, AI, HUMAN, effectiveDifficulty);
 
       const newBoard = [...board];
       newBoard[move] = AI;
@@ -454,7 +455,7 @@ export default function Board({
     currentPlayer,
     mode,
     difficulty,
-    tournament,
+    resolveDifficulty,
     gameOver,
     setScores,
     isGameStarted,
@@ -502,69 +503,6 @@ export default function Board({
     setStarterPlayer(_nextGameStarter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameOver]);
-
-  // Tournament progression: on match end, advance the bracket.
-  // - Win: simulate the other semi (if still in semis) and load the final;
-  //   on final win, mark champion.
-  // - Loss: mark eliminated (or runner-up if it happened in the final).
-  // - Draw: replay the same match against the same opponent.
-  useEffect(() => {
-    if (mode !== 'tournament' || !tournament || !gameOver) return;
-    if (tournamentOutcome) return;
-
-    if (draw) {
-      // These moved out of setTimeout so the starting player will be changed visually
-      // Before player barely could see the visual change
-      setStarterPlayer((prevValue) => (prevValue === HUMAN ? AI : HUMAN));
-      setCurrentPlayer((prevValue) => (prevValue === HUMAN ? AI : HUMAN));
-      const t = setTimeout(() => {
-        setBoard(INITIAL_BOARD);
-        setMoveHistory([]);
-        setScores({ ...INITIAL_SCORE });
-        resetTimer();
-      }, 1500);
-      return () => clearTimeout(t);
-    }
-
-    if (winner === HUMAN) {
-      if (tournament.stage === 'semi') {
-        const otherWinner = simulateMatch(...tournament.otherSemiPair);
-        const t = setTimeout(() => {
-          setTournament({
-            ...tournament,
-            stage: 'final',
-            otherSemiWinner: otherWinner,
-            finalOpponent: otherWinner,
-          });
-          setBoard(INITIAL_BOARD);
-          setMoveHistory([]);
-          setScores({ ...INITIAL_SCORE });
-          // 50% chance the player starts; otherwise the Kraken (AI) starts.
-          const randomStarter = Math.random() < 0.5 ? HUMAN : AI;
-          setStarterPlayer(randomStarter);
-          setCurrentPlayer(randomStarter);
-          resetTimer();
-        }, 1800);
-        return () => clearTimeout(t);
-      }
-      if (tournament.stage === 'final') {
-        setTournament({ ...tournament, stage: 'champion' });
-        setTournamentOutcome('champion');
-      }
-    } else if (winner === AI) {
-      setTournament({ ...tournament, stage: 'eliminated' });
-      setTournamentOutcome('eliminated');
-    }
-  }, [
-    gameOver,
-    mode,
-    tournament,
-    tournamentOutcome,
-    winner,
-    draw,
-    setScores,
-    resetTimer,
-  ]);
 
   function handleClick(index: number) {
     if (board[index] || gameOver || aiThinking || showForfeitMessage) return;
@@ -633,31 +571,18 @@ export default function Board({
     setWinStreaks({ '☠️': 0, '⚓': 0 });
     setStreakBadgePlayer(null);
 
-    if (newMode === 'pvc' || newMode === 'watch') {
-      setStarterPlayer(HUMAN);
-      setCurrentPlayer(HUMAN);
-      // this prevents game starting too early — watch stays armed until the user
-      // taps a starter via StarterPicker.
-      setIsGameStarted(false);
-    } else if (newMode === 'tournament') {
-      // 50% chance the player starts; otherwise the Kraken (AI) starts.
-      const randomStarter = Math.random() < 0.5 ? HUMAN : AI;
-      setStarterPlayer(randomStarter);
-      setCurrentPlayer(randomStarter);
-      // When AI is the starter, kick the game off immediately so the AI-move
-      // effect fires; otherwise wait for the player's first tap.
-      setIsGameStarted(randomStarter === AI);
-    } else {
-      setIsGameStarted(false);
-    }
-
-    // Tournament: spin up a fresh bracket on entry; clear it on exit.
     if (newMode === 'tournament') {
-      setTournament(makeTournament());
-      setTournamentOutcome(null);
+      // Fresh bracket + random starter; AI-start kicks the move effect right away.
+      const starter = beginTournament();
+      setIsGameStarted(starter === AI);
     } else {
-      setTournament(null);
-      setTournamentOutcome(null);
+      clearTournament();
+      if (newMode === 'pvc' || newMode === 'watch') {
+        setStarterPlayer(HUMAN);
+        setCurrentPlayer(HUMAN);
+      }
+      // Watch stays armed until the user picks a starter via StarterPicker.
+      setIsGameStarted(false);
     }
   }
 
@@ -839,6 +764,7 @@ export default function Board({
         mode={mode}
         aiThinking={aiThinking}
         showForfeitMessage={showForfeitMessage}
+        playerTwoOverride={mode === 'tournament' ? playerTwo : undefined}
       />
 
       {/* Kraken mood */}
@@ -906,18 +832,11 @@ export default function Board({
       {mode === 'tournament' && (
         <TournamentResultModal
           outcome={tournamentOutcome}
-          defeatedAtFinal={
-            tournament?.stage === 'eliminated' && !!tournament?.finalOpponent
-          }
+          defeatedAtFinal={defeatedAtFinal}
           onRestart={() => {
-            setTournament(makeTournament());
-            setTournamentOutcome(null);
-            setBoard(INITIAL_BOARD);
-            setMoveHistory([]);
-            setScores({ ...INITIAL_SCORE });
-            setStarterPlayer(HUMAN);
-            setCurrentPlayer(HUMAN);
-            resetTimer();
+            resetMatchState();
+            const starter = beginTournament();
+            setIsGameStarted(starter === AI);
           }}
           onExit={() => switchMode('pvc')}
         />
@@ -1011,6 +930,7 @@ export default function Board({
         winner={winner}
         isDraw={draw}
         boardSize={boardSize}
+        playerTwoOverride={mode === 'tournament' ? playerTwo : undefined}
       />
 
       {/* Settings Modal */}

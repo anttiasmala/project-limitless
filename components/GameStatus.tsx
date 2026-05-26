@@ -3,6 +3,8 @@ import { FORFEIT_MESSAGE } from '@/utils/utils';
 import { GameMode } from '@/utils/types';
 import { Player } from '../lib/gameLogic';
 
+type PlayerDisplay = { name: string; icon: string };
+
 interface GameStatusProps {
   winner: Player | null;
   isDraw: boolean;
@@ -10,6 +12,9 @@ interface GameStatusProps {
   mode: GameMode;
   aiThinking: boolean;
   showForfeitMessage: boolean;
+  // Tournament passes the current bracket opponent so the AI side renders with
+  // the right pirate's name and icon instead of the stored Player 2.
+  playerTwoOverride?: PlayerDisplay;
 }
 
 export default function GameStatus({
@@ -19,9 +24,11 @@ export default function GameStatus({
   mode,
   aiThinking,
   showForfeitMessage,
+  playerTwoOverride,
 }: GameStatusProps) {
   const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
-  const [playerTwo] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
+  const [playerTwoStored] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
+  const playerTwo = playerTwoOverride ?? playerTwoStored;
   const playerNames: Record<Player, string> = {
     '☠️': `${playerOne.icon} ${playerOne.name}`,
     '⚓': `${playerTwo.icon} ${playerTwo.name}`,
@@ -84,12 +91,8 @@ export default function GameStatus({
     );
   }
   const label =
-    mode === 'pvc'
-      ? currentPlayer === '☠️'
-        ? `${playerNames['☠️']}'s turn`
-        : `${playerNames['⚓']} is thinking…`
-      : mode === 'watch'
-      ? `${playerNames[currentPlayer]}'s turn`
+    (mode === 'pvc' || mode === 'tournament') && currentPlayer === '⚓'
+      ? `${playerNames['⚓']} is thinking…`
       : `${playerNames[currentPlayer]}'s turn`;
   return (
     <div

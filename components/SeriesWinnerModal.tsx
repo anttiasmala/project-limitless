@@ -2,11 +2,9 @@
 'use client';
 
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import { Player } from '@/lib/gameLogic';
 import { GameMode } from '@/utils/types';
-import { createPortal } from 'react-dom';
-import Button from './utils/Button';
+import GameOverModal from './utils/GameOverModal';
 
 interface SeriesWinnerModalProps {
   seriesWinner: Player | null;
@@ -38,12 +36,10 @@ export default function SeriesWinnerModal({
     icon: '⚓',
   });
 
+  if (!seriesWinner) return null;
+
   const playerOne = playerOneOverride ?? playerOneStored;
   const playerTwo = playerTwoOverride ?? playerTwoStored;
-
-  usePreventBackgroundScrolling(seriesWinner !== null);
-
-  if (!seriesWinner) return null;
   const isHuman = seriesWinner === '☠️';
   const displayIcon = isHuman ? playerOne.icon : playerTwo.icon;
 
@@ -55,6 +51,10 @@ export default function SeriesWinnerModal({
       : isHuman
       ? `${playerOne.name} is`
       : `${playerTwo.name} is`;
+
+  // Watch mode has no winner from the player's POV — render a neutral variant.
+  const variant =
+    isWinner === undefined ? 'neutral' : isWinner ? 'win' : 'loss';
 
   const confetti =
     isWinner === undefined
@@ -73,11 +73,9 @@ export default function SeriesWinnerModal({
       : 'Defeated!';
 
   const championText =
-    isWinner === undefined
-      ? `${displayIcon} ${championName} the ruler of the Seven Seas!`
-      : isWinner
-      ? `${displayIcon} ${championName} the ruler of the Seven Seas!`
-      : `${displayIcon} has conquered the seas...`;
+    isWinner === false
+      ? `${displayIcon} has conquered the seas...`
+      : `${displayIcon} ${championName} the ruler of the Seven Seas!`;
 
   const subtitleText =
     isWinner === undefined
@@ -93,69 +91,25 @@ export default function SeriesWinnerModal({
       ? '⚓ New Series ☠️'
       : '🌊 Try Again';
 
-  return createPortal(
-    <div>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-100 bg-black/70 backdrop-blur-sm" />
-
-      {/* Modal */}
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Series winner announcement"
-        className="fixed inset-0 z-101 flex items-center justify-center p-4"
-      >
-        <div
-          className={`relative bg-white dark:bg-[#1a0a00] border-4 rounded-2xl p-8 max-w-sm w-full text-center ${
-            isWinner === undefined
-              ? 'border-amber-400 dark:border-amber-600 shadow-[0_0_60px_#92400e]'
-              : isWinner
-              ? 'border-amber-500 dark:border-yellow-500 shadow-[0_0_60px_#facc15]'
-              : 'border-slate-500 dark:border-blue-900 shadow-[0_0_60px_#1e3a5f]'
-          }`}
-        >
-          {/* Floating confetti */}
-          <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
-            {confetti.map((emoji, i) => (
-              <span
-                key={i}
-                className="absolute text-2xl animate-bounce"
-                style={{
-                  left: `${10 + i * 15}%`,
-                  top: `${5 + (i % 3) * 10}%`,
-                  animationDelay: `${i * 0.15}s`,
-                  animationDuration: `${0.8 + i * 0.1}s`,
-                }}
-              >
-                {emoji}
-              </span>
-            ))}
-          </div>
-
-          <p className="text-5xl mb-4">{trophy}</p>
-
-          <h2 className="text-2xl font-black text-amber-700 dark:text-yellow-400 tracking-wide mb-2">
-            {title}
-          </h2>
-
+  return (
+    <GameOverModal
+      open
+      variant={variant}
+      ariaLabel="Series winner announcement"
+      trophy={trophy}
+      confetti={confetti}
+      title={title}
+      body={
+        <>
           <p className="text-lg font-bold text-slate-700 dark:text-amber-200 mb-1">
             {championText}
           </p>
-
           <p className="text-slate-500 dark:text-amber-500 text-sm mb-6 uppercase tracking-widest">
             {subtitleText}
           </p>
-
-          <Button
-            variant="gold"
-            onClick={onClose}
-            className="text-base tracking-wide dark:bg-yellow-600 dark:border-yellow-400 dark:text-black dark:hover:bg-yellow-500 focus-visible:ring-4"
-          >
-            {buttonText}
-          </Button>
-        </div>
-      </div>
-    </div>,
-    document.body,
+        </>
+      }
+      primary={{ label: buttonText, onClick: onClose }}
+    />
   );
 }
