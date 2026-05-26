@@ -55,8 +55,8 @@ export default function Lobby() {
   }, []);
 
   useEffect(() => {
-    // this is here to get the lobbies immediately when user connects to Lobby
-    fetchLobbies();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchLobbies();
 
     const interval = setInterval(fetchLobbies, 5000);
 

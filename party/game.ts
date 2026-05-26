@@ -11,22 +11,35 @@ import {
   INITIAL_SCORE,
   AI,
   HUMAN,
+  calculateWinner5,
+  calculateWinner10,
 } from '@/lib/gameLogic';
 
 import {
   type RoomState,
+  type RoomSettings,
   type ClientMessage,
   type ServerMessage,
   DEFAULT_ROOM_SETTINGS,
 } from '@/utils/multiplayer/multiplayerTypes';
 
 const SERIES_POINT_THRESHOLDS = { bo3: 2, bo5: 3, off: Infinity } as const;
+const BOARD_SIZE = { '3': 3, '5': 5, '10': 10 } as const;
 
-const INITIAL_BOARD: BoardType = Array(9).fill(null);
+function createInitialBoard(boardSize: RoomSettings['boardSize']): BoardType {
+  const size = BOARD_SIZE[boardSize];
+  return Array(size * size).fill(null);
+}
+
+function checkWinner(board: BoardType, boardSize: RoomSettings['boardSize']) {
+  if (boardSize === '3') return calculateWinner(board);
+  if (boardSize === '5') return calculateWinner5(board);
+  return calculateWinner10(board);
+}
 
 function makeInitialState(): RoomState {
   return {
-    board: [...INITIAL_BOARD],
+    board: createInitialBoard(DEFAULT_ROOM_SETTINGS.boardSize),
     currentPlayer: HUMAN,
     players: {},
     status: 'waiting',
@@ -96,7 +109,7 @@ export default class GameRoom implements Party.Server {
   }
 
   resetBoard() {
-    this.state.board = [...INITIAL_BOARD];
+    this.state.board = createInitialBoard(this.state.settings.boardSize);
     this.state.winner = null;
     this.state.isDraw = false;
     this.state.moveHistory = [];
@@ -292,6 +305,7 @@ export default class GameRoom implements Party.Server {
         //this.state.bestOfSeriesScores = { '☠️': 1, '⚓': 0 };
 
         this.state.settings = msg.settings;
+        this.state.board = createInitialBoard(msg.settings.boardSize);
         await this.saveAndBroadcast({
           type: 'state-update',
           state: this.state,
@@ -317,7 +331,7 @@ export default class GameRoom implements Party.Server {
         },
       ];
 
-      const { winner } = calculateWinner(newBoard);
+      const { winner } = checkWinner(newBoard, this.state.settings.boardSize);
       const draw = !winner && isDraw(newBoard);
 
       const { bestOfSeries } = this.state.settings;

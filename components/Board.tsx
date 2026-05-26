@@ -88,6 +88,8 @@ export default function Board({
   const [aiThinking, setAiThinking] = useState(false);
 
   const [moveHistory, setMoveHistory] = useState<MoveEntry[]>([]);
+  const latestSquareSeized =
+    moveHistory.length > 0 ? moveHistory[moveHistory.length - 1].index : null;
   const [showForfeitMessage, setShowForfeitMessage] = useState(false);
   const [hintIndex, setHintIndex] = useState<number | null>(null);
 
@@ -289,7 +291,12 @@ export default function Board({
   }, [board]);
 
   function handleHint() {
-    const move = getAIMove(board, HUMAN, AI, 'hard');
+    const move =
+      boardSize === 10
+        ? getAIMove10(board, HUMAN, AI, 'insane')
+        : boardSize === 5
+        ? getAIMove5(board, HUMAN, AI, 'insane')
+        : getAIMove(board, HUMAN, AI, 'insane');
     setHintIndex(move);
   }
 
@@ -721,6 +728,7 @@ export default function Board({
               }
               isWinning={winLine?.includes(i) ?? false}
               isHint={hintIndex === i}
+              isLatestMove={i === latestSquareSeized}
               disabled={
                 gameOver ||
                 aiThinking ||

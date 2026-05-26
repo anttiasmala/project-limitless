@@ -1,6 +1,6 @@
 export type Player = '☠️' | '⚓';
 export type Board = (Player | null)[];
-export type Difficulty = 'easy' | 'medium' | 'hard';
+export type Difficulty = 'easy' | 'medium' | 'hard' | 'insane';
 
 export const INITIAL_SCORE: Record<Player, number> = { '☠️': 0, '⚓': 0 };
 export const HUMAN: Player = '☠️';
@@ -131,71 +131,274 @@ export function getAIMove(
     case 'medium':
       return getMediumMove(board, aiPlayer, humanPlayer);
     case 'hard':
+      // 3x3 minimax is unbeatable, so "hard" plays it 80% of the time and
+      // drops to medium-quality (win/block + random) the other 20% — giving
+      // a careful human a real chance.
+      return Math.random() < 0.2
+        ? getMediumMove(board, aiPlayer, humanPlayer)
+        : getBestMove(board, aiPlayer, humanPlayer);
+    case 'insane':
       return getBestMove(board, aiPlayer, humanPlayer);
   }
+}
+
+// ─── N-IN-A-ROW SHARED HELPERS ────────────────────────────────────────────────
+
+const DIRS: [number, number][] = [
+  [0, 1],
+  [1, 0],
+  [1, 1],
+  [1, -1],
+];
+
+function makeWinnerChecker(size: number, winLen: number) {
+  return function calculateWinnerN(board: Board): {
+    winner: Player | null;
+    line: number[] | null;
+  } {
+    for (let row = 0; row < size; row++) {
+      for (let col = 0; col < size; col++) {
+        const player = board[row * size + col];
+        if (!player) continue;
+        for (const [dr, dc] of DIRS) {
+          const pr = row - dr;
+          const pc = col - dc;
+          if (
+            pr >= 0 &&
+            pr < size &&
+            pc >= 0 &&
+            pc < size &&
+            board[pr * size + pc] === player
+          )
+            continue;
+
+          const line: number[] = [row * size + col];
+          let r = row + dr;
+          let c = col + dc;
+          while (
+            r >= 0 &&
+            r < size &&
+            c >= 0 &&
+            c < size &&
+            board[r * size + c] === player
+          ) {
+            line.push(r * size + c);
+            r += dr;
+            c += dc;
+          }
+          if (line.length >= winLen) {
+            return { winner: player, line: line.slice(0, winLen) };
+          }
+        }
+      }
+    }
+    return { winner: null, line: null };
+  };
+}
+
+// Open-end aware shape score: `count` contiguous pieces with `openEnds` empty
+// neighbors at the ends. Distinguishes open threats (winning shapes) from
+// closed ones. Used by Insane.
+function scoreShapeOpenAware(count: number, openEnds: number, winLen: number): number {
+  if (count >= winLen) return 1_000_000;
+  if (openEnds === 0) return 0;
+
+  const gap = winLen - count;
+  if (gap === 1) return openEnds === 2 ? 100_000 : 10_000; // open/closed (winLen-1)
+  if (gap === 2) return openEnds === 2 ? 5_000 : 500; // open/closed (winLen-2)
+  if (gap === 3) return openEnds === 2 ? 200 : 50;
+  return openEnds === 2 ? 10 : 2;
+}
+
+// Naive length-cubed scoring: ignores whether the line is open or closed, so
+// the AI extends/blocks chains by raw length and misses open-three forks.
+// Used by Hard — strong enough to play solid moves, weak enough to lose to a
+// human who sets up a two-move threat.
+function scoreShapeNaive(count: number, openEnds: number, winLen: number): number {
+  if (count >= winLen) return 1_000_000;
+  if (openEnds === 0) return 0;
+  return count * count * count;
+}
+
+type ShapeScorer = (count: number, openEnds: number, winLen: number) => number;
+
+// Evaluate the value of placing `player` at `index` by summing the shape score
+// across all 4 directions.
+function evaluatePlacement(
+  board: Board,
+  index: number,
+  player: Player,
+  size: number,
+  winLen: number,
+  scoreFn: ShapeScorer,
+): number {
+  const row = Math.floor(index / size);
+  const col = index % size;
+  let total = 0;
+
+  for (const [dr, dc] of DIRS) {
+    let count = 1;
+    let openEnds = 0;
+
+    let r = row + dr;
+    let c = col + dc;
+    while (
+      r >= 0 && r < size && c >= 0 && c < size &&
+      board[r * size + c] === player
+    ) {
+      count++;
+      r += dr;
+      c += dc;
+    }
+    if (r >= 0 && r < size && c >= 0 && c < size && board[r * size + c] === null) openEnds++;
+
+    r = row - dr;
+    c = col - dc;
+    while (
+      r >= 0 && r < size && c >= 0 && c < size &&
+      board[r * size + c] === player
+    ) {
+      count++;
+      r -= dr;
+      c -= dc;
+    }
+    if (r >= 0 && r < size && c >= 0 && c < size && board[r * size + c] === null) openEnds++;
+
+    total += scoreFn(count, openEnds, winLen);
+  }
+  return total;
+}
+
+function hasNeighbor(board: Board, index: number, size: number, range: number): boolean {
+  const row = Math.floor(index / size);
+  const col = index % size;
+  for (let dr = -range; dr <= range; dr++) {
+    for (let dc = -range; dc <= range; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      const r = row + dr;
+      const c = col + dc;
+      if (r >= 0 && r < size && c >= 0 && c < size && board[r * size + c] !== null) return true;
+    }
+  }
+  return false;
+}
+
+function getScoredMoveN(
+  board: Board,
+  ai: Player,
+  human: Player,
+  size: number,
+  winLen: number,
+  checkWinner: (b: Board) => { winner: Player | null; line: number[] | null },
+  scoreFn: ShapeScorer,
+  defenseWeight: number,
+): number {
+  const CELLS = size * size;
+
+  // Empty board: open in the center — corners are the worst opening.
+  if (board.every((c) => c === null)) {
+    const mid = Math.floor(size / 2);
+    return mid * size + mid;
+  }
+
+  // Immediate win
+  for (let i = 0; i < CELLS; i++) {
+    if (board[i] !== null) continue;
+    const test = [...board];
+    test[i] = ai;
+    if (checkWinner(test).winner) return i;
+  }
+
+  // Immediate block
+  for (let i = 0; i < CELLS; i++) {
+    if (board[i] !== null) continue;
+    const test = [...board];
+    test[i] = human;
+    if (checkWinner(test).winner) return i;
+  }
+
+  // Score every empty cell that's within 2 squares of an existing stone.
+  // Distant cells are dead weight in n-in-a-row openings.
+  let bestScore = -Infinity;
+  let bestMoves: number[] = [];
+
+  for (let i = 0; i < CELLS; i++) {
+    if (board[i] !== null) continue;
+    if (!hasNeighbor(board, i, size, 2)) continue;
+
+    const offense = evaluatePlacement(board, i, ai, size, winLen, scoreFn);
+    const defense = evaluatePlacement(board, i, human, size, winLen, scoreFn);
+    const score = offense + defense * defenseWeight;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestMoves = [i];
+    } else if (score === bestScore) {
+      bestMoves.push(i);
+    }
+  }
+
+  if (bestMoves.length > 0) {
+    return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+  }
+  return getRandomMove(board);
+}
+
+// Hard: naive length-cubed scoring, equal offense/defense weight.
+function getHardMoveN(
+  board: Board,
+  ai: Player,
+  human: Player,
+  size: number,
+  winLen: number,
+  checkWinner: (b: Board) => { winner: Player | null; line: number[] | null },
+): number {
+  return getScoredMoveN(board, ai, human, size, winLen, checkWinner, scoreShapeNaive, 1.0);
+}
+
+// Insane: open-end aware scoring, defense weighted slightly higher than
+// offense so the AI prefers blocking an equal-length threat to extending it.
+function getInsaneMoveN(
+  board: Board,
+  ai: Player,
+  human: Player,
+  size: number,
+  winLen: number,
+  checkWinner: (b: Board) => { winner: Player | null; line: number[] | null },
+): number {
+  return getScoredMoveN(board, ai, human, size, winLen, checkWinner, scoreShapeOpenAware, 1.1);
+}
+
+function getMediumMoveN(
+  board: Board,
+  ai: Player,
+  human: Player,
+  size: number,
+  checkWinner: (b: Board) => { winner: Player | null; line: number[] | null },
+): number {
+  const CELLS = size * size;
+
+  for (let i = 0; i < CELLS; i++) {
+    if (board[i] !== null) continue;
+    const test = [...board];
+    test[i] = ai;
+    if (checkWinner(test).winner) return i;
+  }
+  for (let i = 0; i < CELLS; i++) {
+    if (board[i] !== null) continue;
+    const test = [...board];
+    test[i] = human;
+    if (checkWinner(test).winner) return i;
+  }
+  return getRandomMove(board);
 }
 
 // ─── 5x5 GAME LOGIC (4-in-a-row) ──────────────────────────────────────────────
 
 const SIZE_5 = 5;
+const WIN_5 = 4;
 
-export function calculateWinner5(board: Board): {
-  winner: Player | null;
-  line: number[] | null;
-} {
-  const dirs: [number, number][] = [[0, 1], [1, 0], [1, 1], [1, -1]];
-  for (let row = 0; row < SIZE_5; row++) {
-    for (let col = 0; col < SIZE_5; col++) {
-      const player = board[row * SIZE_5 + col];
-      if (!player) continue;
-      for (const [dr, dc] of dirs) {
-        const pr = row - dr;
-        const pc = col - dc;
-        if (
-          pr >= 0 && pr < SIZE_5 && pc >= 0 && pc < SIZE_5 &&
-          board[pr * SIZE_5 + pc] === player
-        ) continue;
-
-        const line: number[] = [row * SIZE_5 + col];
-        let r = row + dr;
-        let c = col + dc;
-        while (r >= 0 && r < SIZE_5 && c >= 0 && c < SIZE_5 && board[r * SIZE_5 + c] === player) {
-          line.push(r * SIZE_5 + c);
-          r += dr;
-          c += dc;
-        }
-        if (line.length >= 4) {
-          return { winner: player, line: line.slice(0, 4) };
-        }
-      }
-    }
-  }
-  return { winner: null, line: null };
-}
-
-function countDir5(board: Board, row: number, col: number, dr: number, dc: number, player: Player): number {
-  let count = 0;
-  let r = row + dr;
-  let c = col + dc;
-  while (r >= 0 && r < SIZE_5 && c >= 0 && c < SIZE_5 && board[r * SIZE_5 + c] === player) {
-    count++;
-    r += dr;
-    c += dc;
-  }
-  return count;
-}
-
-function maxLine5(board: Board, index: number, player: Player): number {
-  const row = Math.floor(index / SIZE_5);
-  const col = index % SIZE_5;
-  const dirs: [number, number][] = [[0, 1], [1, 0], [1, 1], [1, -1]];
-  let max = 0;
-  for (const [dr, dc] of dirs) {
-    const len = countDir5(board, row, col, dr, dc, player) + countDir5(board, row, col, -dr, -dc, player) + 1;
-    if (len > max) max = len;
-  }
-  return max;
-}
+export const calculateWinner5 = makeWinnerChecker(SIZE_5, WIN_5);
 
 export function getAIMove5(
   board: Board,
@@ -203,129 +406,20 @@ export function getAIMove5(
   humanPlayer: Player,
   difficulty: Difficulty,
 ): number {
-  const CELLS = SIZE_5 * SIZE_5;
-
   if (difficulty === 'easy') return getRandomMove(board);
-
-  for (let i = 0; i < CELLS; i++) {
-    if (board[i] !== null) continue;
-    const test = [...board];
-    test[i] = aiPlayer;
-    if (calculateWinner5(test).winner) return i;
-  }
-
-  for (let i = 0; i < CELLS; i++) {
-    if (board[i] !== null) continue;
-    const test = [...board];
-    test[i] = humanPlayer;
-    if (calculateWinner5(test).winner) return i;
-  }
-
-  if (difficulty === 'medium') return getRandomMove(board);
-
-  let bestScore = -Infinity;
-  let bestMove = -1;
-  for (let i = 0; i < CELLS; i++) {
-    if (board[i] !== null) continue;
-    const aiLine = maxLine5(board, i, aiPlayer);
-    const humanLine = maxLine5(board, i, humanPlayer);
-    const score = Math.pow(aiLine, 3) + Math.pow(humanLine, 3) * 0.9;
-    if (score > bestScore) {
-      bestScore = score;
-      bestMove = i;
-    }
-  }
-  return bestMove !== -1 ? bestMove : getRandomMove(board);
+  if (difficulty === 'medium')
+    return getMediumMoveN(board, aiPlayer, humanPlayer, SIZE_5, calculateWinner5);
+  if (difficulty === 'hard')
+    return getHardMoveN(board, aiPlayer, humanPlayer, SIZE_5, WIN_5, calculateWinner5);
+  return getInsaneMoveN(board, aiPlayer, humanPlayer, SIZE_5, WIN_5, calculateWinner5);
 }
 
 // ─── 10x10 GAME LOGIC (5-in-a-row) ────────────────────────────────────────────
 
 const SIZE_10 = 10;
+const WIN_10 = 5;
 
-export function calculateWinner10(board: Board): {
-  winner: Player | null;
-  line: number[] | null;
-} {
-  const dirs: [number, number][] = [[0, 1], [1, 0], [1, 1], [1, -1]];
-  for (let row = 0; row < SIZE_10; row++) {
-    for (let col = 0; col < SIZE_10; col++) {
-      const player = board[row * SIZE_10 + col];
-      if (!player) continue;
-      for (const [dr, dc] of dirs) {
-        // Only start from the beginning of a run to avoid duplicates
-        const pr = row - dr;
-        const pc = col - dc;
-        if (
-          pr >= 0 &&
-          pr < SIZE_10 &&
-          pc >= 0 &&
-          pc < SIZE_10 &&
-          board[pr * SIZE_10 + pc] === player
-        )
-          continue;
-
-        const line: number[] = [row * SIZE_10 + col];
-        let r = row + dr;
-        let c = col + dc;
-        while (
-          r >= 0 &&
-          r < SIZE_10 &&
-          c >= 0 &&
-          c < SIZE_10 &&
-          board[r * SIZE_10 + c] === player
-        ) {
-          line.push(r * SIZE_10 + c);
-          r += dr;
-          c += dc;
-        }
-        if (line.length >= 5) {
-          return { winner: player, line: line.slice(0, 5) };
-        }
-      }
-    }
-  }
-  return { winner: null, line: null };
-}
-
-function countDir10(
-  board: Board,
-  row: number,
-  col: number,
-  dr: number,
-  dc: number,
-  player: Player,
-): number {
-  let count = 0;
-  let r = row + dr;
-  let c = col + dc;
-  while (
-    r >= 0 &&
-    r < SIZE_10 &&
-    c >= 0 &&
-    c < SIZE_10 &&
-    board[r * SIZE_10 + c] === player
-  ) {
-    count++;
-    r += dr;
-    c += dc;
-  }
-  return count;
-}
-
-function maxLine10(board: Board, index: number, player: Player): number {
-  const row = Math.floor(index / SIZE_10);
-  const col = index % SIZE_10;
-  const dirs: [number, number][] = [[0, 1], [1, 0], [1, 1], [1, -1]];
-  let max = 0;
-  for (const [dr, dc] of dirs) {
-    const len =
-      countDir10(board, row, col, dr, dc, player) +
-      countDir10(board, row, col, -dr, -dc, player) +
-      1;
-    if (len > max) max = len;
-  }
-  return max;
-}
+export const calculateWinner10 = makeWinnerChecker(SIZE_10, WIN_10);
 
 export function getAIMove10(
   board: Board,
@@ -333,40 +427,10 @@ export function getAIMove10(
   humanPlayer: Player,
   difficulty: Difficulty,
 ): number {
-  const CELLS = SIZE_10 * SIZE_10;
-
   if (difficulty === 'easy') return getRandomMove(board);
-
-  // Immediate win
-  for (let i = 0; i < CELLS; i++) {
-    if (board[i] !== null) continue;
-    const test = [...board];
-    test[i] = aiPlayer;
-    if (calculateWinner10(test).winner) return i;
-  }
-
-  // Immediate block
-  for (let i = 0; i < CELLS; i++) {
-    if (board[i] !== null) continue;
-    const test = [...board];
-    test[i] = humanPlayer;
-    if (calculateWinner10(test).winner) return i;
-  }
-
-  if (difficulty === 'medium') return getRandomMove(board);
-
-  // Hard: heuristic scoring based on max consecutive pieces through each cell
-  let bestScore = -Infinity;
-  let bestMove = -1;
-  for (let i = 0; i < CELLS; i++) {
-    if (board[i] !== null) continue;
-    const aiLine = maxLine10(board, i, aiPlayer);
-    const humanLine = maxLine10(board, i, humanPlayer);
-    const score = Math.pow(aiLine, 3) + Math.pow(humanLine, 3) * 0.9;
-    if (score > bestScore) {
-      bestScore = score;
-      bestMove = i;
-    }
-  }
-  return bestMove !== -1 ? bestMove : getRandomMove(board);
+  if (difficulty === 'medium')
+    return getMediumMoveN(board, aiPlayer, humanPlayer, SIZE_10, calculateWinner10);
+  if (difficulty === 'hard')
+    return getHardMoveN(board, aiPlayer, humanPlayer, SIZE_10, WIN_10, calculateWinner10);
+  return getInsaneMoveN(board, aiPlayer, humanPlayer, SIZE_10, WIN_10, calculateWinner10);
 }

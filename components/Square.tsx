@@ -1,5 +1,6 @@
 // components/Square.tsx
 
+import { twMerge } from 'tailwind-merge';
 import { Player } from '../lib/gameLogic';
 
 interface SquareProps {
@@ -9,11 +10,13 @@ interface SquareProps {
   onKeyDown: (e: React.KeyboardEvent<HTMLButtonElement>) => void;
   isWinning: boolean;
   isHint?: boolean;
+  isLatestMove?: boolean;
   disabled: boolean;
   tabIndex: number;
   cellRef: (el: HTMLButtonElement | null) => void;
   label: string;
   size?: 'sm' | 'md';
+  className?: string;
 }
 
 export default function Square({
@@ -23,11 +26,13 @@ export default function Square({
   onKeyDown,
   isWinning,
   isHint,
+  isLatestMove,
   disabled,
   tabIndex,
   cellRef,
   label,
   size,
+  className,
 }: SquareProps) {
   return (
     <button
@@ -37,7 +42,8 @@ export default function Square({
       tabIndex={tabIndex}
       onClick={onClick}
       onKeyDown={onKeyDown}
-      className={`
+      className={twMerge(
+        `
         ${
           size === 'sm'
             ? 'w-7 h-7 sm:w-8 sm:h-8 text-[10px] sm:text-xs border-2 rounded'
@@ -51,12 +57,16 @@ export default function Square({
             ? 'border-yellow-400 bg-yellow-100 dark:bg-yellow-900/60 shadow-[0_0_20px_#facc15] scale-105'
             : isHint
             ? 'border-emerald-400 bg-emerald-100 dark:bg-emerald-900/60 shadow-[0_0_20px_#34d399] scale-105 animate-pulse'
+            : isLatestMove
+            ? 'border-amber-500 bg-amber-100 dark:border-yellow-500 dark:bg-amber-900/50 ring-2 ring-amber-400/60 dark:ring-yellow-400/50 ring-inset'
             : 'border-slate-300 bg-slate-100 hover:bg-slate-200 hover:border-amber-500 dark:border-amber-800 dark:bg-amber-950/70 dark:hover:bg-amber-900/60 dark:hover:border-yellow-600'
         }
         ${disabled || value ? 'cursor-not-allowed' : 'cursor-pointer'}
-      `}
+      `,
+        className,
+      )}
     >
-      {value ? (displayValue ?? value) : <span className="sr-only">Empty</span>}
+      {value ? displayValue ?? value : <span className="sr-only">Empty</span>}
     </button>
   );
 }
