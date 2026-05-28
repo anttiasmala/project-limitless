@@ -26,6 +26,7 @@ type Params = {
   gameOver: boolean;
   board: Board;
   currentPlayer: Player;
+  showReplayModal: boolean;
   resetGame: () => void;
   setScores: React.Dispatch<React.SetStateAction<Record<Player, number>>>;
   setBoard: React.Dispatch<React.SetStateAction<Board>>;
@@ -40,6 +41,7 @@ export function useWatchMode({
   gameOver,
   board,
   currentPlayer,
+  showReplayModal,
   resetGame,
   setScores,
   setBoard,
@@ -59,6 +61,7 @@ export function useWatchMode({
   const [watchPaused, setWatchPaused] = useState(false);
 
   useEffect(() => {
+    setWatchPaused(showReplayModal)
     if (mode !== 'watch' || !isGameStarted || watchPaused) return;
 
     if (gameOver) {
@@ -107,6 +110,7 @@ export function useWatchMode({
     gameOver,
     board,
     currentPlayer,
+    showReplayModal,
     watchSpeed,
     watchDifficultyOne,
     watchDifficultyTwo,

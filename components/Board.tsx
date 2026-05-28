@@ -483,6 +483,7 @@ export default function Board({
     gameOver,
     board,
     currentPlayer,
+    showReplayModal,
     resetGame,
     setScores,
     setBoard,
