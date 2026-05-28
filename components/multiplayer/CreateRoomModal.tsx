@@ -163,31 +163,31 @@ export default function CreateRoomModal({ onClose }: Props) {
               }
             />
           </label>
-        </div>
 
-        {/* Size of Board */}
-        <label
-          className="flex items-center justify-between select-none
+          {/* Size of Board */}
+          <label
+            className="flex items-center justify-between select-none
           text-slate-700 dark:text-yellow-300 font-semibold"
-        >
-          Board Size
-          <select
-            className="border-2 border-slate-300 dark:border-amber-700 rounded-md
+          >
+            Board Size
+            <select
+              className="border-2 border-slate-300 dark:border-amber-700 rounded-md
               text-slate-800 dark:text-yellow-300 bg-white dark:bg-amber-900
               cursor-pointer px-2 py-1"
-            value={settings.boardSize}
-            onChange={(e) =>
-              setSettings((prev) => ({
-                ...prev,
-                boardSize: e.target.value as RoomSettings['boardSize'],
-              }))
-            }
-          >
-            <option value="3">3x3</option>
-            <option value="5">5x5</option>
-            <option value="10">10x10</option>
-          </select>
-        </label>
+              value={settings.boardSize}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  boardSize: e.target.value as RoomSettings['boardSize'],
+                }))
+              }
+            >
+              <option value="3">3x3</option>
+              <option value="5">5x5</option>
+              <option value="10">10x10</option>
+            </select>
+          </label>
+        </div>
 
         {/* Buttons */}
         <div className="flex gap-3 pt-2 shrink-0">
