@@ -246,16 +246,18 @@ function LobbyModal({
           <Button
             variant="unstyled"
             aria-label="Refetch lobbies"
-            title="Refetch lobbies"
             onClick={handleRefetch}
             disabled={isRefetching}
-            className="w-10 h-10 shrink-0 rounded-lg border-2 border-amber-800 dark:border-amber-700
+            className="relative w-10 h-10 shrink-0 rounded-lg border-2 border-amber-800 dark:border-amber-700
               bg-amber-100 dark:bg-amber-900/40 text-base
               hover:bg-amber-200 dark:hover:bg-amber-900
-              focus-visible:ring-2 focus-visible:ring-amber-500"
+              focus-visible:ring-2 focus-visible:ring-amber-500 group"
           >
             <span className={isRefetching ? 'inline-block animate-spin' : ''}>
               🔄
+            </span>
+            <span className="pointer-events-none absolute -bottom-7 hidden group-hover:block group-focus-visible:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
+              Refetch Lobbies
             </span>
           </Button>
         </div>
