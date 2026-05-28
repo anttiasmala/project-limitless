@@ -708,7 +708,7 @@ export default function Board({
           </div>
           {!isGameStarted && (
             <p className="px-3 py-1.5 rounded-md border-2 border-amber-700 bg-yellow-200 text-amber-900 dark:bg-amber-900/40 dark:border-yellow-500 dark:text-yellow-300 text-sm font-semibold tracking-wide text-center">
-              Press "New Voyage" to start the game
+              Press &quot;New Voyage&quot; to start the game
             </p>
           )}
         </div>

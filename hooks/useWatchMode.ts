@@ -61,8 +61,7 @@ export function useWatchMode({
   const [watchPaused, setWatchPaused] = useState(false);
 
   useEffect(() => {
-    setWatchPaused(showReplayModal)
-    if (mode !== 'watch' || !isGameStarted || watchPaused) return;
+    if (mode !== 'watch' || !isGameStarted || watchPaused || showReplayModal) return;
 
     if (gameOver) {
       const restart = setTimeout(() => resetGame(), WATCH_PAUSE_MS);
