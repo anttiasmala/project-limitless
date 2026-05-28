@@ -3,10 +3,11 @@
 import { useKeyPress } from '@/hooks/useKeyPress';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
-import { INITIAL_SCORE, Player } from '@/lib/gameLogic';
+import { Player } from '@/lib/gameLogic';
 import { BaseSettingsProps, GameMode, WinLossDrawStats } from '@/utils/types';
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { GamePanel } from './settings/GamePanel';
 import { PlayersPanel } from './settings/PlayersPanel';
 import { StatsPanel } from './settings/StatsPanel';
 import Button from './utils/Button';
@@ -68,8 +69,10 @@ export function SettingsModal({
     icon: '⚓',
   });
   const [settingMenu, setSettingMenu] = useState<
-    'settings' | 'players' | 'stats'
+    'settings' | 'game' | 'players' | 'stats'
   >('settings');
+
+  const showGameSettings = Boolean(setTimerEnabled || setBestOfSeries);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkTheme);
@@ -114,11 +117,11 @@ export function SettingsModal({
         </Button>
 
         {showPlayerSettings ? (
-          <div className="flex mb-2 gap-1 shrink-0">
+          <div className="grid grid-cols-2 mb-2 gap-1 shrink-0">
             <Button
               variant="unstyled"
               onClick={() => setSettingMenu('settings')}
-              className={`flex-1 py-2 px-3 text-sm border-2 ${
+              className={`py-2 px-3 text-sm border-2 ${
                 settingMenu === 'settings'
                   ? 'bg-amber-600 border-amber-500 text-white'
                   : 'bg-red-900 border-red-700 text-yellow-300/60 hover:text-yellow-300 hover:bg-red-800'
@@ -126,10 +129,23 @@ export function SettingsModal({
             >
               ⚙️ Settings
             </Button>
+            {showGameSettings && (
+              <Button
+                variant="unstyled"
+                onClick={() => setSettingMenu('game')}
+                className={`py-2 px-3 text-sm border-2 ${
+                  settingMenu === 'game'
+                    ? 'bg-amber-600 border-amber-500 text-white'
+                    : 'bg-red-900 border-red-700 text-yellow-300/60 hover:text-yellow-300 hover:bg-red-800'
+                }`}
+              >
+                🎮 Game
+              </Button>
+            )}
             <Button
               variant="unstyled"
               onClick={() => setSettingMenu('players')}
-              className={`flex-1 py-2 px-3 text-sm border-2 ${
+              className={`py-2 px-3 text-sm border-2 ${
                 settingMenu === 'players'
                   ? 'bg-amber-600 border-amber-500 text-white'
                   : 'bg-red-900 border-red-700 text-yellow-300/60 hover:text-yellow-300 hover:bg-red-800'
@@ -141,7 +157,7 @@ export function SettingsModal({
               <Button
                 variant="unstyled"
                 onClick={() => setSettingMenu('stats')}
-                className={`flex-1 py-2 px-3 text-sm border-2 ${
+                className={`py-2 px-3 text-sm border-2 ${
                   settingMenu === 'stats'
                     ? 'bg-amber-600 border-amber-500 text-white'
                     : 'bg-red-900 border-red-700 text-yellow-300/60 hover:text-yellow-300 hover:bg-red-800'
@@ -180,21 +196,6 @@ export function SettingsModal({
                     />
                   </label>
                 </div>
-                {/* TIMER LOGIC -- single-player only*/}
-                {setTimerEnabled && (
-                  <div className="mt-3 flex">
-                    <label className="cursor-pointer select-none">
-                      Sand timer (10s)
-                      <input
-                        type="checkbox"
-                        className="ml-2 w-5 h-5 cursor-pointer align-middle"
-                        checked={timerEnabled ?? false}
-                        onChange={(e) => setTimerEnabled(e.target.checked)}
-                      />
-                    </label>
-                  </div>
-                )}
-
                 {/* Treasure chest or number logic -- single-player only*/}
                 {setPointSystem && (
                   <div className="mt-3 flex">
@@ -253,47 +254,6 @@ export function SettingsModal({
                   </label>
                 </div>
 
-                {/* Best of Series logic -- single-player only */}
-                {setBestOfSeries && (
-                  <div className="mt-3 flex">
-                    <label className="select-none">
-                      Best of Series:
-                      <select
-                        className="border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
-                        name="bestOfSeries"
-                        onChange={(e) => {
-                          setBestOfSeries(
-                            e.target.value as 'off' | 'bo3' | 'bo5',
-                          );
-                          setBestOfSeriesScores?.({ ...INITIAL_SCORE });
-                          setScores?.({ ...INITIAL_SCORE });
-                          resetGame?.();
-                        }}
-                        value={bestOfSeries}
-                      >
-                        <option
-                          className="text-black dark:text-yellow-300 font-bold"
-                          value={'off'}
-                        >
-                          Off
-                        </option>
-                        <option
-                          className="text-black dark:text-yellow-300 font-bold"
-                          value={'bo3'}
-                        >
-                          Best of 3
-                        </option>
-                        <option
-                          className="text-black dark:text-yellow-300 font-bold"
-                          value={'bo5'}
-                        >
-                          Best of 5
-                        </option>
-                      </select>
-                    </label>
-                  </div>
-                )}
-
                 {/* Volume slider logic */}
                 <div className="flex mt-3">
                   <label className="pr-3">Volume</label>
@@ -318,6 +278,16 @@ export function SettingsModal({
                 </div>
               </div>
             </div>
+          ) : settingMenu === 'game' ? (
+            <GamePanel
+              timerEnabled={timerEnabled}
+              setTimerEnabled={setTimerEnabled}
+              bestOfSeries={bestOfSeries}
+              setBestOfSeries={setBestOfSeries}
+              setScores={setScores}
+              setBestOfSeriesScores={setBestOfSeriesScores}
+              resetGame={resetGame}
+            />
           ) : settingMenu === 'stats' && winLossDraw ? (
             <StatsPanel
               winLossDraw={winLossDraw}
