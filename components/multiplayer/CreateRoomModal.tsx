@@ -191,13 +191,16 @@ export default function CreateRoomModal({ onClose }: Props) {
 
         {/* Buttons */}
         <div className="flex gap-3 pt-2 shrink-0">
-          <Button className="flex-1" onClick={onClose}>
+          <Button
+            className="flex-1 whitespace-nowrap text-sm sm:text-lg py-0 sm:py-3"
+            onClick={onClose}
+          >
             Cancel
           </Button>
           <Button
             className="flex-1 bg-amber-600 hover:bg-amber-500 border-amber-800
               dark:bg-amber-700 dark:hover:bg-amber-600 dark:border-yellow-500
-              dark:text-yellow-300 text-white"
+              dark:text-yellow-300 text-white whitespace-nowrap text-sm sm:text-lg py-0 sm:py-3"
             onClick={handleCreate}
           >
             ⚓ Set Sail!
