@@ -282,8 +282,9 @@ export function SettingsModal({
                 )}
 
                 {/* Volume slider logic */}
-                <p>Volume</p>
+
                 <div className="flex">
+                  <label className="pr-3">Volume</label>
                   <input
                     type="range"
                     min={0}
