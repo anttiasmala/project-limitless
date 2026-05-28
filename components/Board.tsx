@@ -630,29 +630,37 @@ export default function Board({
       <ModeSelector mode={mode} onSwitchMode={switchMode} />
 
       {/* Board size selector */}
-      <div className="flex gap-2">
-        {([3, 5, 10] as const).map((size) => (
-          <button
-            key={size}
-            onClick={() => switchBoardSize(size)}
-            disabled={gameHasMoves && !gameOver}
-            aria-pressed={boardSize === size}
-            className={`px-3 py-1.5 rounded-lg border-2 font-bold text-sm transition-all duration-200
-              ${
-                boardSize === size
-                  ? 'bg-amber-600 border-amber-800 text-white dark:bg-amber-700 dark:border-yellow-400 dark:text-yellow-300'
-                  : 'bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:bg-amber-950/50 dark:hover:bg-amber-900/50 dark:border-amber-800 dark:text-amber-400 dark:hover:border-amber-600'
-              }
-              ${
-                gameHasMoves && !gameOver
-                  ? 'cursor-not-allowed opacity-50'
-                  : 'cursor-pointer'
-              }
-            `}
-          >
-            {size === 3 ? '3x3' : size === 5 ? '5x5' : '10x10'}
-          </button>
-        ))}
+      <div className="flex flex-col items-center gap-1">
+        <div className="flex gap-2">
+          {([3, 5, 10] as const).map((size) => (
+            <button
+              key={size}
+              onClick={() => switchBoardSize(size)}
+              disabled={gameHasMoves && !gameOver}
+              aria-pressed={boardSize === size}
+              className={`px-3 py-1.5 rounded-lg border-2 font-bold text-sm transition-all duration-200
+                ${
+                  boardSize === size
+                    ? 'bg-amber-600 border-amber-800 text-white dark:bg-amber-700 dark:border-yellow-400 dark:text-yellow-300'
+                    : 'bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:bg-amber-950/50 dark:hover:bg-amber-900/50 dark:border-amber-800 dark:text-amber-400 dark:hover:border-amber-600'
+                }
+                ${
+                  gameHasMoves && !gameOver
+                    ? 'cursor-not-allowed opacity-50'
+                    : 'cursor-pointer'
+                }
+              `}
+            >
+              {size === 3 ? '3x3' : size === 5 ? '5x5' : '10x10'}
+            </button>
+          ))}
+        </div>
+        <p
+          aria-live="polite"
+          className="text-xs italic text-slate-600 dark:text-amber-400"
+        >
+          Get {boardSize === 3 ? 3 : boardSize === 5 ? 4 : 5} in a row to win
+        </p>
       </div>
 
       {/* Difficulty selector (only in PvC mode) */}
