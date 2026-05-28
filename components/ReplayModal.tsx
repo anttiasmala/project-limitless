@@ -66,7 +66,7 @@ export default function ReplayModal({
         aria-label="Game replay"
         className="fixed inset-0 z-101 flex items-center justify-center p-4 overflow-y-auto"
       >
-        <div className="relative bg-white dark:bg-[#1a0a00] border-4 border-amber-500 dark:border-yellow-500 rounded-2xl p-8 max-w-sm w-full text-center shadow-[0_0_60px_#facc15] my-auto">
+        <div className="relative bg-white dark:bg-[#1a0a00] border-4 border-amber-500 dark:border-yellow-500 rounded-2xl p-2 sm:p-4 md:p-8 max-w-sm w-full text-center shadow-[0_0_60px_#facc15] my-auto">
           {/* Step counter */}
           <p className="text-sm text-slate-500 dark:text-amber-500 uppercase tracking-widest mb-4">
             Move {stepIndex} / {total}
