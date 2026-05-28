@@ -16,6 +16,7 @@ Change PartyKit to PartyServer — PartyKit is not updated in a long time
 5. In Single-player name does not get instantly changes, requires a refresh to change
 6. In Multiplayer theoretically a player could change their name longer than 20 characters by modifying the name in Local Storage
 7. In Multiplayer Pirate Profile the selected icon is not centered with "Smallest screen needed" mobile view
+8. In Multiplayer allow only spectate rooms that have players / allowed spectating
 
 # Notes
 
