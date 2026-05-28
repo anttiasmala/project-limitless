@@ -78,6 +78,19 @@ export function SettingsModal({
   useKeyPress('Escape', handleClose, showSettingsModal);
   usePreventBackgroundScrolling(showSettingsModal);
 
+  const applyVolume = (vol: number) => {
+    const clamped = Math.max(0, Math.min(1, vol));
+    setVolume(clamped);
+    const muted = clamped <= 0;
+    setIsAudioMuted(muted);
+    AudioArray.forEach((ref) => {
+      if (ref.current) {
+        ref.current.volume = clamped;
+        ref.current.muted = muted;
+      }
+    });
+  };
+
   if (!showSettingsModal) return null;
 
   return createPortal(
@@ -292,20 +305,17 @@ export function SettingsModal({
                     step={0.01}
                     value={volume}
                     className="cursor-pointer w-max accent-yellow-400"
-                    onChange={(e) => {
-                      const vol = parseFloat(e.target.value);
-                      setVolume(vol);
-                      const muted = vol === 0;
-                      setIsAudioMuted(muted);
-                      AudioArray.forEach((ref) => {
-                        if (ref.current) {
-                          ref.current.volume = vol;
-                          ref.current.muted = muted;
-                        }
-                      });
-                    }}
+                    onChange={(e) => applyVolume(parseFloat(e.target.value))}
                   />
-                  <p className="ml-3">{Math.floor(volume * 100)}</p>
+                  <input
+                    className="ml-3 w-14 border border-slate-300 dark:border-yellow-500 dark:bg-red-900 dark:text-yellow-300 rounded-md px-1 text-center"
+                    min={0}
+                    max={100}
+                    type="number"
+                    aria-label="Set volume"
+                    value={Math.floor(volume * 100)}
+                    onChange={(e) => applyVolume(Number(e.target.value) / 100)}
+                  />
                 </div>
               </div>
             </div>
