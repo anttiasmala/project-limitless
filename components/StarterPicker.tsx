@@ -34,7 +34,7 @@ export default function StarterPicker({
             key={player}
             variant="unstyled"
             onClick={() => onSelect(player)}
-            className={`relative z-10 px-5 py-1.5 rounded-full text-sm
+            className={`relative z-10 px-3 sm:px-5 py-1.5 rounded-full text-sm
               ${
                 starterPlayer === player
                   ? 'text-white dark:text-yellow-300'
