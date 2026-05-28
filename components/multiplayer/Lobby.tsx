@@ -184,61 +184,79 @@ function LobbyModal({
         aria-modal="true"
         aria-label="Lobby list"
         className="fixed top-1/2 left-1/2 z-99 -translate-x-1/2 -translate-y-1/2
-          w-[90vw] max-w-md
+          w-[92vw] max-w-md
           bg-amber-50 dark:bg-amber-950
           border-2 border-amber-800 dark:border-amber-700
           rounded-xl shadow-2xl
-          p-6 flex flex-col gap-4 max-h-[90vh]"
+          p-5 sm:p-6 pt-12 sm:pt-12 flex flex-col gap-4 max-h-[90vh]"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between shrink-0">
-          <Button
-            variant="unstyled"
-            className={`text-xl text-slate-800 dark:text-yellow-300 border-2 ${
-              activeMode === 'openLobby'
-                ? 'bg-red-500 text-white dark:bg-red-500'
-                : ''
-            }`}
-            onClick={() => setActiveMode('openLobby')}
-          >
-            🏴‍☠️ Open Lobbies
-          </Button>
-          <Button
-            variant="unstyled"
-            className={`text-xl text-slate-800 dark:text-yellow-300 border-2 ${
-              activeMode === 'spectator'
-                ? 'bg-red-500 text-white dark:bg-red-500'
-                : ''
-            }`}
-            onClick={() => setActiveMode('spectator')}
-          >
-            👁️ Spectator
-          </Button>
+        {/* Close button — absolute top-right with a proper touch target */}
+        <Button
+          variant="unstyled"
+          onClick={closeModal}
+          aria-label="Close modal"
+          className="absolute top-2 right-2 w-10 h-10 rounded-full text-lg leading-none
+            text-slate-600 dark:text-amber-300
+            hover:bg-amber-200 dark:hover:bg-amber-900
+            hover:text-red-600 dark:hover:text-red-400
+            focus-visible:ring-2 focus-visible:ring-amber-500"
+        >
+          ✕
+        </Button>
 
-          <span className="ml-1 relative group">
+        {/* Title */}
+        <h2 className="absolute top-3 left-5 sm:left-6 text-lg font-black text-amber-700 dark:text-yellow-400 tracking-wide shrink-0">
+          🏴‍☠️ Game Lobbies
+        </h2>
+
+        {/* Tabs + refetch */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div
+            role="tablist"
+            className="flex flex-1 rounded-lg border-2 border-amber-800 dark:border-amber-700 overflow-hidden bg-amber-100 dark:bg-amber-900/40"
+          >
             <Button
-              aria-label="Refetch lobbies"
-              size="sm"
+              role="tab"
+              aria-selected={activeMode === 'openLobby'}
               variant="unstyled"
-              onClick={handleRefetch}
-              disabled={isRefetching}
-              className={isRefetching ? 'inline-block animate-spin' : ''}
+              className={`flex-1 py-2 px-2 text-sm sm:text-base font-bold rounded-none border-0 transition-colors ${
+                activeMode === 'openLobby'
+                  ? 'bg-amber-600 text-white dark:bg-amber-700 dark:text-yellow-300'
+                  : 'text-slate-700 dark:text-yellow-300/70 hover:bg-amber-200 dark:hover:bg-amber-900'
+              }`}
+              onClick={() => setActiveMode('openLobby')}
             >
-              🔄
+              🏴‍☠️ Open
             </Button>
-            <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block bg-slate-800 text-white text-xs rounded whitespace-nowrap px-2 py-1">
-              Refetch lobbies
-            </span>
-          </span>
+            <Button
+              role="tab"
+              aria-selected={activeMode === 'spectator'}
+              variant="unstyled"
+              className={`flex-1 py-2 px-2 text-sm sm:text-base font-bold rounded-none border-0 transition-colors ${
+                activeMode === 'spectator'
+                  ? 'bg-amber-600 text-white dark:bg-amber-700 dark:text-yellow-300'
+                  : 'text-slate-700 dark:text-yellow-300/70 hover:bg-amber-200 dark:hover:bg-amber-900'
+              }`}
+              onClick={() => setActiveMode('spectator')}
+            >
+              👁️ Spectator
+            </Button>
+          </div>
 
           <Button
-            variant="ghost"
-            size="sm"
-            onClick={closeModal}
-            className="text-slate-500 dark:text-amber-600 text-lg px-0 py-0"
-            aria-label="Close modal"
+            variant="unstyled"
+            aria-label="Refetch lobbies"
+            title="Refetch lobbies"
+            onClick={handleRefetch}
+            disabled={isRefetching}
+            className="w-10 h-10 shrink-0 rounded-lg border-2 border-amber-800 dark:border-amber-700
+              bg-amber-100 dark:bg-amber-900/40 text-base
+              hover:bg-amber-200 dark:hover:bg-amber-900
+              focus-visible:ring-2 focus-visible:ring-amber-500"
           >
-            ✕
+            <span className={isRefetching ? 'inline-block animate-spin' : ''}>
+              🔄
+            </span>
           </Button>
         </div>
 
@@ -272,21 +290,37 @@ function LobbyTable({
   const router = useRouter();
   if (lobbies.length === 0) {
     return (
-      <p className="text-center text-slate-500 dark:text-amber-700 py-6">
-        {activeMode === 'openLobby'
-          ? 'No open lobbies. Be the first to create one!'
-          : 'No active games to spectate.'}
-      </p>
+      <div className="flex flex-col items-center gap-2 py-10 text-center">
+        <span className="text-4xl" aria-hidden>
+          {activeMode === 'openLobby' ? '🏝️' : '👁️'}
+        </span>
+        <p className="text-slate-500 dark:text-amber-600 font-semibold">
+          {activeMode === 'openLobby'
+            ? 'No open lobbies'
+            : 'No active games to spectate'}
+        </p>
+        <p className="text-xs text-slate-400 dark:text-amber-700">
+          {activeMode === 'openLobby'
+            ? 'Be the first to create one!'
+            : 'Check back in a moment.'}
+        </p>
+      </div>
     );
   }
 
   return (
     <table className="w-full text-sm">
       <thead>
-        <tr className="border-b border-amber-300 dark:border-amber-800 text-slate-500 dark:text-amber-600 text-left sticky top-0 bg-amber-50 dark:bg-amber-950">
-          <th className="pb-2 font-semibold">Room</th>
-          <th className="pb-2 font-semibold pr-2 sm:pr-0">Players</th>
-          <th className="pb-2 font-semibold">Status</th>
+        <tr className="border-b-2 border-amber-300 dark:border-amber-800 text-slate-500 dark:text-amber-600 text-left sticky top-0 bg-amber-50 dark:bg-amber-950">
+          <th className="pb-2 font-semibold text-xs uppercase tracking-wider">
+            Room
+          </th>
+          <th className="pb-2 font-semibold text-xs uppercase tracking-wider pr-2 sm:pr-0">
+            Players
+          </th>
+          <th className="pb-2 font-semibold text-xs uppercase tracking-wider">
+            Status
+          </th>
           <th className="pb-2" />
         </tr>
       </thead>
@@ -294,15 +328,15 @@ function LobbyTable({
         {lobbies.map((lobby) => (
           <tr
             key={lobby.roomId}
-            className="text-slate-800 dark:text-yellow-200"
+            className="text-slate-800 dark:text-yellow-200 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
           >
             <td className="py-3 font-mono text-xs sm:px-0 px-1">
               {lobby.roomId}
             </td>
-            <td className="py-3">{lobby.connectedCount} / 2</td>
+            <td className="py-3 font-semibold">{lobby.connectedCount} / 2</td>
             <td className="py-3">
               <span
-                className={`px-2 py-0.5 rounded-full text-xs font-semibold
+                className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap
                         ${
                           lobby.status === 'waiting'
                             ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400'
@@ -328,7 +362,7 @@ function LobbyTable({
                   );
                   closeModal();
                 }}
-                className="px-3 py-1 text-xs"
+                className="px-3 py-1.5 text-xs"
               >
                 Join
               </Button>
