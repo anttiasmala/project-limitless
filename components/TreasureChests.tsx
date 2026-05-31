@@ -37,7 +37,7 @@ export function ChestRow({ count, max, emptyEmoji, filledEmoji }: Props) {
   }, [count]);
 
   return (
-    <div className="flex gap-1">
+    <div className="grid grid-cols-5 gap-1">
       {Array.from({ length: max ?? 5 }).map((_, i) => (
         <span
           key={i}
@@ -54,8 +54,16 @@ export function ChestRow({ count, max, emptyEmoji, filledEmoji }: Props) {
   );
 }
 
-export default function TreasureChests({ count, max = 5 }: Props) {
-  return <ChestRow count={count} max={max} filledEmoji="💰" emptyEmoji="🪙" />;
+export default function TreasureChests({ count }: Props) {
+  // Show at least 5 slots, and grow to fit when the score climbs past 5.
+  return (
+    <ChestRow
+      count={count}
+      max={Math.max(5, count)}
+      filledEmoji="💰"
+      emptyEmoji="🪙"
+    />
+  );
 }
 
 export function BestOfTreasureChests({ count, max = 5 }: Props) {

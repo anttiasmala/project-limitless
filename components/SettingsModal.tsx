@@ -25,6 +25,8 @@ type SettingsModalProps = BaseSettingsProps & {
     React.SetStateAction<Record<Player, number>>
   >;
   resetGame?: () => void;
+  victoriesForAction?: number;
+  setVictoriesForAction?: (value: number) => void;
   showPlayerSettings?: boolean;
   mode?: GameMode;
   winLossDraw?: WinLossDrawStats;
@@ -50,6 +52,8 @@ export function SettingsModal({
   setScores,
   setBestOfSeriesScores,
   resetGame,
+  victoriesForAction,
+  setVictoriesForAction,
   showPlayerSettings,
   mode,
   winLossDraw,
@@ -287,6 +291,8 @@ export function SettingsModal({
               setScores={setScores}
               setBestOfSeriesScores={setBestOfSeriesScores}
               resetGame={resetGame}
+              victoriesForAction={victoriesForAction}
+              setVictoriesForAction={setVictoriesForAction}
             />
           ) : settingMenu === 'stats' && winLossDraw ? (
             <StatsPanel

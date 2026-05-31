@@ -17,6 +17,10 @@ export function useGameSettings() {
   const [bestOfSeries, setBestOfSeries] = useLocalStorage<
     'off' | 'bo3' | 'bo5'
   >('bestOfSeries', 'off');
+  const [victoriesForAction, setVictoriesForAction] = useLocalStorage(
+    'victoriesForAction',
+    5,
+  );
 
   return {
     isAudioMuted,
@@ -31,5 +35,7 @@ export function useGameSettings() {
     setPointSystem,
     bestOfSeries,
     setBestOfSeries,
+    victoriesForAction,
+    setVictoriesForAction,
   };
 }
