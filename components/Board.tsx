@@ -130,6 +130,8 @@ export default function Board({
     setPointSystem,
     bestOfSeries,
     setBestOfSeries,
+    victoriesForAction,
+    setVictoriesForAction,
   } = useGameSettings();
 
   const calcWinner = useCallback(
@@ -296,13 +298,18 @@ export default function Board({
       if (
         bestOfSeries === 'off' &&
         pointSystem === 'treasureChest' &&
-        currentScores[winner] >= 6
+        victoriesForAction !== 0 &&
+        currentScores[winner] >= victoriesForAction
       ) {
         setScores({ ...INITIAL_SCORE });
         resetGame();
       }
 
-      if (bestOfSeries !== 'off' && currentScores[winner] >= 5) {
+      if (
+        bestOfSeries !== 'off' &&
+        victoriesForAction !== 0 &&
+        currentScores[winner] >= victoriesForAction
+      ) {
         setBestOfSeriesScores((prev) => ({
           ...prev,
           [winner]: prev[winner] + 1,
@@ -310,7 +317,14 @@ export default function Board({
         setScores({ ...INITIAL_SCORE });
       }
     },
-    [setScores, resetGame, setBestOfSeriesScores, bestOfSeries, pointSystem],
+    [
+      setScores,
+      resetGame,
+      setBestOfSeriesScores,
+      bestOfSeries,
+      pointSystem,
+      victoriesForAction,
+    ],
   );
 
   useEffect(() => {
@@ -967,6 +981,8 @@ export default function Board({
         setScores={setScores}
         setBestOfSeriesScores={setBestOfSeriesScores}
         resetGame={resetGame}
+        victoriesForAction={victoriesForAction}
+        setVictoriesForAction={setVictoriesForAction}
         showPlayerSettings={true}
         mode={mode}
         winLossDraw={winLossDraw}
