@@ -17,6 +17,7 @@ Change PartyKit to PartyServer — PartyKit is not updated in a long time
 6. In Multiplayer theoretically a player could change their name longer than 20 characters by modifying the name in Local Storage
 7. In Multiplayer Pirate Profile the selected icon is not centered with "Smallest screen needed" mobile view
 8. In Multiplayer allow only spectate rooms that have players / allowed spectating
+9. Move winLossDraw to useGameSettings.ts from Board.tsx
 
 # Notes
 
