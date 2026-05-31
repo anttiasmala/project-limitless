@@ -23,6 +23,8 @@ Change PartyKit to PartyServer — PartyKit is not updated in a long time
 12. Add 10x10 to Watch mode
 13. Currently 10x10 Watch mode does not work. It might get stuck and gives this to move log: "Turn 22 · ☠️ Davy Jones seized NaN" and adds one point per move
 14. Currently 10x10 is really small. Perhaps add a zoom button or something that helps seeing the board. Zooming the whole site works, but perhaps zoom button would be good?
+15. Add a button that focuses to Squares?
+16. Add login system and save winLossDraw stats to backend SQL database. Perhaps PostgreSQL and Prisma?
 
 # Notes
 
