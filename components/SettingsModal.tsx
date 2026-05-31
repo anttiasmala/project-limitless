@@ -78,6 +78,13 @@ export function SettingsModal({
 
   const showGameSettings = Boolean(setTimerEnabled || setBestOfSeries);
 
+  const tabClass = (isActive: boolean) =>
+    `py-2 px-3 text-sm border-2 ${
+      isActive
+        ? 'bg-amber-600 border-amber-500 text-white'
+        : 'bg-slate-200 border-slate-300 text-slate-600 hover:bg-slate-300 hover:border-amber-500 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300/60 dark:hover:text-yellow-300 dark:hover:bg-red-800'
+    }`;
+
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkTheme);
   }, [isDarkTheme]);
@@ -125,11 +132,7 @@ export function SettingsModal({
             <Button
               variant="unstyled"
               onClick={() => setSettingMenu('settings')}
-              className={`py-2 px-3 text-sm border-2 ${
-                settingMenu === 'settings'
-                  ? 'bg-amber-600 border-amber-500 text-white'
-                  : 'bg-red-900 border-red-700 text-yellow-300/60 hover:text-yellow-300 hover:bg-red-800'
-              }`}
+              className={tabClass(settingMenu === 'settings')}
             >
               ⚙️ Settings
             </Button>
@@ -137,11 +140,7 @@ export function SettingsModal({
               <Button
                 variant="unstyled"
                 onClick={() => setSettingMenu('game')}
-                className={`py-2 px-3 text-sm border-2 ${
-                  settingMenu === 'game'
-                    ? 'bg-amber-600 border-amber-500 text-white'
-                    : 'bg-red-900 border-red-700 text-yellow-300/60 hover:text-yellow-300 hover:bg-red-800'
-                }`}
+                className={tabClass(settingMenu === 'game')}
               >
                 🎮 Game
               </Button>
@@ -149,11 +148,7 @@ export function SettingsModal({
             <Button
               variant="unstyled"
               onClick={() => setSettingMenu('players')}
-              className={`py-2 px-3 text-sm border-2 ${
-                settingMenu === 'players'
-                  ? 'bg-amber-600 border-amber-500 text-white'
-                  : 'bg-red-900 border-red-700 text-yellow-300/60 hover:text-yellow-300 hover:bg-red-800'
-              }`}
+              className={tabClass(settingMenu === 'players')}
             >
               🏴‍☠️ Players
             </Button>
@@ -161,11 +156,7 @@ export function SettingsModal({
               <Button
                 variant="unstyled"
                 onClick={() => setSettingMenu('stats')}
-                className={`py-2 px-3 text-sm border-2 ${
-                  settingMenu === 'stats'
-                    ? 'bg-amber-600 border-amber-500 text-white'
-                    : 'bg-red-900 border-red-700 text-yellow-300/60 hover:text-yellow-300 hover:bg-red-800'
-                }`}
+                className={tabClass(settingMenu === 'stats')}
               >
                 📊 Stats
               </Button>
