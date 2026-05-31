@@ -39,15 +39,23 @@ export function GamePanel({
       <div className="mt-3 ml-3 flex flex-col">
         {setTimerEnabled && (
           <div className="flex">
-            <label className="cursor-pointer select-none">
-              Sand timer (10s)
-              <input
-                type="checkbox"
-                className="ml-2 w-5 h-5 cursor-pointer align-middle"
-                checked={timerEnabled ?? false}
-                onChange={(e) => setTimerEnabled(e.target.checked)}
-              />
-            </label>
+            <div>
+              <label className="cursor-pointer select-none flex">
+                Sand timer
+                <input
+                  type="checkbox"
+                  className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                  checked={timerEnabled ?? false}
+                  onChange={(e) => setTimerEnabled(e.target.checked)}
+                />
+                <input
+                  type="number"
+                  min={1}
+                  defaultValue={10}
+                  className="w-12 ml-1"
+                />
+              </label>
+            </div>
           </div>
         )}
 

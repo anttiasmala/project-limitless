@@ -21,6 +21,10 @@ export function useGameSettings() {
     'victoriesForAction',
     5,
   );
+  const [timerDuration, setTimerDuration] = useLocalStorage(
+    'timerDuration',
+    10,
+  );
 
   return {
     isAudioMuted,
