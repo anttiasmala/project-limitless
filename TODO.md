@@ -18,6 +18,10 @@ Change PartyKit to PartyServer — PartyKit is not updated in a long time
 7. In Multiplayer Pirate Profile the selected icon is not centered with "Smallest screen needed" mobile view
 8. In Multiplayer allow only spectate rooms that have players / allowed spectating
 9. Move winLossDraw to useGameSettings.ts from Board.tsx
+10. Replay modal does not show latest move with yellow border
+11. Allow change difficulty when game has started, if difficulty is changed, reset game?
+12. Add 10x10 to Watch mode
+13. Currently 10x10 Watch mode does not work. It might get stuck and gives this to move log: "Turn 22 · ☠️ Davy Jones seized NaN" and adds one point per move
 
 # Notes
 
