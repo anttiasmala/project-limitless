@@ -65,8 +65,6 @@ type BoardProps = {
   onStormLevelChange: (level: number) => void;
 };
 
-const TIMER_DURATION = 10;
-
 function makeCellLabel(index: number, boardSize: 3 | 5 | 10): string {
   if (boardSize === 3) return CELL_LABELS[index] ?? `Cell ${index + 1}`;
   const row = String.fromCharCode(65 + Math.floor(index / boardSize));
@@ -132,6 +130,8 @@ export default function Board({
     setBestOfSeries,
     victoriesForAction,
     setVictoriesForAction,
+    timerDuration,
+    setTimerDuration,
   } = useGameSettings();
 
   const calcWinner = useCallback(
@@ -224,7 +224,7 @@ export default function Board({
 
   const { timeLeft, reset: resetTimer } = useTimer(
     timerEnabled && isHumanTurn && isGameStarted,
-    TIMER_DURATION,
+    timerDuration,
     handleForfeit,
   );
 
@@ -803,7 +803,7 @@ export default function Board({
 
       {/* Hourglass timer */}
       {timerEnabled && isHumanTurn && isGameStarted && (
-        <HourglassTimer timeLeft={timeLeft} duration={TIMER_DURATION} />
+        <HourglassTimer timeLeft={timeLeft} duration={timerDuration} />
       )}
 
       {/* Grid */}
@@ -980,6 +980,8 @@ export default function Board({
         setBestOfSeries={setBestOfSeries}
         setScores={setScores}
         setBestOfSeriesScores={setBestOfSeriesScores}
+        timerDuration={timerDuration}
+        setTimerDuration={setTimerDuration}
         resetGame={resetGame}
         victoriesForAction={victoriesForAction}
         setVictoriesForAction={setVictoriesForAction}

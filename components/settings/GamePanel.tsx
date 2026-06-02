@@ -16,6 +16,8 @@ type GamePanelProps = {
   setBestOfSeriesScores?: React.Dispatch<
     React.SetStateAction<Record<Player, number>>
   >;
+  timerDuration?: number;
+  setTimerDuration?: (value: number) => void;
   resetGame?: () => void;
   victoriesForAction?: number;
   setVictoriesForAction?: (value: number) => void;
@@ -28,6 +30,8 @@ export function GamePanel({
   setBestOfSeries,
   setScores,
   setBestOfSeriesScores,
+  setTimerDuration,
+  timerDuration,
   resetGame,
   victoriesForAction,
   setVictoriesForAction,
@@ -39,15 +43,34 @@ export function GamePanel({
       <div className="mt-3 ml-3 flex flex-col">
         {setTimerEnabled && (
           <div className="flex">
-            <label className="cursor-pointer select-none">
-              Sand timer (10s)
-              <input
-                type="checkbox"
-                className="ml-2 w-5 h-5 cursor-pointer align-middle"
-                checked={timerEnabled ?? false}
-                onChange={(e) => setTimerEnabled(e.target.checked)}
-              />
-            </label>
+            <div>
+              <label className="cursor-pointer select-none flex">
+                Sand timer
+                <input
+                  type="checkbox"
+                  className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                  checked={timerEnabled ?? false}
+                  onChange={(e) => setTimerEnabled(e.target.checked)}
+                />
+              </label>
+              {timerEnabled && setTimerDuration && (
+                <div className="ml-4">
+                  <label>Seconds per turn</label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={timerDuration ?? 10}
+                    className="w-12 ml-1"
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (Number.isFinite(val) && val >= 1) {
+                        setTimerDuration(val);
+                      }
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         )}
 
