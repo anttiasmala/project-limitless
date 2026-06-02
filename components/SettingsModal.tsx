@@ -27,6 +27,8 @@ type SettingsModalProps = BaseSettingsProps & {
   resetGame?: () => void;
   victoriesForAction?: number;
   setVictoriesForAction?: (value: number) => void;
+  timerDuration?: number;
+  setTimerDuration?: (value: number) => void;
   showPlayerSettings?: boolean;
   mode?: GameMode;
   winLossDraw?: WinLossDrawStats;
@@ -54,6 +56,8 @@ export function SettingsModal({
   resetGame,
   victoriesForAction,
   setVictoriesForAction,
+  timerDuration,
+  setTimerDuration,
   showPlayerSettings,
   mode,
   winLossDraw,
@@ -284,6 +288,8 @@ export function SettingsModal({
               resetGame={resetGame}
               victoriesForAction={victoriesForAction}
               setVictoriesForAction={setVictoriesForAction}
+              timerDuration={timerDuration}
+              setTimerDuration={setTimerDuration}
             />
           ) : settingMenu === 'stats' && winLossDraw ? (
             <StatsPanel

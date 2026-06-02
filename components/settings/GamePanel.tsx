@@ -16,6 +16,8 @@ type GamePanelProps = {
   setBestOfSeriesScores?: React.Dispatch<
     React.SetStateAction<Record<Player, number>>
   >;
+  timerDuration?: number;
+  setTimerDuration?: (value: number) => void;
   resetGame?: () => void;
   victoriesForAction?: number;
   setVictoriesForAction?: (value: number) => void;
@@ -28,6 +30,8 @@ export function GamePanel({
   setBestOfSeries,
   setScores,
   setBestOfSeriesScores,
+  setTimerDuration,
+  timerDuration,
   resetGame,
   victoriesForAction,
   setVictoriesForAction,
@@ -48,13 +52,24 @@ export function GamePanel({
                   checked={timerEnabled ?? false}
                   onChange={(e) => setTimerEnabled(e.target.checked)}
                 />
-                <input
-                  type="number"
-                  min={1}
-                  defaultValue={10}
-                  className="w-12 ml-1"
-                />
               </label>
+              {timerEnabled && setTimerDuration && (
+                <div className="ml-4">
+                  <label>Seconds per turn</label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={timerDuration ?? 10}
+                    className="w-12 ml-1"
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (Number.isFinite(val) && val >= 1) {
+                        setTimerDuration(val);
+                      }
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -41,5 +41,7 @@ export function useGameSettings() {
     setBestOfSeries,
     victoriesForAction,
     setVictoriesForAction,
+    timerDuration,
+    setTimerDuration,
   };
 }
