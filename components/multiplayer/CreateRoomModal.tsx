@@ -35,8 +35,6 @@ export default function CreateRoomModal({ onClose }: Props) {
 
     params.set('allowSpectators', settings.allowSpectators ? '1' : '0');
     params.set('isPrivateGame', settings.isPrivateGame ? '1' : '0');
-    if (settings.pointSystem !== 'number')
-      params.set('points', settings.pointSystem);
     if (settings.bestOfSeries !== 'off')
       params.set('series', settings.bestOfSeries);
     params.set('boardSize', settings.boardSize);
@@ -121,29 +119,6 @@ export default function CreateRoomModal({ onClose }: Props) {
                 }))
               }
             />
-          </label>
-
-          {/* Point system */}
-          <label
-            className="flex items-center justify-between select-none
-          text-slate-700 dark:text-yellow-300 font-semibold"
-          >
-            Point system
-            <select
-              className="border-2 border-slate-300 dark:border-amber-700 rounded-md
-              text-slate-800 dark:text-yellow-300 bg-white dark:bg-amber-900
-              cursor-pointer px-2 py-1"
-              value={settings.pointSystem}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  pointSystem: e.target.value as RoomSettings['pointSystem'],
-                }))
-              }
-            >
-              <option value="number">Number</option>
-              <option value="treasureChest">Treasure Chest</option>
-            </select>
           </label>
 
           {/* Best of Series */}

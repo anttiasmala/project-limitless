@@ -29,6 +29,8 @@ export default function Lobby() {
     isAudioMuted,
     setVolume,
     volume,
+    pointSystem,
+    setPointSystem,
   } = useGameSettings();
   const { cannonAudio, creakAudio, splashAudio } = useGameAudio(
     volume,
@@ -128,6 +130,8 @@ export default function Lobby() {
         isAudioMuted={isAudioMuted}
         setVolume={setVolume}
         volume={volume}
+        pointSystem={pointSystem}
+        setPointSystem={setPointSystem}
       />
 
       {isLobbyModalOpen && (

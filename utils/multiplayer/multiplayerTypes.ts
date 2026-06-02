@@ -6,7 +6,6 @@ import type { MoveEntry } from '../types';
 export type RoomSettings = {
   timerEnabled: boolean;
   timerDuration: number;
-  pointSystem: 'number' | 'treasureChest';
   bestOfSeries: 'off' | 'bo3' | 'bo5';
   boardSize: '3' | '5' | '10';
   allowSpectators: boolean;
@@ -16,7 +15,6 @@ export type RoomSettings = {
 export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
   timerEnabled: false,
   timerDuration: 10,
-  pointSystem: 'number',
   bestOfSeries: 'off',
   boardSize: '3',
   allowSpectators: true,

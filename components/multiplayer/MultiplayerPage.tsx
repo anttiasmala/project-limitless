@@ -14,8 +14,6 @@ export default function MultiplayerPage({ roomId }: { roomId: string }) {
 
   const timerEnabled = searchParams.get('timer') === '1';
   const timerDuration = Number(searchParams.get('timerDuration')) || 10;
-  const pointSystem = (searchParams.get('points') ??
-    'number') as RoomSettings['pointSystem'];
   const bestOfSeries = (searchParams.get('series') ??
     'off') as RoomSettings['bestOfSeries'];
   const allowSpectators = searchParams.get('allowSpectators') === '1';
@@ -26,7 +24,6 @@ export default function MultiplayerPage({ roomId }: { roomId: string }) {
   const initialSettings: RoomSettings | undefined =
     searchParams.get('timer') ||
     searchParams.get('timerDuration') ||
-    searchParams.get('points') ||
     searchParams.get('series') ||
     searchParams.get('allowSpectators') ||
     searchParams.get('isPrivateGame') ||
@@ -34,7 +31,6 @@ export default function MultiplayerPage({ roomId }: { roomId: string }) {
       ? {
           timerEnabled,
           timerDuration,
-          pointSystem,
           bestOfSeries,
           allowSpectators,
           isPrivateGame,

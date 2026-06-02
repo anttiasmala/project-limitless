@@ -81,6 +81,8 @@ export default function MultiplayerBoard({
     isAudioMuted,
     setVolume,
     volume,
+    pointSystem,
+    setPointSystem,
   } = useGameSettings();
   const { cannonAudio, creakAudio, splashAudio, playSound } = useGameAudio(
     volume,
@@ -304,7 +306,7 @@ export default function MultiplayerBoard({
         myPlayer={myPlayer}
         scores={scores}
         bestOfSeriesScores={bestOfSeriesScores}
-        pointSystem={settings.pointSystem}
+        pointSystem={pointSystem}
         bestOfSeries={settings.bestOfSeries}
         playerOneOverride={
           humanEntry
@@ -493,6 +495,8 @@ export default function MultiplayerBoard({
         isAudioMuted={isAudioMuted}
         setVolume={setVolume}
         volume={volume}
+        pointSystem={pointSystem}
+        setPointSystem={setPointSystem}
       />
     </div>
   );

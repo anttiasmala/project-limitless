@@ -9,6 +9,9 @@ export function useGameSettings() {
     'arrowKeysEnabled',
     false,
   );
+  const [pointSystem, setPointSystem] = useLocalStorage<
+    'treasureChest' | 'number'
+  >('pointSystem', 'number');
 
   return {
     isAudioMuted,
@@ -17,5 +20,7 @@ export function useGameSettings() {
     setVolume,
     isArrowKeysEnabled,
     setIsArrowKeysEnabled,
+    pointSystem,
+    setPointSystem,
   };
 }
