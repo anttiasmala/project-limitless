@@ -235,7 +235,10 @@ export default function MultiplayerBoard({
 
     const newBoard = [...board];
     newBoard[index] = currentPlayer;
-    const { winner: predictedWinner } = checkWinner(newBoard, settings.boardSize);
+    const { winner: predictedWinner } = checkWinner(
+      newBoard,
+      settings.boardSize,
+    );
     const predictedDraw = !predictedWinner && isDraw(newBoard);
 
     // this if, else if, else blocks in winning situation to cannon and creak sound playing at the same time
@@ -335,10 +338,13 @@ export default function MultiplayerBoard({
         </p>
       )}
 
-      {/* Sand Timer (10s) */}
+      {/* Sand Timer */}
 
       {roomState.settings.timerEnabled && timeLeft !== null && (
-        <HourglassTimer timeLeft={timeLeft} duration={10} />
+        <HourglassTimer
+          timeLeft={timeLeft}
+          duration={roomState.settings.timerDuration}
+        />
       )}
 
       {/* For spectators show whose turn it is instead */}

@@ -68,8 +68,8 @@ export default class GameRoom implements Party.Server {
   startTurnTimer() {
     this.clearTurnTimer();
     if (!this.state.settings.timerEnabled) return;
-
-    this.state.timerEndsAt = Date.now() + 10000;
+    const timerMs = this.state.settings.timerDuration * 1000;
+    this.state.timerEndsAt = Date.now() + timerMs;
 
     this.timerHandle = setTimeout(async () => {
       if (this.state.status !== 'playing') return;
@@ -97,7 +97,7 @@ export default class GameRoom implements Party.Server {
       this.state.forfeitWinner = opponent;
 
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
-    }, 10000);
+    }, timerMs);
   }
 
   clearTurnTimer() {
@@ -304,7 +304,13 @@ export default class GameRoom implements Party.Server {
         //this.state.scores = { '☠️': 4, '⚓': 0 };
         //this.state.bestOfSeriesScores = { '☠️': 1, '⚓': 0 };
 
-        this.state.settings = msg.settings;
+        const duration = Number(msg.settings.timerDuration);
+        this.state.settings = {
+          ...msg.settings,
+          timerDuration: Number.isFinite(duration)
+            ? Math.min(Math.max(Math.round(duration), 1), 300)
+            : DEFAULT_ROOM_SETTINGS.timerDuration,
+        };
         this.state.board = createInitialBoard(msg.settings.boardSize);
         await this.saveAndBroadcast({
           type: 'state-update',

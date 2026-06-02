@@ -12,6 +12,7 @@ import {
   DEFAULT_ROOM_SETTINGS,
   RoomSettings,
 } from '@/utils/multiplayer/multiplayerTypes';
+import Input from '../utils/Input';
 
 type Props = {
   onClose: () => void;
@@ -27,7 +28,11 @@ export default function CreateRoomModal({ onClose }: Props) {
   function handleCreate() {
     const id = nanoid(8);
     const params = new URLSearchParams();
-    if (settings.timerEnabled) params.set('timer', '1');
+    if (settings.timerEnabled) {
+      params.set('timer', '1');
+      params.set('timerDuration', settings.timerDuration.toString());
+    }
+
     params.set('allowSpectators', settings.allowSpectators ? '1' : '0');
     params.set('isPrivateGame', settings.isPrivateGame ? '1' : '0');
     if (settings.pointSystem !== 'number')
@@ -60,25 +65,44 @@ export default function CreateRoomModal({ onClose }: Props) {
           🏴‍☠️ Room Settings
         </h2>
 
-        <div className="flex flex-col gap-5 overflow-y-auto min-h-0">
+        <div className="flex flex-col gap-5 overflow-y-auto min-h-0 text-slate-700 dark:text-yellow-300 font-semibold">
           {/* Sand timer */}
-          <label
-            className="flex items-center justify-between cursor-pointer select-none
-          text-slate-700 dark:text-yellow-300 font-semibold"
-          >
-            Sand timer (10s)
-            <input
-              type="checkbox"
-              className="w-5 h-5 cursor-pointer accent-amber-600"
-              checked={settings.timerEnabled}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  timerEnabled: e.target.checked,
-                }))
-              }
-            />
-          </label>
+          <div>
+            <label className="flex items-center justify-between cursor-pointer select-none">
+              Sand timer
+              <input
+                type="checkbox"
+                className="w-5 h-5 cursor-pointer accent-amber-600"
+                checked={settings.timerEnabled}
+                onChange={(e) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    timerEnabled: e.target.checked,
+                  }))
+                }
+              />
+            </label>
+            {settings.timerEnabled && (
+              <div className="ml-4">
+                <label>Seconds per turn</label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={settings.timerDuration}
+                  className="w-12 ml-1 dark:bg-amber-900 dark:border-amber-700"
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    if (Number.isFinite(val) && val >= 1) {
+                      setSettings((prev) => ({
+                        ...prev,
+                        timerDuration: val,
+                      }));
+                    }
+                  }}
+                />
+              </div>
+            )}
+          </div>
 
           {/* Private game */}
           <label
