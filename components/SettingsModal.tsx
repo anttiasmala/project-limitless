@@ -210,7 +210,7 @@ export function SettingsModal({
                     Dark Theme
                     <input
                       type="checkbox"
-                      className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                      className="ml-2 w-5 h-5 cursor-pointer align-middle accent-amber-600"
                       checked={isDarkTheme}
                       onChange={(e) => setIsDarkTheme(e.target.checked)}
                     />
@@ -223,7 +223,7 @@ export function SettingsModal({
                     Arrow keys
                     <input
                       type="checkbox"
-                      className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                      className="ml-2 w-5 h-5 cursor-pointer align-middle accent-amber-600"
                       checked={isArrowKeysEnabled}
                       onChange={(e) => setIsArrowKeysEnabled(e.target.checked)}
                     />
@@ -236,7 +236,7 @@ export function SettingsModal({
                     Mute sounds
                     <input
                       type="checkbox"
-                      className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                      className="ml-2 w-5 h-5 cursor-pointer align-middle accent-amber-600"
                       checked={isAudioMuted}
                       onChange={(e) => {
                         const muted = e.target.checked;

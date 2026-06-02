@@ -111,7 +111,7 @@ export function GamePanel({
                 Sand timer
                 <input
                   type="checkbox"
-                  className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                  className="ml-2 w-5 h-5 cursor-pointer align-middle accent-amber-600"
                   checked={timerEnabled ?? false}
                   onChange={(e) => setTimerEnabled(e.target.checked)}
                 />
