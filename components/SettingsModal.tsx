@@ -199,9 +199,9 @@ export function SettingsModal({
                 {setPointSystem && (
                   <div className="mt-3 flex">
                     <label className="cursor-pointer select-none">
-                      Point system:
+                      Point system
                       <select
-                        className="border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
+                        className="ml-1 border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
                         name="pointSystem"
                         onChange={(e) =>
                           setPointSystem(
