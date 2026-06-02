@@ -77,9 +77,9 @@ export function GamePanel({
         {setBestOfSeries && (
           <div className="mt-3 flex">
             <label className="select-none">
-              Best of Series:
+              Best of Series
               <select
-                className="border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
+                className="ml-1 border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
                 name="bestOfSeries"
                 onChange={(e) => {
                   setBestOfSeries(e.target.value as 'off' | 'bo3' | 'bo5');
