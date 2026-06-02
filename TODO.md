@@ -28,6 +28,15 @@ Change PartyKit to PartyServer — PartyKit is not updated in a long time
 17. Save multiplayer settings to LocalStorage so player does not have to set the settings always again?
 18. Sand timer in multiplayer does not start immediately, it takes half a second to start rolling, perhaps it could be fixed?
 19. Show settings of a gameroom in Lobby list, so player knows that if there is for example turn timer and how long it is, etc
+20. Seconds per turn in Multiplayer (Check singleplayer as well) does not allow setting it to 0 or empty. Perhaps it should be allowed to be empty, but don't allow room creation and add a check to backend that does not allow number 0 or empty
+
+21. Change Multiplayer's Room Setting's order. Perhaps something like this:
+    1. Board Size
+    2. Best of Series
+    3. Sand timer
+    4. Private game
+    5. Allow spectators
+22. Add Victories from Singleplayer to Multiplayer. So player can choose how many wins before reseting scores
 
 # Notes
 
