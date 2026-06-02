@@ -54,16 +54,57 @@ export default function CreateRoomModal({ onClose }: Props) {
         aria-modal="true"
         aria-label="Create room settings"
         className="fixed top-1/2 left-1/2 z-99 -translate-x-1/2 -translate-y-1/2
-          w-[90vw] max-w-sm
-          bg-amber-50 dark:bg-amber-950
-          border-2 border-amber-800 dark:border-amber-700
-          rounded-xl shadow-2xl p-6 flex flex-col gap-5 max-h-[90vh]"
+        w-[90vw] max-w-sm
+        bg-amber-50 dark:bg-amber-950
+        border-2 border-amber-800 dark:border-amber-700
+        rounded-xl shadow-2xl p-6 flex flex-col gap-5 max-h-[90vh]"
       >
         <h2 className="text-lg font-black text-amber-700 dark:text-yellow-400 text-center tracking-wide shrink-0">
           🏴‍☠️ Room Settings
         </h2>
-
         <div className="flex flex-col gap-5 overflow-y-auto min-h-0 text-slate-700 dark:text-yellow-300 font-semibold">
+          {/* Board Size */}
+          <label className="flex items-center justify-between select-none">
+            Board Size
+            <select
+              className="border-2 border-slate-300 dark:border-amber-700 rounded-md
+              text-slate-800 dark:text-yellow-300 bg-white dark:bg-amber-900
+              cursor-pointer px-2 py-1"
+              value={settings.boardSize}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  boardSize: e.target.value as RoomSettings['boardSize'],
+                }))
+              }
+            >
+              <option value="3">3x3</option>
+              <option value="5">5x5</option>
+              <option value="10">10x10</option>
+            </select>
+          </label>
+
+          {/* Best of Series */}
+          <label className="flex items-center justify-between select-none">
+            Best of Series
+            <select
+              className="border-2 border-slate-300 dark:border-amber-700 rounded-md
+              text-slate-800 dark:text-yellow-300 bg-white dark:bg-amber-900
+              cursor-pointer px-2 py-1"
+              value={settings.bestOfSeries}
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  bestOfSeries: e.target.value as RoomSettings['bestOfSeries'],
+                }))
+              }
+            >
+              <option value="off">Off</option>
+              <option value="bo3">Best of 3</option>
+              <option value="bo5">Best of 5</option>
+            </select>
+          </label>
+
           {/* Sand timer */}
           <div>
             <label className="flex items-center justify-between cursor-pointer select-none">
@@ -103,10 +144,7 @@ export default function CreateRoomModal({ onClose }: Props) {
           </div>
 
           {/* Private game */}
-          <label
-            className="flex items-center justify-between cursor-pointer select-none
-          text-slate-700 dark:text-yellow-300 font-semibold"
-          >
+          <label className="flex items-center justify-between cursor-pointer select-none">
             Private game
             <input
               type="checkbox"
@@ -120,35 +158,8 @@ export default function CreateRoomModal({ onClose }: Props) {
               }
             />
           </label>
-
-          {/* Best of Series */}
-          <label
-            className="flex items-center justify-between select-none
-          text-slate-700 dark:text-yellow-300 font-semibold"
-          >
-            Best of Series
-            <select
-              className="border-2 border-slate-300 dark:border-amber-700 rounded-md
-              text-slate-800 dark:text-yellow-300 bg-white dark:bg-amber-900
-              cursor-pointer px-2 py-1"
-              value={settings.bestOfSeries}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  bestOfSeries: e.target.value as RoomSettings['bestOfSeries'],
-                }))
-              }
-            >
-              <option value="off">Off</option>
-              <option value="bo3">Best of 3</option>
-              <option value="bo5">Best of 5</option>
-            </select>
-          </label>
-          {/* Allow Spectators */}
-          <label
-            className="flex items-center justify-between cursor-pointer select-none
-          text-slate-700 dark:text-yellow-300 font-semibold"
-          >
+          {/* Allow spectators */}
+          <label className="flex items-center justify-between cursor-pointer select-none">
             Allow spectators
             <input
               type="checkbox"
@@ -161,30 +172,6 @@ export default function CreateRoomModal({ onClose }: Props) {
                 }))
               }
             />
-          </label>
-
-          {/* Size of Board */}
-          <label
-            className="flex items-center justify-between select-none
-          text-slate-700 dark:text-yellow-300 font-semibold"
-          >
-            Board Size
-            <select
-              className="border-2 border-slate-300 dark:border-amber-700 rounded-md
-              text-slate-800 dark:text-yellow-300 bg-white dark:bg-amber-900
-              cursor-pointer px-2 py-1"
-              value={settings.boardSize}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  boardSize: e.target.value as RoomSettings['boardSize'],
-                }))
-              }
-            >
-              <option value="3">3x3</option>
-              <option value="5">5x5</option>
-              <option value="10">10x10</option>
-            </select>
           </label>
         </div>
 
