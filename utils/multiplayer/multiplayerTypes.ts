@@ -8,6 +8,7 @@ export type RoomSettings = {
   timerDuration: number;
   bestOfSeries: 'off' | 'bo3' | 'bo5';
   boardSize: '3' | '5' | '10';
+  victoriesForAction: number
   allowSpectators: boolean;
   isPrivateGame: boolean;
 };
@@ -17,6 +18,7 @@ export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
   timerDuration: 10,
   bestOfSeries: 'off',
   boardSize: '3',
+  victoriesForAction: 5,
   allowSpectators: true,
   isPrivateGame: false,
 };
