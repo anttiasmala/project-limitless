@@ -40,46 +40,13 @@ export function GamePanel({
   usePreventBackgroundScrolling(showVictoriesInfoModal);
   return (
     <div className="w-72 max-w-[90vw] h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg">
-      <div className="mt-3 ml-3 flex flex-col">
-        {setTimerEnabled && (
-          <div className="flex">
-            <div>
-              <label className="cursor-pointer select-none flex">
-                Sand timer
-                <input
-                  type="checkbox"
-                  className="ml-2 w-5 h-5 cursor-pointer align-middle"
-                  checked={timerEnabled ?? false}
-                  onChange={(e) => setTimerEnabled(e.target.checked)}
-                />
-              </label>
-              {timerEnabled && setTimerDuration && (
-                <div className="ml-4">
-                  <label>Seconds per turn</label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={timerDuration ?? 10}
-                    className="w-12 ml-1"
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      if (Number.isFinite(val) && val >= 1) {
-                        setTimerDuration(val);
-                      }
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
+      <div className="mt-3 ml-3 flex flex-col gap-3">
         {setBestOfSeries && (
-          <div className="mt-3 flex">
+          <div className="flex">
             <label className="select-none">
-              Best of Series:
+              Best of Series
               <select
-                className="border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
+                className="ml-1 border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
                 name="bestOfSeries"
                 onChange={(e) => {
                   setBestOfSeries(e.target.value as 'off' | 'bo3' | 'bo5');
@@ -113,7 +80,7 @@ export function GamePanel({
         )}
 
         {setVictoriesForAction && (
-          <div className="mt-3 flex items-center">
+          <div className="flex items-center">
             <label>Victories</label>
             <button
               type="button"
@@ -134,6 +101,39 @@ export function GamePanel({
                 setVictoriesForAction(val);
               }}
             />
+          </div>
+        )}
+
+        {setTimerEnabled && (
+          <div className="flex">
+            <div>
+              <label className="cursor-pointer select-none flex">
+                Sand timer
+                <input
+                  type="checkbox"
+                  className="ml-2 w-5 h-5 cursor-pointer align-middle accent-amber-600"
+                  checked={timerEnabled ?? false}
+                  onChange={(e) => setTimerEnabled(e.target.checked)}
+                />
+              </label>
+              {timerEnabled && setTimerDuration && (
+                <div className="ml-4">
+                  <label>Seconds per turn</label>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={timerDuration ?? 10}
+                    className="w-12 ml-1"
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (Number.isFinite(val) && val >= 1) {
+                        setTimerDuration(val);
+                      }
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         )}
 

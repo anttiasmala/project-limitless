@@ -37,7 +37,7 @@ Change PartyKit to PartyServer — PartyKit is not updated in a long time
     4. Private game
     5. Allow spectators
 22. Add Victories from Singleplayer to Multiplayer. So player can choose how many wins before reseting scores
-23. When site is going live, add somekind of feedback system
+23. When site is going live, add somekind of feedback system?
 
 # Notes
 

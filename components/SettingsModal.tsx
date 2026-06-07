@@ -171,37 +171,14 @@ export function SettingsModal({
         <div className="overflow-y-auto">
           {settingMenu === 'settings' ? (
             <div className="w-72 max-w-[90vw] h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg">
-              <div className="mt-3 ml-3 flex flex-col">
-                <div className="flex">
-                  <label className="cursor-pointer select-none">
-                    Mute sounds
-                    <input
-                      type="checkbox"
-                      className="ml-2 w-5 h-5 cursor-pointer align-middle"
-                      checked={isAudioMuted}
-                      onChange={(e) => {
-                        const muted = e.target.checked;
-                        setIsAudioMuted(muted);
-                        if (!muted && volume === 0) {
-                          setVolume(0.5);
-                          AudioArray.forEach((ref) => {
-                            if (ref.current) ref.current.volume = 0.5;
-                          });
-                        }
-                        AudioArray.forEach((ref) => {
-                          if (ref.current) ref.current.muted = muted;
-                        });
-                      }}
-                    />
-                  </label>
-                </div>
+              <div className="mt-3 ml-3 flex flex-col gap-3">
                 {/* Treasure chest or number logic -- single-player only*/}
                 {setPointSystem && (
-                  <div className="mt-3 flex">
+                  <div className="flex">
                     <label className="cursor-pointer select-none">
-                      Point system:
+                      Point system
                       <select
-                        className="border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
+                        className="ml-1 border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
                         name="pointSystem"
                         onChange={(e) =>
                           setPointSystem(
@@ -228,12 +205,12 @@ export function SettingsModal({
                 )}
 
                 {/* Dark theme logic */}
-                <div className="mt-3 flex">
+                <div className="flex">
                   <label className="cursor-pointer select-none">
                     Dark Theme
                     <input
                       type="checkbox"
-                      className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                      className="ml-2 w-5 h-5 cursor-pointer align-middle accent-amber-600"
                       checked={isDarkTheme}
                       onChange={(e) => setIsDarkTheme(e.target.checked)}
                     />
@@ -241,20 +218,45 @@ export function SettingsModal({
                 </div>
 
                 {/* Arrowkeys Enabling logic */}
-                <div className="mt-3 flex">
+                <div className="flex">
                   <label className="cursor-pointer select-none">
                     Arrow keys
                     <input
                       type="checkbox"
-                      className="ml-2 w-5 h-5 cursor-pointer align-middle"
+                      className="ml-2 w-5 h-5 cursor-pointer align-middle accent-amber-600"
                       checked={isArrowKeysEnabled}
                       onChange={(e) => setIsArrowKeysEnabled(e.target.checked)}
                     />
                   </label>
                 </div>
 
+                {/* Mute sounds logic */}
+                <div className="flex">
+                  <label className="cursor-pointer select-none">
+                    Mute sounds
+                    <input
+                      type="checkbox"
+                      className="ml-2 w-5 h-5 cursor-pointer align-middle accent-amber-600"
+                      checked={isAudioMuted}
+                      onChange={(e) => {
+                        const muted = e.target.checked;
+                        setIsAudioMuted(muted);
+                        if (!muted && volume === 0) {
+                          setVolume(0.5);
+                          AudioArray.forEach((ref) => {
+                            if (ref.current) ref.current.volume = 0.5;
+                          });
+                        }
+                        AudioArray.forEach((ref) => {
+                          if (ref.current) ref.current.muted = muted;
+                        });
+                      }}
+                    />
+                  </label>
+                </div>
+
                 {/* Volume slider logic */}
-                <div className="flex mt-3">
+                <div className="flex">
                   <label className="pr-3">Volume</label>
                   <input
                     type="range"

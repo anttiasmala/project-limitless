@@ -1,3 +1,13 @@
+# NOTE, THIS IS INFO ONLY FOR ME
+How to be able to run "git push" in recently cloned repository (This is working only for me due to owner of repository)
+1. You have to have a SSH key that is used in authentication.
+2. Create a SSH key by running the following command: ```ssh-keygen -t ed25519 -C "youremail@email.com"``` **DON'T use `sudo`**. 
+Go to: ```https://github.com/settings/ssh/new``` and add the text inside ```id_ed25519.pub``` to the Key section. The ```ìd_ed25519.pub``` file is located in ```/home/USER/.ssh/```
+3. Add the SSH key
+4. Now `git push` should work
+#
+
+
 ❯ ◯ @eslint/js ^9 → ^10
 ◯ @types/node ^24 → ^25
 ◯ eslint ^9 → ^10
