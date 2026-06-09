@@ -46,6 +46,7 @@ Change PartyKit to PartyServer — PartyKit is not updated in a long time
     2. Win the game with Player 1 so it will have 2 Best of Series scores.
     3. Click "New Series" with Player 1 and leave the game
     4. Points get stuck and do not reset
+26. Allow ENTER-button to accept Reset Score in Singleplayer? Add simple EventListener when Modal is open
 
 # Notes
 
