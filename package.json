@@ -14,11 +14,11 @@
   "type": "module",
   "dependencies": {
     "nanoid": "^5.1.11",
-    "next": "16.2.6",
+    "next": "16.2.7",
     "partykit": "^0.0.115",
     "partysocket": "^1.1.19",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
@@ -31,7 +31,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.6",
+    "eslint-config-next": "16.2.7",
     "tailwindcss": "^4",
     "typescript": "^6"
   },
