@@ -46,6 +46,10 @@ Change PartyKit to PartyServer — PartyKit is not updated in a long time
     3. Click "New Series" with Player 1 and leave the game
     4. Points get stuck and do not reset
 25. Allow ENTER-button to accept Reset Score in Singleplayer? Add simple EventListener when Modal is open
+26. In Singleplayer (maybe in Multiplayer too) if Victories is set to 1 and Best of Series is off, when a player scores a point it immediately resets the game and for example Replay modal is not possible to be viewed
+    How to reproduce issue:
+    1. Set Victories: 1 and Best of Series: Off
+    2. Win a round
 
 # Notes
 
