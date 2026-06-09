@@ -3,13 +3,13 @@ import { KeyboardEventKeys } from '@/utils/types';
 
 export function useKeyPress(
   key: KeyboardEventKeys,
-  onKeyPress: () => void,
+  onKeyPress: (event: KeyboardEvent) => void,
   active: boolean = true,
 ) {
   useEffect(() => {
     if (!active) return;
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === key) onKeyPress();
+      if (e.key === key) onKeyPress(e);
     }
     document.addEventListener('keydown', handleKeyDown);
 
