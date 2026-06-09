@@ -20,6 +20,8 @@ export default function MultiplayerPage({ roomId }: { roomId: string }) {
   const isPrivateGame = searchParams.get('isPrivateGame') === '1';
   const boardSize = (searchParams.get('boardSize') ??
     '3') as RoomSettings['boardSize'];
+  // ?? (not ||) so an intentional 0 (unlimited) survives instead of falling back to 5
+  const victoriesForAction = Number(searchParams.get('victories') ?? 5);
 
   const initialSettings: RoomSettings | undefined =
     searchParams.get('timer') ||
@@ -27,7 +29,8 @@ export default function MultiplayerPage({ roomId }: { roomId: string }) {
     searchParams.get('series') ||
     searchParams.get('allowSpectators') ||
     searchParams.get('isPrivateGame') ||
-    searchParams.get('boardSize')
+    searchParams.get('boardSize') ||
+    searchParams.get('victories')
       ? {
           timerEnabled,
           timerDuration,
@@ -35,6 +38,7 @@ export default function MultiplayerPage({ roomId }: { roomId: string }) {
           allowSpectators,
           isPrivateGame,
           boardSize,
+          victoriesForAction,
         }
       : undefined; // joining players pass undefined — only host sends settings
 

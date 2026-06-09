@@ -8,7 +8,7 @@ export type RoomSettings = {
   timerDuration: number;
   bestOfSeries: 'off' | 'bo3' | 'bo5';
   boardSize: '3' | '5' | '10';
-  victoriesForAction: number
+  victoriesForAction: number;
   allowSpectators: boolean;
   isPrivateGame: boolean;
 };

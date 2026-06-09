@@ -1,19 +1,19 @@
 // components/multiplayer/CreateRoomModal.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
-import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
-import { nanoid } from "nanoid";
-import { useKeyPress } from "@/hooks/useKeyPress";
-import usePreventBackgroundScrolling from "@/hooks/usePreventBackgroundScrolling";
-import Button from "../utils/Button";
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useRouter } from 'next/navigation';
+import { nanoid } from 'nanoid';
+import { useKeyPress } from '@/hooks/useKeyPress';
+import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
+import Button from '../utils/Button';
 import {
   DEFAULT_ROOM_SETTINGS,
   RoomSettings,
-} from "@/utils/multiplayer/multiplayerTypes";
-import Input from "../utils/Input";
-import VictoriesInfoModal from "./utils/VictoriesInfoModal";
+} from '@/utils/multiplayer/multiplayerTypes';
+import Input from '../utils/Input';
+import VictoriesInfoModal from './utils/VictoriesInfoModal';
 
 type Props = {
   onClose: () => void;
@@ -24,25 +24,25 @@ export default function CreateRoomModal({ onClose }: Props) {
   const [settings, setSettings] = useState<RoomSettings>(DEFAULT_ROOM_SETTINGS);
   const [showVictoriesInfoModal, setShowVictoriesInfoModal] = useState(false);
 
-  useKeyPress("Escape", onClose, true);
+  useKeyPress('Escape', onClose, true);
   usePreventBackgroundScrolling(true);
 
   function handleCreate() {
     const id = nanoid(8);
     const params = new URLSearchParams();
     if (settings.timerEnabled) {
-      params.set("timer", "1");
-      params.set("timerDuration", settings.timerDuration.toString());
+      params.set('timer', '1');
+      params.set('timerDuration', settings.timerDuration.toString());
     }
-    params.set("victories", settings.victoriesForAction.toString());
+    params.set('victories', settings.victoriesForAction.toString());
 
-    params.set("allowSpectators", settings.allowSpectators ? "1" : "0");
-    params.set("isPrivateGame", settings.isPrivateGame ? "1" : "0");
-    if (settings.bestOfSeries !== "off")
-      params.set("series", settings.bestOfSeries);
-    params.set("boardSize", settings.boardSize);
+    params.set('allowSpectators', settings.allowSpectators ? '1' : '0');
+    params.set('isPrivateGame', settings.isPrivateGame ? '1' : '0');
+    if (settings.bestOfSeries !== 'off')
+      params.set('series', settings.bestOfSeries);
+    params.set('boardSize', settings.boardSize);
     const query = params.toString();
-    router.push(`/multiplayer/${id}${query ? `?${query}` : ""}`);
+    router.push(`/multiplayer/${id}${query ? `?${query}` : ''}`);
     onClose();
   }
 
@@ -77,7 +77,7 @@ export default function CreateRoomModal({ onClose }: Props) {
               onChange={(e) =>
                 setSettings((prev) => ({
                   ...prev,
-                  boardSize: e.target.value as RoomSettings["boardSize"],
+                  boardSize: e.target.value as RoomSettings['boardSize'],
                 }))
               }
             >
@@ -98,7 +98,7 @@ export default function CreateRoomModal({ onClose }: Props) {
               onChange={(e) =>
                 setSettings((prev) => ({
                   ...prev,
-                  bestOfSeries: e.target.value as RoomSettings["bestOfSeries"],
+                  bestOfSeries: e.target.value as RoomSettings['bestOfSeries'],
                 }))
               }
             >
@@ -126,14 +126,16 @@ export default function CreateRoomModal({ onClose }: Props) {
             <Input
               type="number"
               min={0}
-              className="ml-1 w-12"
+              className="px-1 ml-1 w-12"
               value={settings.victoriesForAction}
               onChange={(e) => {
                 const val = Number(e.target.value);
-                setSettings((prev) => ({
-                  ...prev,
-                  victoriesForAction: val,
-                }));
+                if (Number.isFinite(val) && val >= 0) {
+                  setSettings((prev) => ({
+                    ...prev,
+                    victoriesForAction: val,
+                  }));
+                }
               }}
             />
           </div>

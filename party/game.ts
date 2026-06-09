@@ -340,14 +340,17 @@ export default class GameRoom implements Party.Server {
       const { winner } = checkWinner(newBoard, this.state.settings.boardSize);
       const draw = !winner && isDraw(newBoard);
 
-      const { bestOfSeries } = this.state.settings;
+      const { bestOfSeries, victoriesForAction } = this.state.settings;
       const seriesWinTarget = SERIES_POINT_THRESHOLDS[bestOfSeries];
 
       if (winner) {
         const loser = winner === HUMAN ? AI : HUMAN;
         this.state.scores[winner] += 1;
-
-        if (this.state.scores[winner] >= 5) {
+        // victoriesForAction === 0 means unlimited: never reset, never award series points
+        if (
+          victoriesForAction !== 0 &&
+          this.state.scores[winner] >= victoriesForAction
+        ) {
           this.state.bestOfSeriesScores[winner] += 1;
           if (
             bestOfSeries !== 'off' &&
@@ -389,7 +392,11 @@ export default class GameRoom implements Party.Server {
       if (allWantRematch) {
         const _winner = this.state.winner ?? this.state.forfeitWinner;
         // Reset round scores after a series point was earned
-        if (_winner && this.state.scores[_winner] >= 5) {
+        if (
+          _winner &&
+          this.state.settings.victoriesForAction !== 0 &&
+          this.state.scores[_winner] >= this.state.settings.victoriesForAction
+        ) {
           this.state.scores = { ...INITIAL_SCORE };
         }
 
