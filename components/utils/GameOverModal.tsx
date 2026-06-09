@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import Button from './Button';
+import WinConfetti from './WinConfetti';
 
 export type GameOverVariant = 'win' | 'loss' | 'neutral';
 
@@ -46,6 +47,8 @@ export default function GameOverModal({
 
   return createPortal(
     <div>
+      {/* Win-only celebration burst, layered above the modal card. */}
+      {variant === 'win' && <WinConfetti />}
       <div className="fixed inset-0 z-100 bg-black/70 backdrop-blur-sm" />
       <div
         role="dialog"

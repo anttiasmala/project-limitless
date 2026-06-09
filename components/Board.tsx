@@ -54,6 +54,7 @@ import { useRouter } from 'next/navigation';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import Button from './utils/Button';
 import SvgSettings from '@/icons/settings';
+import WinConfetti from './utils/WinConfetti';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -875,7 +876,13 @@ export default function Board({
         <SeriesWinnerModal
           seriesWinner={seriesWinner}
           mode={mode}
-          isWinner={seriesWinner !== null}
+          // pvc has a single "you" (the human) — only their series win is a
+          // victory, so the Kraken winning correctly shows the loss variant.
+          // pvp is a shared screen with no single "you", so whichever local
+          // player wins is celebrated.
+          isWinner={
+            mode === 'pvc' ? seriesWinner === HUMAN : seriesWinner !== null
+          }
           onClose={() => {
             setBestOfSeriesScores({ ...INITIAL_SCORE });
             setScores({ ...INITIAL_SCORE });
