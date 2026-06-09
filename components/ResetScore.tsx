@@ -5,6 +5,8 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import Button from './utils/Button';
+import { useKeyPress } from '@/hooks/useKeyPress';
+import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 
 type ResetScoreProps = {
   onReset: () => void;
@@ -41,6 +43,20 @@ function ConfirmationModal({
   showConfirmationModal: boolean;
   onReset: () => void;
 }) {
+  useKeyPress('Escape', onClose, showConfirmationModal);
+  useKeyPress(
+    'Enter',
+    (e) => {
+      // Stop the focused button (e.g. the "Reset Score" trigger) from being
+      // re-activated by Enter, which would reopen the modal we just closed.
+      e.preventDefault();
+      onReset();
+      onClose();
+    },
+    showConfirmationModal,
+  );
+  usePreventBackgroundScrolling(showConfirmationModal);
+
   if (!showConfirmationModal) return null;
   return createPortal(
     <div>
@@ -61,6 +77,7 @@ function ConfirmationModal({
           <div className="flex gap-4">
             <Button onClick={onClose}>No</Button>
             <Button
+              autoFocus
               className="dark:bg-green-600 bg-green-600 hover:bg-green-500 dark:border-green-600 dark:hover:bg-green-500"
               onClick={() => {
                 onReset();
