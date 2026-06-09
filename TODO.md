@@ -49,6 +49,11 @@ Change PartyKit to PartyServer — PartyKit is not updated in a long time
     How to reproduce issue:
     1. Set Victories: 1 and Best of Series: Off
     2. Win a round
+26. Allow following keys to do stuff in Replay Modal:
+    1. Left and Right arrows, go one backwards and forward
+    2. Escape close the modal
+    3. Perhaps Up arrow go to last move
+    4. Perhaps Down arrow go to start
 
 # Notes
 
