@@ -40,6 +40,13 @@ Change PartyKit to PartyServer — PartyKit is not updated in a long time
 23. When site is going live, add somekind of feedback system?
 24. In Singleplayer (why not in Multiplayer too), if Point System is Treasure Chest and Victories is set lower than 5. There is going to be still 5 placeholder coins instead of real value. Perhaps it should show the amount set in Victories?
 
+25. If a player wins a game with Best Of Series scores activated, if a player leaves after the SeriesWinnerModal, game does not reset the scores.
+    How to reproduce the issue:
+    1. Create a room with Victories for action: 5, and Best of Series scores: Best of 3. Add the debugging values for score and Best of Series score in /party/games.ts
+    2. Win the game with Player 1 so it will have 2 Best of Series scores.
+    3. Click "New Series" with Player 1 and leave the game
+    4. Points get stuck and do not reset
+
 # Notes
 
 # Check if this is done already
