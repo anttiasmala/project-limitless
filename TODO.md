@@ -18,35 +18,34 @@ Change PartyKit to PartyServer — PartyKit is not updated in a long time
 7. In Multiplayer Pirate Profile the selected icon is not centered with "Smallest screen needed" mobile view
 8. In Multiplayer allow only spectate rooms that have players / allowed spectating
 9. Move winLossDraw to useGameSettings.ts from Board.tsx
-10. Replay modal does not show latest move with yellow border
-11. Allow change difficulty when game has started, if difficulty is changed, reset game?
-12. Add 10x10 to Watch mode
-13. Currently 10x10 Watch mode does not work. It might get stuck and gives this to move log: "Turn 22 · ☠️ Davy Jones seized NaN" and adds one point per move
-14. Currently 10x10 is really small. Perhaps add a zoom button or something that helps seeing the board. Zooming the whole site works, but perhaps zoom button would be good?
-15. Add a button that focuses to Squares?
-16. Add login system and save winLossDraw stats to backend SQL database. Perhaps PostgreSQL and Prisma?
-17. Save multiplayer settings to LocalStorage so player does not have to set the settings always again?
-18. Sand timer in multiplayer does not start immediately, it takes half a second to start rolling, perhaps it could be fixed?
-19. Show settings of a gameroom in Lobby list, so player knows that if there is for example turn timer and how long it is, etc
-20. Seconds per turn in Multiplayer (Check singleplayer as well) does not allow setting it to 0 or empty. Perhaps it should be allowed to be empty, but don't allow room creation and add a check to backend that does not allow number 0 or empty
+10. Allow change difficulty when game has started, if difficulty is changed, reset game?
+11. Add 10x10 to Watch mode
+12. Currently 10x10 Watch mode does not work. It might get stuck and gives this to move log: "Turn 22 · ☠️ Davy Jones seized NaN" and adds one point per move
+13. Currently 10x10 is really small. Perhaps add a zoom button or something that helps seeing the board. Zooming the whole site works, but perhaps zoom button would be good?
+14. Add a button that focuses to Squares?
+15. Add login system and save winLossDraw stats to backend SQL database. Perhaps PostgreSQL and Prisma?
+16. Save multiplayer settings to LocalStorage so player does not have to set the settings always again?
+17. Sand timer in multiplayer does not start immediately, it takes half a second to start rolling, perhaps it could be fixed?
+18. Show settings of a gameroom in Lobby list, so player knows that if there is for example turn timer and how long it is, etc
+19. Seconds per turn in Multiplayer (Check singleplayer as well) does not allow setting it to 0 or empty. Perhaps it should be allowed to be empty, but don't allow room creation and add a check to backend that does not allow number 0 or empty
 
-21. Change Multiplayer's Room Setting's order. Perhaps something like this:
+20. Change Multiplayer's Room Setting's order. Perhaps something like this:
     1. Board Size
     2. Best of Series
     3. Sand timer
     4. Private game
     5. Allow spectators
-22. Add Victories from Singleplayer to Multiplayer. So player can choose how many wins before reseting scores
-23. When site is going live, add somekind of feedback system?
-24. In Singleplayer (why not in Multiplayer too), if Point System is Treasure Chest and Victories is set lower than 5. There is going to be still 5 placeholder coins instead of real value. Perhaps it should show the amount set in Victories?
+21. Add Victories from Singleplayer to Multiplayer. So player can choose how many wins before reseting scores
+22. When site is going live, add somekind of feedback system?
+23. In Singleplayer (why not in Multiplayer too), if Point System is Treasure Chest and Victories is set lower than 5. There is going to be still 5 placeholder coins instead of real value. Perhaps it should show the amount set in Victories?
 
-25. If a player wins a game with Best Of Series scores activated, if a player leaves after the SeriesWinnerModal, game does not reset the scores.
+24. If a player wins a game with Best Of Series scores activated, if a player leaves after the SeriesWinnerModal, game does not reset the scores.
     How to reproduce the issue:
     1. Create a room with Victories for action: 5, and Best of Series scores: Best of 3. Add the debugging values for score and Best of Series score in /party/games.ts
     2. Win the game with Player 1 so it will have 2 Best of Series scores.
     3. Click "New Series" with Player 1 and leave the game
     4. Points get stuck and do not reset
-26. Allow ENTER-button to accept Reset Score in Singleplayer? Add simple EventListener when Modal is open
+25. Allow ENTER-button to accept Reset Score in Singleplayer? Add simple EventListener when Modal is open
 
 # Notes
 
