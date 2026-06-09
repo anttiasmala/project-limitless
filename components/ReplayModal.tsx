@@ -57,6 +57,9 @@ export default function ReplayModal({
   const squareSize =
     boardSize === 10 ? 'sm' : boardSize === 5 ? 'md' : undefined;
 
+  // The latest move is the one at the current step; null when at the start.
+  const latestMoveIndex = moveHistory[stepIndex - 1]?.index ?? null;
+
   return createPortal(
     <div>
       <div className="fixed inset-0 z-100 bg-black/70 backdrop-blur-sm" />
@@ -91,6 +94,7 @@ export default function ReplayModal({
                     value={cell}
                     displayValue={cell ? playerIcons[cell] : undefined}
                     isWinning={showWin ? winLine?.includes(i) ?? false : false}
+                    isLatestMove={i === latestMoveIndex}
                     disabled={true}
                     onClick={() => null}
                     onKeyDown={() => null}
