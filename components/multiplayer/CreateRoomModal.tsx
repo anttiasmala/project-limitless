@@ -23,8 +23,16 @@ export default function CreateRoomModal({ onClose }: Props) {
   const router = useRouter();
   const [settings, setSettings] = useState<RoomSettings>(DEFAULT_ROOM_SETTINGS);
   const [showVictoriesInfoModal, setShowVictoriesInfoModal] = useState(false);
+  const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
 
-  useKeyPress('Escape', onClose, true);
+  useKeyPress(
+    'Escape',
+    () => {
+      if (isAnyModalOpen) return;
+      onClose();
+    },
+    true,
+  );
   usePreventBackgroundScrolling(true);
 
   function handleCreate() {
@@ -118,7 +126,10 @@ export default function CreateRoomModal({ onClose }: Props) {
                 aria-label="What does Victories mean?"
                 title="What does Victories mean?"
                 className="ml-1 cursor-pointer leading-none"
-                onClick={() => setShowVictoriesInfoModal(true)}
+                onClick={() => {
+                  setShowVictoriesInfoModal(true);
+                  setIsAnyModalOpen(true);
+                }}
               >
                 ℹ️
               </button>
@@ -141,7 +152,10 @@ export default function CreateRoomModal({ onClose }: Props) {
           </div>
 
           <VictoriesInfoModal
-            onClose={() => setShowVictoriesInfoModal(false)}
+            onClose={() => {
+              setShowVictoriesInfoModal(false);
+              setIsAnyModalOpen(false);
+            }}
             showModal={showVictoriesInfoModal}
           />
 

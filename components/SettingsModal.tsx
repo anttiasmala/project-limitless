@@ -63,10 +63,7 @@ export function SettingsModal({
   winLossDraw,
   onResetStats,
 }: SettingsModalProps) {
-  const handleClose = useCallback(
-    () => setShowSettingsModal(false),
-    [setShowSettingsModal],
-  );
+  const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useLocalStorage('isDarkTheme', true);
   const [playerOne, setPlayerOne] = useLocalStorage('playerOne', {
     name: 'Davy Jones',
@@ -79,6 +76,11 @@ export function SettingsModal({
   const [settingMenu, setSettingMenu] = useState<
     'settings' | 'game' | 'players' | 'stats'
   >('settings');
+
+  const handleClose = useCallback(() => {
+    if (isAnyModalOpen) return;
+    setShowSettingsModal(false);
+  }, [setShowSettingsModal, isAnyModalOpen]);
 
   const showGameSettings = Boolean(setTimerEnabled || setBestOfSeries);
 
@@ -292,6 +294,7 @@ export function SettingsModal({
               setVictoriesForAction={setVictoriesForAction}
               timerDuration={timerDuration}
               setTimerDuration={setTimerDuration}
+              setIsAnyModalOpen={setIsAnyModalOpen}
             />
           ) : settingMenu === 'stats' && winLossDraw ? (
             <StatsPanel
@@ -299,6 +302,7 @@ export function SettingsModal({
               playerOne={playerOne}
               playerTwo={playerTwo}
               onResetStats={onResetStats}
+              setIsAnyModalOpen={setIsAnyModalOpen}
             />
           ) : (
             <PlayersPanel
@@ -307,6 +311,7 @@ export function SettingsModal({
               playerTwo={playerTwo}
               setPlayerTwo={setPlayerTwo}
               mode={mode}
+              setIsAnyModalOpen={setIsAnyModalOpen}
             />
           )}
         </div>
