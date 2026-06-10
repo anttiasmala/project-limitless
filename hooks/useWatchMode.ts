@@ -133,11 +133,11 @@ export function useWatchMode({
     const moveDifficulty =
       movingPlayer === '☠️' ? watchDifficultyOne : watchDifficultyTwo;
     const move =
-      boardSize === 3
-        ? getAIMove(board, movingPlayer, opponent, moveDifficulty)
+      boardSize === 10
+        ? getAIMove10(board, movingPlayer, opponent, moveDifficulty)
         : boardSize === 5
         ? getAIMove5(board, movingPlayer, opponent, moveDifficulty)
-        : getAIMove10(board, movingPlayer, opponent, moveDifficulty);
+        : getAIMove(board, movingPlayer, opponent, moveDifficulty);
     const thinkingTimeout = setTimeout(() => setAiThinking(true), 0);
     const moveTimeout = setTimeout(() => {
       if (move === -1) {
