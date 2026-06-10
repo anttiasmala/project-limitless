@@ -73,12 +73,11 @@ export default function Lobby() {
       {/* Exit button */}
       <div className="relative flex items-center gap-6">
         <Button
-          variant="ghost"
+          variant="neutral"
           size="sm"
           onClick={() => router.push('/')}
-          className="px-0 py-0 text-base text-slate-800 dark:text-amber-700"
         >
-          ✕ Back to main page
+          ← Back to main page
         </Button>
         <Button
           variant="unstyled"

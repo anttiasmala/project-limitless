@@ -268,10 +268,9 @@ export default function MultiplayerBoard({
       {/* Exit button and Settings Button*/}
       <div className="relative flex items-center gap-6">
         <Button
-          variant="ghost"
+          variant="neutral"
           size="sm"
           onClick={() => router.push('/multiplayer/lobby')}
-          className="px-0 py-0 text-xs text-slate-400 dark:text-amber-700"
         >
           ✕ Leave
         </Button>
