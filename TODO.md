@@ -1,7 +1,5 @@
 # TODO:
 
-1. Add Tailwind Prettier
-
 # Ideas:
 
 1. Chat in multiplayer - Simple emoji reactions or chat || Emoji reactions in multiplayer — tap to send 🏴‍☠️ 💥 😤 during opponent's turn
@@ -40,6 +38,7 @@
 21. Tournament bracket — 4-player round-robin or knockout using the existing multiplayer rooms
 22. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
 23. Add VictoriesInfoModal to /utils/ folder and make Multiplayer and Singleplayer to use it
+24. Add a way to players to see if someone is spectating their game
 
 # Notes
 
