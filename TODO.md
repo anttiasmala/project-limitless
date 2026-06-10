@@ -1,9 +1,5 @@
 # TODO:
 
-A lot of ideas below:
-
-**Bigger Features**
-
 # Ideas:
 
 1. Chat in multiplayer - Simple emoji reactions or chat || Emoji reactions in multiplayer — tap to send 🏴‍☠️ 💥 😤 during opponent's turn
@@ -42,6 +38,9 @@ A lot of ideas below:
     4. Perhaps Down arrow go to start
 22. Tournament bracket — 4-player round-robin or knockout using the existing multiplayer rooms
 23. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
+24. Tournament bracket — 4-player round-robin or knockout using the existing multiplayer rooms
+25. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
+26. Add VictoriesInfoModal to /utils/ folder and make Multiplayer and Singleplayer to use it
 
 # Notes
 
