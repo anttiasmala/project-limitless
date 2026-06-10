@@ -44,16 +44,13 @@ export default function ScoreBoard({
 
   // Treasure chests double as a progress bar toward the victory target, so the
   // number of slots mirrors `victoriesForAction` and is shared by both players.
-  // Endless mode (0) grows a rolling track (min 5) as the lead climbs. Beyond
-  // CHEST_LIMIT a row of chests becomes a wall, so we fall back to a compact
-  // "💰 count / target" readout (target omitted in endless mode).
+  // Two cases have no fillable track and fall back to a compact "💰 count
+  // [/ target]" readout: endless mode (0), which has no target, and targets
+  // beyond CHEST_LIMIT, where a row of chests would become a wall.
   const CHEST_LIMIT = 10;
-  const target =
-    victoriesForAction === 0
-      ? Math.max(5, scores[HUMAN], scores[AI])
-      : victoriesForAction;
-  const useCompactChests = target > CHEST_LIMIT;
-  const chestMax = Math.min(target, CHEST_LIMIT);
+  const useCompactChests =
+    victoriesForAction === 0 || victoriesForAction > CHEST_LIMIT;
+  const chestMax = Math.min(victoriesForAction, CHEST_LIMIT);
 
   // Both point systems frame the score as progress toward the target
   // ("count / target"), with the target omitted in endless mode (0).
