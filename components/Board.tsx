@@ -54,7 +54,6 @@ import { useRouter } from 'next/navigation';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import Button from './utils/Button';
 import SvgSettings from '@/icons/settings';
-import WinConfetti from './utils/WinConfetti';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -499,12 +498,19 @@ export default function Board({
     board,
     currentPlayer,
     showReplayModal,
+    showSeriesModal: seriesWinner !== null,
+    boardSize,
+    bestOfSeries,
+    victoriesForAction,
+    scores,
     resetGame,
     setScores,
     setBoard,
     setMoveHistory,
     setCurrentPlayer,
     setAiThinking,
+    setWinStreaks,
+    setBestOfSeriesScores,
   });
 
   useEffect(() => {
@@ -757,8 +763,9 @@ export default function Board({
         playerTwoOverride={mode === 'tournament' ? playerTwo : undefined}
       />
 
-      {/* Win streak badge — hidden in watch mode (no human, no streaks) */}
-      {mode !== 'watch' && streakBadgePlayer && (
+      {/* Win streak badge — shown in every mode, including watch (an AI on a
+          3-game tear). playerIcons resolves both sides' emoji. */}
+      {streakBadgePlayer && (
         <div className="animate-bounce bg-amber-500 border-2 border-amber-700 text-white dark:bg-yellow-600 dark:border-yellow-400 dark:text-black font-bold px-4 py-2 rounded-lg text-center text-lg shadow-lg">
           {playerIcons[streakBadgePlayer]} 3 in a row! 🔥
         </div>
@@ -871,17 +878,22 @@ export default function Board({
         />
       )}
 
-      {/* Series Winner Modal — hidden in watch mode (in-session scores only) */}
-      {mode !== 'watch' && mode !== 'tournament' && bestOfSeries !== 'off' && (
+      {/* Series Winner Modal — pauses the watch loop while it's open */}
+      {mode !== 'tournament' && bestOfSeries !== 'off' && (
         <SeriesWinnerModal
           seriesWinner={seriesWinner}
           mode={mode}
           // pvc has a single "you" (the human) — only their series win is a
           // victory, so the Kraken winning correctly shows the loss variant.
           // pvp is a shared screen with no single "you", so whichever local
-          // player wins is celebrated.
+          // player wins is celebrated. watch has no "you" at all — leave
+          // isWinner undefined so the modal renders its neutral variant.
           isWinner={
-            mode === 'pvc' ? seriesWinner === HUMAN : seriesWinner !== null
+            mode === 'watch'
+              ? undefined
+              : mode === 'pvc'
+              ? seriesWinner === HUMAN
+              : seriesWinner !== null
           }
           onClose={() => {
             setBestOfSeriesScores({ ...INITIAL_SCORE });
