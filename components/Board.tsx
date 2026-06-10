@@ -498,6 +498,7 @@ export default function Board({
     board,
     currentPlayer,
     showReplayModal,
+    showSeriesModal: seriesWinner !== null,
     boardSize,
     bestOfSeries,
     victoriesForAction,
@@ -877,17 +878,22 @@ export default function Board({
         />
       )}
 
-      {/* Series Winner Modal — hidden in watch mode (in-session scores only) */}
-      {mode !== 'watch' && mode !== 'tournament' && bestOfSeries !== 'off' && (
+      {/* Series Winner Modal — pauses the watch loop while it's open */}
+      {mode !== 'tournament' && bestOfSeries !== 'off' && (
         <SeriesWinnerModal
           seriesWinner={seriesWinner}
           mode={mode}
           // pvc has a single "you" (the human) — only their series win is a
           // victory, so the Kraken winning correctly shows the loss variant.
           // pvp is a shared screen with no single "you", so whichever local
-          // player wins is celebrated.
+          // player wins is celebrated. watch has no "you" at all — leave
+          // isWinner undefined so the modal renders its neutral variant.
           isWinner={
-            mode === 'pvc' ? seriesWinner === HUMAN : seriesWinner !== null
+            mode === 'watch'
+              ? undefined
+              : mode === 'pvc'
+              ? seriesWinner === HUMAN
+              : seriesWinner !== null
           }
           onClose={() => {
             setBestOfSeriesScores({ ...INITIAL_SCORE });

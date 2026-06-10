@@ -34,6 +34,7 @@ type Params = {
   board: Board;
   currentPlayer: Player;
   showReplayModal: boolean;
+  showSeriesModal: boolean;
   boardSize: 3 | 5 | 10;
   bestOfSeries: 'off' | 'bo3' | 'bo5';
   victoriesForAction: number;
@@ -57,6 +58,7 @@ export function useWatchMode({
   board,
   currentPlayer,
   showReplayModal,
+  showSeriesModal,
   boardSize,
   bestOfSeries,
   victoriesForAction,
@@ -112,7 +114,13 @@ export function useWatchMode({
   );
 
   useEffect(() => {
-    if (mode !== 'watch' || !isGameStarted || watchPaused || showReplayModal)
+    if (
+      mode !== 'watch' ||
+      !isGameStarted ||
+      watchPaused ||
+      showReplayModal ||
+      showSeriesModal
+    )
       return;
 
     if (gameOver) {
@@ -182,6 +190,7 @@ export function useWatchMode({
     boardSize,
     currentPlayer,
     showReplayModal,
+    showSeriesModal,
     watchSpeed,
     watchDifficultyOne,
     watchDifficultyTwo,
