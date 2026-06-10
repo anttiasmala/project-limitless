@@ -129,6 +129,11 @@ function ConfirmationModal({
   onReset: () => void;
 }) {
   useKeyPress('Escape', onClose, showConfirmationModal);
+  useKeyPress('Enter', (e) => {
+    e.preventDefault();
+    onReset();
+    onClose();
+  });
 
   if (!showConfirmationModal) return null;
   return createPortal(
@@ -150,6 +155,7 @@ function ConfirmationModal({
           <div className="flex gap-4">
             <Button onClick={onClose}>No</Button>
             <Button
+              autoFocus
               className="bg-green-600 border-green-800 hover:bg-green-500 dark:bg-green-600 dark:border-green-600 dark:hover:bg-green-500"
               onClick={() => {
                 onReset();
