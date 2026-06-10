@@ -1,5 +1,7 @@
-import Button from "@/components/utils/Button";
-import { createPortal } from "react-dom";
+// components/utils/VictoriesInfoModal.tsx
+
+import Button from '@/components/utils/Button';
+import { createPortal } from 'react-dom';
 
 type Props = {
   onClose: () => void;
