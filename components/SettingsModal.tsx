@@ -123,18 +123,18 @@ export function SettingsModal({
         role="dialog"
         aria-modal="true"
         aria-label="Game settings"
-        className="fixed top-1/2 left-1/2 z-99 -translate-x-1/2 -translate-y-1/2 flex flex-col max-h-[90dvh]"
+        className="fixed top-1/2 left-1/2 z-99 flex max-h-[90dvh] -translate-x-1/2 -translate-y-1/2 flex-col"
       >
         <Button
           variant="unstyled"
-          className="py-2 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 hover:bg-slate-100 hover:border-amber-500 dark:hover:bg-red-800 dark:hover:border-yellow-500 tracking-wide w-full mb-2 shrink-0"
+          className="mb-2 w-full shrink-0 border-2 border-slate-300 bg-white py-2 tracking-wide text-slate-800 hover:border-amber-500 hover:bg-slate-100 dark:border-red-700 dark:bg-red-900 dark:text-yellow-300 dark:hover:border-yellow-500 dark:hover:bg-red-800"
           onClick={() => setShowSettingsModal(false)}
         >
           ⚓ Close Window ☠️
         </Button>
 
         {showPlayerSettings ? (
-          <div className="grid grid-cols-2 mb-2 gap-1 shrink-0">
+          <div className="mb-2 grid shrink-0 grid-cols-2 gap-1">
             <Button
               variant="unstyled"
               onClick={() => setSettingMenu('settings')}
@@ -172,7 +172,7 @@ export function SettingsModal({
 
         <div className="overflow-y-auto">
           {settingMenu === 'settings' ? (
-            <div className="w-72 max-w-[90vw] h-auto min-h-48 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg">
+            <div className="h-auto min-h-48 w-72 max-w-[90vw] rounded-lg border-2 border-slate-300 bg-white font-bold text-slate-800 dark:border-red-700 dark:bg-red-900 dark:text-yellow-300">
               <div className="mt-3 ml-3 flex flex-col gap-3">
                 {/* Treasure chest or number logic -- single-player only*/}
                 {setPointSystem && (
@@ -180,7 +180,7 @@ export function SettingsModal({
                     <label className="cursor-pointer select-none">
                       Point system
                       <select
-                        className="ml-1 border-2 border-slate-300 rounded-md text-slate-800 bg-white dark:border-red-700 dark:text-yellow-300 dark:bg-red-950"
+                        className="ml-1 rounded-md border-2 border-slate-300 bg-white text-slate-800 dark:border-red-700 dark:bg-red-950 dark:text-yellow-300"
                         name="pointSystem"
                         onChange={(e) =>
                           setPointSystem(
@@ -190,13 +190,13 @@ export function SettingsModal({
                         value={pointSystem}
                       >
                         <option
-                          className="text-black dark:text-yellow-300 font-bold"
+                          className="font-bold text-black dark:text-yellow-300"
                           value={'number'}
                         >
                           Number
                         </option>
                         <option
-                          className="text-black dark:text-yellow-300 font-bold"
+                          className="font-bold text-black dark:text-yellow-300"
                           value={'treasureChest'}
                         >
                           Treasure Chest
@@ -212,7 +212,7 @@ export function SettingsModal({
                     Dark Theme
                     <input
                       type="checkbox"
-                      className="ml-2 w-5 h-5 cursor-pointer align-middle accent-amber-600"
+                      className="ml-2 h-5 w-5 cursor-pointer align-middle accent-amber-600"
                       checked={isDarkTheme}
                       onChange={(e) => setIsDarkTheme(e.target.checked)}
                     />
@@ -225,7 +225,7 @@ export function SettingsModal({
                     Arrow keys
                     <input
                       type="checkbox"
-                      className="ml-2 w-5 h-5 cursor-pointer align-middle accent-amber-600"
+                      className="ml-2 h-5 w-5 cursor-pointer align-middle accent-amber-600"
                       checked={isArrowKeysEnabled}
                       onChange={(e) => setIsArrowKeysEnabled(e.target.checked)}
                     />
@@ -238,7 +238,7 @@ export function SettingsModal({
                     Mute sounds
                     <input
                       type="checkbox"
-                      className="ml-2 w-5 h-5 cursor-pointer align-middle accent-amber-600"
+                      className="ml-2 h-5 w-5 cursor-pointer align-middle accent-amber-600"
                       checked={isAudioMuted}
                       onChange={(e) => {
                         const muted = e.target.checked;
@@ -266,11 +266,11 @@ export function SettingsModal({
                     max={1}
                     step={0.01}
                     value={volume}
-                    className="cursor-pointer w-max accent-yellow-400"
+                    className="w-max cursor-pointer accent-yellow-400"
                     onChange={(e) => applyVolume(parseFloat(e.target.value))}
                   />
                   <input
-                    className="ml-3 w-14 border border-slate-300 dark:border-yellow-500 dark:bg-red-900 dark:text-yellow-300 rounded-md px-1 text-center"
+                    className="ml-3 w-14 rounded-md border border-slate-300 px-1 text-center dark:border-yellow-500 dark:bg-red-900 dark:text-yellow-300"
                     min={0}
                     max={100}
                     type="number"

@@ -43,30 +43,25 @@ export default function Square({
       onClick={onClick}
       onKeyDown={onKeyDown}
       className={twMerge(
-        `
-        ${
+        ` ${
           size === 'sm'
-            ? 'w-7 h-7 sm:w-8 sm:h-8 text-[10px] sm:text-xs border-2 rounded'
+            ? 'h-7 w-7 rounded border-2 text-[10px] sm:h-8 sm:w-8 sm:text-xs'
             : size === 'md'
-            ? 'w-12 h-12 sm:w-14 sm:h-14 text-xl sm:text-2xl border-2 rounded-md'
-            : 'w-20 h-20 sm:w-[min(28vw,6rem)] sm:h-[min(28vw,6rem)] text-[min(8vw,2rem)] sm:text-5xl border-4 rounded-lg'
-        }
-        font-bold transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400 dark:focus-visible:ring-yellow-400
-        ${
+              ? 'h-12 w-12 rounded-md border-2 text-xl sm:h-14 sm:w-14 sm:text-2xl'
+              : 'h-20 w-20 rounded-lg border-4 text-[min(8vw,2rem)] sm:h-[min(28vw,6rem)] sm:w-[min(28vw,6rem)] sm:text-5xl'
+        } flex items-center justify-center font-bold transition-all duration-300 focus-visible:ring-4 focus-visible:ring-amber-400 focus-visible:outline-none dark:focus-visible:ring-yellow-400 ${
           isWinning
-            ? 'border-yellow-400 bg-yellow-100 dark:bg-yellow-900/60 shadow-[0_0_20px_#facc15] scale-105'
+            ? 'scale-105 border-yellow-400 bg-yellow-100 shadow-[0_0_20px_#facc15] dark:bg-yellow-900/60'
             : isHint
-            ? 'border-emerald-400 bg-emerald-100 dark:bg-emerald-900/60 shadow-[0_0_20px_#34d399] scale-105 animate-pulse'
-            : isLatestMove
-            ? 'border-amber-500 bg-amber-100 dark:border-yellow-500 dark:bg-amber-900/50 ring-2 ring-amber-400/60 dark:ring-yellow-400/50 ring-inset'
-            : 'border-slate-300 bg-slate-100 hover:bg-slate-200 hover:border-amber-500 dark:border-amber-800 dark:bg-amber-950/70 dark:hover:bg-amber-900/60 dark:hover:border-yellow-600'
-        }
-        ${disabled || value ? 'cursor-not-allowed' : 'cursor-pointer'}
-      `,
+              ? 'scale-105 animate-pulse border-emerald-400 bg-emerald-100 shadow-[0_0_20px_#34d399] dark:bg-emerald-900/60'
+              : isLatestMove
+                ? 'border-amber-500 bg-amber-100 ring-2 ring-amber-400/60 ring-inset dark:border-yellow-500 dark:bg-amber-900/50 dark:ring-yellow-400/50'
+                : 'border-slate-300 bg-slate-100 hover:border-amber-500 hover:bg-slate-200 dark:border-amber-800 dark:bg-amber-950/70 dark:hover:border-yellow-600 dark:hover:bg-amber-900/60'
+        } ${disabled || value ? 'cursor-not-allowed' : 'cursor-pointer'} `,
         className,
       )}
     >
-      {value ? displayValue ?? value : <span className="sr-only">Empty</span>}
+      {value ? (displayValue ?? value) : <span className="sr-only">Empty</span>}
     </button>
   );
 }

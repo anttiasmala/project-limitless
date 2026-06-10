@@ -41,7 +41,7 @@ export default function WinningLine({
 
   return (
     <svg
-      className="absolute inset-0 pointer-events-none z-10"
+      className="pointer-events-none absolute inset-0 z-10"
       width={gridSize}
       height={gridSize}
       viewBox={`0 0 ${gridSize} ${gridSize}`}

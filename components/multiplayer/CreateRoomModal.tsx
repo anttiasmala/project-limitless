@@ -64,23 +64,17 @@ export default function CreateRoomModal({ onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label="Create room settings"
-        className="fixed top-1/2 left-1/2 z-99 -translate-x-1/2 -translate-y-1/2
-        w-[90vw] max-w-sm
-        bg-amber-50 dark:bg-amber-950
-        border-2 border-amber-800 dark:border-amber-700
-        rounded-xl shadow-2xl p-6 flex flex-col gap-5 max-h-[90vh]"
+        className="fixed top-1/2 left-1/2 z-99 flex max-h-[90vh] w-[90vw] max-w-sm -translate-x-1/2 -translate-y-1/2 flex-col gap-5 rounded-xl border-2 border-amber-800 bg-amber-50 p-6 shadow-2xl dark:border-amber-700 dark:bg-amber-950"
       >
-        <h2 className="text-lg font-black text-amber-700 dark:text-yellow-400 text-center tracking-wide shrink-0">
+        <h2 className="shrink-0 text-center text-lg font-black tracking-wide text-amber-700 dark:text-yellow-400">
           🏴‍☠️ Room Settings
         </h2>
-        <div className="flex flex-col gap-5 overflow-y-auto min-h-0 text-slate-700 dark:text-yellow-300 font-semibold">
+        <div className="flex min-h-0 flex-col gap-5 overflow-y-auto font-semibold text-slate-700 dark:text-yellow-300">
           {/* Board Size */}
           <label className="flex items-center justify-between select-none">
             Board Size
             <select
-              className="border-2 border-slate-300 dark:border-amber-700 rounded-md
-              text-slate-800 dark:text-yellow-300 bg-white dark:bg-amber-900
-              cursor-pointer px-2 py-1"
+              className="cursor-pointer rounded-md border-2 border-slate-300 bg-white px-2 py-1 text-slate-800 dark:border-amber-700 dark:bg-amber-900 dark:text-yellow-300"
               value={settings.boardSize}
               onChange={(e) =>
                 setSettings((prev) => ({
@@ -99,9 +93,7 @@ export default function CreateRoomModal({ onClose }: Props) {
           <label className="flex items-center justify-between select-none">
             Best of Series
             <select
-              className="border-2 border-slate-300 dark:border-amber-700 rounded-md
-              text-slate-800 dark:text-yellow-300 bg-white dark:bg-amber-900
-              cursor-pointer px-2 py-1"
+              className="cursor-pointer rounded-md border-2 border-slate-300 bg-white px-2 py-1 text-slate-800 dark:border-amber-700 dark:bg-amber-900 dark:text-yellow-300"
               value={settings.bestOfSeries}
               onChange={(e) =>
                 setSettings((prev) => ({
@@ -137,7 +129,7 @@ export default function CreateRoomModal({ onClose }: Props) {
             <Input
               type="number"
               min={0}
-              className="px-1 ml-1 w-12"
+              className="ml-1 w-12 px-1"
               value={settings.victoriesForAction}
               onChange={(e) => {
                 const val = Number(e.target.value);
@@ -161,11 +153,11 @@ export default function CreateRoomModal({ onClose }: Props) {
 
           {/* Sand timer */}
           <div>
-            <label className="flex items-center justify-between cursor-pointer select-none">
+            <label className="flex cursor-pointer items-center justify-between select-none">
               Sand timer
               <input
                 type="checkbox"
-                className="w-5 h-5 cursor-pointer accent-amber-600"
+                className="h-5 w-5 cursor-pointer accent-amber-600"
                 checked={settings.timerEnabled}
                 onChange={(e) =>
                   setSettings((prev) => ({
@@ -182,7 +174,7 @@ export default function CreateRoomModal({ onClose }: Props) {
                   type="number"
                   min={1}
                   value={settings.timerDuration}
-                  className="w-12 ml-1 dark:bg-amber-900 dark:border-amber-700"
+                  className="ml-1 w-12 dark:border-amber-700 dark:bg-amber-900"
                   onChange={(e) => {
                     const val = Number(e.target.value);
                     if (Number.isFinite(val) && val >= 1) {
@@ -198,11 +190,11 @@ export default function CreateRoomModal({ onClose }: Props) {
           </div>
 
           {/* Private game */}
-          <label className="flex items-center justify-between cursor-pointer select-none">
+          <label className="flex cursor-pointer items-center justify-between select-none">
             Private game
             <input
               type="checkbox"
-              className="w-5 h-5 cursor-pointer accent-amber-600"
+              className="h-5 w-5 cursor-pointer accent-amber-600"
               checked={settings.isPrivateGame}
               onChange={(e) =>
                 setSettings((prev) => ({
@@ -213,11 +205,11 @@ export default function CreateRoomModal({ onClose }: Props) {
             />
           </label>
           {/* Allow spectators */}
-          <label className="flex items-center justify-between cursor-pointer select-none">
+          <label className="flex cursor-pointer items-center justify-between select-none">
             Allow spectators
             <input
               type="checkbox"
-              className="w-5 h-5 cursor-pointer accent-amber-600"
+              className="h-5 w-5 cursor-pointer accent-amber-600"
               checked={settings.allowSpectators}
               onChange={(e) =>
                 setSettings((prev) => ({
@@ -230,17 +222,15 @@ export default function CreateRoomModal({ onClose }: Props) {
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-3 pt-2 shrink-0">
+        <div className="flex shrink-0 gap-3 pt-2">
           <Button
-            className="flex-1 whitespace-nowrap text-sm sm:text-lg py-0 sm:py-3"
+            className="flex-1 py-0 text-sm whitespace-nowrap sm:py-3 sm:text-lg"
             onClick={onClose}
           >
             Cancel
           </Button>
           <Button
-            className="flex-1 bg-amber-600 hover:bg-amber-500 border-amber-800
-              dark:bg-amber-700 dark:hover:bg-amber-600 dark:border-yellow-500
-              dark:text-yellow-300 text-white whitespace-nowrap text-sm sm:text-lg py-0 sm:py-3"
+            className="flex-1 border-amber-800 bg-amber-600 py-0 text-sm whitespace-nowrap text-white hover:bg-amber-500 sm:py-3 sm:text-lg dark:border-yellow-500 dark:bg-amber-700 dark:text-yellow-300 dark:hover:bg-amber-600"
             onClick={handleCreate}
           >
             ⚓ Set Sail!

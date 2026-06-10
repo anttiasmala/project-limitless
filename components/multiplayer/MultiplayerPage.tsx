@@ -46,11 +46,8 @@ export default function MultiplayerPage({ roomId }: { roomId: string }) {
 
   return (
     <>
-      <main className="min-h-screen flex items-center justify-center p-4">
-        <div
-          className="bg-white/80 border-2 border-slate-300 dark:bg-amber-950/40
-          dark:border-amber-800 rounded-2xl p-4 sm:p-8 w-full max-w-lg"
-        >
+      <main className="flex min-h-screen items-center justify-center p-4">
+        <div className="w-full max-w-lg rounded-2xl border-2 border-slate-300 bg-white/80 p-4 sm:p-8 dark:border-amber-800 dark:bg-amber-950/40">
           <MultiplayerBoard
             roomId={roomId}
             isSpectator={isSpectator}

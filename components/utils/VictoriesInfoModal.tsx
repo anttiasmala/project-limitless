@@ -23,9 +23,9 @@ export default function VictoriesInfoModal({ onClose, showModal }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label="Victories setting information"
-        className="fixed top-1/2 left-1/2 z-101 -translate-x-1/2 -translate-y-1/2 flex w-72 max-w-[90vw] max-h-[90dvh] flex-col overflow-y-auto rounded-lg border-2 border-slate-300 bg-white p-4 text-slate-800 dark:border-red-700 dark:bg-red-900 dark:text-yellow-300"
+        className="fixed top-1/2 left-1/2 z-101 flex max-h-[90dvh] w-72 max-w-[90vw] -translate-x-1/2 -translate-y-1/2 flex-col overflow-y-auto rounded-lg border-2 border-slate-300 bg-white p-4 text-slate-800 dark:border-red-700 dark:bg-red-900 dark:text-yellow-300"
       >
-        <h3 className="mb-3 text-center text-sm font-bold uppercase tracking-wider">
+        <h3 className="mb-3 text-center text-sm font-bold tracking-wider uppercase">
           Victories
         </h3>
         <p className="font-normal">

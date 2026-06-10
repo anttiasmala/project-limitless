@@ -192,8 +192,8 @@ export default function MultiplayerBoard({
     settings.boardSize === '10'
       ? 'sm'
       : settings.boardSize === '5'
-      ? 'md'
-      : undefined;
+        ? 'md'
+        : undefined;
 
   const { line: winLine } = checkWinner(board, settings.boardSize);
   const draw = !winner && isDraw(board);
@@ -209,8 +209,8 @@ export default function MultiplayerBoard({
   };
   const currentPlayerName =
     currentPlayer === HUMAN
-      ? humanEntry?.name ?? 'Davy Jones'
-      : aiEntry?.name ?? 'Capt. Hook';
+      ? (humanEntry?.name ?? 'Davy Jones')
+      : (aiEntry?.name ?? 'Capt. Hook');
 
   if (isSpectator && !settings.allowSpectators) {
     return (
@@ -228,7 +228,7 @@ export default function MultiplayerBoard({
 
   // I want a rematch?
   const myWantsRematch = myPlayer
-    ? players[myId]?.wantsRematch ?? false
+    ? (players[myId]?.wantsRematch ?? false)
     : false;
 
   function handleClick(index: number) {
@@ -263,7 +263,7 @@ export default function MultiplayerBoard({
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Room code */}
-      <p className="text-xs text-slate-400 dark:text-amber-600 uppercase tracking-widest">
+      <p className="text-xs tracking-widest text-slate-400 uppercase dark:text-amber-600">
         Room: <span className="font-mono font-bold">{roomId}</span>
       </p>
 
@@ -273,7 +273,7 @@ export default function MultiplayerBoard({
           variant="ghost"
           size="sm"
           onClick={() => router.push('/multiplayer/lobby')}
-          className="text-xs px-0 py-0 text-slate-400 dark:text-amber-700"
+          className="px-0 py-0 text-xs text-slate-400 dark:text-amber-700"
         >
           ✕ Leave
         </Button>
@@ -284,20 +284,20 @@ export default function MultiplayerBoard({
           className="relative"
           onClick={() => setShowSettingsModal(true)}
         >
-          <SvgSettings className="w-8 h-8 fill-none dark:text-white text-amber-700" />
+          <SvgSettings className="h-8 w-8 fill-none text-amber-700 dark:text-white" />
         </Button>
       </div>
 
       {/* Waiting state */}
       {status === 'waiting' && !isSpectator && (
-        <p className="text-amber-600 dark:text-yellow-300 font-semibold animate-pulse">
+        <p className="animate-pulse font-semibold text-amber-600 dark:text-yellow-300">
           ⏳ Waiting for opponent to join...
         </p>
       )}
 
       {/* Opponent disconnected */}
       {opponentDisconnected && (
-        <p className="text-red-500 font-semibold">⚠️ Opponent disconnected</p>
+        <p className="font-semibold text-red-500">⚠️ Opponent disconnected</p>
       )}
 
       {/* Scoreboard */}
@@ -320,7 +320,7 @@ export default function MultiplayerBoard({
 
       {/* Win streak badge */}
       {winStreakPlayer && showWinStreakText && (
-        <div className="animate-bounce bg-amber-500 border-2 border-amber-700 text-white dark:bg-yellow-600 dark:border-yellow-400 dark:text-black font-bold px-4 py-2 rounded-lg text-center text-lg shadow-lg">
+        <div className="animate-bounce rounded-lg border-2 border-amber-700 bg-amber-500 px-4 py-2 text-center text-lg font-bold text-white shadow-lg dark:border-yellow-400 dark:bg-yellow-600 dark:text-black">
           {playerIcons[winStreakPlayer]} {winStreak[winStreakPlayer]} in a row!
           🔥
         </div>
@@ -328,7 +328,7 @@ export default function MultiplayerBoard({
 
       {/* Spectator banner */}
       {isSpectator && (
-        <p className="text-xs text-amber-500 dark:text-amber-400 font-semibold tracking-widest uppercase">
+        <p className="text-xs font-semibold tracking-widest text-amber-500 uppercase dark:text-amber-400">
           👁️ Spectating
         </p>
       )}
@@ -364,8 +364,8 @@ export default function MultiplayerBoard({
             settings.boardSize === '10'
               ? 'grid-cols-10 gap-1'
               : settings.boardSize === '5'
-              ? 'grid-cols-5 gap-2'
-              : 'grid-cols-3 gap-3'
+                ? 'grid-cols-5 gap-2'
+                : 'grid-cols-3 gap-3'
           }`}
         >
           {board.map((cell, i) => (
@@ -438,13 +438,13 @@ export default function MultiplayerBoard({
 
       {/* Game over */}
       {status === 'finished' && !isSpectator && (
-        <div className="text-center flex flex-col items-center gap-3">
+        <div className="flex flex-col items-center gap-3 text-center">
           <p className="text-xl font-bold dark:text-yellow-300">
             {draw
               ? '🌊 Draw!'
               : winner === myPlayer || forfeitWinner === myPlayer
-              ? '🏆 You win!'
-              : '💀 You lose!'}
+                ? '🏆 You win!'
+                : '💀 You lose!'}
           </p>
           <Button
             variant="gold"
@@ -459,10 +459,10 @@ export default function MultiplayerBoard({
             {opponentWantsRematch && myWantsRematch
               ? '✅ Both ready — Starting game!'
               : opponentWantsRematch
-              ? '✅ Opponent ready — Start rematch!'
-              : myWantsRematch
-              ? '✕ Cancel Rematch Request'
-              : '🔁 Request Rematch'}
+                ? '✅ Opponent ready — Start rematch!'
+                : myWantsRematch
+                  ? '✕ Cancel Rematch Request'
+                  : '🔁 Request Rematch'}
           </Button>
           <Button
             variant="gold"

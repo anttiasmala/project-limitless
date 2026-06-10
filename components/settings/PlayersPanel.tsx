@@ -27,20 +27,20 @@ export function PlayersPanel({
 
   return (
     <>
-      <div className="w-72 max-w-[90vw] bg-white border-2 border-slate-300 dark:bg-red-900 dark:border-red-700 rounded-lg overflow-hidden">
-        <div className="bg-slate-100 dark:bg-red-800 px-4 py-2 border-b border-slate-200 dark:border-red-700">
-          <h3 className="text-center font-bold text-slate-700 dark:text-yellow-300 tracking-wide">
+      <div className="w-72 max-w-[90vw] overflow-hidden rounded-lg border-2 border-slate-300 bg-white dark:border-red-700 dark:bg-red-900">
+        <div className="border-b border-slate-200 bg-slate-100 px-4 py-2 dark:border-red-700 dark:bg-red-800">
+          <h3 className="text-center font-bold tracking-wide text-slate-700 dark:text-yellow-300">
             ⚓ Your Crew ☠️
           </h3>
         </div>
         <div className="flex gap-3 p-3">
           {/* Player 1 Card */}
-          <div className="flex-1 flex flex-col items-center gap-2 bg-slate-50 dark:bg-red-800/60 rounded-lg p-3 border border-slate-200 dark:border-red-600">
+          <div className="flex flex-1 flex-col items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-red-600 dark:bg-red-800/60">
             <div className="flex items-center">
-              <p className="text-xs font-bold text-slate-500 dark:text-yellow-400 uppercase tracking-wider">
+              <p className="text-xs font-bold tracking-wider text-slate-500 uppercase dark:text-yellow-400">
                 {mode === 'pvc' ? 'You' : 'Player 1'}
               </p>
-              <span className="ml-1 relative group">
+              <span className="group relative ml-1">
                 <Button
                   variant="unstyled"
                   onClick={() =>
@@ -49,11 +49,11 @@ export function PlayersPanel({
                       icon: '☠️',
                     })
                   }
-                  className="hover:dark:bg-red-500 hover:bg-slate-300"
+                  className="hover:bg-slate-300 hover:dark:bg-red-500"
                 >
                   🔄
                 </Button>
-                <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
+                <span className="pointer-events-none absolute top-full left-1/2 z-50 mt-1 hidden -translate-x-1/2 rounded bg-slate-800 px-2 py-1 text-xs whitespace-nowrap text-white group-hover:block">
                   Reset to default
                 </span>
               </span>
@@ -65,11 +65,11 @@ export function PlayersPanel({
                 setIsAnyModalOpen(true);
               }}
               title="Click to change icon"
-              className="text-4xl w-16 h-16 rounded-full border-4 border-slate-300 dark:border-red-600 hover:border-amber-500 dark:hover:border-yellow-400 hover:scale-110 bg-white dark:bg-red-950 shadow-md"
+              className="h-16 w-16 rounded-full border-4 border-slate-300 bg-white text-4xl shadow-md hover:scale-110 hover:border-amber-500 dark:border-red-600 dark:bg-red-950 dark:hover:border-yellow-400"
             >
               {playerOne.icon}
             </Button>
-            <p className="text-xs text-slate-400 dark:text-red-300/70 select-none">
+            <p className="text-xs text-slate-400 select-none dark:text-red-300/70">
               tap to change
             </p>
             <input
@@ -81,17 +81,17 @@ export function PlayersPanel({
                 })
               }
               maxLength={16}
-              className="w-full text-center bg-white dark:bg-red-950 border-2 border-slate-300 dark:border-red-700 text-slate-800 dark:text-yellow-300 font-bold rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-amber-500 dark:focus:border-yellow-400 transition-all duration-200"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-2 py-1 text-center text-sm font-bold text-slate-800 transition-all duration-200 focus:border-amber-500 focus:outline-none dark:border-red-700 dark:bg-red-950 dark:text-yellow-300 dark:focus:border-yellow-400"
             />
           </div>
 
           {/* Player 2 Card */}
-          <div className="flex-1 flex flex-col items-center gap-2 bg-slate-50 dark:bg-red-800/60 rounded-lg p-3 border border-slate-200 dark:border-red-600">
+          <div className="flex flex-1 flex-col items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-red-600 dark:bg-red-800/60">
             <div className="flex items-center">
-              <p className="text-xs font-bold text-slate-500 dark:text-yellow-400 uppercase tracking-wider">
+              <p className="text-xs font-bold tracking-wider text-slate-500 uppercase dark:text-yellow-400">
                 {mode === 'pvc' ? 'AI / Kraken' : 'Player 2'}
               </p>
-              <span className="ml-1 relative group">
+              <span className="group relative ml-1">
                 <Button
                   variant="unstyled"
                   onClick={() =>
@@ -100,11 +100,11 @@ export function PlayersPanel({
                       icon: '⚓',
                     })
                   }
-                  className="hover:dark:bg-red-500 hover:bg-slate-300"
+                  className="hover:bg-slate-300 hover:dark:bg-red-500"
                 >
                   🔄
                 </Button>
-                <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
+                <span className="pointer-events-none absolute top-full left-1/2 z-50 mt-1 hidden -translate-x-1/2 rounded bg-slate-800 px-2 py-1 text-xs whitespace-nowrap text-white group-hover:block">
                   Reset to default
                 </span>
               </span>
@@ -116,11 +116,11 @@ export function PlayersPanel({
                 setIsAnyModalOpen(true);
               }}
               title="Click to change icon"
-              className="text-4xl w-16 h-16 rounded-full border-4 border-slate-300 dark:border-red-600 hover:border-amber-500 dark:hover:border-yellow-400 hover:scale-110 bg-white dark:bg-red-950 shadow-md"
+              className="h-16 w-16 rounded-full border-4 border-slate-300 bg-white text-4xl shadow-md hover:scale-110 hover:border-amber-500 dark:border-red-600 dark:bg-red-950 dark:hover:border-yellow-400"
             >
               {playerTwo.icon}
             </Button>
-            <p className="text-xs text-slate-400 dark:text-red-300/70 select-none">
+            <p className="text-xs text-slate-400 select-none dark:text-red-300/70">
               tap to change
             </p>
             <input
@@ -132,7 +132,7 @@ export function PlayersPanel({
                 })
               }
               maxLength={16}
-              className="w-full text-center bg-white dark:bg-red-950 border-2 border-slate-300 dark:border-red-700 text-slate-800 dark:text-yellow-300 font-bold rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-amber-500 dark:focus:border-yellow-400 transition-all duration-200"
+              className="w-full rounded-lg border-2 border-slate-300 bg-white px-2 py-1 text-center text-sm font-bold text-slate-800 transition-all duration-200 focus:border-amber-500 focus:outline-none dark:border-red-700 dark:bg-red-950 dark:text-yellow-300 dark:focus:border-yellow-400"
             />
           </div>
         </div>

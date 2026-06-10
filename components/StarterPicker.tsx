@@ -13,17 +13,23 @@ export default function StarterPicker({
   aiThinking,
   onSelect,
 }: Props) {
-  const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
-  const [playerTwo] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
+  const [playerOne] = useLocalStorage('playerOne', {
+    name: 'Davy Jones',
+    icon: '☠️',
+  });
+  const [playerTwo] = useLocalStorage('playerTwo', {
+    name: 'Capt. Hook',
+    icon: '⚓',
+  });
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <span className="text-slate-500 dark:text-amber-500 text-xs uppercase tracking-widest">
+      <span className="text-xs tracking-widest text-slate-500 uppercase dark:text-amber-500">
         Who sails first?
       </span>
-      <div className="relative flex bg-white border border-slate-300 dark:bg-amber-950/60 dark:border-amber-800 rounded-full p-1 gap-1">
+      <div className="relative flex gap-1 rounded-full border border-slate-300 bg-white p-1 dark:border-amber-800 dark:bg-amber-950/60">
         <div
-          className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-amber-600 border border-amber-800 dark:bg-amber-700 dark:border-yellow-500 shadow-inner transition-transform duration-300 ease-in-out"
+          className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full border border-amber-800 bg-amber-600 shadow-inner transition-transform duration-300 ease-in-out dark:border-yellow-500 dark:bg-amber-700"
           style={{
             transform:
               starterPlayer === AI ? 'translateX(calc(100%))' : 'translateX(0)',
@@ -34,13 +40,11 @@ export default function StarterPicker({
             key={player}
             variant="unstyled"
             onClick={() => onSelect(player)}
-            className={`relative z-10 px-3 sm:px-5 py-1.5 rounded-full text-sm
-              ${
-                starterPlayer === player
-                  ? 'text-white dark:text-yellow-300'
-                  : 'text-slate-500 dark:text-amber-500 hover:text-slate-700 dark:hover:text-amber-300'
-              }
-              ${aiThinking ? 'cursor-not-allowed' : ''}`}
+            className={`relative z-10 rounded-full px-3 py-1.5 text-sm sm:px-5 ${
+              starterPlayer === player
+                ? 'text-white dark:text-yellow-300'
+                : 'text-slate-500 hover:text-slate-700 dark:text-amber-500 dark:hover:text-amber-300'
+            } ${aiThinking ? 'cursor-not-allowed' : ''}`}
           >
             {player === HUMAN
               ? `${playerOne.icon} ${playerOne.name}`

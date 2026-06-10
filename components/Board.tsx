@@ -139,8 +139,8 @@ export default function Board({
       boardSize === 10
         ? calculateWinner10(b)
         : boardSize === 5
-        ? calculateWinner5(b)
-        : calculateWinner(b),
+          ? calculateWinner5(b)
+          : calculateWinner(b),
     [boardSize],
   );
   const [playerOne] = useLocalStorage('playerOne', {
@@ -198,10 +198,10 @@ export default function Board({
     bestOfSeries === 'off'
       ? null
       : bestOfSeriesScores[HUMAN] >= SERIES_WINS_NEEDED
-      ? HUMAN
-      : bestOfSeriesScores[AI] >= SERIES_WINS_NEEDED
-      ? AI
-      : null;
+        ? HUMAN
+        : bestOfSeriesScores[AI] >= SERIES_WINS_NEEDED
+          ? AI
+          : null;
 
   const { gridRef, measurement } = useGridMeasure(boardSize);
 
@@ -349,8 +349,8 @@ export default function Board({
       boardSize === 10
         ? getAIMove10(board, HUMAN, AI, 'insane')
         : boardSize === 5
-        ? getAIMove5(board, HUMAN, AI, 'insane')
-        : getAIMove(board, HUMAN, AI, 'insane');
+          ? getAIMove5(board, HUMAN, AI, 'insane')
+          : getAIMove(board, HUMAN, AI, 'insane');
     setHintIndex(move);
   }
 
@@ -424,8 +424,8 @@ export default function Board({
         boardSize === 10
           ? getAIMove10(board, AI, HUMAN, effectiveDifficulty)
           : boardSize === 5
-          ? getAIMove5(board, AI, HUMAN, effectiveDifficulty)
-          : getAIMove(board, AI, HUMAN, effectiveDifficulty);
+            ? getAIMove5(board, AI, HUMAN, effectiveDifficulty)
+            : getAIMove(board, AI, HUMAN, effectiveDifficulty);
 
       const newBoard = [...board];
       newBoard[move] = AI;
@@ -650,15 +650,15 @@ export default function Board({
           aria-label="Open settings"
           aria-expanded={showSettingsModal}
           onClick={() => setShowSettingsModal(true)}
-          className="absolute right-0 top-0 sm:right-0 sm:top-0"
+          className="absolute top-0 right-0 sm:top-0 sm:right-0"
         >
-          <SvgSettings className="w-8 h-8 fill-none dark:text-white text-amber-700" />
+          <SvgSettings className="h-8 w-8 fill-none text-amber-700 dark:text-white" />
         </Button>
       </div>
       {/* Multiplayer button */}
       <Button
         variant="unstyled"
-        className="py-2 bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 hover:bg-slate-100 hover:border-amber-500 dark:hover:bg-red-800 dark:hover:border-yellow-500 tracking-wide w-full mb-2"
+        className="mb-2 w-full border-2 border-slate-300 bg-white py-2 tracking-wide text-slate-800 hover:border-amber-500 hover:bg-slate-100 dark:border-red-700 dark:bg-red-900 dark:text-yellow-300 dark:hover:border-yellow-500 dark:hover:bg-red-800"
         onClick={() => router.push('/multiplayer/lobby')}
       >
         Multiplayer
@@ -676,18 +676,15 @@ export default function Board({
               onClick={() => switchBoardSize(size)}
               disabled={gameHasMoves && !gameOver}
               aria-pressed={boardSize === size}
-              className={`px-3 py-1.5 rounded-lg border-2 font-bold text-sm transition-all duration-200
-                ${
-                  boardSize === size
-                    ? 'bg-amber-600 border-amber-800 text-white dark:bg-amber-700 dark:border-yellow-400 dark:text-yellow-300'
-                    : 'bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:bg-amber-950/50 dark:hover:bg-amber-900/50 dark:border-amber-800 dark:text-amber-400 dark:hover:border-amber-600'
-                }
-                ${
-                  gameHasMoves && !gameOver
-                    ? 'cursor-not-allowed opacity-50'
-                    : 'cursor-pointer'
-                }
-              `}
+              className={`rounded-lg border-2 px-3 py-1.5 text-sm font-bold transition-all duration-200 ${
+                boardSize === size
+                  ? 'border-amber-800 bg-amber-600 text-white dark:border-yellow-400 dark:bg-amber-700 dark:text-yellow-300'
+                  : 'border-slate-400 bg-slate-200 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-400 dark:hover:border-amber-600 dark:hover:bg-amber-900/50'
+              } ${
+                gameHasMoves && !gameOver
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'cursor-pointer'
+              } `}
             >
               {size === 3 ? '3x3' : size === 5 ? '5x5' : '10x10'}
             </button>
@@ -695,7 +692,7 @@ export default function Board({
         </div>
         <p
           aria-live="polite"
-          className="text-xs italic text-slate-600 dark:text-amber-400"
+          className="text-xs text-slate-600 italic dark:text-amber-400"
         >
           Get {boardSize === 3 ? 3 : boardSize === 5 ? 4 : 5} in a row to win
         </p>
@@ -744,16 +741,13 @@ export default function Board({
               }
               aria-pressed={watchPaused}
               onClick={() => setWatchPaused((p) => !p)}
-              className="px-3 py-1.5 border-2 font-semibold text-lg
-                bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500
-                dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-500 dark:hover:border-amber-600
-                mb-0.5"
+              className="mb-0.5 border-2 border-slate-400 bg-slate-200 px-3 py-1.5 text-lg font-semibold text-slate-700 hover:border-amber-500 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-500 dark:hover:border-amber-600"
             >
               {watchPaused ? '▶️' : '⏸️'}
             </Button>
           </div>
           {!isGameStarted && (
-            <p className="px-3 py-1.5 rounded-md border-2 border-amber-700 bg-yellow-200 text-amber-900 dark:bg-amber-900/40 dark:border-yellow-500 dark:text-yellow-300 text-sm font-semibold tracking-wide text-center">
+            <p className="rounded-md border-2 border-amber-700 bg-yellow-200 px-3 py-1.5 text-center text-sm font-semibold tracking-wide text-amber-900 dark:border-yellow-500 dark:bg-amber-900/40 dark:text-yellow-300">
               Press &quot;New Voyage&quot; to start the game
             </p>
           )}
@@ -783,7 +777,7 @@ export default function Board({
       {/* Win streak badge — shown in every mode, including watch (an AI on a
           3-game tear). playerIcons resolves both sides' emoji. */}
       {streakBadgePlayer && (
-        <div className="animate-bounce bg-amber-500 border-2 border-amber-700 text-white dark:bg-yellow-600 dark:border-yellow-400 dark:text-black font-bold px-4 py-2 rounded-lg text-center text-lg shadow-lg">
+        <div className="animate-bounce rounded-lg border-2 border-amber-700 bg-amber-500 px-4 py-2 text-center text-lg font-bold text-white shadow-lg dark:border-yellow-400 dark:bg-yellow-600 dark:text-black">
           {playerIcons[streakBadgePlayer]} 3 in a row! 🔥
         </div>
       )}
@@ -843,8 +837,8 @@ export default function Board({
             boardSize === 10
               ? 'grid-cols-10 gap-1'
               : boardSize === 5
-              ? 'grid-cols-5 gap-2'
-              : 'grid-cols-3 gap-3'
+                ? 'grid-cols-5 gap-2'
+                : 'grid-cols-3 gap-3'
           }`}
         >
           {board.map((cell, i) => (
@@ -913,8 +907,8 @@ export default function Board({
             mode === 'watch'
               ? undefined
               : mode === 'pvc'
-              ? seriesWinner === HUMAN
-              : seriesWinner !== null
+                ? seriesWinner === HUMAN
+                : seriesWinner !== null
           }
           onClose={() => {
             setBestOfSeriesScores({ ...INITIAL_SCORE });
@@ -930,11 +924,7 @@ export default function Board({
           onClick={undoPreviousMove}
           disabled={moveHistory.length === 0 || gameOver}
           aria-label="Undo previous move"
-          className="px-6 py-3 bg-slate-600 border-2 border-slate-800 text-white
-      dark:bg-slate-700 dark:border-slate-500 dark:text-yellow-300
-      hover:bg-slate-500 dark:hover:bg-slate-600
-      hover:border-slate-600 dark:hover:border-yellow-500
-      text-lg tracking-wide"
+          className="border-2 border-slate-800 bg-slate-600 px-6 py-3 text-lg tracking-wide text-white hover:border-slate-600 hover:bg-slate-500 dark:border-slate-500 dark:bg-slate-700 dark:text-yellow-300 dark:hover:border-yellow-500 dark:hover:bg-slate-600"
         >
           ↩️ Undo
         </Button>
@@ -946,12 +936,7 @@ export default function Board({
           onClick={handleHint}
           disabled={!isHumanTurn || !isGameStarted || aiThinking}
           aria-label="Show a hint for your next move"
-          className="px-6 py-3 bg-emerald-700 border-2 border-emerald-900 text-white
-      dark:bg-emerald-900 dark:border-emerald-700 dark:text-yellow-300
-      font-bold rounded-lg hover:bg-emerald-600 dark:hover:bg-emerald-800
-      hover:border-emerald-700 dark:hover:border-yellow-500 cursor-pointer
-      transition-all duration-200 text-lg tracking-wide
-      disabled:opacity-40 disabled:cursor-not-allowed"
+          className="cursor-pointer rounded-lg border-2 border-emerald-900 bg-emerald-700 px-6 py-3 text-lg font-bold tracking-wide text-white transition-all duration-200 hover:border-emerald-700 hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-emerald-700 dark:bg-emerald-900 dark:text-yellow-300 dark:hover:border-yellow-500 dark:hover:bg-emerald-800"
         >
           💡 Hint
         </Button>
@@ -963,7 +948,7 @@ export default function Board({
           variant="primary"
           onClick={resetGame}
           aria-label="Start a new game"
-          className="mt-4 hover:border-red-700 dark:hover:border-yellow-500 tracking-wide"
+          className="mt-4 tracking-wide hover:border-red-700 dark:hover:border-yellow-500"
         >
           🏴‍☠️ New Voyage
         </Button>

@@ -23,8 +23,7 @@ const BASE =
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
     'border-2 bg-red-700 border-red-900 text-white hover:bg-red-600 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 dark:hover:bg-red-800',
-  gold:
-    'border-2 bg-amber-600 border-amber-800 text-white hover:bg-amber-500 dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300 dark:hover:bg-amber-600',
+  gold: 'border-2 bg-amber-600 border-amber-800 text-white hover:bg-amber-500 dark:bg-amber-700 dark:border-yellow-500 dark:text-yellow-300 dark:hover:bg-amber-600',
   neutral:
     'border-2 bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-500 dark:hover:border-amber-600 dark:hover:bg-amber-900/50',
   ghost:

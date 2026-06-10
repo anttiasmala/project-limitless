@@ -44,7 +44,7 @@ export function ChestRow({ count, max, emptyEmoji, filledEmoji }: Props) {
           className={`text-xl transition-all duration-300 ${
             i < count
               ? 'opacity-100 drop-shadow-[0_0_4px_rgba(250,204,21,0.8)]'
-              : 'opacity-40 dark:opacity-20 grayscale'
+              : 'opacity-40 grayscale dark:opacity-20'
           } ${i === justFilledIndex ? 'animate-pop' : ''}`}
         >
           {i < count ? filledEmoji : emptyEmoji}

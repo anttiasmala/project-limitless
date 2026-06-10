@@ -17,7 +17,7 @@ export default function HourglassTimer({ timeLeft, duration }: Props) {
         ⏳
       </div>
       {/* Progress bar */}
-      <div className="w-24 h-2 bg-slate-200 border border-slate-300 dark:bg-amber-950 dark:border-amber-800 rounded-full overflow-hidden">
+      <div className="h-2 w-24 overflow-hidden rounded-full border border-slate-300 bg-slate-200 dark:border-amber-800 dark:bg-amber-950">
         <div
           className={`h-full rounded-full transition-all duration-1000 ease-linear ${
             isUrgent ? 'bg-red-500' : 'bg-amber-400'
@@ -28,7 +28,7 @@ export default function HourglassTimer({ timeLeft, duration }: Props) {
       <span
         className={`text-xs font-bold tabular-nums ${
           isUrgent
-            ? 'text-red-600 dark:text-red-400 animate-pulse'
+            ? 'animate-pulse text-red-600 dark:text-red-400'
             : 'text-slate-500 dark:text-amber-400'
         }`}
       >

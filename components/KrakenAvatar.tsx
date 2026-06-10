@@ -61,7 +61,7 @@ export default function KrakenAvatar({ mood }: { mood: KrakenMood }) {
     <div className="flex flex-col items-center gap-1 transition-all duration-500">
       <div
         className={twMerge(
-          'text-5xl transform transition-transform duration-500',
+          'transform text-5xl transition-transform duration-500',
           emojiClassName,
         )}
       >
@@ -69,7 +69,7 @@ export default function KrakenAvatar({ mood }: { mood: KrakenMood }) {
       </div>
       <p
         className={twMerge(
-          'text-center italic max-w-28 transition-all duration-500',
+          'max-w-28 text-center italic transition-all duration-500',
           labelClassName,
         )}
       >

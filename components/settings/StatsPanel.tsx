@@ -22,9 +22,9 @@ function StatRow({
 
   return (
     <div className="mb-4">
-      <div className="flex items-center gap-1 mb-1">
+      <div className="mb-1 flex items-center gap-1">
         <span className="text-base">{icon}</span>
-        <span className="font-bold text-slate-700 dark:text-yellow-300 text-sm">
+        <span className="text-sm font-bold text-slate-700 dark:text-yellow-300">
           {name}
         </span>
       </div>
@@ -34,7 +34,7 @@ function StatRow({
         </p>
       ) : (
         <>
-          <div className="flex h-2 rounded overflow-hidden mb-1">
+          <div className="mb-1 flex h-2 overflow-hidden rounded">
             <div className="bg-green-500" style={{ width: `${winW}%` }} />
             <div className="bg-red-500" style={{ width: `${lossW}%` }} />
             <div className="bg-yellow-400" style={{ width: `${drawW}%` }} />
@@ -50,7 +50,7 @@ function StatRow({
               D {stats.draw} ({Math.round(drawW)}%)
             </span>
           </div>
-          <p className="text-xs text-slate-400 dark:text-red-300/60 mt-0.5">
+          <p className="mt-0.5 text-xs text-slate-400 dark:text-red-300/60">
             {total} games total
           </p>
         </>
@@ -75,9 +75,9 @@ export function StatsPanel({
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   return (
-    <div className="w-72 max-w-[90vw] bg-white border-2 border-slate-300 dark:bg-red-900 dark:border-red-700 rounded-lg overflow-hidden">
-      <div className="bg-slate-100 dark:bg-red-800 px-4 py-2 border-b border-slate-200 dark:border-red-700">
-        <h3 className="text-center font-bold text-slate-700 dark:text-yellow-300 tracking-wide">
+    <div className="w-72 max-w-[90vw] overflow-hidden rounded-lg border-2 border-slate-300 bg-white dark:border-red-700 dark:bg-red-900">
+      <div className="border-b border-slate-200 bg-slate-100 px-4 py-2 dark:border-red-700 dark:bg-red-800">
+        <h3 className="text-center font-bold tracking-wide text-slate-700 dark:text-yellow-300">
           📊 Battle Record
         </h3>
       </div>
@@ -108,7 +108,7 @@ export function StatsPanel({
                 setShowConfirmationModal(true);
                 setIsAnyModalOpen(true);
               }}
-              className="mt-1 w-full py-2 text-xs border-2 bg-slate-200 border-slate-300 text-slate-700 hover:bg-slate-300 hover:border-amber-500 hover:text-slate-900 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300/70 dark:hover:bg-red-800 dark:hover:border-yellow-500 dark:hover:text-yellow-300"
+              className="mt-1 w-full border-2 border-slate-300 bg-slate-200 py-2 text-xs text-slate-700 hover:border-amber-500 hover:bg-slate-300 hover:text-slate-900 dark:border-red-700 dark:bg-red-900 dark:text-yellow-300/70 dark:hover:border-yellow-500 dark:hover:bg-red-800 dark:hover:text-yellow-300"
             >
               🗑️ Reset Stats
             </Button>
@@ -152,15 +152,15 @@ function ConfirmationModal({
         aria-label="Reset score confirmation"
         className="fixed top-1/2 left-1/2 z-101 -translate-x-1/2 -translate-y-1/2"
       >
-        <div className="flex flex-col items-center gap-4 bg-white dark:bg-red-900 border-slate-300 dark:border-red-700 border-2 rounded-lg p-6">
-          <p className="text-slate-800 dark:text-yellow-300 font-bold text-center">
+        <div className="flex flex-col items-center gap-4 rounded-lg border-2 border-slate-300 bg-white p-6 dark:border-red-700 dark:bg-red-900">
+          <p className="text-center font-bold text-slate-800 dark:text-yellow-300">
             Reset Stats?
           </p>
           <div className="flex gap-4">
             <Button onClick={onClose}>No</Button>
             <Button
               autoFocus
-              className="bg-green-600 border-green-800 hover:bg-green-500 dark:bg-green-600 dark:border-green-600 dark:hover:bg-green-500"
+              className="border-green-800 bg-green-600 hover:bg-green-500 dark:border-green-600 dark:bg-green-600 dark:hover:bg-green-500"
               onClick={() => {
                 onReset();
                 onClose();

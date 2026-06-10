@@ -10,7 +10,7 @@ export default function Input({
   return (
     <input
       className={twMerge(
-        'bg-white border-2 border-slate-300 text-slate-800 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300 font-bold rounded-lg transition-all duration-200 text-lg',
+        'rounded-lg border-2 border-slate-300 bg-white text-lg font-bold text-slate-800 transition-all duration-200 dark:border-red-700 dark:bg-red-900 dark:text-yellow-300',
         className,
       )}
       {...rest}

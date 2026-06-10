@@ -32,7 +32,7 @@ function Slot({
 }) {
   return (
     <div
-      className={`flex items-center gap-1 px-2 py-1 border-2 rounded text-xs whitespace-nowrap ${SLOT_CLASSES[state]}`}
+      className={`flex items-center gap-1 rounded border-2 px-2 py-1 text-xs whitespace-nowrap ${SLOT_CLASSES[state]}`}
     >
       <span aria-hidden>{icon}</span>
       <span className="font-semibold">{name}</span>
@@ -50,54 +50,64 @@ export default function TournamentBracket({
   // The user only reaches the final if they won their semi, so 'final' /
   // 'champion' / 'eliminated-with-otherSemiWinner' all imply a semi win.
   const userPastSemi =
-    stage === 'final' || stage === 'champion' || (stage === 'eliminated' && !!otherSemiWinner);
+    stage === 'final' ||
+    stage === 'champion' ||
+    (stage === 'eliminated' && !!otherSemiWinner);
   const inSemi = stage === 'semi';
 
-  const youSemiState: SlotState = inSemi ? 'active' : userPastSemi ? 'winner' : 'loser';
-  const semiOppState: SlotState = inSemi ? 'active' : userPastSemi ? 'loser' : 'winner';
+  const youSemiState: SlotState = inSemi
+    ? 'active'
+    : userPastSemi
+      ? 'winner'
+      : 'loser';
+  const semiOppState: SlotState = inSemi
+    ? 'active'
+    : userPastSemi
+      ? 'loser'
+      : 'winner';
 
   const [pairA, pairB] = otherSemiPair;
   const otherSemiAState: SlotState = !otherSemiWinner
     ? 'pending'
     : otherSemiWinner.id === pairA.id
-    ? 'winner'
-    : 'loser';
+      ? 'winner'
+      : 'loser';
   const otherSemiBState: SlotState = !otherSemiWinner
     ? 'pending'
     : otherSemiWinner.id === pairB.id
-    ? 'winner'
-    : 'loser';
+      ? 'winner'
+      : 'loser';
 
   const youFinalState: SlotState =
     stage === 'champion'
       ? 'winner'
       : stage === 'eliminated' && otherSemiWinner
-      ? 'loser'
-      : stage === 'final'
-      ? 'active'
-      : 'pending';
+        ? 'loser'
+        : stage === 'final'
+          ? 'active'
+          : 'pending';
   const finalOppState: SlotState = !otherSemiWinner
     ? 'pending'
     : stage === 'champion'
-    ? 'loser'
-    : stage === 'eliminated'
-    ? 'winner'
-    : 'active';
+      ? 'loser'
+      : stage === 'eliminated'
+        ? 'winner'
+        : 'active';
 
   return (
     <div
       role="group"
       aria-label="Tournament bracket"
-      className="w-full bg-white/70 border-2 border-slate-300 dark:bg-amber-950/30 dark:border-amber-800 rounded-lg p-3"
+      className="w-full rounded-lg border-2 border-slate-300 bg-white/70 p-3 dark:border-amber-800 dark:bg-amber-950/30"
     >
-      <div className="text-center text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-amber-500 mb-2">
+      <div className="mb-2 text-center text-xs font-bold tracking-widest text-slate-500 uppercase dark:text-amber-500">
         🏆 Bracket
       </div>
       <div className="flex items-stretch justify-between gap-2">
         {/* Semis */}
-        <div className="flex flex-col gap-3 flex-1">
+        <div className="flex flex-1 flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-amber-600">
+            <p className="text-[10px] tracking-wider text-slate-400 uppercase dark:text-amber-600">
               Semi 1
             </p>
             <Slot icon={youIcon} name={youName} state={youSemiState} />
@@ -108,7 +118,7 @@ export default function TournamentBracket({
             />
           </div>
           <div className="flex flex-col gap-1">
-            <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-amber-600">
+            <p className="text-[10px] tracking-wider text-slate-400 uppercase dark:text-amber-600">
               Semi 2
             </p>
             <Slot icon={pairA.icon} name={pairA.name} state={otherSemiAState} />
@@ -117,8 +127,8 @@ export default function TournamentBracket({
         </div>
 
         {/* Final */}
-        <div className="flex flex-col justify-center gap-1 flex-1">
-          <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-amber-600">
+        <div className="flex flex-1 flex-col justify-center gap-1">
+          <p className="text-[10px] tracking-wider text-slate-400 uppercase dark:text-amber-600">
             Final
           </p>
           {userPastSemi ? (

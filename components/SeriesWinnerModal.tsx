@@ -49,8 +49,8 @@ export default function SeriesWinnerModal({
         ? 'You are'
         : 'The Kraken is'
       : isHuman
-      ? `${playerOne.name} is`
-      : `${playerTwo.name} is`;
+        ? `${playerOne.name} is`
+        : `${playerTwo.name} is`;
 
   // Watch mode has no winner from the player's POV — render a neutral variant.
   const variant =
@@ -60,8 +60,8 @@ export default function SeriesWinnerModal({
     isWinner === undefined
       ? NEUTRAL_CONFETTI
       : isWinner
-      ? WINNER_CONFETTI
-      : LOSER_CONFETTI;
+        ? WINNER_CONFETTI
+        : LOSER_CONFETTI;
 
   const trophy = isWinner === undefined ? '⚓' : isWinner ? '🏆' : '💀';
 
@@ -69,8 +69,8 @@ export default function SeriesWinnerModal({
     isWinner === undefined
       ? 'Series Complete!'
       : isWinner
-      ? 'Grand Champion!'
-      : 'Defeated!';
+        ? 'Grand Champion!'
+        : 'Defeated!';
 
   const championText =
     isWinner === false
@@ -81,15 +81,15 @@ export default function SeriesWinnerModal({
     isWinner === undefined
       ? 'The battle for the seas has ended.'
       : isWinner
-      ? 'The Seven Seas bow before you!'
-      : 'Your ship has sunk to the depths.';
+        ? 'The Seven Seas bow before you!'
+        : 'Your ship has sunk to the depths.';
 
   const buttonText =
     isWinner === undefined
       ? '👁️ Continue Watching'
       : isWinner
-      ? '⚓ New Series ☠️'
-      : '🌊 Try Again';
+        ? '⚓ New Series ☠️'
+        : '🌊 Try Again';
 
   return (
     <GameOverModal
@@ -101,10 +101,10 @@ export default function SeriesWinnerModal({
       title={title}
       body={
         <>
-          <p className="text-lg font-bold text-slate-700 dark:text-amber-200 mb-1">
+          <p className="mb-1 text-lg font-bold text-slate-700 dark:text-amber-200">
             {championText}
           </p>
-          <p className="text-slate-500 dark:text-amber-500 text-sm mb-6 uppercase tracking-widest">
+          <p className="mb-6 text-sm tracking-widest text-slate-500 uppercase dark:text-amber-500">
             {subtitleText}
           </p>
         </>

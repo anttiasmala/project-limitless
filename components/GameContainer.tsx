@@ -34,7 +34,7 @@ export default function GameContainer() {
 
   return (
     <>
-      <div className="bg-white/80 border-2 border-slate-300 dark:bg-amber-950/40 dark:border-amber-800 rounded-2xl p-4 sm:p-8 shadow-[0_0_40px_#94a3b820] dark:shadow-[0_0_40px_#451a0360] backdrop-blur-sm w-full">
+      <div className="w-full rounded-2xl border-2 border-slate-300 bg-white/80 p-4 shadow-[0_0_40px_#94a3b820] backdrop-blur-sm sm:p-8 dark:border-amber-800 dark:bg-amber-950/40 dark:shadow-[0_0_40px_#451a0360]">
         <Board
           scores={scores}
           setScores={setScores}

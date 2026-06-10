@@ -44,12 +44,16 @@ export default function ScoreBoard({
     <div
       aria-label={`Scores: ${p1.name} ${scores[HUMAN]}, ${p2.name} ${scores[AI]}`}
       role="region"
-      className="bg-white/60 border border-slate-300 text-slate-800 dark:bg-amber-950/50 dark:border-amber-800 dark:text-amber-200 flex flex-col sm:flex-row gap-4 sm:gap-8 text-lg font-semibold rounded-xl sm:px-8 px-4 py-3"
+      className="flex flex-col gap-4 rounded-xl border border-slate-300 bg-white/60 px-4 py-3 text-lg font-semibold text-slate-800 sm:flex-row sm:gap-8 sm:px-8 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200"
     >
       <div className="flex flex-col items-center gap-1">
-        <span className="text-xs text-slate-500 dark:text-amber-500 uppercase tracking-widest">
+        <span className="text-xs tracking-widest text-slate-500 uppercase dark:text-amber-500">
           {p1.icon} {p1.name}{' '}
-          {myPlayer === HUMAN ? '(You)' : mode === 'pvc' || mode === 'tournament' ? '(AI)' : ''}
+          {myPlayer === HUMAN
+            ? '(You)'
+            : mode === 'pvc' || mode === 'tournament'
+              ? '(AI)'
+              : ''}
         </span>
         {pointSystem === 'number' ? (
           <p>{scores[HUMAN]}</p>
@@ -63,16 +67,20 @@ export default function ScoreBoard({
           />
         )}
       </div>
-      <span className="self-center text-slate-400 dark:text-amber-600 sm:hidden">
+      <span className="self-center text-slate-400 sm:hidden dark:text-amber-600">
         —————————
       </span>
-      <span className="hidden sm:block text-slate-400 dark:text-amber-600 self-center">
+      <span className="hidden self-center text-slate-400 sm:block dark:text-amber-600">
         |
       </span>
       <div className="flex flex-col items-center gap-1">
-        <span className="text-xs dark:text-amber-500 text-amber-700 uppercase tracking-widest">
+        <span className="text-xs tracking-widest text-amber-700 uppercase dark:text-amber-500">
           {p2.icon} {p2.name}{' '}
-          {myPlayer === AI ? '(You)' : mode === 'pvc' || mode === 'tournament' ? '(AI)' : ''}
+          {myPlayer === AI
+            ? '(You)'
+            : mode === 'pvc' || mode === 'tournament'
+              ? '(AI)'
+              : ''}
         </span>
         {pointSystem === 'number' ? (
           <p>{scores[AI]}</p>

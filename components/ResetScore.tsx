@@ -26,7 +26,7 @@ export default function ResetScore({ onReset }: ResetScoreProps) {
         variant="neutral"
         size="md"
         onClick={() => setShowConfirmationModal(true)}
-        className="rounded-2xl p-2 shadow-[0_0_40px_#94a3b820] dark:shadow-[0_0_40px_#451a0360] backdrop-blur-sm"
+        className="rounded-2xl p-2 shadow-[0_0_40px_#94a3b820] backdrop-blur-sm dark:shadow-[0_0_40px_#451a0360]"
       >
         Reset Score
       </Button>
@@ -70,15 +70,15 @@ function ConfirmationModal({
         aria-label="Reset score confirmation"
         className="fixed top-1/2 left-1/2 z-99 -translate-x-1/2 -translate-y-1/2"
       >
-        <div className="flex flex-col items-center gap-4 bg-white dark:bg-red-900 border-slate-300 dark:border-red-700 border-2 rounded-lg p-6">
-          <p className="text-slate-800 dark:text-yellow-300 font-bold text-center">
+        <div className="flex flex-col items-center gap-4 rounded-lg border-2 border-slate-300 bg-white p-6 dark:border-red-700 dark:bg-red-900">
+          <p className="text-center font-bold text-slate-800 dark:text-yellow-300">
             Reset Score?
           </p>
           <div className="flex gap-4">
             <Button onClick={onClose}>No</Button>
             <Button
               autoFocus
-              className="dark:bg-green-600 bg-green-600 hover:bg-green-500 dark:border-green-600 dark:hover:bg-green-500"
+              className="bg-green-600 hover:bg-green-500 dark:border-green-600 dark:bg-green-600 dark:hover:bg-green-500"
               onClick={() => {
                 onReset();
                 onClose();

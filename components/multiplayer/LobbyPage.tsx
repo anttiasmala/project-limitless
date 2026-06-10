@@ -31,21 +31,13 @@ export default function LobbyPage() {
   });
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4">
-      <div
-        className="bg-white/80 border-2 border-slate-300 dark:bg-amber-950/40
-        dark:border-amber-800 rounded-2xl p-4 sm:p-8 w-full max-w-lg"
-      >
-        <div className="flex justify-end mb-2">
+    <main className="flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-lg rounded-2xl border-2 border-slate-300 bg-white/80 p-4 sm:p-8 dark:border-amber-800 dark:bg-amber-950/40">
+        <div className="mb-2 flex justify-end">
           <Button
             variant="unstyled"
             onClick={() => setShowProfileModal(true)}
-            className="flex items-center gap-2 px-3 py-1.5 border-2
-              border-slate-300 dark:border-amber-700
-              bg-white/60 dark:bg-amber-900/40
-              text-slate-700 dark:text-yellow-300
-              hover:border-amber-500 dark:hover:border-amber-500
-              text-sm"
+            className="flex items-center gap-2 border-2 border-slate-300 bg-white/60 px-3 py-1.5 text-sm text-slate-700 hover:border-amber-500 dark:border-amber-700 dark:bg-amber-900/40 dark:text-yellow-300 dark:hover:border-amber-500"
           >
             <span className="text-lg leading-none">{profile.icon}</span>
             <span>{profile.name}</span>
@@ -91,7 +83,7 @@ function ProfileModal({
     <div className="relative">
       {/* Backdrop */}
       <div
-        className="fixed overflow-y-auto inset-0 z-98 bg-black/80"
+        className="fixed inset-0 z-98 overflow-y-auto bg-black/80"
         onClick={onClose}
       />
 
@@ -99,24 +91,20 @@ function ProfileModal({
         role="dialog"
         aria-modal="true"
         aria-label="Pirate Profile"
-        className="fixed inset-0 z-101 flex items-center justify-center p-4 overflow-y-auto"
+        className="fixed inset-0 z-101 flex items-center justify-center overflow-y-auto p-4"
       >
         {/* Modal */}
         <div
           role="dialog"
           aria-modal="true"
           aria-label="Pirate profile"
-          className="relative top-[10vh] z-99 
-          w-[90vw] max-w-sm
-          bg-amber-50 dark:bg-amber-950
-          border-2 border-amber-800 dark:border-amber-700
-          rounded-xl shadow-2xl p-6 flex flex-col gap-5"
+          className="relative top-[10vh] z-99 flex w-[90vw] max-w-sm flex-col gap-5 rounded-xl border-2 border-amber-800 bg-amber-50 p-6 shadow-2xl dark:border-amber-700 dark:bg-amber-950"
         >
           <div className="flex items-center justify-center">
-            <h2 className="text-lg font-black text-amber-700 dark:text-yellow-400 text-center tracking-wide">
+            <h2 className="text-center text-lg font-black tracking-wide text-amber-700 dark:text-yellow-400">
               ☠️ Pirate Profile
             </h2>
-            <span className="absolute right-4 group">
+            <span className="group absolute right-4">
               <Button
                 variant="unstyled"
                 onClick={() => {
@@ -126,7 +114,7 @@ function ProfileModal({
               >
                 🔄
               </Button>
-              <span className="pointer-events-none absolute top-full right-0 mt-1 hidden group-hover:block bg-slate-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50">
+              <span className="pointer-events-none absolute top-full right-0 z-50 mt-1 hidden rounded bg-slate-800 px-2 py-1 text-xs whitespace-nowrap text-white group-hover:block">
                 Reset profile
               </span>
             </span>
@@ -151,10 +139,7 @@ function ProfileModal({
               value={localName}
               onChange={(e) => setLocalName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-              className="px-3 py-2 border-2 border-slate-300 dark:border-amber-700 rounded-lg
-              bg-white dark:bg-amber-900
-              text-slate-800 dark:text-yellow-300
-              focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="rounded-lg border-2 border-slate-300 bg-white px-3 py-2 text-slate-800 focus:ring-2 focus:ring-amber-400 focus:outline-none dark:border-amber-700 dark:bg-amber-900 dark:text-yellow-300"
             />
           </div>
 
@@ -169,10 +154,9 @@ function ProfileModal({
                   key={icon}
                   variant="unstyled"
                   onClick={() => setLocalIcon(icon)}
-                  className={`text-2xl p-2 border-2
-                  ${
+                  className={`border-2 p-2 text-2xl ${
                     localIcon === icon
-                      ? 'border-amber-600 bg-amber-100 dark:bg-amber-800 dark:border-amber-400'
+                      ? 'border-amber-600 bg-amber-100 dark:border-amber-400 dark:bg-amber-800'
                       : 'border-transparent hover:border-amber-400 hover:bg-amber-100/60 dark:hover:bg-amber-900'
                   }`}
                   aria-label={icon}
@@ -190,9 +174,7 @@ function ProfileModal({
               Cancel
             </Button>
             <Button
-              className="flex-1 bg-amber-600 hover:bg-amber-500 border-amber-800
-              dark:bg-amber-700 dark:hover:bg-amber-600 dark:border-yellow-500
-              dark:text-yellow-300 text-white"
+              className="flex-1 border-amber-800 bg-amber-600 text-white hover:bg-amber-500 dark:border-yellow-500 dark:bg-amber-700 dark:text-yellow-300 dark:hover:bg-amber-600"
               onClick={handleSave}
             >
               ⚓ Save

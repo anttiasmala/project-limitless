@@ -27,39 +27,39 @@ export default function DifficultySelector({
 }: Props) {
   return (
     <div className="flex flex-col items-center gap-2">
-      <span className="text-slate-500 dark:text-amber-500 text-xs uppercase tracking-widest">
+      <span className="text-xs tracking-widest text-slate-500 uppercase dark:text-amber-500">
         {label}
       </span>
-      <div className="flex gap-2 flex-wrap justify-center">
-        {(['easy', 'medium', 'hard', 'insane'] as Difficulty[]).map((_difficulty) => (
-          <Button
-            key={_difficulty}
-            variant="unstyled"
-            onClick={() => {
-              if (gameHasMoves && !gameOver) return;
-              if (difficulty !== _difficulty) onReset();
-              onSelect(_difficulty);
-            }}
-            className={`px-3 py-1.5 border-2 font-semibold text-xs
-              ${
+      <div className="flex flex-wrap justify-center gap-2">
+        {(['easy', 'medium', 'hard', 'insane'] as Difficulty[]).map(
+          (_difficulty) => (
+            <Button
+              key={_difficulty}
+              variant="unstyled"
+              onClick={() => {
+                if (gameHasMoves && !gameOver) return;
+                if (difficulty !== _difficulty) onReset();
+                onSelect(_difficulty);
+              }}
+              className={`border-2 px-3 py-1.5 text-xs font-semibold ${
                 difficulty === _difficulty
-                  ? 'bg-amber-600 border-amber-800 text-white dark:bg-red-900 dark:border-red-500 dark:text-yellow-300'
-                  : 'bg-slate-200 border-slate-400 text-slate-700 hover:border-amber-500 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-500 dark:hover:border-amber-600'
-              }
-              ${
+                  ? 'border-amber-800 bg-amber-600 text-white dark:border-red-500 dark:bg-red-900 dark:text-yellow-300'
+                  : 'border-slate-400 bg-slate-200 text-slate-700 hover:border-amber-500 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-500 dark:hover:border-amber-600'
+              } ${
                 gameHasMoves && difficulty !== _difficulty && !gameOver
                   ? 'cursor-not-allowed'
                   : ''
               }`}
-          >
-            <span className="sm:hidden">
-              {DIFFICULTY_LABELS[_difficulty].short}
-            </span>
-            <span className="hidden sm:inline">
-              {DIFFICULTY_LABELS[_difficulty].long}
-            </span>
-          </Button>
-        ))}
+            >
+              <span className="sm:hidden">
+                {DIFFICULTY_LABELS[_difficulty].short}
+              </span>
+              <span className="hidden sm:inline">
+                {DIFFICULTY_LABELS[_difficulty].long}
+              </span>
+            </Button>
+          ),
+        )}
       </div>
     </div>
   );

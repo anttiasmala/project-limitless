@@ -26,8 +26,14 @@ export default function GameStatus({
   showForfeitMessage,
   playerTwoOverride,
 }: GameStatusProps) {
-  const [playerOne] = useLocalStorage('playerOne', { name: 'Davy Jones', icon: '☠️' });
-  const [playerTwoStored] = useLocalStorage('playerTwo', { name: 'Capt. Hook', icon: '⚓' });
+  const [playerOne] = useLocalStorage('playerOne', {
+    name: 'Davy Jones',
+    icon: '☠️',
+  });
+  const [playerTwoStored] = useLocalStorage('playerTwo', {
+    name: 'Capt. Hook',
+    icon: '⚓',
+  });
   const playerTwo = playerTwoOverride ?? playerTwoStored;
   const playerNames: Record<Player, string> = {
     '☠️': `${playerOne.icon} ${playerOne.name}`,
@@ -37,18 +43,20 @@ export default function GameStatus({
 
   // In watch mode, aria-live/role is suppressed to avoid flooding screen readers
   // with an infinite stream of turn announcements.
-  const liveProps = mode === 'watch'
-    ? {}
-    : { role: 'status' as const, 'aria-live': 'polite' as const };
-  const alertProps = mode === 'watch'
-    ? {}
-    : { role: 'alert' as const, 'aria-live': 'assertive' as const };
+  const liveProps =
+    mode === 'watch'
+      ? {}
+      : { role: 'status' as const, 'aria-live': 'polite' as const };
+  const alertProps =
+    mode === 'watch'
+      ? {}
+      : { role: 'alert' as const, 'aria-live': 'assertive' as const };
 
   if (showForfeitMessage) {
     return (
       <div
         {...alertProps}
-        className="text-center text-4xl font-bold text-amber-700 dark:text-yellow-400 animate-pulse"
+        className="animate-pulse text-center text-4xl font-bold text-amber-700 dark:text-yellow-400"
       >
         <p>{FORFEIT_MESSAGE}</p>
       </div>
@@ -58,7 +66,7 @@ export default function GameStatus({
     return (
       <div
         {...alertProps}
-        className="text-center text-2xl font-bold text-amber-700 dark:text-yellow-400 animate-bounce"
+        className="animate-bounce text-center text-2xl font-bold text-amber-700 dark:text-yellow-400"
       >
         🏴‍☠️ {playerNames[winner]} claims the treasure! 🏴‍☠️
       </div>
@@ -84,7 +92,7 @@ export default function GameStatus({
       <div
         {...liveProps}
         aria-label={`${currentPlayer === '⚓' ? playerTwo.name : playerOne.name} is thinking`}
-        className="text-center text-xl text-red-600 dark:text-red-400 animate-pulse"
+        className="animate-pulse text-center text-xl text-red-600 dark:text-red-400"
       >
         {thinkingText}
       </div>

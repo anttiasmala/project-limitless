@@ -210,7 +210,7 @@ export default function OceanBackground({ stormLevel, isDarkTheme }: Props) {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 -z-10 w-full h-full"
+      className="fixed inset-0 -z-10 h-full w-full"
       aria-hidden="true"
     />
   );

@@ -26,13 +26,13 @@ export default function TournamentResultModal({
   const title = isWin
     ? 'Tournament Champion!'
     : defeatedAtFinal
-    ? 'Runner-Up'
-    : 'Eliminated!';
+      ? 'Runner-Up'
+      : 'Eliminated!';
   const subtitle = isWin
     ? 'You crushed the entire bracket. The seas are yours!'
     : defeatedAtFinal
-    ? 'So close — you reached the final, but the seas had another captain.'
-    : 'Your voyage ends in the semifinals. The kraken claims another soul.';
+      ? 'So close — you reached the final, but the seas had another captain.'
+      : 'Your voyage ends in the semifinals. The kraken claims another soul.';
 
   return (
     <GameOverModal
@@ -43,7 +43,7 @@ export default function TournamentResultModal({
       confetti={isWin ? CHAMPION_CONFETTI : DEFEAT_CONFETTI}
       title={title}
       body={
-        <p className="text-slate-600 dark:text-amber-200 text-sm mb-6">
+        <p className="mb-6 text-sm text-slate-600 dark:text-amber-200">
           {subtitle}
         </p>
       }

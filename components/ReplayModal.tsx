@@ -47,8 +47,8 @@ export default function ReplayModal({
     boardSize === 10
       ? calculateWinner10
       : boardSize === 5
-      ? calculateWinner5
-      : calculateWinner;
+        ? calculateWinner5
+        : calculateWinner;
   const { winner, line: winLine } = calcWinner(replayBoard);
   const showWin = stepIndex === total && !!winner;
 
@@ -67,11 +67,11 @@ export default function ReplayModal({
         role="dialog"
         aria-modal="true"
         aria-label="Game replay"
-        className="fixed inset-0 z-101 flex items-center justify-center p-4 overflow-y-auto"
+        className="fixed inset-0 z-101 flex items-center justify-center overflow-y-auto p-4"
       >
-        <div className="relative bg-white dark:bg-[#1a0a00] border-4 border-amber-500 dark:border-yellow-500 rounded-2xl p-2 sm:p-4 md:p-8 max-w-sm w-full text-center shadow-[0_0_60px_#facc15] my-auto">
+        <div className="relative my-auto w-full max-w-sm rounded-2xl border-4 border-amber-500 bg-white p-2 text-center shadow-[0_0_60px_#facc15] sm:p-4 md:p-8 dark:border-yellow-500 dark:bg-[#1a0a00]">
           {/* Step counter */}
-          <p className="text-sm text-slate-500 dark:text-amber-500 uppercase tracking-widest mb-4">
+          <p className="mb-4 text-sm tracking-widest text-slate-500 uppercase dark:text-amber-500">
             Move {stepIndex} / {total}
           </p>
 
@@ -84,8 +84,8 @@ export default function ReplayModal({
                   boardSize === 10
                     ? 'grid-cols-10 gap-1'
                     : boardSize === 5
-                    ? 'grid-cols-5 gap-2'
-                    : 'grid-cols-3 gap-3'
+                      ? 'grid-cols-5 gap-2'
+                      : 'grid-cols-3 gap-3'
                 }`}
               >
                 {replayBoard.map((cell, i) => (
@@ -93,7 +93,9 @@ export default function ReplayModal({
                     key={i}
                     value={cell}
                     displayValue={cell ? playerIcons[cell] : undefined}
-                    isWinning={showWin ? winLine?.includes(i) ?? false : false}
+                    isWinning={
+                      showWin ? (winLine?.includes(i) ?? false) : false
+                    }
                     isLatestMove={i === latestMoveIndex}
                     disabled={true}
                     onClick={() => null}
@@ -117,7 +119,7 @@ export default function ReplayModal({
           </div>
 
           {/* Controls */}
-          <div className="flex justify-center gap-2 mb-4">
+          <div className="mb-4 flex justify-center gap-2">
             {[
               {
                 label: '⏮',
@@ -174,7 +176,7 @@ export default function ReplayModal({
           <Button
             variant="gold"
             onClick={onClose}
-            className="text-base tracking-wide dark:bg-yellow-600 dark:border-yellow-400 dark:text-black dark:hover:bg-yellow-500 focus-visible:ring-4"
+            className="text-base tracking-wide focus-visible:ring-4 dark:border-yellow-400 dark:bg-yellow-600 dark:text-black dark:hover:bg-yellow-500"
           >
             ⚓ Close Window ☠️
           </Button>
