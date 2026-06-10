@@ -1,6 +1,7 @@
 // components/utils/VictoriesInfoModal.tsx
 
 import Button from '@/components/utils/Button';
+import { useKeyPress } from '@/hooks/useKeyPress';
 import { createPortal } from 'react-dom';
 
 type Props = {
@@ -9,6 +10,8 @@ type Props = {
 };
 
 export default function VictoriesInfoModal({ onClose, showModal }: Props) {
+  useKeyPress('Escape', onClose, showModal);
+
   if (!showModal) return null;
   return createPortal(
     <div>
@@ -36,10 +39,10 @@ export default function VictoriesInfoModal({ onClose, showModal }: Props) {
             When <b>Best of Series</b> is off, all scores reset.
           </li>
           <li>
-            Setting it to <b>0</b> means{" "}
+            Setting it to <b>0</b> means{' '}
             <span className="font-bold text-amber-600 dark:text-yellow-300">
               unlimited
-            </span>{" "}
+            </span>{' '}
             — scores never reset and no series points are awarded.
           </li>
         </ul>

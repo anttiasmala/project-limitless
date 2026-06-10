@@ -11,6 +11,7 @@ type PlayersPanelProps = {
   playerTwo: { icon: string; name: string };
   setPlayerTwo: (value: { icon: string; name: string }) => void;
   mode?: GameMode;
+  setIsAnyModalOpen: (value: boolean) => void;
 };
 
 export function PlayersPanel({
@@ -19,6 +20,7 @@ export function PlayersPanel({
   playerTwo,
   setPlayerTwo,
   mode,
+  setIsAnyModalOpen,
 }: PlayersPanelProps) {
   const [showIconModalPlayerOne, setShowIconModalPlayerOne] = useState(false);
   const [showIconModalPlayerTwo, setShowIconModalPlayerTwo] = useState(false);
@@ -58,7 +60,10 @@ export function PlayersPanel({
             </div>
             <Button
               variant="unstyled"
-              onClick={() => setShowIconModalPlayerOne(true)}
+              onClick={() => {
+                setShowIconModalPlayerOne(true);
+                setIsAnyModalOpen(true);
+              }}
               title="Click to change icon"
               className="text-4xl w-16 h-16 rounded-full border-4 border-slate-300 dark:border-red-600 hover:border-amber-500 dark:hover:border-yellow-400 hover:scale-110 bg-white dark:bg-red-950 shadow-md"
             >
@@ -106,7 +111,10 @@ export function PlayersPanel({
             </div>
             <Button
               variant="unstyled"
-              onClick={() => setShowIconModalPlayerTwo(true)}
+              onClick={() => {
+                setShowIconModalPlayerTwo(true);
+                setIsAnyModalOpen(true);
+              }}
               title="Click to change icon"
               className="text-4xl w-16 h-16 rounded-full border-4 border-slate-300 dark:border-red-600 hover:border-amber-500 dark:hover:border-yellow-400 hover:scale-110 bg-white dark:bg-red-950 shadow-md"
             >
@@ -135,14 +143,20 @@ export function PlayersPanel({
         setPlayer={setPlayerOne}
         player={playerOne}
         otherPlayer={playerTwo}
-        onClose={() => setShowIconModalPlayerOne(false)}
+        onClose={() => {
+          setShowIconModalPlayerOne(false);
+          setIsAnyModalOpen(false);
+        }}
       />
       <IconPickerModal
         showModal={showIconModalPlayerTwo}
         setPlayer={setPlayerTwo}
         player={playerTwo}
         otherPlayer={playerOne}
-        onClose={() => setShowIconModalPlayerTwo(false)}
+        onClose={() => {
+          setShowIconModalPlayerTwo(false);
+          setIsAnyModalOpen(false);
+        }}
       />
     </>
   );

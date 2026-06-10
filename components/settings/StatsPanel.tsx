@@ -4,6 +4,7 @@ import { WinLossDrawStats } from '@/utils/types';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import Button from '../utils/Button';
+import { useKeyPress } from '@/hooks/useKeyPress';
 
 function StatRow({
   icon,
@@ -63,13 +64,16 @@ export function StatsPanel({
   playerOne,
   playerTwo,
   onResetStats,
+  setIsAnyModalOpen,
 }: {
   winLossDraw: WinLossDrawStats;
   playerOne: { icon: string; name: string };
   playerTwo: { icon: string; name: string };
   onResetStats?: () => void;
+  setIsAnyModalOpen: (value: boolean) => void;
 }) {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
   return (
     <div className="w-72 max-w-[90vw] bg-white border-2 border-slate-300 dark:bg-red-900 dark:border-red-700 rounded-lg overflow-hidden">
       <div className="bg-slate-100 dark:bg-red-800 px-4 py-2 border-b border-slate-200 dark:border-red-700">
@@ -91,13 +95,19 @@ export function StatsPanel({
         {onResetStats && (
           <>
             <ConfirmationModal
-              onClose={() => setShowConfirmationModal(false)}
+              onClose={() => {
+                setShowConfirmationModal(false);
+                setIsAnyModalOpen(false);
+              }}
               showConfirmationModal={showConfirmationModal}
               onReset={onResetStats}
             />
             <Button
               variant="unstyled"
-              onClick={() => setShowConfirmationModal(true)}
+              onClick={() => {
+                setShowConfirmationModal(true);
+                setIsAnyModalOpen(true);
+              }}
               className="mt-1 w-full py-2 bg-slate-200 dark:bg-red-950 text-slate-700 dark:text-yellow-300/70 hover:bg-slate-300 dark:hover:bg-red-800 hover:text-slate-900 dark:hover:text-yellow-300 border-2 border-slate-300 dark:border-red-700 text-xs"
             >
               🗑️ Reset Stats
@@ -118,6 +128,8 @@ function ConfirmationModal({
   showConfirmationModal: boolean;
   onReset: () => void;
 }) {
+  useKeyPress('Escape', onClose, showConfirmationModal);
+
   if (!showConfirmationModal) return null;
   return createPortal(
     <div>

@@ -20,6 +20,7 @@ type GamePanelProps = {
   resetGame?: () => void;
   victoriesForAction?: number;
   setVictoriesForAction?: (value: number) => void;
+  setIsAnyModalOpen: (value: boolean) => void;
 };
 
 export function GamePanel({
@@ -34,6 +35,7 @@ export function GamePanel({
   resetGame,
   victoriesForAction,
   setVictoriesForAction,
+  setIsAnyModalOpen,
 }: GamePanelProps) {
   const [showVictoriesInfoModal, setShowVictoriesInfoModal] = useState(false);
   usePreventBackgroundScrolling(showVictoriesInfoModal);
@@ -86,7 +88,10 @@ export function GamePanel({
               aria-label="What does Victories mean?"
               title="What does Victories mean?"
               className="ml-1 cursor-pointer leading-none"
-              onClick={() => setShowVictoriesInfoModal(true)}
+              onClick={() => {
+                setShowVictoriesInfoModal(true);
+                setIsAnyModalOpen(true);
+              }}
             >
               ℹ️
             </button>
@@ -139,7 +144,10 @@ export function GamePanel({
         )}
 
         <VictoriesInfoModal
-          onClose={() => setShowVictoriesInfoModal(false)}
+          onClose={() => {
+            setShowVictoriesInfoModal(false);
+            setIsAnyModalOpen(false);
+          }}
           showModal={showVictoriesInfoModal}
         />
       </div>

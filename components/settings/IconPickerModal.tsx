@@ -2,6 +2,7 @@
 
 import { createPortal } from 'react-dom';
 import Button from '../utils/Button';
+import { useKeyPress } from '@/hooks/useKeyPress';
 
 export const ICON_LIST = [
   '🏴‍☠️',
@@ -35,6 +36,8 @@ export function IconPickerModal({
   otherPlayer: { icon: string; name: string };
   onClose: () => void;
 }) {
+  useKeyPress('Escape', onClose, showModal);
+
   if (!showModal) return null;
 
   return createPortal(
