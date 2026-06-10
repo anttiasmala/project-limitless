@@ -62,11 +62,30 @@ function minimax(
   return isMaximizing ? Math.max(...scores) : Math.min(...scores);
 }
 
+// Positional priority for breaking ties between equally-scored minimax moves.
+// In 3x3 every reasonable reply against perfect play draws, so minimax scores
+// them identically — without a tie-break it would pick a weak edge as often as
+// the center. Lower number = higher priority: center, then corners, then edges.
+// This never changes the AI's strength (it only reorders moves that are already
+// game-theoretically equal); it just makes the engine — and the Hint that
+// reuses it — favor the moves a strong player would actually pick.
+const POSITION_PRIORITY = [1, 2, 1, 2, 0, 2, 1, 2, 1];
+const CORNERS = [0, 2, 6, 8];
+
 function getBestMove(
   board: Board,
   aiPlayer: Player,
   humanPlayer: Player,
 ): number {
+  // Opening move: prefer a corner over the center. Both draw against perfect
+  // play, but a corner leaves the opponent only one non-losing reply (the
+  // center) versus four after a center opening — so it wins more against a
+  // fallible human. Random among the four corners keeps games from all opening
+  // identically.
+  if (board.every((cell) => cell === null)) {
+    return CORNERS[Math.floor(Math.random() * CORNERS.length)];
+  }
+
   let bestScore = -Infinity;
   const bestMoves: number[] = [];
 
@@ -83,7 +102,12 @@ function getBestMove(
       bestMoves.push(i);
     }
   }
-  return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+
+  // Among the equally-best moves, keep only the highest-priority tier (center >
+  // corner > edge), then pick randomly within it to preserve replay variety.
+  const topPriority = Math.min(...bestMoves.map((i) => POSITION_PRIORITY[i]));
+  const topMoves = bestMoves.filter((i) => POSITION_PRIORITY[i] === topPriority);
+  return topMoves[Math.floor(Math.random() * topMoves.length)];
 }
 
 function getRandomMove(board: Board): number {
