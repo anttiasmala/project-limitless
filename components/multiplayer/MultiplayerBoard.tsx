@@ -263,9 +263,7 @@ export default function MultiplayerBoard({
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Room code */}
-      <p className="text-xs tracking-widest text-slate-400 uppercase dark:text-amber-600">
-        Room: <span className="font-mono font-bold">{roomId}</span>
-      </p>
+      <CopyRoomCode roomId={roomId} />
 
       {/* Exit button and Settings Button*/}
       <div className="relative flex items-center gap-6">
@@ -499,6 +497,51 @@ export default function MultiplayerBoard({
         setPointSystem={setPointSystem}
       />
     </div>
+  );
+}
+
+function CopyRoomCode({ roomId }: { roomId: string }) {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!copied) return;
+    const timeout = setTimeout(() => setCopied(false), 1500);
+    return () => clearTimeout(timeout);
+  }, [copied]);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(roomId);
+      setCopied(true);
+    } catch {
+      // Clipboard unavailable (denied permission / non-secure context) —
+      // leave the code on screen so it can be copied manually.
+    }
+  }
+
+  return (
+    <p className="flex items-center gap-2 text-xs tracking-widest text-slate-400 uppercase dark:text-amber-600">
+      Room:{' '}
+      <Button
+        variant="unstyled"
+        aria-label="Copy room code"
+        className="font-mono font-bold hover:text-amber-700 dark:hover:text-yellow-300"
+        onClick={handleCopy}
+      >
+        {roomId}
+      </Button>
+      <Button
+        variant="unstyled"
+        onClick={handleCopy}
+        aria-label={copied ? 'Room code copied' : 'Copy room code'}
+        className="group relative inline-flex h-6 w-6 items-center justify-center rounded border border-slate-300 text-sm hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-amber-400 dark:border-amber-800 dark:hover:bg-amber-900/40"
+      >
+        <span aria-hidden>{copied ? '✅' : '📋'}</span>
+        <span className="pointer-events-none absolute -bottom-7 left-1/2 z-50 hidden -translate-x-1/2 rounded bg-slate-800 px-2 py-1 text-[10px] tracking-normal whitespace-nowrap text-white normal-case group-hover:block group-focus-visible:block">
+          {copied ? 'Copied!' : 'Copy code'}
+        </span>
+      </Button>
+    </p>
   );
 }
 
