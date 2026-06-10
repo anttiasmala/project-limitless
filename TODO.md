@@ -39,6 +39,7 @@
 22. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
 23. Add VictoriesInfoModal to /utils/ folder and make Multiplayer and Singleplayer to use it
 24. Add a way to players to see if someone is spectating their game
+25. Add Toastify for toasts (for example Error messages could be shown in Toastify's toasts)
 
 # Notes
 
