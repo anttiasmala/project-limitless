@@ -305,6 +305,7 @@ export default function MultiplayerBoard({
         bestOfSeriesScores={bestOfSeriesScores}
         pointSystem={pointSystem}
         bestOfSeries={settings.bestOfSeries}
+        victoriesForAction={settings.victoriesForAction}
         playerOneOverride={
           humanEntry
             ? { name: humanEntry.name, icon: humanEntry.icon }

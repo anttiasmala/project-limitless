@@ -54,18 +54,13 @@ export function ChestRow({ count, max, emptyEmoji, filledEmoji }: Props) {
   );
 }
 
-export default function TreasureChests({ count }: Props) {
-  // Show at least 5 slots, and grow to fit when the score climbs past 5.
+export default function TreasureChests({ count, max }: Props) {
+  // `max` is the victory target (set by the caller); default to 5 slots.
   return (
-    <ChestRow
-      count={count}
-      max={Math.max(5, count)}
-      filledEmoji="💰"
-      emptyEmoji="🪙"
-    />
+    <ChestRow count={count} max={max ?? 5} filledEmoji="💰" emptyEmoji="💰" />
   );
 }
 
 export function BestOfTreasureChests({ count, max = 5 }: Props) {
-  return <ChestRow count={count} max={max} filledEmoji="⭐️" emptyEmoji="🪙" />;
+  return <ChestRow count={count} max={max} filledEmoji="⭐️" emptyEmoji="⭐️" />;
 }
