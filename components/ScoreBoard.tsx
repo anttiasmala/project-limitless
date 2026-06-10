@@ -16,6 +16,7 @@ type Props = {
   bestOfSeriesScores: Record<Player, number>;
   playerOneOverride?: PlayerDisplay;
   playerTwoOverride?: PlayerDisplay;
+  victoriesForAction: number;
 };
 
 export default function ScoreBoard({
@@ -27,6 +28,7 @@ export default function ScoreBoard({
   bestOfSeriesScores,
   playerOneOverride,
   playerTwoOverride,
+  victoriesForAction,
 }: Props) {
   const [playerOne] = useLocalStorage('playerOne', {
     name: 'Davy Jones',
@@ -40,9 +42,48 @@ export default function ScoreBoard({
   const p1 = playerOneOverride ?? playerOne;
   const p2 = playerTwoOverride ?? playerTwo;
 
+  // Treasure chests double as a progress bar toward the victory target, so the
+  // number of slots mirrors `victoriesForAction` and is shared by both players.
+  // Two cases have no fillable track and fall back to a compact "💰 count
+  // [/ target]" readout: endless mode (0), which has no target, and targets
+  // beyond CHEST_LIMIT, where a row of chests would become a wall.
+  const CHEST_LIMIT = 10;
+  const useCompactChests =
+    victoriesForAction === 0 || victoriesForAction > CHEST_LIMIT;
+  const chestMax = Math.min(victoriesForAction, CHEST_LIMIT);
+
+  // Both point systems frame the score as progress toward the target
+  // ("count / target"), with the target omitted in endless mode (0).
+  const progressSuffix =
+    victoriesForAction > 0 ? ` / ${victoriesForAction}` : '';
+
+  // Spoken form for the aria-label — "of" reads more naturally than "/".
+  const ariaScore = (count: number) =>
+    victoriesForAction > 0 ? `${count} of ${victoriesForAction}` : `${count}`;
+
+  const renderScore = (count: number) => {
+    if (pointSystem === 'number') {
+      return (
+        <p>
+          {count}
+          {progressSuffix}
+        </p>
+      );
+    }
+
+    return useCompactChests ? (
+      <p>
+        💰 {count}
+        {progressSuffix}
+      </p>
+    ) : (
+      <TreasureChests count={count} max={chestMax} />
+    );
+  };
+
   return (
     <div
-      aria-label={`Scores: ${p1.name} ${scores[HUMAN]}, ${p2.name} ${scores[AI]}`}
+      aria-label={`Scores: ${p1.name} ${ariaScore(scores[HUMAN])}, ${p2.name} ${ariaScore(scores[AI])}`}
       role="region"
       className="flex flex-col gap-4 rounded-xl border border-slate-300 bg-white/60 px-4 py-3 text-lg font-semibold text-slate-800 sm:flex-row sm:gap-8 sm:px-8 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200"
     >
@@ -55,11 +96,7 @@ export default function ScoreBoard({
               ? '(AI)'
               : ''}
         </span>
-        {pointSystem === 'number' ? (
-          <p>{scores[HUMAN]}</p>
-        ) : (
-          <TreasureChests count={scores[HUMAN]} />
-        )}
+        {renderScore(scores[HUMAN])}
         {bestOfSeries !== 'off' && (
           <BestOfTreasureChests
             count={bestOfSeriesScores[HUMAN]}
@@ -82,11 +119,7 @@ export default function ScoreBoard({
               ? '(AI)'
               : ''}
         </span>
-        {pointSystem === 'number' ? (
-          <p>{scores[AI]}</p>
-        ) : (
-          <TreasureChests count={scores[AI]} />
-        )}
+        {renderScore(scores[AI])}
         {bestOfSeries !== 'off' && (
           <BestOfTreasureChests
             count={bestOfSeriesScores[AI]}

@@ -772,6 +772,7 @@ export default function Board({
         mode={mode}
         bestOfSeries={mode === 'tournament' ? 'off' : bestOfSeries}
         playerTwoOverride={mode === 'tournament' ? playerTwo : undefined}
+        victoriesForAction={victoriesForAction}
       />
 
       {/* Win streak badge — shown in every mode, including watch (an AI on a
