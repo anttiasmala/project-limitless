@@ -13,7 +13,7 @@ import {
   RoomSettings,
 } from '@/utils/multiplayer/multiplayerTypes';
 import Input from '../utils/Input';
-import VictoriesInfoModal from './utils/VictoriesInfoModal';
+import VictoriesInfoModal from '../utils/VictoriesInfoModal';
 
 type Props = {
   onClose: () => void;
