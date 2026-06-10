@@ -108,7 +108,7 @@ export function StatsPanel({
                 setShowConfirmationModal(true);
                 setIsAnyModalOpen(true);
               }}
-              className="mt-1 w-full py-2 bg-slate-200 dark:bg-red-950 text-slate-700 dark:text-yellow-300/70 hover:bg-slate-300 dark:hover:bg-red-800 hover:text-slate-900 dark:hover:text-yellow-300 border-2 border-slate-300 dark:border-red-700 text-xs"
+              className="mt-1 w-full py-2 text-xs border-2 bg-slate-200 border-slate-300 text-slate-700 hover:bg-slate-300 hover:border-amber-500 hover:text-slate-900 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300/70 dark:hover:bg-red-800 dark:hover:border-yellow-500 dark:hover:text-yellow-300"
             >
               🗑️ Reset Stats
             </Button>
@@ -129,11 +129,15 @@ function ConfirmationModal({
   onReset: () => void;
 }) {
   useKeyPress('Escape', onClose, showConfirmationModal);
-  useKeyPress('Enter', (e) => {
-    e.preventDefault();
-    onReset();
-    onClose();
-  });
+  useKeyPress(
+    'Enter',
+    (e) => {
+      e.preventDefault();
+      onReset();
+      onClose();
+    },
+    showConfirmationModal,
+  );
 
   if (!showConfirmationModal) return null;
   return createPortal(
