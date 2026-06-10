@@ -1,5 +1,7 @@
 # TODO:
 
+1. Add Tailwind Prettier
+
 # Ideas:
 
 1. Chat in multiplayer - Simple emoji reactions or chat || Emoji reactions in multiplayer — tap to send 🏴‍☠️ 💥 😤 during opponent's turn
