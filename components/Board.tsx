@@ -526,6 +526,23 @@ export default function Board({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameOver]);
 
+  // Arrow-keys mode: when it becomes the human's turn, move focus onto the
+  // board so the player can navigate with the arrow keys immediately — no
+  // tabbing past the controls above the grid. Keeps the active cell if it's
+  // still empty, otherwise falls back to the first empty square. Reading
+  // `board`/`activeIndex` without depending on them is intentional: we only
+  // want to grab focus on a turn transition, not on every board mutation.
+  useEffect(() => {
+    if (!isArrowKeysEnabled || !isGameStarted || !isHumanTurn || aiThinking)
+      return;
+    const target =
+      board[activeIndex.current] === null
+        ? activeIndex.current
+        : board.findIndex((cell) => cell === null);
+    if (target !== -1) focusCell(target);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isArrowKeysEnabled, isGameStarted, isHumanTurn, aiThinking, focusCell]);
+
   function handleClick(index: number) {
     if (board[index] || gameOver || aiThinking || showForfeitMessage) return;
     if (mode === 'watch') return; // both sides are AI — grid is non-interactive
@@ -818,6 +835,10 @@ export default function Board({
       <div className="relative">
         <div
           ref={gridRef}
+          role="grid"
+          aria-label={`${boardSize}x${boardSize} game board${
+            isArrowKeysEnabled ? ', use arrow keys to move' : ''
+          }`}
           className={`grid ${
             boardSize === 10
               ? 'grid-cols-10 gap-1'
