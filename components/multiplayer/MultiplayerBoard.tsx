@@ -554,13 +554,8 @@ function RoomMessage({
   return (
     <div className="flex flex-col items-center gap-4">
       <p className="text-center dark:text-yellow-300">{message}</p>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-black dark:text-red-500 dark:hover:text-red-600"
-        onClick={onBack}
-      >
-        Back to lobby
+      <Button variant="neutral" size="sm" onClick={onBack}>
+        ← Back to lobby
       </Button>
     </div>
   );
