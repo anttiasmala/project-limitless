@@ -20,6 +20,7 @@ type Props = {
   moveHistory: MoveEntry[];
   boardSize?: 3 | 5 | 10;
   playerIcons: Record<Player, string>;
+  tintByOwner?: boolean;
 };
 
 export default function ReplayModal({
@@ -27,6 +28,7 @@ export default function ReplayModal({
   moveHistory,
   boardSize = 3,
   playerIcons,
+  tintByOwner,
 }: Props) {
   const {
     stepIndex,
@@ -97,6 +99,7 @@ export default function ReplayModal({
                       showWin ? (winLine?.includes(i) ?? false) : false
                     }
                     isLatestMove={i === latestMoveIndex}
+                    tintByOwner={tintByOwner}
                     disabled={true}
                     onClick={() => null}
                     onKeyDown={() => null}
