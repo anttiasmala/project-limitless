@@ -11,7 +11,7 @@ interface SquareProps {
   isWinning: boolean;
   isHint?: boolean;
   isLatestMove?: boolean;
-  // When true, an owned square is tinted by its owner (blue vs. red) so the two
+  // When true, an owned square is tinted by its owner (blue vs. yellow) so the two
   // sides stay distinguishable even when both players picked the same icon.
   tintByOwner?: boolean;
   disabled: boolean;
