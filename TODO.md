@@ -35,12 +35,9 @@
     3. Perhaps Up arrow go to last move
     4. Perhaps Down arrow go to start
 20. Tournament bracket — 4-player round-robin or knockout using the existing multiplayer rooms
-21. Tournament bracket — 4-player round-robin or knockout using the existing multiplayer rooms
-22. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
-23. Add VictoriesInfoModal to /utils/ folder and make Multiplayer and Singleplayer to use it
-24. Add a way to players to see if someone is spectating their game
-25. Add Toastify for toasts (for example Error messages could be shown in Toastify's toasts)
-26. Multiplayer, add somekind of background color if both players have same icon or forcechange the icon to something else?
+21. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
+22. Add a way to players to see if someone is spectating their game
+23. Add Toastify for toasts (for example Error messages could be shown in Toastify's toasts)
 
 # Notes
 
