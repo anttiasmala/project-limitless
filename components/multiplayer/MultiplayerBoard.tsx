@@ -461,6 +461,7 @@ export default function MultiplayerBoard({
           onClose={() => setShowReplayModal(false)}
           moveHistory={moveHistory}
           playerIcons={playerIcons}
+          tintByOwner={iconsClash}
         />
       )}
 
