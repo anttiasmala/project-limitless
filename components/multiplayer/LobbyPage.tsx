@@ -8,19 +8,7 @@ import { createPortal } from 'react-dom';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useKeyPress } from '@/hooks/useKeyPress';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
-
-const PIRATE_ICONS = [
-  '☠️',
-  '⚓',
-  '🏴‍☠️',
-  '🦜',
-  '🗡️',
-  '🪙',
-  '💎',
-  '🌊',
-  '🍺',
-  '🔱',
-];
+import { ICON_LIST as PIRATE_ICONS } from '@/components/settings/IconPickerModal';
 
 export default function LobbyPage() {
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -148,7 +136,7 @@ function ProfileModal({
             <span className="text-sm font-semibold text-slate-700 dark:text-yellow-300">
               Icon
             </span>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {PIRATE_ICONS.map((icon) => (
                 <Button
                   key={icon}
