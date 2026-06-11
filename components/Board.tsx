@@ -187,7 +187,6 @@ export default function Board({
     isGameStarted,
   });
 
-  const gameHasMoves = board.some((cell) => cell !== null);
   const isHumanTurn =
     !gameOver &&
     mode !== 'watch' &&
@@ -626,7 +625,6 @@ export default function Board({
   }
 
   function switchBoardSize(newSize: 3 | 5 | 10) {
-    if (gameHasMoves && !gameOver) return;
     setBoardSize(newSize);
     setBoard(Array(newSize * newSize).fill(null) as BoardType);
     setScores({ ...INITIAL_SCORE });
@@ -674,17 +672,12 @@ export default function Board({
             <button
               key={size}
               onClick={() => switchBoardSize(size)}
-              disabled={gameHasMoves && !gameOver}
               aria-pressed={boardSize === size}
-              className={`rounded-lg border-2 px-3 py-1.5 text-sm font-bold transition-all duration-200 ${
+              className={`cursor-pointer rounded-lg border-2 px-3 py-1.5 text-sm font-bold transition-all duration-200 ${
                 boardSize === size
                   ? 'border-amber-800 bg-amber-600 text-white dark:border-yellow-400 dark:bg-amber-700 dark:text-yellow-300'
                   : 'border-slate-400 bg-slate-200 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-400 dark:hover:border-amber-600 dark:hover:bg-amber-900/50'
-              } ${
-                gameHasMoves && !gameOver
-                  ? 'cursor-not-allowed opacity-50'
-                  : 'cursor-pointer'
-              } `}
+              }`}
             >
               {size === 3 ? '3x3' : size === 5 ? '5x5' : '10x10'}
             </button>
