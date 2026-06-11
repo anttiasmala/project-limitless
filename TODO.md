@@ -40,6 +40,7 @@
 23. Add VictoriesInfoModal to /utils/ folder and make Multiplayer and Singleplayer to use it
 24. Add a way to players to see if someone is spectating their game
 25. Add Toastify for toasts (for example Error messages could be shown in Toastify's toasts)
+26. Multiplayer, add somekind of background color if both players have same icon or forcechange the icon to something else?
 
 # Notes
 
