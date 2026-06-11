@@ -3,8 +3,6 @@ import Button from './utils/Button';
 
 type Props = {
   difficulty: Difficulty;
-  gameHasMoves: boolean;
-  gameOver: boolean;
   onSelect: (difficulty: Difficulty) => void;
   onReset: () => void;
   label?: string;
@@ -19,8 +17,6 @@ const DIFFICULTY_LABELS: Record<Difficulty, { short: string; long: string }> = {
 
 export default function DifficultySelector({
   difficulty,
-  gameHasMoves,
-  gameOver,
   onSelect,
   onReset,
   label = 'Kraken Strength',
@@ -37,18 +33,15 @@ export default function DifficultySelector({
               key={_difficulty}
               variant="unstyled"
               onClick={() => {
-                if (gameHasMoves && !gameOver) return;
-                if (difficulty !== _difficulty) onReset();
+                if (difficulty === _difficulty) return;
+                // Switching difficulty restarts the current round (scores kept).
+                onReset();
                 onSelect(_difficulty);
               }}
               className={`border-2 px-3 py-1.5 text-xs font-semibold ${
                 difficulty === _difficulty
                   ? 'border-amber-800 bg-amber-600 text-white dark:border-red-500 dark:bg-red-900 dark:text-yellow-300'
                   : 'border-slate-400 bg-slate-200 text-slate-700 hover:border-amber-500 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-500 dark:hover:border-amber-600'
-              } ${
-                gameHasMoves && difficulty !== _difficulty && !gameOver
-                  ? 'cursor-not-allowed'
-                  : ''
               }`}
             >
               <span className="sm:hidden">

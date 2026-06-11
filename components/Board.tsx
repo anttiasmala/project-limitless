@@ -702,10 +702,8 @@ export default function Board({
       {mode === 'pvc' && (
         <DifficultySelector
           difficulty={difficulty}
-          gameHasMoves={gameHasMoves}
-          gameOver={gameOver}
           onSelect={setDifficulty}
-          onReset={() => setScores({ ...INITIAL_SCORE })}
+          onReset={resetGame}
         />
       )}
 
@@ -718,16 +716,12 @@ export default function Board({
             <DifficultySelector
               label={`${playerOne.icon} ${playerOne.name}`}
               difficulty={watchDifficultyOne}
-              gameHasMoves={false}
-              gameOver={gameOver}
               onSelect={setWatchDifficultyOne}
               onReset={() => {}}
             />
             <DifficultySelector
               label={`${playerTwo.icon} ${playerTwo.name}`}
               difficulty={watchDifficultyTwo}
-              gameHasMoves={false}
-              gameOver={gameOver}
               onSelect={setWatchDifficultyTwo}
               onReset={() => {}}
             />
