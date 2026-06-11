@@ -129,15 +129,26 @@ export default function CreateRoomModal({ onClose }: Props) {
             <Input
               type="number"
               min={0}
-              className="ml-1 w-12 px-1"
-              value={settings.victoriesForAction}
-              onChange={(e) => {
+              className="ml-1 w-12 px-1 dark:border-amber-700 dark:bg-amber-900"
+              defaultValue={settings.victoriesForAction}
+              onBlur={(e) => {
                 const val = Number(e.target.value);
                 if (Number.isFinite(val) && val >= 0) {
                   setSettings((prev) => ({
                     ...prev,
                     victoriesForAction: val,
                   }));
+                  // Re-sync the field so e.g. an empty input shows "0" and "05" shows "5"
+                  e.target.value = String(val);
+                } else {
+                  setSettings((prev) => ({
+                    ...prev,
+                    victoriesForAction:
+                      DEFAULT_ROOM_SETTINGS.victoriesForAction,
+                  }));
+                  e.target.value = String(
+                    DEFAULT_ROOM_SETTINGS.victoriesForAction,
+                  );
                 }
               }}
             />
@@ -173,15 +184,25 @@ export default function CreateRoomModal({ onClose }: Props) {
                 <Input
                   type="number"
                   min={1}
-                  value={settings.timerDuration}
-                  className="ml-1 w-12 dark:border-amber-700 dark:bg-amber-900"
-                  onChange={(e) => {
+                  defaultValue={settings.timerDuration}
+                  className="ml-1 w-12 px-1 dark:border-amber-700 dark:bg-amber-900"
+                  onBlur={(e) => {
                     const val = Number(e.target.value);
                     if (Number.isFinite(val) && val >= 1) {
                       setSettings((prev) => ({
                         ...prev,
                         timerDuration: val,
                       }));
+                      // Re-sync the field so e.g. a typed "05" shows as "5"
+                      e.target.value = String(val);
+                    } else {
+                      setSettings((prev) => ({
+                        ...prev,
+                        timerDuration: DEFAULT_ROOM_SETTINGS.timerDuration,
+                      }));
+                      e.target.value = String(
+                        DEFAULT_ROOM_SETTINGS.timerDuration,
+                      );
                     }
                   }}
                 />

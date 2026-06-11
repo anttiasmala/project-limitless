@@ -99,11 +99,16 @@ export function GamePanel({
               type="number"
               min={0}
               className="ml-1 w-12"
-              value={victoriesForAction ?? 0}
-              onChange={(e) => {
+              defaultValue={victoriesForAction ?? 5}
+              onBlur={(e) => {
                 const val = Number(e.target.value);
                 if (Number.isFinite(val) && val >= 0) {
                   setVictoriesForAction(val);
+                  // Re-sync the field so e.g. an empty input shows "0" and "05" shows "5"
+                  e.target.value = String(val);
+                } else {
+                  setVictoriesForAction(5);
+                  e.target.value = String(5);
                 }
               }}
             />
@@ -128,12 +133,17 @@ export function GamePanel({
                   <Input
                     type="number"
                     min={1}
-                    value={timerDuration ?? 10}
+                    defaultValue={timerDuration ?? 10}
                     className="ml-1 w-12"
-                    onChange={(e) => {
+                    onBlur={(e) => {
                       const val = Number(e.target.value);
                       if (Number.isFinite(val) && val >= 1) {
                         setTimerDuration(val);
+                        // Re-sync the field so e.g. a typed "05" shows as "5"
+                        e.target.value = String(val);
+                      } else {
+                        setTimerDuration(10);
+                        e.target.value = String(10);
                       }
                     }}
                   />
