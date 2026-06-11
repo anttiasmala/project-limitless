@@ -212,6 +212,11 @@ export default function MultiplayerBoard({
       ? (humanEntry?.name ?? 'Davy Jones')
       : (aiEntry?.name ?? 'Capt. Hook');
 
+  // When both players pick the same icon the emoji alone can't tell the sides
+  // apart, so the board falls back to colour-coding each owner's squares.
+  const iconsClash =
+    !!humanEntry && !!aiEntry && humanEntry.icon === aiEntry.icon;
+
   if (isSpectator && !settings.allowSpectators) {
     return (
       <RoomMessage
@@ -338,6 +343,30 @@ export default function MultiplayerBoard({
         </p>
       )}
 
+      {/* Same-icon colour legend — only when both players share an icon, so the
+          board's owner tint stays readable. */}
+      {iconsClash && (
+        <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs font-medium text-slate-600 dark:text-amber-300">
+          <span>Matching icons —</span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-3 w-3 rounded-sm border border-sky-400 bg-sky-200 dark:border-sky-600 dark:bg-sky-800" />
+            {isSpectator
+              ? (humanEntry?.name ?? 'Davy Jones')
+              : myPlayer === HUMAN
+                ? 'You'
+                : 'Opponent'}
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-3 w-3 rounded-sm border border-yellow-400 bg-yellow-300 dark:border-yellow-500 dark:bg-yellow-600" />
+            {isSpectator
+              ? (aiEntry?.name ?? 'Capt. Hook')
+              : myPlayer === AI
+                ? 'You'
+                : 'Opponent'}
+          </span>
+        </p>
+      )}
+
       {/* Sand Timer */}
 
       {roomState.settings.timerEnabled && timeLeft !== null && (
@@ -350,7 +379,7 @@ export default function MultiplayerBoard({
       {/* For spectators show whose turn it is instead */}
       {status === 'playing' && isSpectator && (
         <p className="font-semibold dark:text-yellow-300">
-          ⚔️ {currentPlayerName}&apos;s turn {currentPlayer}
+          ⚔️ {currentPlayerName}&apos;s turn {playerIcons[currentPlayer]}
         </p>
       )}
 
@@ -377,6 +406,7 @@ export default function MultiplayerBoard({
               }
               isWinning={winLine?.includes(i) ?? false}
               isLatestMove={i === latestSquareSeized}
+              tintByOwner={iconsClash}
               disabled={
                 !isMyTurn || status !== 'playing' || !!board[i] || !!isSpectator
               }
