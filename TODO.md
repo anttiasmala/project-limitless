@@ -8,34 +8,33 @@
 4. In Single-player name does not get instantly changes, requires a refresh to change
 5. In Multiplayer theoretically a player could change their name longer than 20 characters by modifying the name in Local Storage
 6. In Multiplayer allow only spectate rooms that have players / allowed spectating
-7. Move winLossDraw to useGameSettings.ts from Board.tsx
-8. Allow change difficulty when game has started, if difficulty is changed, reset game?
-9. Currently 10x10 is really small. Perhaps add a zoom button or something that helps seeing the board. Zooming the whole site works, but perhaps zoom button would be good?
-10. Add login system and save winLossDraw stats to backend SQL database. Perhaps PostgreSQL and Prisma?
-11. Save multiplayer settings to LocalStorage so player does not have to set the settings always again?
-12. Sand timer in multiplayer does not start immediately, it takes half a second to start rolling, perhaps it could be fixed?
-13. Show settings of a gameroom in Lobby list, so player knows that if there is for example turn timer and how long it is, etc
-14. When site is going live, add somekind of feedback system?
+7. Allow change difficulty when game has started, if difficulty is changed, reset game?
+8. Currently 10x10 is really small. Perhaps add a zoom button or something that helps seeing the board. Zooming the whole site works, but perhaps zoom button would be good?
+9. Add login system and save winLossDraw stats to backend SQL database. Perhaps PostgreSQL and Prisma?
+10. Save multiplayer settings to LocalStorage so player does not have to set the settings always again?
+11. Sand timer in multiplayer does not start immediately, it takes half a second to start rolling, perhaps it could be fixed?
+12. Show settings of a gameroom in Lobby list, so player knows that if there is for example turn timer and how long it is, etc
+13. When site is going live, add somekind of feedback system?
 
-15. If a player wins a game with Best Of Series scores activated, if a player leaves after the SeriesWinnerModal, game does not reset the scores.
+14. If a player wins a game with Best Of Series scores activated, if a player leaves after the SeriesWinnerModal, game does not reset the scores.
     How to reproduce the issue:
     1. Create a room with Victories for action: 5, and Best of Series scores: Best of 3. Add the debugging values for score and Best of Series score in /party/games.ts
     2. Win the game with Player 1 so it will have 2 Best of Series scores.
     3. Click "New Series" with Player 1 and leave the game
     4. Points get stuck and do not reset
-16. In Singleplayer (maybe in Multiplayer too) if Victories is set to 1 and Best of Series is off, when a player scores a point it immediately resets the game and for example Replay modal is not possible to be viewed
+15. In Singleplayer (maybe in Multiplayer too) if Victories is set to 1 and Best of Series is off, when a player scores a point it immediately resets the game and for example Replay modal is not possible to be viewed
     How to reproduce issue:
     1. Set Victories: 1 and Best of Series: Off
     2. Win a round
-17. Allow following keys to do stuff in Replay Modal:
+16. Allow following keys to do stuff in Replay Modal:
     1. Left and Right arrows, go one backwards and forward
     2. Escape close the modal
     3. Perhaps Up arrow go to last move
     4. Perhaps Down arrow go to start
-18. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
-19. Add a way to players to see if someone is spectating their game
-20. Add Toastify for toasts (for example Error messages could be shown in Toastify's toasts)
-21. Perhaps set a max amount in VictoriesForAction and Seconds per turn in Multiplayer?
+17. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
+18. Add a way to players to see if someone is spectating their game
+19. Add Toastify for toasts (for example Error messages could be shown in Toastify's toasts)
+20. Perhaps set a max amount in VictoriesForAction and Seconds per turn in Multiplayer?
 
 # Notes
 
