@@ -3,7 +3,7 @@
 # Ideas:
 
 1. Chat in multiplayer - Simple emoji reactions or chat || Emoji reactions in multiplayer — tap to send 🏴‍☠️ 💥 😤 during opponent's turn
-2. Share/export game - Export the game as a shareable link or image
+2. Share/export game - Export the game as a shareable link or image. Perhaps add an ability to share a game that is inprogress?
 3. Time-based scoring - Bonus points for winning quickly
 4. In Single-player name does not get instantly changes, requires a refresh to change
 5. In Multiplayer theoretically a player could change their name longer than 20 characters by modifying the name in Local Storage
