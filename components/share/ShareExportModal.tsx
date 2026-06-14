@@ -49,7 +49,7 @@ export default function ShareExportModal({
   const [copied, setCopied] = useState(false);
 
   usePreventBackgroundScrolling(open);
-  useKeyPress('Escape', onClose);
+  useKeyPress('Escape', onClose, open);
   if (!open) return null;
 
   const handleCopyLink = () => {
