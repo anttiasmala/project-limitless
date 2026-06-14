@@ -950,65 +950,68 @@ export default function Board({
           }}
         />
       )}
-      {/* Undo button */}
-      {mode === 'pvp' && (
-        <Button
-          variant="unstyled"
-          onClick={undoPreviousMove}
-          disabled={moveHistory.length === 0 || gameOver}
-          aria-label="Undo previous move"
-          className="border-2 border-slate-800 bg-slate-600 px-6 py-3 text-lg tracking-wide text-white hover:border-slate-600 hover:bg-slate-500 dark:border-slate-500 dark:bg-slate-700 dark:text-yellow-300 dark:hover:border-yellow-500 dark:hover:bg-slate-600"
-        >
-          ↩️ Undo
-        </Button>
-      )}
-
-      {/* Hint button */}
-      {mode === 'pvc' && (
-        <Button
-          onClick={handleHint}
-          disabled={!isHumanTurn || !isGameStarted || aiThinking}
-          aria-label="Show a hint for your next move"
-          className="cursor-pointer rounded-lg border-2 border-emerald-900 bg-emerald-700 px-6 py-3 text-lg font-bold tracking-wide text-white transition-all duration-200 hover:border-emerald-700 hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-emerald-700 dark:bg-emerald-900 dark:text-yellow-300 dark:hover:border-yellow-500 dark:hover:bg-emerald-800"
-        >
-          💡 Hint
-        </Button>
-      )}
-
-      {/* Reset Game — hidden in tournament (matches auto-advance) */}
+      {/* Game action buttons — one fixed-width group so edges align.
+          Undo (pvp) / Hint (pvc) and New Voyage stack full-width; the
+          post-game Replay + Share sit side-by-side in a 50/50 row. */}
       {mode !== 'tournament' && (
-        <Button
-          variant="primary"
-          onClick={resetGame}
-          aria-label="Start a new game"
-          className="mt-4 tracking-wide hover:border-red-700 dark:hover:border-yellow-500"
-        >
-          🏴‍☠️ New Voyage
-        </Button>
-      )}
+        <div className="flex w-full max-w-xs flex-col items-stretch gap-3">
+          {/* Undo button (pvp) */}
+          {mode === 'pvp' && (
+            <Button
+              variant="unstyled"
+              onClick={undoPreviousMove}
+              disabled={moveHistory.length === 0 || gameOver}
+              aria-label="Undo previous move"
+              className="w-full border-2 border-slate-800 bg-slate-600 px-6 py-3 text-lg tracking-wide text-white hover:border-slate-600 hover:bg-slate-500 dark:border-slate-500 dark:bg-slate-700 dark:text-yellow-300 dark:hover:border-yellow-500 dark:hover:bg-slate-600"
+            >
+              ↩️ Undo
+            </Button>
+          )}
 
-      {/* Replay the Game */}
-      {gameOver && mode !== 'tournament' && (
-        <Button
-          variant="gold"
-          aria-label="Replay the game"
-          onClick={() => setShowReplayModal(true)}
-          className="tracking-wide"
-        >
-          ▶ Replay game ◀
-        </Button>
-      )}
+          {/* Hint button (pvc) */}
+          {mode === 'pvc' && (
+            <Button
+              onClick={handleHint}
+              disabled={!isHumanTurn || !isGameStarted || aiThinking}
+              aria-label="Show a hint for your next move"
+              className="w-full cursor-pointer rounded-lg border-2 border-emerald-900 bg-emerald-700 px-6 py-3 text-lg font-bold tracking-wide text-white transition-all duration-200 hover:border-emerald-700 hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 dark:border-emerald-700 dark:bg-emerald-900 dark:text-yellow-300 dark:hover:border-yellow-500 dark:hover:bg-emerald-800"
+            >
+              💡 Hint
+            </Button>
+          )}
 
-      {/* Share / export the finished game */}
-      {gameOver && mode !== 'tournament' && (
-        <Button
-          variant="neutral"
-          aria-label="Share or export the game"
-          onClick={() => setShowShareModal(true)}
-          className="tracking-wide"
-        >
-          📤 Share
-        </Button>
+          {/* New Voyage — primary reset */}
+          <Button
+            variant="primary"
+            onClick={resetGame}
+            aria-label="Start a new game"
+            className="w-full tracking-wide hover:border-red-700 dark:hover:border-yellow-500"
+          >
+            🏴‍☠️ New Voyage
+          </Button>
+
+          {/* Replay + Share — paired secondary row, only after game over */}
+          {gameOver && (
+            <div className="flex gap-2">
+              <Button
+                variant="gold"
+                aria-label="Replay the game"
+                onClick={() => setShowReplayModal(true)}
+                className="flex-1 tracking-wide"
+              >
+                ▶ Replay
+              </Button>
+              <Button
+                variant="neutral"
+                aria-label="Share or export the game"
+                onClick={() => setShowShareModal(true)}
+                className="flex-1 tracking-wide"
+              >
+                📤 Share
+              </Button>
+            </div>
+          )}
+        </div>
       )}
 
       <ShareExportModal
