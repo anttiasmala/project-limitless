@@ -60,7 +60,7 @@ export default function ShareExportModal({
 
   return createPortal(
     <div>
-      <div className="fixed inset-0 z-100 cursor-default bg-black/70 backdrop-blur-sm" />
+      <div className="fixed inset-0 z-100 bg-black/70 backdrop-blur-sm" />
       <div
         role="dialog"
         aria-modal="true"
