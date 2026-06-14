@@ -60,124 +60,127 @@ export default function ShareExportModal({
 
   return createPortal(
     <div>
-      <button
-        aria-label="Close share dialog"
-        onClick={onClose}
-        className="fixed inset-0 z-100 cursor-default bg-black/70 backdrop-blur-sm"
-      />
+      <div className="fixed inset-0 z-100 bg-black/70 backdrop-blur-sm" />
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Share or export game"
-        className="fixed inset-0 top-1/2 left-1/2 z-101 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center p-4"
+        className="fixed inset-0 z-101 overflow-y-auto"
       >
-        <div className="relative w-full max-w-md rounded-2xl border-4 border-amber-500 bg-white p-6 text-center shadow-[0_0_60px_#92400e] dark:border-yellow-500 dark:bg-[#1a0a00]">
-          {/* Close (X) */}
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label="Close"
-            onClick={onClose}
-            className="absolute top-3 right-3 h-10 w-10 rounded-full text-lg leading-none text-slate-600 hover:bg-amber-200 hover:text-red-600 focus-visible:ring-2 focus-visible:ring-amber-500 dark:text-amber-300 dark:hover:bg-amber-900 dark:hover:text-red-400"
-          >
-            ✕
-          </Button>
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
+          className="flex min-h-full items-center justify-center p-4"
+        >
+          <div className="relative w-full max-w-md rounded-2xl border-4 border-amber-500 bg-white p-6 text-center shadow-[0_0_60px_#92400e] dark:border-yellow-500 dark:bg-[#1a0a00]">
+            {/* Close (X) */}
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="Close"
+              onClick={onClose}
+              className="absolute top-3 right-3 h-10 w-10 rounded-full text-lg leading-none text-slate-600 hover:bg-amber-200 hover:text-red-600 focus-visible:ring-2 focus-visible:ring-amber-500 dark:text-amber-300 dark:hover:bg-amber-900 dark:hover:text-red-400"
+            >
+              ✕
+            </Button>
 
-          <p className="mb-2 text-4xl">🏴‍☠️</p>
-          <h2 className="mb-1 text-2xl font-black tracking-wide text-amber-700 dark:text-yellow-400">
-            Share yer Battle
-          </h2>
-          <p className="mb-5 text-sm text-slate-500 dark:text-amber-200/60">
-            Send the link or save the game as an image.
-          </p>
+            <p className="mb-2 text-4xl">🏴‍☠️</p>
+            <h2 className="mb-1 text-2xl font-black tracking-wide text-amber-700 dark:text-yellow-400">
+              Share yer Battle
+            </h2>
+            <p className="mb-5 text-sm text-slate-500 dark:text-amber-200/60">
+              Send the link or save the game as an image.
+            </p>
 
-          {/* Segmented tab control */}
-          <div className="mb-5 flex gap-1 rounded-xl border-2 border-amber-200 bg-amber-50 p-1 dark:border-amber-900/60 dark:bg-amber-950/40">
-            {TABS.map(({ id, label, icon }) => {
-              const active = tab === id;
-              return (
-                <button
-                  key={id}
-                  onClick={() => setTab(id)}
-                  aria-pressed={active}
-                  className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-bold transition-all duration-200 ${
-                    active
-                      ? 'bg-amber-600 text-white shadow dark:bg-amber-700 dark:text-yellow-300'
-                      : 'text-slate-500 hover:text-amber-700 dark:text-amber-200/60 dark:hover:text-yellow-400'
-                  }`}
-                >
-                  <span>{icon}</span>
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* ---- Link tab ---- */}
-          {tab === 'link' && (
-            <div className="flex flex-col gap-4">
-              <div className="flex items-stretch gap-2">
-                <input
-                  readOnly
-                  value={shareUrl}
-                  placeholder="Generating link…"
-                  onFocus={(e) => e.currentTarget.select()}
-                  className="min-w-0 flex-1 rounded-lg border-2 border-amber-200 bg-amber-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-amber-500 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100"
-                />
-                <Button
-                  variant={copied ? 'gold' : 'neutral'}
-                  size="md"
-                  onClick={handleCopyLink}
-                  disabled={!shareUrl}
-                  className="shrink-0"
-                >
-                  {copied ? '✓ Copied!' : 'Copy'}
-                </Button>
-              </div>
-
-              <p className="text-xs text-slate-400 dark:text-amber-200/40">
-                Anyone with this link can watch the game.
-              </p>
+            {/* Segmented tab control */}
+            <div className="mb-5 flex gap-1 rounded-xl border-2 border-amber-200 bg-amber-50 p-1 dark:border-amber-900/60 dark:bg-amber-950/40">
+              {TABS.map(({ id, label, icon }) => {
+                const active = tab === id;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => setTab(id)}
+                    aria-pressed={active}
+                    className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-bold transition-all duration-200 ${
+                      active
+                        ? 'bg-amber-600 text-white shadow dark:bg-amber-700 dark:text-yellow-300'
+                        : 'text-slate-500 hover:text-amber-700 dark:text-amber-200/60 dark:hover:text-yellow-400'
+                    }`}
+                  >
+                    <span>{icon}</span>
+                    {label}
+                  </button>
+                );
+              })}
             </div>
-          )}
 
-          {/* ---- Image tab ---- */}
-          {tab === 'image' && (
-            <div className="flex flex-col gap-4">
-              {/* The export target. Attach cardRef and render the game card here. */}
-              <div className="overflow-hidden rounded-xl border-2 border-amber-200 bg-amber-50 p-1 dark:border-amber-900/60 dark:bg-amber-950/40">
-                <div
-                  ref={cardRef}
-                  className="rounded-lg bg-linear-to-br from-amber-50 to-orange-100 p-4 dark:from-[#241000] dark:to-[#1a0a00]"
-                >
-                  {cardContent}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Button
-                  variant="gold"
-                  size="md"
-                  onClick={onDownloadImage}
-                  disabled={imageBusy}
-                  className="flex-1"
-                >
-                  {imageBusy ? 'Preparing…' : '⬇ Download'}
-                </Button>
-                {onCopyImage && (
+            {/* ---- Link tab ---- */}
+            {tab === 'link' && (
+              <div className="flex flex-col gap-4">
+                <div className="flex items-stretch gap-2">
+                  <input
+                    readOnly
+                    value={shareUrl}
+                    placeholder="Generating link…"
+                    onFocus={(e) => e.currentTarget.select()}
+                    className="min-w-0 flex-1 rounded-lg border-2 border-amber-200 bg-amber-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-amber-500 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100"
+                  />
                   <Button
-                    variant="neutral"
+                    variant={copied ? 'gold' : 'neutral'}
                     size="md"
-                    onClick={onCopyImage}
+                    onClick={handleCopyLink}
+                    disabled={!shareUrl}
+                    className="shrink-0"
+                  >
+                    {copied ? '✓ Copied!' : 'Copy'}
+                  </Button>
+                </div>
+
+                <p className="text-xs text-slate-400 dark:text-amber-200/40">
+                  Anyone with this link can watch the game.
+                </p>
+              </div>
+            )}
+
+            {/* ---- Image tab ---- */}
+            {tab === 'image' && (
+              <div className="flex flex-col gap-4">
+                {/* The export target. Attach cardRef and render the game card here. */}
+                <div className="overflow-hidden rounded-xl border-2 border-amber-200 bg-amber-50 p-1 dark:border-amber-900/60 dark:bg-amber-950/40">
+                  <div
+                    ref={cardRef}
+                    className="rounded-lg bg-linear-to-br from-amber-50 to-orange-100 p-4 dark:from-[#241000] dark:to-[#1a0a00]"
+                  >
+                    {cardContent}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Button
+                    variant="gold"
+                    size="md"
+                    onClick={onDownloadImage}
                     disabled={imageBusy}
                     className="flex-1"
                   >
-                    📋 Copy image
+                    {imageBusy ? 'Preparing…' : '⬇ Download'}
                   </Button>
-                )}
+                  {onCopyImage && (
+                    <Button
+                      variant="neutral"
+                      size="md"
+                      onClick={onCopyImage}
+                      disabled={imageBusy}
+                      className="flex-1"
+                    >
+                      📋 Copy image
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>,
