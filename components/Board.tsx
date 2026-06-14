@@ -115,11 +115,6 @@ export default function Board({
   const [streakBadgePlayer, setStreakBadgePlayer] = useState<Player | null>(
     null,
   );
-  const [winLossDraw, setWinLossDraw] = useLocalStorage<WinLossDrawStats>(
-    'winLossDraw',
-    INITIAL_WIN_LOSS_DRAW,
-  );
-
   const router = useRouter();
 
   const {
@@ -139,6 +134,8 @@ export default function Board({
     setVictoriesForAction,
     timerDuration,
     setTimerDuration,
+    winLossDraw,
+    setWinLossDraw,
   } = useGameSettings();
 
   const calcWinner = useCallback(

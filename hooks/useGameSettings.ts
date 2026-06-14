@@ -1,3 +1,4 @@
+import { INITIAL_WIN_LOSS_DRAW, WinLossDrawStats } from '@/utils/types';
 import { useLocalStorage } from './useLocalStorage';
 
 export function useGameSettings() {
@@ -25,6 +26,10 @@ export function useGameSettings() {
     'timerDuration',
     10,
   );
+  const [winLossDraw, setWinLossDraw] = useLocalStorage<WinLossDrawStats>(
+    'winLossDraw',
+    INITIAL_WIN_LOSS_DRAW,
+  );
 
   return {
     isAudioMuted,
@@ -43,5 +48,7 @@ export function useGameSettings() {
     setVictoriesForAction,
     timerDuration,
     setTimerDuration,
+    winLossDraw,
+    setWinLossDraw,
   };
 }
