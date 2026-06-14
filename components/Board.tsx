@@ -1,7 +1,7 @@
 // components/Board.tsx
 
 'use client';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Square from './Square';
 import GameStatus from './GameStatus';
 import {
@@ -54,6 +54,10 @@ import { useRouter } from 'next/navigation';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import Button from './utils/Button';
 import SvgSettings from '@/icons/settings';
+import ShareExportModal from './share/ShareExportModal';
+import ShareGameCard from './share/ShareGameCard';
+import { buildShareUrl } from '@/lib/shareGame';
+import { toBlob, toPng } from 'html-to-image';
 
 type BoardProps = {
   scores: Record<Player, number>;
@@ -101,6 +105,9 @@ export default function Board({
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showReplayModal, setShowReplayModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [imageBusy, setImageBusy] = useState(false);
+  const shareCardRef = useRef<HTMLDivElement>(null);
   const [winStreaks, setWinStreaks] = useState<Record<Player, number>>({
     '☠️': 0,
     '⚓': 0,
@@ -261,6 +268,44 @@ export default function Board({
     Player,
     string
   >;
+
+  // Shareable replay link — the whole game rides in the URL, no backend needed.
+  // Only meaningful once there are moves, so it's gated behind the game-over UI.
+  const shareUrl = useMemo(
+    () => buildShareUrl({ moveHistory, boardSize, playerIcons }),
+    // playerIcons is rebuilt every render; depend on its two source icons.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [moveHistory, boardSize, playerOne.icon, playerTwo.icon],
+  );
+
+  const downloadShareImage = useCallback(async () => {
+    if (!shareCardRef.current) return;
+    setImageBusy(true);
+    try {
+      const dataUrl = await toPng(shareCardRef.current, { pixelRatio: 2 });
+      const link = document.createElement('a');
+      link.download = 'pirate-tictactoe.png';
+      link.href = dataUrl;
+      link.click();
+    } finally {
+      setImageBusy(false);
+    }
+  }, []);
+
+  const copyShareImage = useCallback(async () => {
+    if (!shareCardRef.current) return;
+    setImageBusy(true);
+    try {
+      const blob = await toBlob(shareCardRef.current, { pixelRatio: 2 });
+      if (blob) {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob }),
+        ]);
+      }
+    } finally {
+      setImageBusy(false);
+    }
+  }, []);
 
   const resetGame = useCallback(() => {
     setBoard(INITIAL_BOARD);
@@ -953,6 +998,42 @@ export default function Board({
           ▶ Replay game ◀
         </Button>
       )}
+
+      {/* Share / export the finished game */}
+      {gameOver && mode !== 'tournament' && (
+        <Button
+          variant="neutral"
+          aria-label="Share or export the game"
+          onClick={() => setShowShareModal(true)}
+          className="tracking-wide"
+        >
+          📤 Share
+        </Button>
+      )}
+
+      <ShareExportModal
+        open={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        shareUrl={shareUrl}
+        onCopyLink={() => navigator.clipboard.writeText(shareUrl)}
+        cardRef={shareCardRef}
+        cardContent={
+          <ShareGameCard
+            board={board}
+            boardSize={boardSize}
+            winLine={winLine}
+            winner={winner}
+            draw={draw}
+            scores={scores}
+            playerOne={playerOne}
+            playerTwo={playerTwo}
+            playerIcons={playerIcons}
+          />
+        }
+        onDownloadImage={downloadShareImage}
+        onCopyImage={copyShareImage}
+        imageBusy={imageBusy}
+      />
 
       {/* Replay Modal */}
       {showReplayModal && (
