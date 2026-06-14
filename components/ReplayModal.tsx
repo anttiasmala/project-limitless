@@ -14,6 +14,7 @@ import useReplay from '@/hooks/useReplay';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import Button from './utils/Button';
+import { useKeyPress } from '@/hooks/useKeyPress';
 
 type Props = {
   onClose: () => void;
@@ -62,6 +63,14 @@ export default function ReplayModal({
   // The latest move is the one at the current step; null when at the start.
   const latestMoveIndex = moveHistory[stepIndex - 1]?.index ?? null;
 
+  // Stepping shouldn't fight the auto-play timer, so left/right are disabled
+  // while playing — matching the disabled state of the ◀ ▶ buttons.
+  useKeyPress('ArrowLeft', prev, !isPlaying);
+  useKeyPress('ArrowRight', next, !isPlaying);
+  useKeyPress('ArrowUp', jumpToEnd);
+  useKeyPress('ArrowDown', reset);
+  useKeyPress('Escape', onClose);
+
   return createPortal(
     <div>
       <div className="fixed inset-0 z-100 bg-black/70 backdrop-blur-sm" />
@@ -70,6 +79,10 @@ export default function ReplayModal({
         aria-modal="true"
         aria-label="Game replay"
         className="fixed inset-0 z-101 flex items-center justify-center overflow-y-auto p-4"
+        onClick={(e) => {
+          // closes Modal if clicked outside of Modal
+          if (e.target === e.currentTarget) onClose();
+        }}
       >
         <div className="relative my-auto w-full max-w-sm rounded-2xl border-4 border-amber-500 bg-white p-2 text-center shadow-[0_0_60px_#facc15] sm:p-4 md:p-8 dark:border-yellow-500 dark:bg-[#1a0a00]">
           {/* Step counter */}
@@ -128,25 +141,25 @@ export default function ReplayModal({
                 label: '⏮',
                 action: reset,
                 disabled: !canGoBack,
-                aria: 'Go to start',
+                aria: 'Go to start (↓)',
               },
               {
                 label: '◀',
                 action: prev,
                 disabled: !canGoBack || isPlaying,
-                aria: 'Previous move',
+                aria: 'Previous move (←)',
               },
               {
                 label: '▶',
                 action: next,
                 disabled: !canGoForward || isPlaying,
-                aria: 'Next move',
+                aria: 'Next move (→)',
               },
               {
                 label: '⏭',
                 action: jumpToEnd,
                 disabled: !canGoForward,
-                aria: 'Go to end',
+                aria: 'Go to end (↑)',
               },
             ].map(({ label, action, disabled, aria }) => (
               <Button
@@ -156,6 +169,7 @@ export default function ReplayModal({
                 onClick={action}
                 disabled={disabled}
                 aria-label={aria}
+                title={aria}
                 className="text-lg disabled:opacity-30"
               >
                 {label}
@@ -175,6 +189,14 @@ export default function ReplayModal({
               {isPlaying ? '⏸ Pause' : '▶ Auto-play'}
             </Button>
           </div>
+
+          {/* Keyboard hint */}
+          <p className="mb-4 text-xs text-slate-400 dark:text-amber-600/80">
+            Use <kbd className="font-sans">←</kbd>{' '}
+            <kbd className="font-sans">→</kbd> to step,{' '}
+            <kbd className="font-sans">↑</kbd>{' '}
+            <kbd className="font-sans">↓</kbd> to jump to end / start
+          </p>
 
           <Button
             variant="gold"
