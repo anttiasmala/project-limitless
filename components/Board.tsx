@@ -27,7 +27,6 @@ import {
   GameMode,
   INITIAL_WIN_LOSS_DRAW,
   MoveEntry,
-  WinLossDrawStats,
 } from '@/utils/types';
 import { useTournament } from '@/hooks/useTournament';
 import TournamentBracket from './TournamentBracket';
