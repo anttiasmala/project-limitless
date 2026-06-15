@@ -80,6 +80,9 @@ function ProfileModal({
         aria-modal="true"
         aria-label="Pirate Profile"
         className="fixed inset-0 z-101 flex items-center justify-center overflow-y-auto p-4"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
       >
         {/* Modal */}
         <div
