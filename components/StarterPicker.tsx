@@ -2,25 +2,31 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { AI, HUMAN, Player } from '@/lib/gameLogic';
 import Button from './utils/Button';
 
+type PlayerDisplay = { name: string; icon: string };
+
 type Props = {
   starterPlayer: Player;
   aiThinking: boolean;
   onSelect: (player: Player) => void;
+  playerTwoOverride?: PlayerDisplay;
 };
 
 export default function StarterPicker({
   starterPlayer,
   aiThinking,
   onSelect,
+  playerTwoOverride,
 }: Props) {
   const [playerOne] = useLocalStorage('playerOne', {
     name: 'Davy Jones',
     icon: '☠️',
   });
-  const [playerTwo] = useLocalStorage('playerTwo', {
+  const [playerTwoStored] = useLocalStorage('playerTwo', {
     name: 'Capt. Hook',
     icon: '⚓',
   });
+  // In tournament mode the AI side shows the current bracket opponent.
+  const playerTwo = playerTwoOverride ?? playerTwoStored;
 
   return (
     <div className="flex flex-col items-center gap-2">

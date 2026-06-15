@@ -830,6 +830,7 @@ export default function Board({
             // Watch mode is armed-but-idle until a starter is picked.
             if (mode === 'watch') setIsGameStarted(true);
           }}
+          playerTwoOverride={mode === 'tournament' ? playerTwo : undefined}
         />
       </div>
 
