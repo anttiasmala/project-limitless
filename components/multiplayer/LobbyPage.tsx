@@ -70,27 +70,25 @@ function ProfileModal({
   return createPortal(
     <div className="relative">
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-98 overflow-y-auto bg-black/80"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 z-98 overflow-y-auto bg-black/80" />
 
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Pirate Profile"
-        className="fixed inset-0 z-101 flex items-center justify-center overflow-y-auto p-4"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
-        }}
-      >
-        {/* Modal */}
+      <div className="fixed inset-0 z-101 overflow-y-auto">
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Pirate profile"
-          className="relative top-[10vh] z-99 flex w-[90vw] max-w-sm flex-col gap-5 rounded-xl border-2 border-amber-800 bg-amber-50 p-6 shadow-2xl dark:border-amber-700 dark:bg-amber-950"
+          aria-label="Pirate Profile"
+          className="flex min-h-full items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) onClose();
+          }}
         >
+          {/* Modal */}
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Pirate profile"
+            className="relative z-99 flex w-[90vw] max-w-sm flex-col gap-5 rounded-xl border-2 border-amber-800 bg-amber-50 p-6 shadow-2xl dark:border-amber-700 dark:bg-amber-950"
+          >
           <div className="flex items-center justify-center">
             <h2 className="text-center text-lg font-black tracking-wide text-amber-700 dark:text-yellow-400">
               ☠️ Pirate Profile
@@ -173,6 +171,7 @@ function ProfileModal({
           </div>
         </div>
       </div>
+    </div>
     </div>,
     document.body,
   );
