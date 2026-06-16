@@ -20,7 +20,7 @@ export default function Home() {
             ☠️ PIRATE X&apos;s &amp; O&apos;s ☠️
           </h1>
           <p className="text-sm tracking-widest text-slate-500 uppercase dark:text-amber-400">
-            Claim the Seven Seas — Three in a Row!
+            Claim the Seven Seas — Let's Tic-tac-toe!
           </p>
         </div>
 
