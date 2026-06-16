@@ -15,6 +15,7 @@ export default function VictoriesInfoModal({ onClose, showModal }: Props) {
       onClose={onClose}
       ariaLabel="Victories setting information"
       lockScroll={false}
+      overlayClassName="z-101"
     >
       <div className="flex max-h-[90dvh] w-72 max-w-[90vw] flex-col overflow-y-auto rounded-lg border-2 border-slate-300 bg-white p-4 text-slate-800 dark:border-red-700 dark:bg-red-900 dark:text-yellow-300">
         <h3 className="mb-3 text-center text-sm font-bold tracking-wider uppercase">
