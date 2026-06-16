@@ -1,16 +1,14 @@
 // components/SettingsModal.tsx
 
-import { useKeyPress } from '@/hooks/useKeyPress';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import { Player } from '@/lib/gameLogic';
 import { BaseSettingsProps, GameMode, WinLossDrawStats } from '@/utils/types';
 import { useCallback, useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { GamePanel } from './settings/GamePanel';
 import { PlayersPanel } from './settings/PlayersPanel';
 import { StatsPanel } from './settings/StatsPanel';
 import Button from './utils/Button';
+import { Modal } from './utils/Modal';
 
 type SettingsModalProps = BaseSettingsProps & {
   // Single-player only — omit these in multiplayer
@@ -95,9 +93,6 @@ export function SettingsModal({
     document.documentElement.classList.toggle('dark', isDarkTheme);
   }, [isDarkTheme]);
 
-  useKeyPress('Escape', handleClose, showSettingsModal);
-  usePreventBackgroundScrolling(showSettingsModal);
-
   const applyVolume = (vol: number) => {
     const clamped = Math.max(0, Math.min(1, vol));
     setVolume(clamped);
@@ -111,20 +106,16 @@ export function SettingsModal({
     });
   };
 
-  if (!showSettingsModal) return null;
-
-  return createPortal(
-    <div>
-      <div
-        className="fixed top-0 left-0 z-98 h-full w-full bg-black opacity-80"
-        onClick={() => setShowSettingsModal(false)}
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Game settings"
-        className="fixed top-1/2 left-1/2 z-99 flex max-h-[90dvh] -translate-x-1/2 -translate-y-1/2 flex-col"
-      >
+  return (
+    <Modal
+      open={showSettingsModal}
+      onClose={handleClose}
+      ariaLabel="Game settings"
+      // While a nested modal (e.g. the icon picker) is open, Escape and a
+      // backdrop click should fall through to it rather than closing settings.
+      closeOnEscape={!isAnyModalOpen}
+    >
+      <div className="flex max-h-[90dvh] flex-col">
         <Button
           variant="unstyled"
           className="mb-2 w-full shrink-0 border-2 border-slate-300 bg-white py-2 tracking-wide text-slate-800 hover:border-amber-500 hover:bg-slate-100 dark:border-red-700 dark:bg-red-900 dark:text-yellow-300 dark:hover:border-yellow-500 dark:hover:bg-red-800"
@@ -316,7 +307,6 @@ export function SettingsModal({
           )}
         </div>
       </div>
-    </div>,
-    document.body,
+    </Modal>
   );
 }

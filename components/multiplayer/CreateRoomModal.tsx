@@ -2,12 +2,10 @@
 'use client';
 
 import { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { nanoid } from 'nanoid';
-import { useKeyPress } from '@/hooks/useKeyPress';
-import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import Button from '../utils/Button';
+import { Modal } from '../utils/Modal';
 import {
   DEFAULT_ROOM_SETTINGS,
   RoomSettings,
@@ -24,16 +22,6 @@ export default function CreateRoomModal({ onClose }: Props) {
   const [settings, setSettings] = useState<RoomSettings>(DEFAULT_ROOM_SETTINGS);
   const [showVictoriesInfoModal, setShowVictoriesInfoModal] = useState(false);
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
-
-  useKeyPress(
-    'Escape',
-    () => {
-      if (isAnyModalOpen) return;
-      onClose();
-    },
-    true,
-  );
-  usePreventBackgroundScrolling(true);
 
   function handleCreate() {
     const id = nanoid(8);
@@ -54,18 +42,15 @@ export default function CreateRoomModal({ onClose }: Props) {
     onClose();
   }
 
-  return createPortal(
-    <div>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-98 bg-black/80" onClick={onClose} />
-
-      {/* Modal */}
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Create room settings"
-        className="fixed top-1/2 left-1/2 z-99 flex max-h-[90vh] w-[90vw] max-w-sm -translate-x-1/2 -translate-y-1/2 flex-col gap-5 rounded-xl border-2 border-amber-800 bg-amber-50 p-6 shadow-2xl dark:border-amber-700 dark:bg-amber-950"
-      >
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      ariaLabel="Create room settings"
+      // While the Victories info modal is open, Escape should close it first.
+      closeOnEscape={!isAnyModalOpen}
+    >
+      <div className="flex max-h-[90vh] w-[90vw] max-w-sm flex-col gap-5 rounded-xl border-2 border-amber-800 bg-amber-50 p-6 shadow-2xl dark:border-amber-700 dark:bg-amber-950">
         <h2 className="shrink-0 text-center text-lg font-black tracking-wide text-amber-700 dark:text-yellow-400">
           🏴‍☠️ Room Settings
         </h2>
@@ -258,7 +243,6 @@ export default function CreateRoomModal({ onClose }: Props) {
           </Button>
         </div>
       </div>
-    </div>,
-    document.body,
+    </Modal>
   );
 }
