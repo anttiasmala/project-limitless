@@ -4,17 +4,16 @@ import { ReactNode, Ref, useState } from 'react';
 import Button from '../utils/Button';
 import { Modal } from '../utils/Modal';
 
-type ShareTab = 'link' | 'image';
+type ShareTab = 'replay' | 'image' | 'game';
 
 type Props = {
   open: boolean;
   onClose: () => void;
 
-  // --- Link tab ---
-  // The shareable URL. Empty string shows a "generating…" placeholder.
-  shareUrl: string;
-  // Wire this to your clipboard logic. The modal handles the "Copied!" flash.
-  onCopyLink: () => void;
+  // --- Replay / Game tabs ---
+  // The encoded game payload that the share URLs are built around. Empty string
+  // shows a "generating…" placeholder.
+  encodedGame: string;
 
   // --- Image tab ---
   // The card you want rendered into an image. Attach `cardRef` to its root so
@@ -28,26 +27,31 @@ type Props = {
 };
 
 const TABS: { id: ShareTab; label: string; icon: string }[] = [
-  { id: 'link', label: 'Link', icon: '🔗' },
+  { id: 'replay', label: 'Replay', icon: '🔗' },
   { id: 'image', label: 'Image', icon: '🖼️' },
+  { id: 'game', label: 'Game', icon: '🎮' },
 ];
 
 export default function ShareExportModal({
   open,
   onClose,
-  shareUrl,
-  onCopyLink,
+  encodedGame,
   cardRef,
   cardContent,
   onDownloadImage,
   onCopyImage,
   imageBusy = false,
 }: Props) {
-  const [tab, setTab] = useState<ShareTab>('link');
+  const [tab, setTab] = useState<ShareTab>('replay');
   const [copied, setCopied] = useState(false);
 
-  const handleCopyLink = () => {
-    onCopyLink();
+  const locationOrigin =
+    typeof window === 'undefined' ? '' : window.location.origin;
+
+  const handleCopyLink = (replayOrGame: 'replay' | 'game') => {
+    navigator.clipboard.writeText(
+      `${locationOrigin}/?${replayOrGame}=${encodedGame}`,
+    );
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   };
@@ -101,13 +105,13 @@ export default function ShareExportModal({
           })}
         </div>
 
-        {/* ---- Link tab ---- */}
-        {tab === 'link' && (
+        {/* ---- Replay tab ---- */}
+        {tab === 'replay' && (
           <div className="flex flex-col gap-4">
             <div className="flex items-stretch gap-2">
               <input
                 readOnly
-                value={shareUrl}
+                value={`${locationOrigin}/?replay=${encodedGame}`}
                 placeholder="Generating link…"
                 onFocus={(e) => e.currentTarget.select()}
                 className="min-w-0 flex-1 rounded-lg border-2 border-amber-200 bg-amber-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-amber-500 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100"
@@ -115,8 +119,8 @@ export default function ShareExportModal({
               <Button
                 variant={copied ? 'gold' : 'neutral'}
                 size="md"
-                onClick={handleCopyLink}
-                disabled={!shareUrl}
+                onClick={() => handleCopyLink('replay')}
+                disabled={!encodedGame}
                 className="shrink-0"
               >
                 {copied ? '✓ Copied!' : 'Copy'}
@@ -124,7 +128,7 @@ export default function ShareExportModal({
             </div>
 
             <p className="text-xs text-slate-400 dark:text-amber-200/40">
-              Anyone with this link can watch the game.
+              Anyone with this link can replay the game.
             </p>
           </div>
         )}
@@ -164,6 +168,42 @@ export default function ShareExportModal({
                 </Button>
               )}
             </div>
+          </div>
+        )}
+
+        {/* ---- Game tab ---- */}
+        {tab === 'game' && (
+          <div className="flex flex-col gap-4">
+            {/* Visual preview of the position being handed off (no cardRef —
+                only the Image tab exports an image). */}
+            <div className="overflow-hidden rounded-xl border-2 border-amber-200 bg-amber-50 p-1 dark:border-amber-900/60 dark:bg-amber-950/40">
+              <div className="rounded-lg bg-linear-to-br from-amber-50 to-orange-100 p-4 dark:from-[#241000] dark:to-[#1a0a00]">
+                {cardContent}
+              </div>
+            </div>
+
+            <div className="flex items-stretch gap-2">
+              <input
+                readOnly
+                value={`${locationOrigin}/?game=${encodedGame}`}
+                placeholder="Generating link…"
+                onFocus={(e) => e.currentTarget.select()}
+                className="min-w-0 flex-1 rounded-lg border-2 border-amber-200 bg-amber-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-amber-500 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100"
+              />
+              <Button
+                variant={copied ? 'gold' : 'neutral'}
+                size="md"
+                onClick={() => handleCopyLink('game')}
+                disabled={!encodedGame}
+                className="shrink-0"
+              >
+                {copied ? '✓ Copied!' : 'Copy'}
+              </Button>
+            </div>
+
+            <p className="text-xs text-slate-400 dark:text-amber-200/40">
+              Anyone with this link can pick up this position and play it out.
+            </p>
           </div>
         )}
       </div>
