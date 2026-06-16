@@ -3,15 +3,13 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createPortal } from 'react-dom';
 import Button from '../utils/Button';
+import { Modal } from '../utils/Modal';
 import { SettingsModal } from '@/components/SettingsModal';
 import { useGameSettings } from '@/hooks/multiplayer/useGameSettings';
 import { useGameAudio } from '@/hooks/useGameAudio';
 import SvgSettings from '@/icons/settings';
 import type { LobbyEntry } from '@/utils/multiplayer/multiplayerTypes';
-import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
-import { useKeyPress } from '@/hooks/useKeyPress';
 import CreateRoomModal from './CreateRoomModal';
 
 export default function Lobby() {
@@ -72,11 +70,7 @@ export default function Lobby() {
       </h1>
       {/* Exit button */}
       <div className="relative flex items-center gap-6">
-        <Button
-          variant="neutral"
-          size="sm"
-          onClick={() => router.push('/')}
-        >
+        <Button variant="neutral" size="sm" onClick={() => router.push('/')}>
           ← Back to main page
         </Button>
         <Button
@@ -167,22 +161,9 @@ function LobbyModal({
     }
   }
 
-  useKeyPress('Escape', closeModal, true);
-
-  usePreventBackgroundScrolling(true);
-
-  return createPortal(
-    <div>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-98 bg-black/80" onClick={closeModal} />
-
-      {/* Modal */}
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Lobby list"
-        className="fixed top-1/2 left-1/2 z-99 flex max-h-[90vh] w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-xl border-2 border-amber-800 bg-amber-50 p-5 pt-12 shadow-2xl sm:p-6 sm:pt-12 dark:border-amber-700 dark:bg-amber-950"
-      >
+  return (
+    <Modal open onClose={closeModal} ariaLabel="Lobby list">
+      <div className="relative flex max-h-[90vh] w-[92vw] max-w-md flex-col gap-4 rounded-xl border-2 border-amber-800 bg-amber-50 p-5 pt-12 shadow-2xl sm:p-6 sm:pt-12 dark:border-amber-700 dark:bg-amber-950">
         {/* Close button — absolute top-right with a proper touch target */}
         <Button
           variant="unstyled"
@@ -261,8 +242,7 @@ function LobbyModal({
           />
         </div>
       </div>
-    </div>,
-    document.body,
+    </Modal>
   );
 }
 

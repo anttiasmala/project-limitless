@@ -1,8 +1,7 @@
 // components/settings/IconPickerModal.tsx
 
-import { createPortal } from 'react-dom';
 import Button from '../utils/Button';
-import { useKeyPress } from '@/hooks/useKeyPress';
+import { Modal } from '../utils/Modal';
 
 export const ICON_LIST = [
   '🏴‍☠️',
@@ -36,14 +35,15 @@ export function IconPickerModal({
   otherPlayer: { icon: string; name: string };
   onClose: () => void;
 }) {
-  useKeyPress('Escape', onClose, showModal);
-
-  if (!showModal) return null;
-
-  return createPortal(
-    <div>
-      <div className="fixed inset-0 z-100 bg-black/70" onClick={onClose} />
-      <div className="fixed top-1/2 left-1/2 z-101 w-64 max-w-[90vw] -translate-x-1/2 -translate-y-1/2 rounded-xl border-2 border-slate-300 bg-white p-4 shadow-2xl dark:border-red-700 dark:bg-red-950">
+  return (
+    <Modal
+      open={showModal}
+      onClose={onClose}
+      ariaLabel="Choose your icon"
+      overlayClassName="bg-black/70"
+      lockScroll={false}
+    >
+      <div className="w-64 max-w-[90vw] rounded-xl border-2 border-slate-300 bg-white p-4 shadow-2xl dark:border-red-700 dark:bg-red-950">
         <h3 className="mb-3 text-center text-sm font-bold tracking-wider text-slate-700 uppercase dark:text-yellow-300">
           Choose Your Icon
         </h3>
@@ -75,7 +75,6 @@ export function IconPickerModal({
           ✕ Cancel
         </Button>
       </div>
-    </div>,
-    document.body,
+    </Modal>
   );
 }

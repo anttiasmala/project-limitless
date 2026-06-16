@@ -1,6 +1,5 @@
 // components/ReplayModal.tsx
 
-import { createPortal } from 'react-dom';
 import Square from './Square';
 import {
   calculateWinner,
@@ -12,8 +11,8 @@ import WinningLine from './WinningLine';
 import { MoveEntry } from '@/utils/types';
 import useReplay from '@/hooks/useReplay';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
-import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import Button from './utils/Button';
+import { Modal } from './utils/Modal';
 import { useKeyPress } from '@/hooks/useKeyPress';
 
 type Props = {
@@ -55,8 +54,6 @@ export default function ReplayModal({
   const { winner, line: winLine } = calcWinner(replayBoard);
   const showWin = stepIndex === total && !!winner;
 
-  usePreventBackgroundScrolling(true);
-
   const squareSize =
     boardSize === 10 ? 'sm' : boardSize === 5 ? 'md' : undefined;
 
@@ -69,145 +66,134 @@ export default function ReplayModal({
   useKeyPress('ArrowRight', next, !isPlaying);
   useKeyPress('ArrowUp', jumpToEnd);
   useKeyPress('ArrowDown', reset);
-  useKeyPress('Escape', onClose);
 
-  return createPortal(
-    <div>
-      <div className="fixed inset-0 z-100 bg-black/70 backdrop-blur-sm" />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Game replay"
-        className="fixed inset-0 z-101 flex items-center justify-center overflow-y-auto p-4"
-        onClick={(e) => {
-          // closes Modal if clicked outside of Modal
-          if (e.target === e.currentTarget) onClose();
-        }}
-      >
-        <div className="relative my-auto w-full max-w-sm rounded-2xl border-4 border-amber-500 bg-white p-2 text-center shadow-[0_0_60px_#facc15] sm:p-4 md:p-8 dark:border-yellow-500 dark:bg-[#1a0a00]">
-          {/* Step counter */}
-          <p className="mb-4 text-sm tracking-widest text-slate-500 uppercase dark:text-amber-500">
-            Move {stepIndex} / {total}
-          </p>
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      ariaLabel="Game replay"
+      overlayClassName="bg-black/70 backdrop-blur-sm"
+    >
+      <div className="relative my-auto w-full max-w-sm rounded-2xl border-4 border-amber-500 bg-white p-2 text-center shadow-[0_0_60px_#facc15] sm:p-4 md:p-8 dark:border-yellow-500 dark:bg-[#1a0a00]">
+        {/* Step counter */}
+        <p className="mb-4 text-sm tracking-widest text-slate-500 uppercase dark:text-amber-500">
+          Move {stepIndex} / {total}
+        </p>
 
-          {/* Board */}
-          <div className="mb-6 flex justify-center">
-            <div className="relative">
-              <div
-                ref={gridRef}
-                className={`grid ${
-                  boardSize === 10
-                    ? 'grid-cols-10 gap-1'
-                    : boardSize === 5
-                      ? 'grid-cols-5 gap-2'
-                      : 'grid-cols-3 gap-3'
-                }`}
-              >
-                {replayBoard.map((cell, i) => (
-                  <Square
-                    key={i}
-                    value={cell}
-                    displayValue={cell ? playerIcons[cell] : undefined}
-                    isWinning={
-                      showWin ? (winLine?.includes(i) ?? false) : false
-                    }
-                    isLatestMove={i === latestMoveIndex}
-                    tintByOwner={tintByOwner}
-                    disabled={true}
-                    onClick={() => null}
-                    onKeyDown={() => null}
-                    tabIndex={-1}
-                    cellRef={() => null}
-                    label={`Square ${i}`}
-                    size={squareSize}
-                  />
-                ))}
-              </div>
-              {showWin && winLine && (
-                <WinningLine
-                  winLine={winLine}
-                  cellSize={measurement.cellSize}
-                  gap={measurement.gap}
-                  cols={boardSize}
+        {/* Board */}
+        <div className="mb-6 flex justify-center">
+          <div className="relative">
+            <div
+              ref={gridRef}
+              className={`grid ${
+                boardSize === 10
+                  ? 'grid-cols-10 gap-1'
+                  : boardSize === 5
+                    ? 'grid-cols-5 gap-2'
+                    : 'grid-cols-3 gap-3'
+              }`}
+            >
+              {replayBoard.map((cell, i) => (
+                <Square
+                  key={i}
+                  value={cell}
+                  displayValue={cell ? playerIcons[cell] : undefined}
+                  isWinning={showWin ? (winLine?.includes(i) ?? false) : false}
+                  isLatestMove={i === latestMoveIndex}
+                  tintByOwner={tintByOwner}
+                  disabled={true}
+                  onClick={() => null}
+                  onKeyDown={() => null}
+                  tabIndex={-1}
+                  cellRef={() => null}
+                  label={`Square ${i}`}
+                  size={squareSize}
                 />
-              )}
+              ))}
             </div>
+            {showWin && winLine && (
+              <WinningLine
+                winLine={winLine}
+                cellSize={measurement.cellSize}
+                gap={measurement.gap}
+                cols={boardSize}
+              />
+            )}
           </div>
+        </div>
 
-          {/* Controls */}
-          <div className="mb-4 flex justify-center gap-2">
-            {[
-              {
-                label: '⏮',
-                action: reset,
-                disabled: !canGoBack,
-                aria: 'Go to start (↓)',
-              },
-              {
-                label: '◀',
-                action: prev,
-                disabled: !canGoBack || isPlaying,
-                aria: 'Previous move (←)',
-              },
-              {
-                label: '▶',
-                action: next,
-                disabled: !canGoForward || isPlaying,
-                aria: 'Next move (→)',
-              },
-              {
-                label: '⏭',
-                action: jumpToEnd,
-                disabled: !canGoForward,
-                aria: 'Go to end (↑)',
-              },
-            ].map(({ label, action, disabled, aria }) => (
-              <Button
-                key={aria}
-                variant="gold"
-                size="md"
-                onClick={action}
-                disabled={disabled}
-                aria-label={aria}
-                title={aria}
-                className="text-lg disabled:opacity-30"
-              >
-                {label}
-              </Button>
-            ))}
-          </div>
-
-          {/* Auto-play toggle */}
-          <div className="mb-6">
+        {/* Controls */}
+        <div className="mb-4 flex justify-center gap-2">
+          {[
+            {
+              label: '⏮',
+              action: reset,
+              disabled: !canGoBack,
+              aria: 'Go to start (↓)',
+            },
+            {
+              label: '◀',
+              action: prev,
+              disabled: !canGoBack || isPlaying,
+              aria: 'Previous move (←)',
+            },
+            {
+              label: '▶',
+              action: next,
+              disabled: !canGoForward || isPlaying,
+              aria: 'Next move (→)',
+            },
+            {
+              label: '⏭',
+              action: jumpToEnd,
+              disabled: !canGoForward,
+              aria: 'Go to end (↑)',
+            },
+          ].map(({ label, action, disabled, aria }) => (
             <Button
+              key={aria}
               variant="gold"
               size="md"
-              onClick={togglePlay}
-              aria-label={isPlaying ? 'Pause auto-play' : 'Start auto-play'}
-              className="px-5"
+              onClick={action}
+              disabled={disabled}
+              aria-label={aria}
+              title={aria}
+              className="text-lg disabled:opacity-30"
             >
-              {isPlaying ? '⏸ Pause' : '▶ Auto-play'}
+              {label}
             </Button>
-          </div>
+          ))}
+        </div>
 
-          {/* Keyboard hint */}
-          <p className="mb-4 text-xs text-slate-400 dark:text-amber-600/80">
-            Use <kbd className="font-sans">←</kbd>{' '}
-            <kbd className="font-sans">→</kbd> to step,{' '}
-            <kbd className="font-sans">↑</kbd>{' '}
-            <kbd className="font-sans">↓</kbd> to jump to end / start
-          </p>
-
+        {/* Auto-play toggle */}
+        <div className="mb-6">
           <Button
             variant="gold"
-            onClick={onClose}
-            className="text-base tracking-wide focus-visible:ring-4 dark:border-yellow-400 dark:bg-yellow-600 dark:text-black dark:hover:bg-yellow-500"
+            size="md"
+            onClick={togglePlay}
+            aria-label={isPlaying ? 'Pause auto-play' : 'Start auto-play'}
+            className="px-5"
           >
-            ⚓ Close Window ☠️
+            {isPlaying ? '⏸ Pause' : '▶ Auto-play'}
           </Button>
         </div>
+
+        {/* Keyboard hint */}
+        <p className="mb-4 text-xs text-slate-400 dark:text-amber-600/80">
+          Use <kbd className="font-sans">←</kbd>{' '}
+          <kbd className="font-sans">→</kbd> to step,{' '}
+          <kbd className="font-sans">↑</kbd> <kbd className="font-sans">↓</kbd>{' '}
+          to jump to end / start
+        </p>
+
+        <Button
+          variant="gold"
+          onClick={onClose}
+          className="text-base tracking-wide focus-visible:ring-4 dark:border-yellow-400 dark:bg-yellow-600 dark:text-black dark:hover:bg-yellow-500"
+        >
+          ⚓ Close Window ☠️
+        </Button>
       </div>
-    </div>,
-    document.body,
+    </Modal>
   );
 }
