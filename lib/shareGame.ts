@@ -5,7 +5,7 @@
 // the URL. The recipient's home page decodes it and opens the ReplayModal.
 
 import { AI, HUMAN, Player } from '@/lib/gameLogic';
-import { MoveEntry } from '@/utils/types';
+import { GameMode, MoveEntry } from '@/utils/types';
 
 export type BoardSize = 3 | 5 | 10;
 
@@ -13,6 +13,8 @@ export type SharedGame = {
   moveHistory: MoveEntry[];
   boardSize: BoardSize;
   playerIcons: Record<Player, string>;
+  whoseTurn?: Player;
+  mode: GameMode;
 };
 
 // Wire payload — kept terse since it lives in a URL. `m` is a list of
@@ -21,6 +23,8 @@ type Payload = {
   _boardSize: BoardSize;
   icons: [string, string]; // [☠️ icon, ⚓ icon]
   _moveHistory: [0 | 1, number][];
+  whoseTurn?: Player;
+  mode: 'pvp' | 'pvc';
 };
 
 // btoa/atob only handle Latin-1, but the icons are multi-byte emoji, so we go
@@ -46,6 +50,8 @@ export function encodeGame({
   moveHistory,
   boardSize,
   playerIcons,
+  whoseTurn,
+  mode,
 }: SharedGame): string {
   const payload: Payload = {
     _boardSize: boardSize,
@@ -54,15 +60,12 @@ export function encodeGame({
       move.player === AI ? 1 : 0,
       move.index,
     ]),
+    whoseTurn,
+    // Only PvP/PvC positions are playable; collapse the spectator-style modes
+    // (watch/tournament) to 'pvc' so their replay links still decode.
+    mode: mode === 'pvp' ? 'pvp' : 'pvc',
   };
   return toBase64Url(JSON.stringify(payload));
-}
-
-// Builds the full shareable URL for the current origin. Defensive against being
-// called before `window` exists (it's only invoked from client handlers).
-export function buildShareUrl(game: SharedGame): string {
-  const origin = typeof window === 'undefined' ? '' : window.location.origin;
-  return `${origin}/?replay=${encodeGame(game)}`;
 }
 
 // Returns null for anything malformed so callers can simply ignore bad links
@@ -109,6 +112,8 @@ export function decodeGame(encoded: string): SharedGame | null {
         [HUMAN]: payload.icons[0],
         [AI]: payload.icons[1],
       } as Record<Player, string>,
+      whoseTurn: payload.whoseTurn,
+      mode: payload.mode,
     };
   } catch {
     return null;

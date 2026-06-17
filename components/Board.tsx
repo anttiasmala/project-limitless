@@ -49,13 +49,13 @@ import DifficultySelector from './DifficultySelector';
 import SpeedSelector from './SpeedSelector';
 import ReplayModal from './ReplayModal';
 import { getStormLevel } from '@/utils/stormLevel';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import Button from './utils/Button';
 import SvgSettings from '@/icons/settings';
 import ShareExportModal from './share/ShareExportModal';
 import ShareGameCard from './share/ShareGameCard';
-import { buildShareUrl } from '@/lib/shareGame';
+import { encodeGame, decodeGame } from '@/lib/shareGame';
 import { toBlob, toPng } from 'html-to-image';
 
 type BoardProps = {
@@ -101,6 +101,10 @@ export default function Board({
     moveHistory.length > 0 ? moveHistory[moveHistory.length - 1].index : null;
   const [showForfeitMessage, setShowForfeitMessage] = useState(false);
   const [hintIndex, setHintIndex] = useState<number | null>(null);
+  const [playerIcons, setPlayerIcons] = useState<Record<Player, string>>({
+    '☠️': '☠️',
+    '⚓': '⚓',
+  });
 
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showReplayModal, setShowReplayModal] = useState(false);
@@ -115,6 +119,7 @@ export default function Board({
     null,
   );
   const router = useRouter();
+  const params = useSearchParams();
 
   const {
     isAudioMuted,
@@ -260,19 +265,62 @@ export default function Board({
   // In tournament mode the AI side shows the current bracket opponent so the
   // board, status line, scoreboard, and move log all reflect who you're facing.
   const playerTwo = tournamentOpponent ?? playerTwoStored;
-  const playerIcons = { '☠️': playerOne.icon, '⚓': playerTwo.icon } as Record<
-    Player,
-    string
-  >;
 
-  // Shareable replay link — the whole game rides in the URL, no backend needed.
-  // Only meaningful once there are moves, so it's gated behind the game-over UI.
-  const shareUrl = useMemo(
-    () => buildShareUrl({ moveHistory, boardSize, playerIcons }),
+  useEffect(() => {
+    // When the position came from a shared `?game=` link the icons are pinned
+    // to what the sender saw, so don't overwrite them with the local profiles.
+    if (params.get('game')) return;
+    setPlayerIcons({ '☠️': playerOne.icon, '⚓': playerTwo.icon });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerOne.icon, playerTwo.icon]);
+
+  // Encoded game payload — the whole game rides in the URL, no backend needed.
+  // Used both for the game-over replay link and the in-progress "Game" share.
+  const encodedGame = useMemo(
+    () =>
+      encodeGame({
+        moveHistory,
+        boardSize,
+        playerIcons,
+        whoseTurn: currentPlayer,
+        mode,
+      }),
     // playerIcons is rebuilt every render; depend on its two source icons.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [moveHistory, boardSize, playerOne.icon, playerTwo.icon],
+    [
+      moveHistory,
+      boardSize,
+      playerOne.icon,
+      playerTwo.icon,
+      currentPlayer,
+      mode,
+    ],
   );
+
+  // On mount, hydrate the board from a shared in-progress game (`?game=`) so the
+  // recipient picks up exactly where the sender left off and can play it out.
+  useEffect(() => {
+    const decoded = decodeGame(params.get('game') ?? '');
+    if (!decoded) return;
+
+    const restoredBoard = Array(decoded.boardSize * decoded.boardSize).fill(
+      null,
+    ) as BoardType;
+    for (const move of decoded.moveHistory) {
+      restoredBoard[move.index] = move.player;
+    }
+
+    setBoardSize(decoded.boardSize);
+    setBoard(restoredBoard);
+    setPlayerIcons(decoded.playerIcons);
+    setCurrentPlayer(decoded.whoseTurn ?? '☠️');
+    setStarterPlayer(decoded.whoseTurn ?? '☠️');
+    setMode(decoded.mode);
+    setIsGameStarted(true);
+    router.replace('/');
+    // Run once on mount to consume the share link.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const downloadShareImage = useCallback(async () => {
     if (!shareCardRef.current) return;
@@ -1008,14 +1056,25 @@ export default function Board({
               </Button>
             </div>
           )}
+          {/* Mid-game share: only while the game is ongoing and in a playable
+              mode (PvP or PvC) — spectator modes have nothing to hand off. */}
+          {!gameOver && (mode === 'pvp' || mode === 'pvc') && (
+            <Button
+              variant="neutral"
+              aria-label="Share ongoing game"
+              className="w-full"
+              onClick={() => setShowShareModal(true)}
+            >
+              📤 Share
+            </Button>
+          )}
         </div>
       )}
 
       <ShareExportModal
         open={showShareModal}
         onClose={() => setShowShareModal(false)}
-        shareUrl={shareUrl}
-        onCopyLink={() => navigator.clipboard.writeText(shareUrl)}
+        encodedGame={encodedGame}
         cardRef={shareCardRef}
         cardContent={
           <ShareGameCard
