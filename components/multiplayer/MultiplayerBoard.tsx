@@ -99,10 +99,14 @@ export default function MultiplayerBoard({
   useEffect(() => {
     if (!timerEndsAt || !roomState?.settings.timerEnabled) return;
 
-    function tick() {
-      const remaining = Math.ceil((timerEndsAt! - Date.now()) / 1000);
+    // Arrow function (not a hoisted declaration) so TS keeps the non-null
+    // narrowing of timerEndsAt from the guard above.
+    const tick = () => {
+      // Keep the fractional remaining so the progress bar moves smoothly;
+      // HourglassTimer rounds it up for the displayed seconds.
+      const remaining = (timerEndsAt - Date.now()) / 1000;
       setTimeLeft(Math.max(0, remaining));
-    }
+    };
 
     tick();
     const interval = setInterval(tick, 200); // 200ms per a tick for a smooth countdown
