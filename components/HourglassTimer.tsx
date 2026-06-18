@@ -4,7 +4,10 @@ type Props = {
 };
 
 export default function HourglassTimer({ timeLeft, duration }: Props) {
-  const pct = timeLeft / duration;
+  // timeLeft may be fractional; clamp the bar and round the label up so the
+  // displayed seconds count down naturally (3 → 2 → 1) without a lingering 0.
+  const pct = Math.max(0, Math.min(1, timeLeft / duration));
+  const secondsLeft = Math.ceil(timeLeft);
   const isUrgent = timeLeft <= 3;
 
   return (
@@ -19,7 +22,7 @@ export default function HourglassTimer({ timeLeft, duration }: Props) {
       {/* Progress bar */}
       <div className="h-2 w-24 overflow-hidden rounded-full border border-slate-300 bg-slate-200 dark:border-amber-800 dark:bg-amber-950">
         <div
-          className={`h-full rounded-full transition-all duration-1000 ease-linear ${
+          className={`h-full rounded-full transition-all duration-200 ease-linear ${
             isUrgent ? 'bg-red-500' : 'bg-amber-400'
           }`}
           style={{ width: `${pct * 100}%` }}
@@ -32,7 +35,7 @@ export default function HourglassTimer({ timeLeft, duration }: Props) {
             : 'text-slate-500 dark:text-amber-400'
         }`}
       >
-        {timeLeft}s
+        {secondsLeft}s
       </span>
     </div>
   );
