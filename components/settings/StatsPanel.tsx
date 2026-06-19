@@ -144,6 +144,7 @@ function ConfirmationModal({
       onClose={onClose}
       ariaLabel="Reset stats confirmation"
       lockScroll={false}
+      overlayClassName="z-101"
     >
       <div className="flex flex-col items-center gap-4 rounded-lg border-2 border-slate-300 bg-white p-6 dark:border-red-700 dark:bg-red-900">
         <p className="text-center font-bold text-slate-800 dark:text-yellow-300">

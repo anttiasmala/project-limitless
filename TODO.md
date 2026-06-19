@@ -1,7 +1,5 @@
 # TODO:
 
-1. Reset Stats modal does not work as intended. Perhaps adding to overlayClassName "z-101" can fix it
-
 # Ideas:
 
 1. Chat in multiplayer - Simple emoji reactions or chat || Emoji reactions in multiplayer — tap to send 🏴‍☠️ 💥 😤 during opponent's turn
