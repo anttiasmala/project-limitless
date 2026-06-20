@@ -2,7 +2,6 @@ import Button from '@/components/utils/Button';
 import { Modal } from '@/components/utils/Modal';
 import { Player } from '@/lib/gameLogic';
 import { RoomState } from '@/utils/multiplayer/multiplayerTypes';
-import { toast } from 'react-toastify';
 
 const EMOJIS = [
   '😀',
@@ -47,11 +46,6 @@ export default function ShowEmoji({
   Object.values(players ?? {}).map((player) => {
     if (player.player === myPlayer) {
       playerId = player.id;
-      /*
-      console.log(player);
-      console.log(player.player);
-      console.log(player.player === myPlayer);
-      */
     }
   });
   return (
