@@ -30,6 +30,8 @@ import SeriesWinnerModal from '../SeriesWinnerModal';
 import HourglassTimer from '../HourglassTimer';
 import ReplayModal from '../ReplayModal';
 import Button from '../utils/Button';
+import ShowEmoji from './utils/ShowEmoji';
+import { toast } from 'react-toastify';
 
 const BOARD_COLS = { '3': 3, '5': 5, '10': 10 } as const;
 
@@ -55,6 +57,7 @@ export default function MultiplayerBoard({
   const [showReplayModal, setShowReplayModal] = useState(false);
   const [showSeriesWinnerModal, setShowSeriesWinnerModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showSendEmojiModal, setShowSendEmojiModal] = useState(false);
   const router = useRouter();
   const [multiplayerProfile] = useLocalStorage('multiplayerProfile', {
     name: 'Davy Jones',
@@ -70,6 +73,7 @@ export default function MultiplayerBoard({
     sendMove,
     sendRematch,
     sendCancelRematch,
+    sendEmoji,
   } = usePartyRoom(roomId, initialSettings, multiplayerProfile);
   const cols = BOARD_COLS[roomState?.settings.boardSize ?? '3'];
   const { gridRef, measurement } = useGridMeasure(cols);
@@ -156,6 +160,53 @@ export default function MultiplayerBoard({
     const timeout = setTimeout(() => setShowSeriesWinnerModal(true), 0);
     return () => clearTimeout(timeout);
   }, [seriesWinner]);
+
+  useEffect(() => {
+    if (!roomState) return;
+    //toast(roomState.emojiSentData.emoji);
+    //toast(roomState.emojiSentData.senderId);
+    //console.log(roomState);
+    //console.log(roomState.players, myPlayer);
+    let isToastSent = false;
+    Object.values(roomState.players).map((player) => {
+      /*
+      console.log(
+        player.player === myPlayer,
+        player.id === roomState.emojiSentData.senderId,
+        roomState.emojiSentData.emoji !== null,
+      );
+      */
+      if (
+        player.player === myPlayer &&
+        player.id === roomState.emojiSentData.senderId &&
+        roomState.emojiSentData.emoji
+      ) {
+        /*
+        console.log('Player', player);
+        console.log('Correct ID found');
+        */
+        toast(`You reacted: ${roomState.emojiSentData.emoji}`);
+        isToastSent = true;
+      }
+      console.log(
+        '!isToastSent:',
+        !isToastSent,
+        'player.id !== roomState.emojiSentData.senderId:',
+        player.id !== roomState.emojiSentData.senderId,
+        'player.player !== myPlayer:',
+        player.player !== myPlayer,
+        'roomState.emojiSentData.emoji:',
+        roomState.emojiSentData.emoji,
+      );
+      if (
+        !isToastSent &&
+        player.id !== roomState.emojiSentData.senderId &&
+        roomState.emojiSentData.emoji
+      ) {
+        toast(`Opponent reacted: ${roomState.emojiSentData.emoji}`);
+      }
+    });
+  }, [roomState?.emojiSentData, roomState, myPlayer]);
 
   // ERROR MESSAGE
   if (errorMessage) {
@@ -506,6 +557,19 @@ export default function MultiplayerBoard({
             ▶ Replay game ◀
           </Button>
         </div>
+      )}
+
+      {/* Send emoji / chat */}
+      <Button onClick={() => setShowSendEmojiModal(true)}>Send Emoji 😀</Button>
+
+      {showSendEmojiModal && (
+        <ShowEmoji
+          onClose={() => setShowSendEmojiModal(false)}
+          open={showSendEmojiModal}
+          sendEmoji={sendEmoji}
+          roomState={roomState}
+          myPlayer={myPlayer}
+        />
       )}
 
       {/* Move history */}
