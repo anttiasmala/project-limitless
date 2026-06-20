@@ -53,6 +53,7 @@ function makeInitialState(): RoomState {
     settings: { ...DEFAULT_ROOM_SETTINGS },
     timerEndsAt: null,
     forfeitWinner: null,
+    emojiSentData: { emoji: null, senderId: null },
   };
 }
 
@@ -281,6 +282,22 @@ export default class GameRoom implements Party.Server {
     }
     const senderPlayer = this.state.players[sender.id];
     if (!senderPlayer) return;
+
+    if (msg.type === 'send-emoji') {
+      console.log('SendEmoji msg.type');
+      console.log(msg);
+      console.log(msg.emoji);
+      console.log(msg.senderId);
+      console.log(sender);
+      console.log(this.state);
+      this.state.emojiSentData.emoji = msg.emoji;
+      this.state.emojiSentData.senderId = msg.senderId;
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
+      this.state.emojiSentData.emoji = null;
+      this.state.emojiSentData.senderId = null;
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
+      return;
+    }
 
     if (msg.type === 'set-profile') {
       const trimmed = msg.name.trim().slice(0, 20);
