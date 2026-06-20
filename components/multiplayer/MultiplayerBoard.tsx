@@ -163,50 +163,14 @@ export default function MultiplayerBoard({
 
   useEffect(() => {
     if (!roomState) return;
-    //toast(roomState.emojiSentData.emoji);
-    //toast(roomState.emojiSentData.senderId);
-    //console.log(roomState);
-    //console.log(roomState.players, myPlayer);
-    let isToastSent = false;
-    Object.values(roomState.players).map((player) => {
-      /*
-      console.log(
-        player.player === myPlayer,
-        player.id === roomState.emojiSentData.senderId,
-        roomState.emojiSentData.emoji !== null,
-      );
-      */
-      if (
-        player.player === myPlayer &&
-        player.id === roomState.emojiSentData.senderId &&
-        roomState.emojiSentData.emoji
-      ) {
-        /*
-        console.log('Player', player);
-        console.log('Correct ID found');
-        */
-        toast(`You reacted: ${roomState.emojiSentData.emoji}`);
-        isToastSent = true;
-      }
-      console.log(
-        '!isToastSent:',
-        !isToastSent,
-        'player.id !== roomState.emojiSentData.senderId:',
-        player.id !== roomState.emojiSentData.senderId,
-        'player.player !== myPlayer:',
-        player.player !== myPlayer,
-        'roomState.emojiSentData.emoji:',
-        roomState.emojiSentData.emoji,
-      );
-      if (
-        !isToastSent &&
-        player.id !== roomState.emojiSentData.senderId &&
-        roomState.emojiSentData.emoji
-      ) {
-        toast(`Opponent reacted: ${roomState.emojiSentData.emoji}`);
-      }
-    });
-  }, [roomState?.emojiSentData, roomState, myPlayer]);
+    const { emoji, senderId } = roomState.emojiSentData;
+    if (!emoji) return;
+    toast(
+      senderId === myId
+        ? `You reacted: ${emoji}`
+        : `Opponent reacted: ${emoji}`,
+    );
+  }, [roomState, myId]);
 
   // ERROR MESSAGE
   if (errorMessage) {
