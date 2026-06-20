@@ -57,7 +57,7 @@ export type ClientMessage =
   | { type: 'cancel-request-rematch' }
   | { type: 'init-settings'; settings: RoomSettings }
   | { type: 'set-profile'; name: string; icon: string }
-  | { type: 'send-emoji'; emoji: string; senderId: string };
+  | { type: 'send-emoji'; emoji: string };
 
 export type ServerMessage =
   | { type: 'state-update'; state: RoomState }

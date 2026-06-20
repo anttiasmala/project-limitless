@@ -285,7 +285,7 @@ export default class GameRoom implements Party.Server {
 
     if (msg.type === 'send-emoji') {
       this.state.emojiSentData.emoji = msg.emoji;
-      this.state.emojiSentData.senderId = msg.senderId;
+      this.state.emojiSentData.senderId = sender.id;
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
       this.state.emojiSentData.emoji = null;
       this.state.emojiSentData.senderId = null;

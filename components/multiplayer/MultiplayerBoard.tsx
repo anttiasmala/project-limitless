@@ -531,8 +531,6 @@ export default function MultiplayerBoard({
           onClose={() => setShowSendEmojiModal(false)}
           open={showSendEmojiModal}
           sendEmoji={sendEmoji}
-          roomState={roomState}
-          myPlayer={myPlayer}
         />
       )}
 

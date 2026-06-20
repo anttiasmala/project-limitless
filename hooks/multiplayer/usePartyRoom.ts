@@ -87,8 +87,8 @@ export function usePartyRoom(
   }, [socket]);
 
   const sendEmoji = useCallback(
-    (emoji: string, senderId: string) => {
-      const msg: ClientMessage = { type: 'send-emoji', emoji, senderId };
+    (emoji: string) => {
+      const msg: ClientMessage = { type: 'send-emoji', emoji };
       socket.send(JSON.stringify(msg));
     },
     [socket],
