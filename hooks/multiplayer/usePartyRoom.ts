@@ -86,6 +86,15 @@ export function usePartyRoom(
     socket.send(JSON.stringify(msg));
   }, [socket]);
 
+  const sendEmoji = useCallback(
+    (emoji: string, senderId: string) => {
+      console.log(emoji, senderId);
+      const msg: ClientMessage = { type: 'send-emoji', emoji, senderId };
+      socket.send(JSON.stringify(msg));
+    },
+    [socket],
+  );
+
   const myId = socket.id ?? '';
 
   // Derive my assigned player from room state
@@ -100,5 +109,6 @@ export function usePartyRoom(
     sendMove,
     sendRematch,
     sendCancelRematch,
+    sendEmoji,
   };
 }
