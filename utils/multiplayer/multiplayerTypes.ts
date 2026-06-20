@@ -48,6 +48,7 @@ export type RoomState = {
   settings: RoomSettings;
   timerEndsAt: number | null;
   forfeitWinner: Player | null;
+  emojiSentData: { emoji: string | null; senderId: string | null };
 };
 
 export type ClientMessage =
@@ -55,7 +56,8 @@ export type ClientMessage =
   | { type: 'request-rematch' }
   | { type: 'cancel-request-rematch' }
   | { type: 'init-settings'; settings: RoomSettings }
-  | { type: 'set-profile'; name: string; icon: string };
+  | { type: 'set-profile'; name: string; icon: string }
+  | { type: 'send-emoji'; emoji: string; senderId: string };
 
 export type ServerMessage =
   | { type: 'state-update'; state: RoomState }
