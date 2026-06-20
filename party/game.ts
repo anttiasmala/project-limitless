@@ -284,12 +284,6 @@ export default class GameRoom implements Party.Server {
     if (!senderPlayer) return;
 
     if (msg.type === 'send-emoji') {
-      console.log('SendEmoji msg.type');
-      console.log(msg);
-      console.log(msg.emoji);
-      console.log(msg.senderId);
-      console.log(sender);
-      console.log(this.state);
       this.state.emojiSentData.emoji = msg.emoji;
       this.state.emojiSentData.senderId = msg.senderId;
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
