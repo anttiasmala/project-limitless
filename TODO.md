@@ -1,6 +1,7 @@
 # TODO:
 
 1. Perhaps Spectators should not see chat?
+2. Disable "Send Emoji" and "Chat" buttons on Spectators
 
 # Ideas:
 
@@ -41,6 +42,9 @@
     2. time in a message?
     3. Possibility to delete messages?
     4. Possibility to react messages?
+    5. If player leaves game, remove messages or at least don't show them next player?
+    6. Add an info button that tells 100 messages is max and then they will dissapear. Oldest dissapears first
+    7. Perhaps in Smallest Screen Needed mobile view use full screen chat. At the moment the chat section is really small
 
 # Notes
 
