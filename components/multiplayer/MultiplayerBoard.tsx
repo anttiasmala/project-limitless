@@ -32,6 +32,7 @@ import ReplayModal from '../ReplayModal';
 import Button from '../utils/Button';
 import ShowEmoji from './utils/ShowEmoji';
 import { toast } from 'react-toastify';
+import Chat from './utils/Chat';
 
 const BOARD_COLS = { '3': 3, '5': 5, '10': 10 } as const;
 
@@ -74,6 +75,7 @@ export default function MultiplayerBoard({
     sendRematch,
     sendCancelRematch,
     sendEmoji,
+    sendChat,
   } = usePartyRoom(roomId, initialSettings, multiplayerProfile);
   const cols = BOARD_COLS[roomState?.settings.boardSize ?? '3'];
   const { gridRef, measurement } = useGridMeasure(cols);
@@ -286,6 +288,13 @@ export default function MultiplayerBoard({
 
   return (
     <div className="flex flex-col items-center gap-6">
+      {/* Chat — collapsible panel backed by shared room state */}
+      <Chat
+        messages={roomState.chatHistory}
+        myId={myId}
+        onSend={sendChat}
+      />
+
       {/* Room code */}
       <CopyRoomCode roomId={roomId} />
 
