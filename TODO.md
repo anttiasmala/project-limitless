@@ -33,6 +33,7 @@
 16. Perhaps set a max amount in VictoriesForAction and Seconds per turn in Multiplayer?
 17. Perhaps allow player to choose how many icons have to be inline for a win.
     1. For example: player could choose that 10x10 board would require 3 inline to win, is this a good idea?
+18. If there are not any Multiplayer rooms, add "Create New Room"-button into the Lobby List
 
 # Notes
 
