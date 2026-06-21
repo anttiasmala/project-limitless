@@ -74,7 +74,9 @@ export default function MultiplayerBoard({
     sendRematch,
     sendCancelRematch,
     sendEmoji,
-  } = usePartyRoom(roomId, initialSettings, multiplayerProfile);
+  } = usePartyRoom(roomId, initialSettings, multiplayerProfile, ({ emoji, isMe }) =>
+    toast(isMe ? `You reacted: ${emoji}` : `Opponent reacted: ${emoji}`),
+  );
   const cols = BOARD_COLS[roomState?.settings.boardSize ?? '3'];
   const { gridRef, measurement } = useGridMeasure(cols);
 
@@ -160,17 +162,6 @@ export default function MultiplayerBoard({
     const timeout = setTimeout(() => setShowSeriesWinnerModal(true), 0);
     return () => clearTimeout(timeout);
   }, [seriesWinner]);
-
-  useEffect(() => {
-    if (!roomState) return;
-    const { emoji, senderId } = roomState.emojiSentData;
-    if (!emoji) return;
-    toast(
-      senderId === myId
-        ? `You reacted: ${emoji}`
-        : `Opponent reacted: ${emoji}`,
-    );
-  }, [roomState, myId]);
 
   // ERROR MESSAGE
   if (errorMessage) {
