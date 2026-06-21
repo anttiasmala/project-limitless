@@ -41,6 +41,7 @@
     2. time in a message?
     3. Possibility to delete messages?
     4. Possibility to react messages?
+    5. If player leaves game, remove messages or at least don't show them next player?
 
 # Notes
 
