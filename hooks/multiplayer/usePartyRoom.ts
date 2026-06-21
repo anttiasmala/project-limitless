@@ -94,6 +94,14 @@ export function usePartyRoom(
     [socket],
   );
 
+  const sendChat = useCallback(
+    (text: string) => {
+      const msg: ClientMessage = { type: 'send-chat', text };
+      socket.send(JSON.stringify(msg));
+    },
+    [socket],
+  );
+
   const myId = socket.id ?? '';
 
   // Derive my assigned player from room state
@@ -109,5 +117,6 @@ export function usePartyRoom(
     sendRematch,
     sendCancelRematch,
     sendEmoji,
+    sendChat,
   };
 }
