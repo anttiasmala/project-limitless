@@ -1,5 +1,7 @@
 # TODO:
 
+1. Perhaps Spectators should not see chat?
+
 # Ideas:
 
 1. Chat in multiplayer - Simple emoji reactions or chat || Emoji reactions in multiplayer — tap to send 🏴‍☠️ 💥 😤 during opponent's turn
@@ -34,6 +36,11 @@
 17. Perhaps allow player to choose how many icons have to be inline for a win.
     1. For example: player could choose that 10x10 board would require 3 inline to win, is this a good idea?
 18. If there are not any Multiplayer rooms, add "Create New Room"-button into the Lobby List
+19. Make chat edits:
+    1. window movable in X-axis?
+    2. time in a message?
+    3. Possibility to delete messages?
+    4. Possibility to react messages?
 
 # Notes
 
