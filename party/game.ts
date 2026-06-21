@@ -25,6 +25,8 @@ import {
 
 const SERIES_POINT_THRESHOLDS = { bo3: 2, bo5: 3, off: Infinity } as const;
 const BOARD_SIZE = { '3': 3, '5': 5, '10': 10 } as const;
+const MAX_CHAT_LENGTH = 200;
+const MAX_CHAT_HISTORY = 100;
 
 function createInitialBoard(boardSize: RoomSettings['boardSize']): BoardType {
   const size = BOARD_SIZE[boardSize];
@@ -54,6 +56,7 @@ function makeInitialState(): RoomState {
     timerEndsAt: null,
     forfeitWinner: null,
     emojiSentData: { emoji: null, senderId: null },
+    chatHistory: [],
   };
 }
 
@@ -289,6 +292,24 @@ export default class GameRoom implements Party.Server {
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
       this.state.emojiSentData.emoji = null;
       this.state.emojiSentData.senderId = null;
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
+      return;
+    }
+
+    if (msg.type === 'send-chat') {
+      const text = msg.text.trim().slice(0, MAX_CHAT_LENGTH);
+      if (!text) return;
+      this.state.chatHistory = [
+        ...this.state.chatHistory,
+        {
+          id: crypto.randomUUID(),
+          senderId: sender.id,
+          senderName: senderPlayer.name,
+          senderIcon: senderPlayer.icon,
+          text,
+          sentAt: Date.now(),
+        },
+      ].slice(-MAX_CHAT_HISTORY);
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
       return;
     }
