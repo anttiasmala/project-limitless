@@ -58,7 +58,6 @@ export type RoomState = {
   settings: RoomSettings;
   timerEndsAt: number | null;
   forfeitWinner: Player | null;
-  emojiSentData: { emoji: string | null; senderId: string | null };
   chatHistory: ChatMessage[];
 };
 
@@ -73,6 +72,7 @@ export type ClientMessage =
 
 export type ServerMessage =
   | { type: 'state-update'; state: RoomState }
+  | { type: 'emoji-reaction'; emoji: string; senderId: string }
   | { type: 'opponent-disconnected' }
   | { type: 'error'; message: string };
 

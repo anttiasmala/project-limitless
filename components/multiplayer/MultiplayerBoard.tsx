@@ -76,7 +76,13 @@ export default function MultiplayerBoard({
     sendCancelRematch,
     sendEmoji,
     sendChat,
-  } = usePartyRoom(roomId, initialSettings, multiplayerProfile);
+  } = usePartyRoom(
+    roomId,
+    initialSettings,
+    multiplayerProfile,
+    ({ emoji, isMe }) =>
+      toast(isMe ? `You reacted: ${emoji}` : `Opponent reacted: ${emoji}`),
+  );
   const cols = BOARD_COLS[roomState?.settings.boardSize ?? '3'];
   const { gridRef, measurement } = useGridMeasure(cols);
 
@@ -162,17 +168,6 @@ export default function MultiplayerBoard({
     const timeout = setTimeout(() => setShowSeriesWinnerModal(true), 0);
     return () => clearTimeout(timeout);
   }, [seriesWinner]);
-
-  useEffect(() => {
-    if (!roomState) return;
-    const { emoji, senderId } = roomState.emojiSentData;
-    if (!emoji) return;
-    toast(
-      senderId === myId
-        ? `You reacted: ${emoji}`
-        : `Opponent reacted: ${emoji}`,
-    );
-  }, [roomState, myId]);
 
   // ERROR MESSAGE
   if (errorMessage) {
@@ -289,11 +284,7 @@ export default function MultiplayerBoard({
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Chat — collapsible panel backed by shared room state */}
-      <Chat
-        messages={roomState.chatHistory}
-        myId={myId}
-        onSend={sendChat}
-      />
+      <Chat messages={roomState.chatHistory} myId={myId} onSend={sendChat} />
 
       {/* Room code */}
       <CopyRoomCode roomId={roomId} />
