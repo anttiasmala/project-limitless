@@ -85,7 +85,7 @@ export default function Chat({ messages, myId, onSend }: Props) {
             <Button
               variant="ghost"
               aria-label="Close chat"
-              className="text-xl leading-none"
+              className="rounded-full text-xl leading-none text-slate-600 hover:bg-amber-200 hover:text-red-600 focus-visible:ring-2 focus-visible:ring-amber-500 dark:text-amber-300 dark:hover:bg-amber-900 dark:hover:text-red-400"
               onClick={closePanel}
             >
               ✕
