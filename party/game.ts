@@ -53,7 +53,6 @@ function makeInitialState(): RoomState {
     settings: { ...DEFAULT_ROOM_SETTINGS },
     timerEndsAt: null,
     forfeitWinner: null,
-    emojiSentData: { emoji: null, senderId: null },
   };
 }
 
@@ -284,12 +283,14 @@ export default class GameRoom implements Party.Server {
     if (!senderPlayer) return;
 
     if (msg.type === 'send-emoji') {
-      this.state.emojiSentData.emoji = msg.emoji;
-      this.state.emojiSentData.senderId = sender.id;
-      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
-      this.state.emojiSentData.emoji = null;
-      this.state.emojiSentData.senderId = null;
-      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
+      // A reaction is a transient event, not persistent state — broadcast it
+      // once and don't store it. Storing + clearing caused two back-to-back
+      // state-updates that React could coalesce, dropping the reaction.
+      this.broadcast({
+        type: 'emoji-reaction',
+        emoji: msg.emoji,
+        senderId: sender.id,
+      });
       return;
     }
 
