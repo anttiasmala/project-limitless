@@ -1,7 +1,7 @@
 // hooks/multiplayer/usePartyRoom.ts
 
 import { usePartySocket } from 'partysocket/react';
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   type RoomState,
   type ServerMessage,
@@ -14,6 +14,7 @@ export function usePartyRoom(
   roomId: string,
   initialSettings?: RoomSettings,
   profile?: { name: string; icon: string },
+  onEmojiReaction?: (data: { emoji: string; isMe: boolean }) => void,
 ) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [roomState, setRoomState] = useState<RoomState | null>(null);
@@ -23,6 +24,13 @@ export function usePartyRoom(
 
   const settingsSentRef = useRef(false);
   const profileSentRef = useRef(false);
+
+  // Keep the latest callback in a ref so the socket's onMessage handler always
+  // calls the current one without needing to re-subscribe.
+  const onEmojiReactionRef = useRef(onEmojiReaction);
+  useEffect(() => {
+    onEmojiReactionRef.current = onEmojiReaction;
+  }, [onEmojiReaction]);
 
   const socket = usePartySocket({
     // Check internal IP and put it into .env.local in testing
@@ -55,6 +63,12 @@ export function usePartyRoom(
         setRoomState(msg.state);
         setOpponentDisconnected(false);
       }
+      if (msg.type === 'emoji-reaction') {
+        onEmojiReactionRef.current?.({
+          emoji: msg.emoji,
+          isMe: msg.senderId === socket.id,
+        });
+      }
       if (msg.type === 'opponent-disconnected') {
         setOpponentDisconnected(true);
       }
@@ -86,6 +100,22 @@ export function usePartyRoom(
     socket.send(JSON.stringify(msg));
   }, [socket]);
 
+  const sendEmoji = useCallback(
+    (emoji: string) => {
+      const msg: ClientMessage = { type: 'send-emoji', emoji };
+      socket.send(JSON.stringify(msg));
+    },
+    [socket],
+  );
+
+  const sendChat = useCallback(
+    (text: string) => {
+      const msg: ClientMessage = { type: 'send-chat', text };
+      socket.send(JSON.stringify(msg));
+    },
+    [socket],
+  );
+
   const myId = socket.id ?? '';
 
   // Derive my assigned player from room state
@@ -100,5 +130,7 @@ export function usePartyRoom(
     sendMove,
     sendRematch,
     sendCancelRematch,
+    sendEmoji,
+    sendChat,
   };
 }

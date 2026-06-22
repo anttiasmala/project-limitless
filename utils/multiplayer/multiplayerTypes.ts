@@ -3,6 +3,16 @@
 import type { Board as BoardType, Player } from '@/lib/gameLogic';
 import type { MoveEntry } from '../types';
 
+export type ChatMessage = {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderIcon: string;
+  /** Plain text or a single emoji — emojis are sent as ordinary messages. */
+  text: string;
+  sentAt: number;
+};
+
 export type RoomSettings = {
   timerEnabled: boolean;
   timerDuration: number;
@@ -48,6 +58,7 @@ export type RoomState = {
   settings: RoomSettings;
   timerEndsAt: number | null;
   forfeitWinner: Player | null;
+  chatHistory: ChatMessage[];
 };
 
 export type ClientMessage =
@@ -55,10 +66,13 @@ export type ClientMessage =
   | { type: 'request-rematch' }
   | { type: 'cancel-request-rematch' }
   | { type: 'init-settings'; settings: RoomSettings }
-  | { type: 'set-profile'; name: string; icon: string };
+  | { type: 'set-profile'; name: string; icon: string }
+  | { type: 'send-emoji'; emoji: string }
+  | { type: 'send-chat'; text: string };
 
 export type ServerMessage =
   | { type: 'state-update'; state: RoomState }
+  | { type: 'emoji-reaction'; emoji: string; senderId: string }
   | { type: 'opponent-disconnected' }
   | { type: 'error'; message: string };
 

@@ -30,6 +30,9 @@ import SeriesWinnerModal from '../SeriesWinnerModal';
 import HourglassTimer from '../HourglassTimer';
 import ReplayModal from '../ReplayModal';
 import Button from '../utils/Button';
+import ShowEmoji from './utils/ShowEmoji';
+import { toast } from 'react-toastify';
+import Chat from './utils/Chat';
 
 const BOARD_COLS = { '3': 3, '5': 5, '10': 10 } as const;
 
@@ -55,6 +58,7 @@ export default function MultiplayerBoard({
   const [showReplayModal, setShowReplayModal] = useState(false);
   const [showSeriesWinnerModal, setShowSeriesWinnerModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showSendEmojiModal, setShowSendEmojiModal] = useState(false);
   const router = useRouter();
   const [multiplayerProfile] = useLocalStorage('multiplayerProfile', {
     name: 'Davy Jones',
@@ -70,7 +74,15 @@ export default function MultiplayerBoard({
     sendMove,
     sendRematch,
     sendCancelRematch,
-  } = usePartyRoom(roomId, initialSettings, multiplayerProfile);
+    sendEmoji,
+    sendChat,
+  } = usePartyRoom(
+    roomId,
+    initialSettings,
+    multiplayerProfile,
+    ({ emoji, isMe }) =>
+      toast(isMe ? `You reacted: ${emoji}` : `Opponent reacted: ${emoji}`),
+  );
   const cols = BOARD_COLS[roomState?.settings.boardSize ?? '3'];
   const { gridRef, measurement } = useGridMeasure(cols);
 
@@ -271,6 +283,9 @@ export default function MultiplayerBoard({
 
   return (
     <div className="flex flex-col items-center gap-6">
+      {/* Chat — collapsible panel backed by shared room state */}
+      <Chat messages={roomState.chatHistory} myId={myId} onSend={sendChat} />
+
       {/* Room code */}
       <CopyRoomCode roomId={roomId} />
 
@@ -506,6 +521,17 @@ export default function MultiplayerBoard({
             ▶ Replay game ◀
           </Button>
         </div>
+      )}
+
+      {/* Send emoji / chat */}
+      <Button onClick={() => setShowSendEmojiModal(true)}>Send Emoji 😀</Button>
+
+      {showSendEmojiModal && (
+        <ShowEmoji
+          onClose={() => setShowSendEmojiModal(false)}
+          open={showSendEmojiModal}
+          sendEmoji={sendEmoji}
+        />
       )}
 
       {/* Move history */}

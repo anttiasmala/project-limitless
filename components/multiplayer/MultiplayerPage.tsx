@@ -6,6 +6,7 @@ import MultiplayerBoard from './MultiplayerBoard';
 import { RoomSettings } from '@/utils/multiplayer/multiplayerTypes';
 import OceanBackground from '../OceanBackground';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { Bounce, ToastContainer } from 'react-toastify';
 
 export default function MultiplayerPage({ roomId }: { roomId: string }) {
   const searchParams = useSearchParams();
@@ -48,6 +49,19 @@ export default function MultiplayerPage({ roomId }: { roomId: string }) {
     <>
       <main className="flex min-h-screen items-center justify-center p-4">
         <div className="w-full max-w-lg rounded-2xl border-2 border-slate-300 bg-white/80 p-4 sm:p-8 dark:border-amber-800 dark:bg-amber-950/40">
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme={isDarkTheme ? 'dark' : 'light'}
+            transition={Bounce}
+          />
           <MultiplayerBoard
             roomId={roomId}
             isSpectator={isSpectator}

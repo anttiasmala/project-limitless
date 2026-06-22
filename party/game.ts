@@ -25,6 +25,8 @@ import {
 
 const SERIES_POINT_THRESHOLDS = { bo3: 2, bo5: 3, off: Infinity } as const;
 const BOARD_SIZE = { '3': 3, '5': 5, '10': 10 } as const;
+const MAX_CHAT_LENGTH = 200;
+const MAX_CHAT_HISTORY = 100;
 
 function createInitialBoard(boardSize: RoomSettings['boardSize']): BoardType {
   const size = BOARD_SIZE[boardSize];
@@ -53,6 +55,7 @@ function makeInitialState(): RoomState {
     settings: { ...DEFAULT_ROOM_SETTINGS },
     timerEndsAt: null,
     forfeitWinner: null,
+    chatHistory: [],
   };
 }
 
@@ -281,6 +284,36 @@ export default class GameRoom implements Party.Server {
     }
     const senderPlayer = this.state.players[sender.id];
     if (!senderPlayer) return;
+
+    if (msg.type === 'send-emoji') {
+      // A reaction is a transient event, not persistent state — broadcast it
+      // once and don't store it. Storing + clearing caused two back-to-back
+      // state-updates that React could coalesce, dropping the reaction.
+      this.broadcast({
+        type: 'emoji-reaction',
+        emoji: msg.emoji,
+        senderId: sender.id,
+      });
+      return;
+    }
+
+    if (msg.type === 'send-chat') {
+      const text = msg.text.trim().slice(0, MAX_CHAT_LENGTH);
+      if (!text) return;
+      this.state.chatHistory = [
+        ...this.state.chatHistory,
+        {
+          id: crypto.randomUUID(),
+          senderId: sender.id,
+          senderName: senderPlayer.name,
+          senderIcon: senderPlayer.icon,
+          text,
+          sentAt: Date.now(),
+        },
+      ].slice(-MAX_CHAT_HISTORY);
+      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
+      return;
+    }
 
     if (msg.type === 'set-profile') {
       const trimmed = msg.name.trim().slice(0, 20);
