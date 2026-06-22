@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/utils/Button';
 import Input from '@/components/utils/Input';
 import type { ChatMessage } from '@/utils/multiplayer/multiplayerTypes';
-import { useSearchParams } from 'next/navigation';
 
 /** Quick-reaction row shown above the input. Folds the old emoji picker in. */
 const QUICK_EMOJIS = ['👍', '😂', '😮', '🔥', '☠️', '⚔️', '🏆', '🦜'];
