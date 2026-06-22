@@ -4,18 +4,20 @@ import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/utils/Button';
 import Input from '@/components/utils/Input';
 import type { ChatMessage } from '@/utils/multiplayer/multiplayerTypes';
+import { useSearchParams } from 'next/navigation';
 
 /** Quick-reaction row shown above the input. Folds the old emoji picker in. */
 const QUICK_EMOJIS = ['👍', '😂', '😮', '🔥', '☠️', '⚔️', '🏆', '🦜'];
 
 type Props = {
+  isSpectator: boolean;
   messages: ChatMessage[];
   /** Id of the local player, so own messages align right. */
   myId: string;
   onSend: (text: string) => void;
 };
 
-export default function Chat({ messages, myId, onSend }: Props) {
+export default function Chat({ isSpectator, messages, myId, onSend }: Props) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
   // Count of messages already seen, so the toggle can badge unread ones.
@@ -136,6 +138,7 @@ export default function Chat({ messages, myId, onSend }: Props) {
                 key={emoji}
                 variant="unstyled"
                 aria-label={`Send ${emoji}`}
+                disabled={isSpectator}
                 className="rounded-lg p-1 text-xl hover:scale-110 hover:bg-slate-100 dark:hover:bg-red-900"
                 onClick={() => handleSend(emoji)}
               >
@@ -158,13 +161,14 @@ export default function Chat({ messages, myId, onSend }: Props) {
               placeholder="Message…"
               aria-label="Chat message"
               maxLength={200}
-              className="min-w-0 flex-1 px-3 py-2 text-base font-normal"
+              disabled={isSpectator}
+              className="min-w-0 flex-1 px-3 py-2 text-base font-normal disabled:cursor-not-allowed disabled:opacity-60"
             />
             <Button
               variant="gold"
               size="md"
               type="submit"
-              disabled={!draft.trim()}
+              disabled={!draft.trim() || isSpectator}
             >
               Send
             </Button>

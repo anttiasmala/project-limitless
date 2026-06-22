@@ -284,7 +284,12 @@ export default function MultiplayerBoard({
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Chat — collapsible panel backed by shared room state */}
-      <Chat messages={roomState.chatHistory} myId={myId} onSend={sendChat} />
+      <Chat
+        isSpectator={isSpectator ?? false}
+        messages={roomState.chatHistory}
+        myId={myId}
+        onSend={sendChat}
+      />
 
       {/* Room code */}
       <CopyRoomCode roomId={roomId} />
@@ -524,7 +529,11 @@ export default function MultiplayerBoard({
       )}
 
       {/* Send emoji / chat */}
-      <Button onClick={() => setShowSendEmojiModal(true)}>Send Emoji 😀</Button>
+      {!isSpectator && (
+        <Button onClick={() => setShowSendEmojiModal(true)}>
+          Send Emoji 😀
+        </Button>
+      )}
 
       {showSendEmojiModal && (
         <ShowEmoji
