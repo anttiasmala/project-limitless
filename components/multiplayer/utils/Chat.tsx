@@ -75,7 +75,7 @@ export default function Chat({ messages, myId, onSend }: Props) {
         <div
           role="dialog"
           aria-label="Chat"
-          className="fixed inset-x-0 bottom-0 z-50 flex h-[60vh] flex-col rounded-t-2xl border-2 border-slate-300 bg-white shadow-2xl md:inset-y-0 md:right-0 md:left-auto md:h-full md:w-80 md:rounded-none md:border-t-0 md:border-r-0 md:border-l-2 dark:border-red-700 dark:bg-red-950"
+          className="fixed inset-x-0 bottom-0 z-50 flex h-dvh flex-col rounded-t-2xl border-2 border-slate-300 bg-white shadow-2xl md:inset-y-0 md:right-0 md:left-auto md:h-full md:w-80 md:rounded-none md:border-t-0 md:border-r-0 md:border-l-2 dark:border-red-700 dark:bg-red-950"
         >
           {/* Header */}
           <div className="flex shrink-0 items-center justify-between border-b-2 border-slate-300 px-4 py-3 dark:border-red-700">
