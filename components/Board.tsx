@@ -565,10 +565,16 @@ export default function Board({
       const _isDraw = isDraw(newBoard);
       if (_winner) {
         playSound(cannonAudio);
+        // if speedBonus is not active, points is always 1
         const points = winPointsFor(_winner, newBoard);
         const newScores = { ...scores, [_winner]: scores[_winner] + points };
         setScores(newScores);
-        if (points > 1) setSpeedBonusAward({ player: _winner, bonus: points - 1 });
+        if (points > 1) {
+          // points - 1 is, because points is always +1 bigger.
+          // For example if player gets 3 points that is +2 extra points
+          // with points - 1 that is achieved
+          setSpeedBonusAward({ player: _winner, bonus: points - 1 });
+        }
         handleScores(_winner, newScores);
         setWinStreaks((prev) => ({
           ...prev,
@@ -705,10 +711,16 @@ export default function Board({
     }
     if (_winner) {
       playSound(cannonAudio);
+      // if speedBonus is not active, points is always 1
       const points = winPointsFor(_winner, newBoard);
       const newScores = { ...scores, [_winner]: scores[_winner] + points };
       setScores(newScores);
-      if (points > 1) setSpeedBonusAward({ player: _winner, bonus: points - 1 });
+      if (points > 1) {
+        // points - 1 is, because points is always +1 bigger.
+        // For example if player gets 3 points that is +2 extra points
+        // with points - 1 that is achieved
+        setSpeedBonusAward({ player: _winner, bonus: points - 1 });
+      }
       handleScores(_winner, newScores);
       setWinStreaks((prev) => ({
         ...prev,
