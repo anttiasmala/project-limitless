@@ -11,6 +11,8 @@ import {
   calculateWinner,
   calculateWinner5,
   calculateWinner10,
+  computeWinPoints,
+  getWinLength,
   isDraw,
   getAIMove,
   getAIMove5,
@@ -118,6 +120,11 @@ export default function Board({
   const [streakBadgePlayer, setStreakBadgePlayer] = useState<Player | null>(
     null,
   );
+  // Transient "⚡ Speed bonus +N!" badge shown when a quick win earns extra points.
+  const [speedBonusAward, setSpeedBonusAward] = useState<{
+    player: Player;
+    bonus: number;
+  } | null>(null);
   const router = useRouter();
   const params = useSearchParams();
 
@@ -128,6 +135,8 @@ export default function Board({
     setVolume,
     timerEnabled,
     setTimerEnabled,
+    speedBonusEnabled,
+    setSpeedBonusEnabled,
     isArrowKeysEnabled,
     setIsArrowKeysEnabled,
     pointSystem,
@@ -163,6 +172,27 @@ export default function Board({
   const { winner, line: winLine } = calcWinner(board);
   const draw = !winner && isDraw(board);
   const gameOver = !!winner || draw;
+
+  const winLength = getWinLength(boardSize);
+  // Speed bonus is a local-only mechanic — PvC and PvP. Watch scores live in
+  // useWatchMode (untouched) and tournament runs its own scoring, so both are
+  // excluded here.
+  const speedBonusActive =
+    speedBonusEnabled && (mode === 'pvc' || mode === 'pvp');
+
+  // Points a win is worth: with Speed bonus active, a win in the fewest marks
+  // scores 3, one move slower 2, otherwise the normal 1. `finalBoard` is the
+  // board including the winning move.
+  const winPointsFor = useCallback(
+    (winnerPlayer: Player, finalBoard: BoardType) =>
+      speedBonusActive
+        ? computeWinPoints(
+            finalBoard.filter((cell) => cell === winnerPlayer).length,
+            winLength,
+          )
+        : 1,
+    [speedBonusActive, winLength],
+  );
 
   const { setRef, handleKeyDown, activeIndex, resetFocus, focusCell } =
     useGridNavigation(boardSize);
@@ -454,6 +484,12 @@ export default function Board({
   }, [streakBadgePlayer]);
 
   useEffect(() => {
+    if (!speedBonusAward) return;
+    const timeout = setTimeout(() => setSpeedBonusAward(null), 3500);
+    return () => clearTimeout(timeout);
+  }, [speedBonusAward]);
+
+  useEffect(() => {
     if (!winner && !draw) return;
 
     if (mode === 'pvc') {
@@ -529,8 +565,10 @@ export default function Board({
       const _isDraw = isDraw(newBoard);
       if (_winner) {
         playSound(cannonAudio);
-        const newScores = { ...scores, [_winner]: scores[_winner] + 1 };
+        const points = winPointsFor(_winner, newBoard);
+        const newScores = { ...scores, [_winner]: scores[_winner] + points };
         setScores(newScores);
+        if (points > 1) setSpeedBonusAward({ player: _winner, bonus: points - 1 });
         handleScores(_winner, newScores);
         setWinStreaks((prev) => ({
           ...prev,
@@ -568,6 +606,7 @@ export default function Board({
     playSound,
     splashAudio,
     calcWinner,
+    winPointsFor,
   ]);
 
   const {
@@ -666,8 +705,10 @@ export default function Board({
     }
     if (_winner) {
       playSound(cannonAudio);
-      const newScores = { ...scores, [_winner]: scores[_winner] + 1 };
+      const points = winPointsFor(_winner, newBoard);
+      const newScores = { ...scores, [_winner]: scores[_winner] + points };
       setScores(newScores);
+      if (points > 1) setSpeedBonusAward({ player: _winner, bonus: points - 1 });
       handleScores(_winner, newScores);
       setWinStreaks((prev) => ({
         ...prev,
@@ -856,6 +897,14 @@ export default function Board({
       {streakBadgePlayer && (
         <div className="animate-bounce rounded-lg border-2 border-amber-700 bg-amber-500 px-4 py-2 text-center text-lg font-bold text-white shadow-lg dark:border-yellow-400 dark:bg-yellow-600 dark:text-black">
           {playerIcons[streakBadgePlayer]} 3 in a row! 🔥
+        </div>
+      )}
+
+      {/* Speed bonus badge — flashes the extra points earned by a quick win */}
+      {speedBonusAward && (
+        <div className="animate-bounce rounded-lg border-2 border-sky-700 bg-sky-500 px-4 py-2 text-center text-lg font-bold text-white shadow-lg dark:border-cyan-400 dark:bg-cyan-600 dark:text-black">
+          {playerIcons[speedBonusAward.player]} ⚡ Speed bonus +
+          {speedBonusAward.bonus}!
         </div>
       )}
 
@@ -1125,6 +1174,8 @@ export default function Board({
         AudioArray={[cannonAudio, splashAudio, creakAudio]}
         timerEnabled={timerEnabled}
         setTimerEnabled={setTimerEnabled}
+        speedBonusEnabled={speedBonusEnabled}
+        setSpeedBonusEnabled={setSpeedBonusEnabled}
         pointSystem={pointSystem}
         setPointSystem={setPointSystem}
         isArrowKeysEnabled={isArrowKeysEnabled}
