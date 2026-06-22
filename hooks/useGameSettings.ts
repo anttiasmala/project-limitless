@@ -8,6 +8,10 @@ export function useGameSettings() {
     'timerEnabled',
     false,
   );
+  const [speedBonusEnabled, setSpeedBonusEnabled] = useLocalStorage(
+    'speedBonusEnabled',
+    false,
+  );
   const [isArrowKeysEnabled, setIsArrowKeysEnabled] = useLocalStorage(
     'arrowKeysEnabled',
     false,
@@ -38,6 +42,8 @@ export function useGameSettings() {
     setVolume,
     timerEnabled,
     setTimerEnabled,
+    speedBonusEnabled,
+    setSpeedBonusEnabled,
     isArrowKeysEnabled,
     setIsArrowKeysEnabled,
     pointSystem,
