@@ -91,18 +91,6 @@ export function GamePanel({
         {setVictoriesForAction && (
           <div className="flex items-center">
             <label>Victories</label>
-            <button
-              type="button"
-              aria-label="What does Victories mean?"
-              title="What does Victories mean?"
-              className="ml-1 cursor-pointer leading-none"
-              onClick={() => {
-                setShowVictoriesInfoModal(true);
-                setIsAnyModalOpen(true);
-              }}
-            >
-              ℹ️
-            </button>
             <Input
               type="number"
               min={0}
@@ -120,6 +108,18 @@ export function GamePanel({
                 }
               }}
             />
+            <button
+              type="button"
+              aria-label="What does Victories mean?"
+              title="What does Victories mean?"
+              className="ml-1 cursor-pointer leading-none"
+              onClick={() => {
+                setShowVictoriesInfoModal(true);
+                setIsAnyModalOpen(true);
+              }}
+            >
+              ℹ️
+            </button>
           </div>
         )}
 
