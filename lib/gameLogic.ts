@@ -33,6 +33,25 @@ export function isDraw(board: Board): boolean {
   return board.every((cell) => cell !== null);
 }
 
+// The fewest marks a winner can place to complete a line equals the win-length
+// for that board (3-in-a-row on 3x3, 4 on 5x5, 5 on 10x10).
+export function getWinLength(boardSize: 3 | 5 | 10): number {
+  return boardSize === 10 ? 5 : boardSize === 5 ? 4 : 3;
+}
+
+// Time-based ("Speed bonus") scoring: how many points a win is worth based on
+// how few marks the winner needed. A flawless minimum-move win is worth 3,
+// one move slower is worth 2, anything else the normal 1. `winnerMarks` is the
+// number of the winner's own marks on the final board.
+export function computeWinPoints(
+  winnerMarks: number,
+  winLength: number,
+): number {
+  if (winnerMarks <= winLength) return 3;
+  if (winnerMarks === winLength + 1) return 2;
+  return 1;
+}
+
 // ─── AI LOGIC BELOW ────────────────────────────────────────────────────────────────
 
 function minimax(

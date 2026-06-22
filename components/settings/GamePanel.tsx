@@ -5,10 +5,13 @@ import Input from '../utils/Input';
 import { useState } from 'react';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import VictoriesInfoModal from '../utils/VictoriesInfoModal';
+import SpeedBonusInfoModal from '../utils/SpeedBonusInfoModal';
 
 type GamePanelProps = {
   timerEnabled?: boolean;
   setTimerEnabled?: (value: boolean) => void;
+  speedBonusEnabled?: boolean;
+  setSpeedBonusEnabled?: (value: boolean) => void;
   bestOfSeries?: 'off' | 'bo3' | 'bo5';
   setBestOfSeries?: (value: 'off' | 'bo3' | 'bo5') => void;
   setScores?: React.Dispatch<React.SetStateAction<Record<Player, number>>>;
@@ -26,6 +29,8 @@ type GamePanelProps = {
 export function GamePanel({
   timerEnabled,
   setTimerEnabled,
+  speedBonusEnabled,
+  setSpeedBonusEnabled,
   bestOfSeries,
   setBestOfSeries,
   setScores,
@@ -38,7 +43,10 @@ export function GamePanel({
   setIsAnyModalOpen,
 }: GamePanelProps) {
   const [showVictoriesInfoModal, setShowVictoriesInfoModal] = useState(false);
-  usePreventBackgroundScrolling(showVictoriesInfoModal);
+  const [showSpeedBonusInfoModal, setShowSpeedBonusInfoModal] = useState(false);
+  usePreventBackgroundScrolling(
+    showVictoriesInfoModal || showSpeedBonusInfoModal,
+  );
   return (
     <div className="h-auto min-h-48 w-72 max-w-[90vw] rounded-lg border-2 border-slate-300 bg-white font-bold text-slate-800 dark:border-red-700 dark:bg-red-900 dark:text-yellow-300">
       <div className="mt-3 ml-3 flex flex-col gap-3">
@@ -153,12 +161,46 @@ export function GamePanel({
           </div>
         )}
 
+        {setSpeedBonusEnabled && (
+          <div className="flex items-center">
+            <label className="flex cursor-pointer select-none">
+              Speed bonus
+              <input
+                type="checkbox"
+                className="ml-2 h-5 w-5 cursor-pointer align-middle accent-amber-600"
+                checked={speedBonusEnabled ?? false}
+                onChange={(e) => setSpeedBonusEnabled(e.target.checked)}
+              />
+            </label>
+            <button
+              type="button"
+              aria-label="What does Speed bonus mean?"
+              title="What does Speed bonus mean?"
+              className="ml-1 cursor-pointer leading-none"
+              onClick={() => {
+                setShowSpeedBonusInfoModal(true);
+                setIsAnyModalOpen(true);
+              }}
+            >
+              ℹ️
+            </button>
+          </div>
+        )}
+
         <VictoriesInfoModal
           onClose={() => {
             setShowVictoriesInfoModal(false);
             setIsAnyModalOpen(false);
           }}
           showModal={showVictoriesInfoModal}
+        />
+
+        <SpeedBonusInfoModal
+          onClose={() => {
+            setShowSpeedBonusInfoModal(false);
+            setIsAnyModalOpen(false);
+          }}
+          showModal={showSpeedBonusInfoModal}
         />
       </div>
     </div>

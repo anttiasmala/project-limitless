@@ -14,6 +14,8 @@ type SettingsModalProps = BaseSettingsProps & {
   // Single-player only — omit these in multiplayer
   timerEnabled?: boolean;
   setTimerEnabled?: (value: boolean) => void;
+  speedBonusEnabled?: boolean;
+  setSpeedBonusEnabled?: (value: boolean) => void;
   pointSystem?: 'treasureChest' | 'number';
   setPointSystem?: (value: 'treasureChest' | 'number') => void;
   bestOfSeries?: 'off' | 'bo3' | 'bo5';
@@ -45,6 +47,8 @@ export function SettingsModal({
   setIsArrowKeysEnabled,
   timerEnabled,
   setTimerEnabled,
+  speedBonusEnabled,
+  setSpeedBonusEnabled,
   pointSystem,
   setPointSystem,
   bestOfSeries,
@@ -276,6 +280,8 @@ export function SettingsModal({
             <GamePanel
               timerEnabled={timerEnabled}
               setTimerEnabled={setTimerEnabled}
+              speedBonusEnabled={speedBonusEnabled}
+              setSpeedBonusEnabled={setSpeedBonusEnabled}
               bestOfSeries={bestOfSeries}
               setBestOfSeries={setBestOfSeries}
               setScores={setScores}
