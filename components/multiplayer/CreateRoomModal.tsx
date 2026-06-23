@@ -154,6 +154,7 @@ export default function CreateRoomModal({ onClose }: Props) {
               Sand timer
               <ToggleSwitch
                 size="sm"
+                className="dark:rounded-md dark:border dark:border-amber-700/50"
                 checked={settings.timerEnabled}
                 onChange={(e) =>
                   setSettings((prev) => ({
@@ -200,6 +201,7 @@ export default function CreateRoomModal({ onClose }: Props) {
             Private game
             <ToggleSwitch
               size="sm"
+              className="dark:rounded-md dark:border dark:border-amber-700/50"
               checked={settings.isPrivateGame}
               onChange={(e) =>
                 setSettings((prev) => ({
@@ -214,6 +216,7 @@ export default function CreateRoomModal({ onClose }: Props) {
             Allow spectators
             <ToggleSwitch
               size="sm"
+              className="dark:rounded-md dark:border dark:border-amber-700/50"
               checked={settings.allowSpectators}
               onChange={(e) =>
                 setSettings((prev) => ({
