@@ -6,6 +6,7 @@ import { useState } from 'react';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';
 import VictoriesInfoModal from '../utils/VictoriesInfoModal';
 import SpeedBonusInfoModal from '../utils/SpeedBonusInfoModal';
+import ToggleSwitch from '../utils/ToggleSwitch';
 
 type GamePanelProps = {
   timerEnabled?: boolean;
@@ -126,15 +127,17 @@ export function GamePanel({
         {setTimerEnabled && (
           <div className="flex">
             <div>
-              <label className="flex cursor-pointer select-none">
-                Sand timer
-                <input
-                  type="checkbox"
-                  className="ml-2 h-5 w-5 cursor-pointer align-middle accent-amber-600"
-                  checked={timerEnabled ?? false}
-                  onChange={(e) => setTimerEnabled(e.target.checked)}
-                />
-              </label>
+              <div className="flex">
+                <label className="mr-1 flex cursor-pointer items-center">
+                  Sand Timer
+                  <ToggleSwitch
+                    size="sm"
+                    className="ml-2"
+                    checked={timerEnabled ?? false}
+                    onChange={(e) => setTimerEnabled(e.target.checked)}
+                  />
+                </label>
+              </div>
               {timerEnabled && setTimerDuration && (
                 <div className="ml-4">
                   <label>Seconds per turn</label>
@@ -165,9 +168,9 @@ export function GamePanel({
           <div className="flex items-center">
             <label className="flex cursor-pointer select-none">
               Speed bonus
-              <input
-                type="checkbox"
-                className="ml-2 h-5 w-5 cursor-pointer align-middle accent-amber-600"
+              <ToggleSwitch
+                size="sm"
+                className="ml-2"
                 checked={speedBonusEnabled ?? false}
                 onChange={(e) => setSpeedBonusEnabled(e.target.checked)}
               />

@@ -9,6 +9,7 @@ import { PlayersPanel } from './settings/PlayersPanel';
 import { StatsPanel } from './settings/StatsPanel';
 import Button from './utils/Button';
 import { Modal } from './utils/Modal';
+import ToggleSwitch, { ToggleSwitchDarkLightTheme } from './utils/ToggleSwitch';
 
 type SettingsModalProps = BaseSettingsProps & {
   // Single-player only — omit these in multiplayer
@@ -205,9 +206,8 @@ export function SettingsModal({
                 <div className="flex">
                   <label className="cursor-pointer select-none">
                     Dark Theme
-                    <input
-                      type="checkbox"
-                      className="ml-2 h-5 w-5 cursor-pointer align-middle accent-amber-600"
+                    <ToggleSwitchDarkLightTheme
+                      className="ml-2 cursor-pointer align-middle"
                       checked={isDarkTheme}
                       onChange={(e) => setIsDarkTheme(e.target.checked)}
                     />
@@ -218,9 +218,9 @@ export function SettingsModal({
                 <div className="flex">
                   <label className="cursor-pointer select-none">
                     Arrow keys
-                    <input
-                      type="checkbox"
-                      className="ml-2 h-5 w-5 cursor-pointer align-middle accent-amber-600"
+                    <ToggleSwitch
+                      size="sm"
+                      className="ml-2 cursor-pointer align-middle"
                       checked={isArrowKeysEnabled}
                       onChange={(e) => setIsArrowKeysEnabled(e.target.checked)}
                     />
@@ -231,9 +231,9 @@ export function SettingsModal({
                 <div className="flex">
                   <label className="cursor-pointer select-none">
                     Mute sounds
-                    <input
-                      type="checkbox"
-                      className="ml-2 h-5 w-5 cursor-pointer align-middle accent-amber-600"
+                    <ToggleSwitch
+                      size="sm"
+                      className="ml-2 cursor-pointer align-middle"
                       checked={isAudioMuted}
                       onChange={(e) => {
                         const muted = e.target.checked;
