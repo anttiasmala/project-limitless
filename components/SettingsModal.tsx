@@ -207,7 +207,7 @@ export function SettingsModal({
                   <label className="cursor-pointer select-none">
                     Dark Theme
                     <ToggleSwitchDarkLightTheme
-                      className="ml-2 cursor-pointer align-middle"
+                      className="ml-2 align-middle"
                       checked={isDarkTheme}
                       onChange={(e) => setIsDarkTheme(e.target.checked)}
                     />
@@ -220,7 +220,7 @@ export function SettingsModal({
                     Arrow keys
                     <ToggleSwitch
                       size="sm"
-                      className="ml-2 cursor-pointer align-middle"
+                      className="ml-2 align-middle"
                       checked={isArrowKeysEnabled}
                       onChange={(e) => setIsArrowKeysEnabled(e.target.checked)}
                     />
@@ -233,7 +233,7 @@ export function SettingsModal({
                     Mute sounds
                     <ToggleSwitch
                       size="sm"
-                      className="ml-2 cursor-pointer align-middle"
+                      className="ml-2 align-middle"
                       checked={isAudioMuted}
                       onChange={(e) => {
                         const muted = e.target.checked;
