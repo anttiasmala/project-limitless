@@ -12,6 +12,7 @@ import {
 } from '@/utils/multiplayer/multiplayerTypes';
 import Input from '../utils/Input';
 import VictoriesInfoModal from '../utils/VictoriesInfoModal';
+import ToggleSwitch from '../utils/ToggleSwitch';
 
 type Props = {
   onClose: () => void;
@@ -151,9 +152,8 @@ export default function CreateRoomModal({ onClose }: Props) {
           <div>
             <label className="flex cursor-pointer items-center justify-between select-none">
               Sand timer
-              <input
-                type="checkbox"
-                className="h-5 w-5 cursor-pointer accent-amber-600"
+              <ToggleSwitch
+                size="sm"
                 checked={settings.timerEnabled}
                 onChange={(e) =>
                   setSettings((prev) => ({
@@ -198,9 +198,8 @@ export default function CreateRoomModal({ onClose }: Props) {
           {/* Private game */}
           <label className="flex cursor-pointer items-center justify-between select-none">
             Private game
-            <input
-              type="checkbox"
-              className="h-5 w-5 cursor-pointer accent-amber-600"
+            <ToggleSwitch
+              size="sm"
               checked={settings.isPrivateGame}
               onChange={(e) =>
                 setSettings((prev) => ({
@@ -213,9 +212,8 @@ export default function CreateRoomModal({ onClose }: Props) {
           {/* Allow spectators */}
           <label className="flex cursor-pointer items-center justify-between select-none">
             Allow spectators
-            <input
-              type="checkbox"
-              className="h-5 w-5 cursor-pointer accent-amber-600"
+            <ToggleSwitch
+              size="sm"
               checked={settings.allowSpectators}
               onChange={(e) =>
                 setSettings((prev) => ({
