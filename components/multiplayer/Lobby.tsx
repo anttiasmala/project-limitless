@@ -57,10 +57,6 @@ export default function Lobby() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchLobbies();
-
-    const interval = setInterval(fetchLobbies, 5000);
-
-    return () => clearInterval(interval);
   }, [fetchLobbies]);
 
   return (
@@ -160,6 +156,16 @@ function LobbyModal({
       setIsRefetching(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchLobbies();
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') void fetchLobbies();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [fetchLobbies]);
 
   return (
     <Modal open onClose={closeModal} ariaLabel="Lobby list">
