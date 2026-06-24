@@ -13,6 +13,8 @@ import {
 import Input from '../utils/Input';
 import VictoriesInfoModal from '../utils/VictoriesInfoModal';
 import ToggleSwitch from '../utils/ToggleSwitch';
+import { toast } from 'react-toastify';
+import { generateString } from '@/utils/utils';
 
 type Props = {
   onClose: () => void;
@@ -23,6 +25,7 @@ export default function CreateRoomModal({ onClose }: Props) {
   const [settings, setSettings] = useState<RoomSettings>(DEFAULT_ROOM_SETTINGS);
   const [showVictoriesInfoModal, setShowVictoriesInfoModal] = useState(false);
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   function handleCreate() {
     const id = nanoid(8);
@@ -39,9 +42,22 @@ export default function CreateRoomModal({ onClose }: Props) {
       params.set('series', settings.bestOfSeries);
     params.set('boardSize', settings.boardSize);
     const query = params.toString();
+    sessionStorage.setItem(`room-password:${id}`, settings.password ?? '');
     router.push(`/multiplayer/${id}${query ? `?${query}` : ''}`);
     onClose();
   }
+
+  /*
+  CHECK THIS
+  DEBUGGING VALUES, DON'T REMOVE YET
+  useEffect(() => {
+    setSettings((prev) => ({
+      ...prev,
+      isPrivateGame: true,
+      password: '123',
+    }));
+  }, []);
+  */
 
   return (
     <Modal
@@ -197,20 +213,74 @@ export default function CreateRoomModal({ onClose }: Props) {
           </div>
 
           {/* Private game */}
-          <label className="flex cursor-pointer items-center justify-between select-none">
-            Private game
-            <ToggleSwitch
-              size="sm"
-              className="dark:rounded-md dark:border dark:border-amber-700/50"
-              checked={settings.isPrivateGame}
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  isPrivateGame: e.target.checked,
-                }))
-              }
-            />
-          </label>
+
+          <div>
+            <label className="flex cursor-pointer items-center justify-between select-none">
+              Private game
+              <ToggleSwitch
+                size="sm"
+                className="dark:rounded-md dark:border dark:border-amber-700/50"
+                checked={settings.isPrivateGame}
+                onChange={(e) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    isPrivateGame: e.target.checked,
+                    password: '',
+                  }))
+                }
+              />
+            </label>
+            {settings.isPrivateGame && (
+              <div className="ml-4">
+                <div className="mt-3 flex">
+                  <label className="mr-1 self-center">Password</label>
+                  <div className="flex w-48 rounded-lg border-2 border-slate-300 bg-white text-lg font-bold text-slate-800 transition-all duration-200 dark:border-red-700 dark:bg-red-900 dark:text-yellow-300">
+                    <input
+                      className="ml-1 w-40 px-1"
+                      value={settings.password ?? ''}
+                      type={showPassword ? 'text' : 'password'}
+                      onChange={(e) =>
+                        setSettings((prevValue) => ({
+                          ...prevValue,
+                          password: e.target.value,
+                        }))
+                      }
+                    />
+                    <Button
+                      variant="unstyled"
+                      onClick={() => setShowPassword((prevValue) => !prevValue)}
+                    >
+                      👁️
+                    </Button>
+                  </div>
+                  <Button
+                    className="mr-1 ml-1"
+                    variant="unstyled"
+                    onClick={() => {
+                      navigator.clipboard.writeText(settings.password ?? '');
+                      toast('Password copied to clipboard!');
+                    }}
+                  >
+                    📋
+                  </Button>
+                  <Button
+                    variant="unstyled"
+                    className="ml-1"
+                    onClick={() => {
+                      const randomString = generateString(5);
+                      setSettings((prevValue) => ({
+                        ...prevValue,
+                        password: randomString,
+                      }));
+                      toast('Random password generated!');
+                    }}
+                  >
+                    🔄
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
           {/* Allow spectators */}
           <label className="flex cursor-pointer items-center justify-between select-none">
             Allow spectators
