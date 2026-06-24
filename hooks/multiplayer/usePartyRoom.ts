@@ -17,6 +17,11 @@ export function usePartyRoom(
   onEmojiReaction?: (data: { emoji: string; isMe: boolean }) => void,
 ) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const [gamePasswordMessage, setGamePasswordMessage] = useState<{
+    message: string;
+    attempt: number;
+  } | null>(null);
   const [roomState, setRoomState] = useState<RoomState | null>(null);
   const [opponentDisconnected, setOpponentDisconnected] = useState(false);
   const searchParams = useSearchParams();
@@ -62,6 +67,7 @@ export function usePartyRoom(
       if (msg.type === 'state-update') {
         setRoomState(msg.state);
         setOpponentDisconnected(false);
+        setGamePasswordMessage(null); // password accepted (or not needed) -> drop the password input
       }
       if (msg.type === 'emoji-reaction') {
         onEmojiReactionRef.current?.({
@@ -78,6 +84,18 @@ export function usePartyRoom(
 
         setErrorMessage(message);
         socket.close();
+      }
+      if (msg.type === 'info') {
+        setInfoMessage(msg.message);
+      }
+      if (msg.type === 'game-password') {
+        // attempt bumps on every message so the object identity changes and the
+        // gamePasswordMessage useEffect fires again — without it, submitting the
+        // same wrong password twice wouldn't re-trigger the "Invalid password!" toast
+        setGamePasswordMessage((prev) => ({
+          message: msg.message,
+          attempt: (prev?.attempt ?? 0) + 1,
+        }));
       }
     },
   });
@@ -116,6 +134,19 @@ export function usePartyRoom(
     [socket],
   );
 
+  const sendGamePassword = useCallback(
+    (password: string) => {
+      const msg: ClientMessage = {
+        type: 'game-password',
+        password,
+        name: profile?.name ?? 'Capt. Hook',
+        icon: profile?.icon ?? '⚓',
+      };
+      socket.send(JSON.stringify(msg));
+    },
+    [socket, profile],
+  );
+
   const myId = socket.id ?? '';
 
   // Derive my assigned player from room state
@@ -127,10 +158,13 @@ export function usePartyRoom(
     myId,
     opponentDisconnected,
     errorMessage,
+    infoMessage,
+    gamePasswordMessage,
     sendMove,
     sendRematch,
     sendCancelRematch,
     sendEmoji,
     sendChat,
+    sendGamePassword,
   };
 }
