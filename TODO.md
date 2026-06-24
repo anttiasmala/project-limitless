@@ -1,5 +1,13 @@
 # TODO:
 
+1. Allow users to set a password? Make it be visible when "Private Game" is selected. If so, add it under "Private Game" just like in Sand Timer
+2. In Light Mode, "Password Require!" and "Password" texts does not show. They're too light
+   1. Adding just in case how to re-produce the error
+   2. Create a room with password
+   3. Change joining player's theme to Light
+   4. Connect to the server
+   5. Now you can hardly see the texts
+
 # Ideas:
 
 1. In Multiplayer theoretically a player could change their name longer than 20 characters by modifying the name in Local Storage
@@ -37,8 +45,10 @@
     7. Perhaps in Smallest Screen Needed mobile view use full screen chat. At the moment the chat section is really small
     8. In Spectator mode, have messages to be two-sided instead of all messages being in left-side
 17. In Spectator mode if player sends an emoji, it comes as "Opponent reacted:". Perhaps it should come as "Davy Jones reacted:" or something like that?
-18. Allow users to set a password? Should password have its own row in settings? Or should it be visible when "Private Game" is selected. If so, perhaps add it under "Private Game" just like in Sand Timer
-19. Add a list that lists players & spectators?
+18. Add a list that lists players & spectators?
+19. Perhaps make Enter-key to be "confirmation" in Create Lobby Modal?
+20. Add Switch&Case system instead of multiple if-statements? For example in /hooks/multiplayer/usePartyRoom.ts
+21. In Multiplayer Lobby, perhaps add possibility to player use the "Enter room code..." to join as a Spectator. Currently it is joining only as a player
 
 # Notes
 
