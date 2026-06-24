@@ -21,6 +21,7 @@ import {
   type ClientMessage,
   type ServerMessage,
   DEFAULT_ROOM_SETTINGS,
+  GAME_PASSWORD_MESSAGES,
 } from '@/utils/multiplayer/multiplayerTypes';
 
 const SERIES_POINT_THRESHOLDS = { bo3: 2, bo5: 3, off: Infinity } as const;
@@ -176,66 +177,82 @@ export default class GameRoom implements Party.Server {
     }
   }
 
-  async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
-    try {
-      console.log(
-        `Connected:
-         id: ${conn.id}
-         room: ${this.room.id}
-         url: ${new URL(ctx.request.url).pathname}`,
-      );
-      const url = new URL(ctx.request.url);
-      const isSpectator = url.searchParams.get('spectator') === 'true';
+  async admitPlayer(
+    conn: Party.Connection,
+    profile?: { name?: string; icon?: string },
+  ) {
+    const { isSpectator } = (conn.state as { isSpectator?: boolean }) ?? {};
 
-      if (isSpectator && this.state.settings.allowSpectators === false) {
-        this.sendTo(conn, {
-          type: 'error',
-          message: '👁️ Spectators are not allowed in this room.',
-        });
+    if (isSpectator && this.state.settings.allowSpectators === false) {
+      this.sendTo(conn, {
+        type: 'error',
+        message: '👁️ Spectators are not allowed in this room.',
+      });
+      conn.close();
+      return;
+    }
+
+    if (!isSpectator) {
+      const connectedPlayers = Object.values(this.state.players).filter(
+        (p) => p.connected,
+      );
+      if (connectedPlayers.length >= 2) {
+        this.sendTo(conn, { type: 'error', message: 'Room is full' });
         conn.close();
         return;
       }
 
-      if (!isSpectator) {
-        const connectedPlayers = Object.values(this.state.players).filter(
-          (p) => p.connected,
-        );
+      const takenSlots = Object.values(this.state.players).map((p) => p.player);
+      const assignedPlayer: Player = takenSlots.includes(HUMAN) ? AI : HUMAN;
 
-        // Room is full
-        if (connectedPlayers.length >= 2) {
-          this.sendTo(conn, { type: 'error', message: 'Room is full' });
-          conn.close();
-          return;
-        }
-
-        // Assign player slot — first gets ☠️, second gets ⚓
-        const takenSlots = Object.values(this.state.players).map(
-          (p) => p.player,
-        );
-
-        const assignedPlayer: Player = takenSlots.includes(HUMAN) ? AI : HUMAN;
-
-        this.state.players[conn.id] = {
-          id: conn.id,
-          player: assignedPlayer,
-          connected: true,
-          wantsRematch: false,
-          name: assignedPlayer === HUMAN ? 'Davy Jones' : 'Capt. Hook',
-          icon: assignedPlayer === HUMAN ? '☠️' : '⚓',
-        };
-        if (
-          Object.values(this.state.players).filter((p) => p.connected)
-            .length === 2
-        ) {
-          this.state.status = 'playing';
-        }
+      this.state.players[conn.id] = {
+        id: conn.id,
+        player: assignedPlayer,
+        connected: true,
+        wantsRematch: false,
+        name:
+          profile?.name?.trim().slice(0, 20) ||
+          (assignedPlayer === HUMAN ? 'Davy Jones' : 'Capt. Hook'),
+        icon: profile?.icon || (assignedPlayer === HUMAN ? '☠️' : '⚓'),
+      };
+      if (
+        Object.values(this.state.players).filter((p) => p.connected).length ===
+        2
+      ) {
+        this.state.status = 'playing';
       }
-      this.sendTo(conn, { type: 'state-update', state: this.state });
-      if (!isSpectator) {
-        this.save();
-        await this.updateLobby();
-        this.broadcast({ type: 'state-update', state: this.state }, [conn.id]); // exclude joiner
+    }
+
+    this.sendTo(conn, { type: 'state-update', state: this.state });
+    if (!isSpectator) {
+      this.save();
+      await this.updateLobby();
+      this.broadcast({ type: 'state-update', state: this.state }, [conn.id]);
+    }
+  }
+
+  async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
+    try {
+      const url = new URL(ctx.request.url);
+      const isSpectator = url.searchParams.get('spectator') === 'true';
+
+      // Remember the spectator flag on the connection so we can admit later
+      // (e.g. after a password challenge) without the request URL.
+      conn.setState({ isSpectator });
+
+      // Password-protected room: don't admit yet. Keep the socket open and
+      // wait for a `game-password` message. The socket stays connected but the
+      // player isn't in `state.players`, so onMessage's `if (!senderPlayer) return`
+      // already blocks every other action until they're admitted.
+      if (this.state.settings.password) {
+        this.sendTo(conn, {
+          type: 'game-password',
+          message: GAME_PASSWORD_MESSAGES.required,
+        });
+        return;
       }
+
+      await this.admitPlayer(conn);
     } catch (e) {
       console.error(e);
     }
@@ -282,6 +299,23 @@ export default class GameRoom implements Party.Server {
     } catch {
       return;
     }
+
+    if (msg.type === 'game-password') {
+      // Ignore if already admitted, or if the room has no password.
+      if (this.state.players[sender.id]) return;
+      if (!this.state.settings.password) return;
+      if (msg.password === this.state.settings.password) {
+        await this.admitPlayer(sender, { name: msg.name, icon: msg.icon });
+      } else {
+        this.sendTo(sender, {
+          type: 'game-password',
+          message: GAME_PASSWORD_MESSAGES.invalid,
+        });
+        // leave the socket open so they can try again
+      }
+      return;
+    }
+
     const senderPlayer = this.state.players[sender.id];
     if (!senderPlayer) return;
 
