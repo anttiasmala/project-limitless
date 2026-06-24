@@ -158,7 +158,6 @@ function LobbyModal({
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchLobbies();
     const interval = setInterval(() => {
       if (document.visibilityState === 'visible') void fetchLobbies();
