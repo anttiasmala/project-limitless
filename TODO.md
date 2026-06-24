@@ -7,6 +7,7 @@
    3. Change joining player's theme to Light
    4. Connect to the server
    5. Now you can hardly see the texts
+3. Currently Spectator mode is taken from the URL. Should it be sent in payload instead of URL?
 
 # Ideas:
 
