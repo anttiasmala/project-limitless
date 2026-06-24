@@ -2,6 +2,7 @@
 
 import type { Metadata } from 'next';
 import './globals.css';
+import ThemedToastContainer from '@/components/ThemedToastContainer';
 
 export const metadata: Metadata = {
   title: 'Pirate Tic-Tac-Toe',
@@ -31,7 +32,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <ThemedToastContainer />
+      </body>
     </html>
   );
 }
