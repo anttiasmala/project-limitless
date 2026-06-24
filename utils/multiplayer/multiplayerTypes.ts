@@ -3,6 +3,14 @@
 import type { Board as BoardType, Player } from '@/lib/gameLogic';
 import type { MoveEntry } from '../types';
 
+// Messages carried by the `game-password` channel. Shared between the server
+// (party/game.ts) and the client so the password UI can match on them without
+// duplicating string literals that could drift out of sync.
+export const GAME_PASSWORD_MESSAGES = {
+  required: 'Password required!',
+  invalid: 'Invalid password!',
+} as const;
+
 export type ChatMessage = {
   id: string;
   senderId: string;
@@ -21,6 +29,8 @@ export type RoomSettings = {
   victoriesForAction: number;
   allowSpectators: boolean;
   isPrivateGame: boolean;
+  // password set to optional for now, otherwise MultiplayerPage's initialSettings require password
+  password?: string;
 };
 
 export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
@@ -68,13 +78,21 @@ export type ClientMessage =
   | { type: 'init-settings'; settings: RoomSettings }
   | { type: 'set-profile'; name: string; icon: string }
   | { type: 'send-emoji'; emoji: string }
-  | { type: 'send-chat'; text: string };
+  | { type: 'send-chat'; text: string }
+  | {
+      type: 'game-password';
+      password: string;
+      name: string;
+      icon: string;
+    };
 
 export type ServerMessage =
   | { type: 'state-update'; state: RoomState }
   | { type: 'emoji-reaction'; emoji: string; senderId: string }
   | { type: 'opponent-disconnected' }
-  | { type: 'error'; message: string };
+  | { type: 'error'; message: string }
+  | { type: 'info'; message: string }
+  | { type: 'game-password'; message: string };
 
 export type LobbyEntry = {
   roomId: string;

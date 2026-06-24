@@ -25,7 +25,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { SettingsModal } from '@/components/SettingsModal';
 import SvgSettings from '@/icons/settings';
-import { RoomSettings } from '@/utils/multiplayer/multiplayerTypes';
+import {
+  RoomSettings,
+  GAME_PASSWORD_MESSAGES,
+} from '@/utils/multiplayer/multiplayerTypes';
 import SeriesWinnerModal from '../SeriesWinnerModal';
 import HourglassTimer from '../HourglassTimer';
 import ReplayModal from '../ReplayModal';
@@ -33,6 +36,7 @@ import Button from '../utils/Button';
 import ShowEmoji from './utils/ShowEmoji';
 import { toast } from 'react-toastify';
 import Chat from './utils/Chat';
+import Input from '../utils/Input';
 
 const BOARD_COLS = { '3': 3, '5': 5, '10': 10 } as const;
 
@@ -64,6 +68,7 @@ export default function MultiplayerBoard({
     name: 'Davy Jones',
     icon: '☠️',
   });
+  const [password, setPassword] = useState<string>('');
 
   const {
     roomState,
@@ -71,11 +76,14 @@ export default function MultiplayerBoard({
     myId,
     opponentDisconnected,
     errorMessage,
+    infoMessage,
+    gamePasswordMessage,
     sendMove,
     sendRematch,
     sendCancelRematch,
     sendEmoji,
     sendChat,
+    sendGamePassword,
   } = usePartyRoom(
     roomId,
     initialSettings,
@@ -169,6 +177,14 @@ export default function MultiplayerBoard({
     return () => clearTimeout(timeout);
   }, [seriesWinner]);
 
+  useEffect(() => {
+    // "Password required!" is already shown as the form heading, so toasting it
+    // would be redundant. We only toast "Invalid password!", which is the sole
+    // feedback that a submitted password was wrong (the heading doesn't change).
+    if (gamePasswordMessage?.message === GAME_PASSWORD_MESSAGES.required) return;
+    toast(gamePasswordMessage?.message);
+  }, [gamePasswordMessage]);
+
   // ERROR MESSAGE
   if (errorMessage) {
     return (
@@ -176,6 +192,61 @@ export default function MultiplayerBoard({
         message={`Error: ${errorMessage}`}
         onBack={() => router.push('/multiplayer/lobby')}
       />
+    );
+  }
+
+  // INFO MESSAGE
+  if (infoMessage) {
+    return (
+      <RoomMessage
+        message={infoMessage}
+        onBack={() => router.push('/multiplayer/lobby')}
+      />
+    );
+  }
+
+  // GAME-PASSWORD MESSAGE
+
+  if (gamePasswordMessage) {
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <p className="text-center dark:text-yellow-300">
+          {GAME_PASSWORD_MESSAGES.required}
+        </p>
+        <form
+          className="flex flex-col"
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendGamePassword(password);
+            setPassword('');
+            // this makes passwordInput active after submitting (if password is wrong)
+            document.getElementById('passwordInput')?.focus();
+          }}
+        >
+          <label className="dark:text-yellow-300">Password:</label>
+          <Input
+            id="passwordInput"
+            type="password"
+            className="mb-5"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {/* CHECK THIS */}
+          {/* Add an eye that shows the password in plain-text*/}
+          <div className="flex">
+            <Button
+              variant="neutral"
+              size="sm"
+              onClick={() => router.push('/multiplayer/lobby')}
+            >
+              ← Back to lobby
+            </Button>
+            <Button variant="primary" size="sm" type="submit">
+              Login
+            </Button>
+          </div>
+        </form>
+      </div>
     );
   }
 
