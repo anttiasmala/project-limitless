@@ -183,13 +183,27 @@ export default class GameRoom implements Party.Server {
   ) {
     const { isSpectator } = (conn.state as { isSpectator?: boolean }) ?? {};
 
-    if (isSpectator && this.state.settings.allowSpectators === false) {
-      this.sendTo(conn, {
-        type: 'error',
-        message: '👁️ Spectators are not allowed in this room.',
-      });
-      conn.close();
-      return;
+    if (isSpectator) {
+      if (this.state.settings.allowSpectators === false) {
+        this.sendTo(conn, {
+          type: 'error',
+          message: '👁️ Spectators are not allowed in this room.',
+        });
+        conn.close();
+        return;
+      }
+
+      const connectedPlayers = Object.values(this.state.players).filter(
+        (p) => p.connected,
+      );
+      if (connectedPlayers.length === 0) {
+        this.sendTo(conn, {
+          type: 'error',
+          message: '🏴‍☠️ This room is empty — nothing to spectate.',
+        });
+        conn.close();
+        return;
+      }
     }
 
     if (!isSpectator) {
@@ -239,7 +253,6 @@ export default class GameRoom implements Party.Server {
       // Remember the spectator flag on the connection so we can admit later
       // (e.g. after a password challenge) without the request URL.
       conn.setState({ isSpectator });
-
       // Password-protected room: don't admit yet. Keep the socket open and
       // wait for a `game-password` message. The socket stays connected but the
       // player isn't in `state.players`, so onMessage's `if (!senderPlayer) return`
