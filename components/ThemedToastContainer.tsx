@@ -11,11 +11,14 @@ import { useEffect, useState } from 'react';
 // sync (useLocalStorage broadcasts in-tab writes and listens for `storage`).
 export default function ThemedToastContainer() {
   const [isDarkTheme] = useLocalStorage('isDarkTheme', true);
-  const [isPhoneUser, setIsPhoneUser] = useState(false);
+  const [isPhoneUser, setIsPhoneUser] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(max-width: 767px)').matches,
+  );
 
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 767px)');
-    setIsPhoneUser(mql.matches);
     const onChange = (e: MediaQueryListEvent) => setIsPhoneUser(e.matches);
     mql.addEventListener('change', onChange);
     return () => mql.removeEventListener('change', onChange);

@@ -1,7 +1,7 @@
 // components/multiplayer/CreateRoomModal.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { nanoid } from 'nanoid';
 import Button from '../utils/Button';
