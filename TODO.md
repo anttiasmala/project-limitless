@@ -1,7 +1,5 @@
 # Currently Implementing:
 
-1. Currently 10x10 is really small. Perhaps add a zoom button or something that helps seeing the board. Zooming the whole site works, but perhaps zoom button would be good?
-
 # TODO:
 
 # Ideas:
