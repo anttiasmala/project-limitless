@@ -4,6 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/utils/Button';
 import Input from '@/components/utils/Input';
 import type { ChatMessage } from '@/utils/multiplayer/multiplayerTypes';
+import SvgSmileyFace from '@/icons/smiley_face';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 /** Quick-reaction row shown above the input. Folds the old emoji picker in. */
 const QUICK_EMOJIS = ['👍', '😂', '😮', '🔥', '☠️', '⚔️', '🏆', '🦜'];
@@ -19,9 +22,13 @@ type Props = {
 export default function Chat({ isSpectator, messages, myId, onSend }: Props) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   // Count of messages already seen, so the toggle can badge unread ones.
   const [seenCount, setSeenCount] = useState(messages.length);
   const listRef = useRef<HTMLDivElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+
+  const [isDarkTheme] = useLocalStorage('isDarkTheme', true);
 
   const unread = open ? 0 : Math.max(0, messages.length - seenCount);
 
@@ -32,6 +39,19 @@ export default function Chat({ isSpectator, messages, myId, onSend }: Props) {
     const element = listRef.current;
     if (element) element.scrollTop = element.scrollHeight;
   }, [open, messages.length]);
+
+  // Close the emoji picker when clicking anywhere outside of it (the toggle
+  // button lives inside the same ref, so its own click won't close it here).
+  useEffect(() => {
+    if (!showEmojiPicker) return;
+    function handlePointerDown(event: PointerEvent) {
+      if (!emojiPickerRef.current?.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    }
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [showEmojiPicker]);
 
   function handleSend(text: string) {
     const trimmed = text.trim();
@@ -49,6 +69,7 @@ export default function Chat({ isSpectator, messages, myId, onSend }: Props) {
 
   function closePanel() {
     setSeenCount(messages.length);
+    setShowEmojiPicker(false);
     setOpen(false);
   }
 
@@ -154,15 +175,50 @@ export default function Chat({ isSpectator, messages, myId, onSend }: Props) {
               handleSend(draft);
             }}
           >
-            <Input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="Message…"
-              aria-label="Chat message"
-              maxLength={200}
-              disabled={isSpectator}
-              className="min-w-0 flex-1 px-3 py-2 text-base font-normal disabled:cursor-not-allowed disabled:opacity-60"
-            />
+            <div ref={emojiPickerRef} className="relative flex flex-1">
+              <Input
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder="Message…"
+                aria-label="Chat message"
+                maxLength={200}
+                disabled={isSpectator}
+                className="min-w-0 flex-1 px-2 py-2 pr-9 text-base font-normal disabled:cursor-not-allowed disabled:opacity-60"
+              />
+              <Button
+                type="button"
+                onClick={() => setShowEmojiPicker((prevValue) => !prevValue)}
+                variant="unstyled"
+                aria-label="Toggle emoji picker"
+                disabled={isSpectator}
+                className="absolute top-1/2 right-1 -translate-y-1/2 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <SvgSmileyFace
+                  className={`h-7 w-7 transition-colors ${
+                    showEmojiPicker
+                      ? 'text-amber-600 dark:text-yellow-300'
+                      : 'text-amber-500 hover:text-amber-600 dark:text-amber-300 dark:hover:text-yellow-300'
+                  }`}
+                />
+              </Button>
+              {showEmojiPicker && (
+                <div className="absolute -right-3 bottom-full z-50 mb-2 h-87.5 max-h-[calc(100dvh-4rem)] w-75 sm:h-112.5 sm:w-87.5">
+                  <EmojiPicker
+                    width="100%"
+                    height="100%"
+                    previewConfig={{ showPreview: false }}
+                    autoFocusSearch={false}
+                    onEmojiClick={(emojiObject) => {
+                      setDraft((prevDraft) =>
+                        (prevDraft + emojiObject.emoji).slice(0, 200),
+                      );
+                      setShowEmojiPicker(false);
+                    }}
+                    theme={isDarkTheme ? Theme.DARK : Theme.LIGHT}
+                  />
+                </div>
+              )}
+            </div>
             <Button
               variant="gold"
               size="md"
