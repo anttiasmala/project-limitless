@@ -256,8 +256,6 @@ export default function MultiplayerBoard({
               )}
             </Button>
           </div>
-          {/* CHECK THIS */}
-          {/* Add an eye that shows the password in plain-text*/}
           <div className="flex justify-center gap-3">
             <Button
               variant="neutral"
