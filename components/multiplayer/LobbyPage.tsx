@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Modal } from '../utils/Modal';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { ICON_LIST as PIRATE_ICONS } from '@/components/settings/IconPickerModal';
+import SvgReload from '@/icons/reload';
 
 export default function LobbyPage() {
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -76,10 +77,11 @@ function ProfileModal({
                 setProfile({ icon: '☠️', name: 'Davy Jones' });
                 onClose();
               }}
+              className="rounded-full border border-slate-300 bg-slate-200 p-1 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:border-red-600 dark:bg-red-800 dark:hover:border-yellow-400 dark:hover:bg-red-700"
             >
-              🔄
+              <SvgReload className="h-6 w-6 text-slate-800 dark:text-yellow-300" />
             </Button>
-            <span className="pointer-events-none absolute top-full right-0 z-50 mt-1 hidden rounded bg-slate-800 px-2 py-1 text-xs whitespace-nowrap text-white group-hover:block">
+            <span className="pointer-events-none absolute top-full right-0 z-50 mt-0 hidden rounded bg-slate-800 px-2 py-1 text-xs whitespace-nowrap text-white group-hover:block">
               Reset profile
             </span>
           </span>

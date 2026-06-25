@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { GameMode } from '@/utils/types';
 import { IconPickerModal } from './IconPickerModal';
 import Button from '../utils/Button';
+import SvgReload from '@/icons/reload';
 
 type PlayersPanelProps = {
   playerOne: { icon: string; name: string };
@@ -49,9 +50,9 @@ export function PlayersPanel({
                       icon: '☠️',
                     })
                   }
-                  className="hover:bg-slate-300 hover:dark:bg-red-500"
+                  className="rounded-full border border-slate-300 bg-slate-200 p-1 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:border-red-600 dark:bg-red-800 dark:hover:border-yellow-400 dark:hover:bg-red-700"
                 >
-                  🔄
+                  <SvgReload className="h-6 w-6 text-slate-800 dark:text-yellow-300" />
                 </Button>
                 <span className="pointer-events-none absolute top-full left-1/2 z-50 mt-1 hidden -translate-x-1/2 rounded bg-slate-800 px-2 py-1 text-xs whitespace-nowrap text-white group-hover:block">
                   Reset to default
@@ -100,9 +101,9 @@ export function PlayersPanel({
                       icon: '⚓',
                     })
                   }
-                  className="hover:bg-slate-300 hover:dark:bg-red-500"
+                  className="rounded-full border border-slate-300 bg-slate-200 p-1 text-slate-700 hover:border-amber-500 hover:bg-slate-300 dark:border-red-600 dark:bg-red-800 dark:hover:border-yellow-400 dark:hover:bg-red-700"
                 >
-                  🔄
+                  <SvgReload className="h-6 w-6 text-slate-800 dark:text-yellow-300" />
                 </Button>
                 <span className="pointer-events-none absolute top-full left-1/2 z-50 mt-1 hidden -translate-x-1/2 rounded bg-slate-800 px-2 py-1 text-xs whitespace-nowrap text-white group-hover:block">
                   Reset to default
