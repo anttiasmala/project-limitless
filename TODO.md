@@ -1,39 +1,34 @@
 # Currently Implementing:
 
-1. In Spectator mode if player sends an emoji, it comes as "Opponent reacted:". Perhaps it should come as "Davy Jones reacted:" or something like that?
+1. Currently 10x10 is really small. Perhaps add a zoom button or something that helps seeing the board. Zooming the whole site works, but perhaps zoom button would be good?
 
 # TODO:
 
-1. Currently Spectator mode is taken from the URL. Should it be sent in payload instead of URL?
-
 # Ideas:
 
-1. In Multiplayer theoretically a player could change their name longer than 20 characters by modifying the name in Local Storage
-2. In Multiplayer allow only spectate rooms that have players / allowed spectating
-3. Currently 10x10 is really small. Perhaps add a zoom button or something that helps seeing the board. Zooming the whole site works, but perhaps zoom button would be good?
-4. Add login system and save winLossDraw stats to backend SQL database. Perhaps PostgreSQL and Prisma?
-5. Save multiplayer settings to LocalStorage so player does not have to set the settings always again?
-6. Show settings of a gameroom in Lobby list, so player knows that if there is for example turn timer and how long it is, etc
-7. When site is going live, add somekind of feedback system?
+1. Add login system and save winLossDraw stats to backend SQL database. Perhaps PostgreSQL and Prisma?
+2. Save multiplayer settings to LocalStorage so player does not have to set the settings always again?
+3. Show settings of a gameroom in Lobby list, so player knows that if there is for example turn timer and how long it is, etc
+4. When site is going live, add somekind of feedback system?
 
-8. If a player wins a game with Best Of Series scores activated, if a player leaves after the SeriesWinnerModal, game does not reset the scores.
+5. If a player wins a game with Best Of Series scores activated, if a player leaves after the SeriesWinnerModal, game does not reset the scores.
    How to reproduce the issue:
    1. Create a room with Victories for action: 5, and Best of Series scores: Best of 3. Add the debugging values for score and Best of Series score in /party/games.ts
    2. Win the game with Player 1 so it will have 2 Best of Series scores.
    3. Click "New Series" with Player 1 and leave the game
    4. Points get stuck and do not reset
-9. In Singleplayer (maybe in Multiplayer too) if Victories is set to 1 and Best of Series is off, when a player scores a point it immediately resets the game and for example Replay modal is not possible to be viewed
+6. In Singleplayer (maybe in Multiplayer too) if Victories is set to 1 and Best of Series is off, when a player scores a point it immediately resets the game and for example Replay modal is not possible to be viewed
    How to reproduce issue:
    1. Set Victories: 1 and Best of Series: Off
    2. Win a round
-10. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
-11. Add a way to players to see if someone is spectating their game
-12. Add Toastify for toasts (for example Error messages could be shown in Toastify's toasts)
-13. Perhaps set a max amount in VictoriesForAction and Seconds per turn in Multiplayer?
-14. Perhaps allow player to choose how many icons have to be inline for a win.
+7. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
+8. Add a way to players to see if someone is spectating their game
+9. Add Toastify for toasts (for example Error messages could be shown in Toastify's toasts)
+10. Perhaps set a max amount in VictoriesForAction and Seconds per turn in Multiplayer?
+11. Perhaps allow player to choose how many icons have to be inline for a win.
     1. For example: player could choose that 10x10 board would require 3 inline to win, is this a good idea?
-15. If there are not any Multiplayer rooms, add "Create New Room"-button into the Lobby List
-16. Make chat edits:
+12. If there are not any Multiplayer rooms, add "Create New Room"-button into the Lobby List
+13. Make chat edits:
     1. window movable in X-axis?
     2. time in a message?
     3. Possibility to delete messages?
@@ -42,12 +37,12 @@
     6. Add an info button that tells 100 messages is max and then they will dissapear. Oldest dissapears first
     7. Perhaps in Smallest Screen Needed mobile view use full screen chat. At the moment the chat section is really small
     8. In Spectator mode, have messages to be two-sided instead of all messages being in left-side
-17. Add a list that lists players & spectators?
-18. Perhaps make Enter-key to be "confirmation" in Create Lobby Modal?
-19. Add Switch&Case system instead of multiple if-statements? For example in /hooks/multiplayer/usePartyRoom.ts
-20. In Multiplayer Lobby, perhaps add possibility to player use the "Enter room code..." to join as a Spectator. Currently it is joining only as a player
-21. Add a possibility to Spectators to react?
-22. When #17 is done, perhaps add a way to mute player (suppress chats / emoji reactions)
+14. Add a list that lists players & spectators?
+15. Perhaps make Enter-key to be "confirmation" in Create Lobby Modal?
+16. Add Switch&Case system instead of multiple if-statements? For example in /hooks/multiplayer/usePartyRoom.ts
+17. In Multiplayer Lobby, perhaps add possibility to player use the "Enter room code..." to join as a Spectator. Currently it is joining only as a player
+18. Add a possibility to Spectators to react?
+19. When #17 is done, perhaps add a way to mute player (suppress chats / emoji reactions)
 
 # Notes
 
