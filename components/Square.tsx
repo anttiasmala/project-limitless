@@ -49,9 +49,9 @@ export default function Square({
       className={twMerge(
         ` ${
           size === 'sm'
-            ? 'h-7 w-7 rounded border-2 text-[10px] sm:h-8 sm:w-8 sm:text-xs'
+            ? 'aspect-square w-full rounded border-2 text-[clamp(0.85rem,3.5vw,1rem)]'
             : size === 'md'
-              ? 'h-12 w-12 rounded-md border-2 text-xl sm:h-14 sm:w-14 sm:text-2xl'
+              ? 'aspect-square w-full rounded-md border-2 text-[clamp(1.6rem,7vw,2.1rem)]'
               : 'h-20 w-20 rounded-lg border-4 text-[min(8vw,2rem)] sm:h-[min(28vw,6rem)] sm:w-[min(28vw,6rem)] sm:text-5xl'
         } flex items-center justify-center font-bold transition-all duration-300 focus-visible:ring-4 focus-visible:ring-amber-400 focus-visible:outline-none dark:focus-visible:ring-yellow-400 ${
           isWinning

@@ -82,14 +82,14 @@ export default function ReplayModal({
 
         {/* Board */}
         <div className="mb-6 flex justify-center">
-          <div className="relative">
+          <div className={`relative ${boardSize === 3 ? '' : 'w-full'}`}>
             <div
               ref={gridRef}
               className={`grid ${
                 boardSize === 10
-                  ? 'grid-cols-10 gap-1'
+                  ? 'w-full grid-cols-10 gap-1'
                   : boardSize === 5
-                    ? 'grid-cols-5 gap-2'
+                    ? 'w-full grid-cols-5 gap-2'
                     : 'grid-cols-3 gap-3'
               }`}
             >

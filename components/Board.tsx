@@ -965,7 +965,7 @@ export default function Board({
       )}
 
       {/* Grid */}
-      <div className="relative">
+      <div className={`relative ${boardSize === 3 ? '' : 'w-full'}`}>
         <div
           ref={gridRef}
           role="grid"
@@ -974,9 +974,9 @@ export default function Board({
           }`}
           className={`grid ${
             boardSize === 10
-              ? 'grid-cols-10 gap-1'
+              ? 'w-full grid-cols-10 gap-1'
               : boardSize === 5
-                ? 'grid-cols-5 gap-2'
+                ? 'w-full grid-cols-5 gap-2'
                 : 'grid-cols-3 gap-3'
           }`}
         >
