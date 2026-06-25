@@ -1,5 +1,7 @@
 // components/utils/ToggleSwitch.tsx
 
+// All credits: https://uiverse.io/andrew-demchenk0/honest-stingray-90
+
 import styles from './ToggleSwitch.module.css';
 import { InputHTMLAttributes } from 'react';
 import { twMerge } from 'tailwind-merge';
