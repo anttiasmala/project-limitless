@@ -1,13 +1,6 @@
 # TODO:
 
-1. Allow users to set a password? Make it be visible when "Private Game" is selected. If so, add it under "Private Game" just like in Sand Timer
-2. In Light Mode, "Password Require!" and "Password" texts does not show. They're too light
-   1. Adding just in case how to re-produce the error
-   2. Create a room with password
-   3. Change joining player's theme to Light
-   4. Connect to the server
-   5. Now you can hardly see the texts
-3. Currently Spectator mode is taken from the URL. Should it be sent in payload instead of URL?
+1. Currently Spectator mode is taken from the URL. Should it be sent in payload instead of URL?
 
 # Ideas:
 
