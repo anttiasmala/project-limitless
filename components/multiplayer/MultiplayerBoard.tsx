@@ -513,14 +513,14 @@ export default function MultiplayerBoard({
       )}
 
       {/* Grid */}
-      <div className="relative">
+      <div className={`relative ${settings.boardSize === '3' ? '' : 'w-full'}`}>
         <div
           ref={gridRef}
           className={`grid ${
             settings.boardSize === '10'
-              ? 'grid-cols-10 gap-1'
+              ? 'w-full grid-cols-10 gap-1'
               : settings.boardSize === '5'
-                ? 'grid-cols-5 gap-2'
+                ? 'w-full grid-cols-5 gap-2'
                 : 'grid-cols-3 gap-3'
           }`}
         >
