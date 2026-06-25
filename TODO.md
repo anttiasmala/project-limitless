@@ -1,3 +1,7 @@
+# Currently Implementing:
+
+1. In Spectator mode if player sends an emoji, it comes as "Opponent reacted:". Perhaps it should come as "Davy Jones reacted:" or something like that?
+
 # TODO:
 
 1. Currently Spectator mode is taken from the URL. Should it be sent in payload instead of URL?
@@ -38,11 +42,12 @@
     6. Add an info button that tells 100 messages is max and then they will dissapear. Oldest dissapears first
     7. Perhaps in Smallest Screen Needed mobile view use full screen chat. At the moment the chat section is really small
     8. In Spectator mode, have messages to be two-sided instead of all messages being in left-side
-17. In Spectator mode if player sends an emoji, it comes as "Opponent reacted:". Perhaps it should come as "Davy Jones reacted:" or something like that?
-18. Add a list that lists players & spectators?
-19. Perhaps make Enter-key to be "confirmation" in Create Lobby Modal?
-20. Add Switch&Case system instead of multiple if-statements? For example in /hooks/multiplayer/usePartyRoom.ts
-21. In Multiplayer Lobby, perhaps add possibility to player use the "Enter room code..." to join as a Spectator. Currently it is joining only as a player
+17. Add a list that lists players & spectators?
+18. Perhaps make Enter-key to be "confirmation" in Create Lobby Modal?
+19. Add Switch&Case system instead of multiple if-statements? For example in /hooks/multiplayer/usePartyRoom.ts
+20. In Multiplayer Lobby, perhaps add possibility to player use the "Enter room code..." to join as a Spectator. Currently it is joining only as a player
+21. Add a possibility to Spectators to react?
+22. When #17 is done, perhaps add a way to mute player (suppress chats / emoji reactions)
 
 # Notes
 
