@@ -207,7 +207,7 @@ export function SettingsModal({
                   <label className="cursor-pointer select-none">
                     Dark Theme
                     <ToggleSwitchDarkLightTheme
-                      className="ml-2 align-middle"
+                      className="ml-2 cursor-pointer align-middle"
                       checked={isDarkTheme}
                       onChange={(e) => setIsDarkTheme(e.target.checked)}
                     />

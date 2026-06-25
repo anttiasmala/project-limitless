@@ -37,6 +37,8 @@ import ShowEmoji from './utils/ShowEmoji';
 import { toast } from 'react-toastify';
 import Chat from './utils/Chat';
 import Input from '../utils/Input';
+import SvgEyeOpen from '@/icons/eye_open';
+import SvgEyeSlash from '@/icons/eye_slash';
 
 const BOARD_COLS = { '3': 3, '5': 5, '10': 10 } as const;
 
@@ -69,6 +71,7 @@ export default function MultiplayerBoard({
     icon: '☠️',
   });
   const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     roomState,
@@ -181,7 +184,8 @@ export default function MultiplayerBoard({
     // "Password required!" is already shown as the form heading, so toasting it
     // would be redundant. We only toast "Invalid password!", which is the sole
     // feedback that a submitted password was wrong (the heading doesn't change).
-    if (gamePasswordMessage?.message === GAME_PASSWORD_MESSAGES.required) return;
+    if (gamePasswordMessage?.message === GAME_PASSWORD_MESSAGES.required)
+      return;
     toast(gamePasswordMessage?.message);
   }, [gamePasswordMessage]);
 
@@ -209,31 +213,52 @@ export default function MultiplayerBoard({
 
   if (gamePasswordMessage) {
     return (
-      <div className="flex flex-col items-center gap-4">
-        <p className="text-center dark:text-yellow-300">
-          {GAME_PASSWORD_MESSAGES.required}
-        </p>
+      <div className="flex flex-col items-center gap-5">
+        <h2 className="text-center text-lg font-black tracking-wide text-amber-700 dark:text-yellow-400">
+          🔒 {GAME_PASSWORD_MESSAGES.required}
+        </h2>
         <form
-          className="flex flex-col"
+          className="flex w-full max-w-xs flex-col gap-2"
           onSubmit={(e) => {
             e.preventDefault();
-            sendGamePassword(password);
+            if (password.length > 0) {
+              sendGamePassword(password);
+            }
             setPassword('');
             // this makes passwordInput active after submitting (if password is wrong)
             document.getElementById('passwordInput')?.focus();
           }}
         >
-          <label className="dark:text-yellow-300">Password:</label>
-          <Input
-            id="passwordInput"
-            type="password"
-            className="mb-5"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <label
+            htmlFor="passwordInput"
+            className="font-semibold text-slate-700 dark:text-yellow-300"
+          >
+            Password:
+          </label>
+          <div className="flex flex-1 rounded-lg border-2 border-slate-300 bg-white text-lg font-bold text-slate-800 transition-all duration-200 focus-within:ring-2 focus-within:ring-amber-400 dark:border-amber-700 dark:bg-amber-900 dark:text-yellow-300">
+            <Input
+              id="passwordInput"
+              type={showPassword ? 'text' : 'password'}
+              className="w-full border-0 px-3 py-2 outline-0 focus:outline-0 dark:border-amber-700 dark:bg-amber-900"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button
+              aria-label="Show or hide password"
+              variant="unstyled"
+              onClick={() => setShowPassword((prevValue) => !prevValue)}
+              title="Show or hide password"
+            >
+              {showPassword ? (
+                <SvgEyeSlash className="h-8 w-8" />
+              ) : (
+                <SvgEyeOpen className="h-8 w-8" />
+              )}
+            </Button>
+          </div>
           {/* CHECK THIS */}
           {/* Add an eye that shows the password in plain-text*/}
-          <div className="flex">
+          <div className="flex justify-center gap-3">
             <Button
               variant="neutral"
               size="sm"

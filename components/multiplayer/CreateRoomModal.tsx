@@ -15,6 +15,10 @@ import VictoriesInfoModal from '../utils/VictoriesInfoModal';
 import ToggleSwitch from '../utils/ToggleSwitch';
 import { toast } from 'react-toastify';
 import { generateString } from '@/utils/utils';
+import SvgEyeOpen from '@/icons/eye_open';
+import SvgEyeSlash from '@/icons/eye_slash';
+import SvgCopy from '@/icons/copy';
+import SvgReload from '@/icons/reload';
 
 type Props = {
   onClose: () => void;
@@ -46,18 +50,6 @@ export default function CreateRoomModal({ onClose }: Props) {
     router.push(`/multiplayer/${id}${query ? `?${query}` : ''}`);
     onClose();
   }
-
-  /*
-  CHECK THIS
-  DEBUGGING VALUES, DON'T REMOVE YET
-  useEffect(() => {
-    setSettings((prev) => ({
-      ...prev,
-      isPrivateGame: true,
-      password: '123',
-    }));
-  }, []);
-  */
 
   return (
     <Modal
@@ -232,40 +224,50 @@ export default function CreateRoomModal({ onClose }: Props) {
             </label>
             {settings.isPrivateGame && (
               <div className="ml-4">
-                <div className="mt-3 flex">
-                  <label className="mr-1 self-center">Password</label>
-                  <div className="flex w-48 rounded-lg border-2 border-slate-300 bg-white text-lg font-bold text-slate-800 transition-all duration-200 dark:border-red-700 dark:bg-red-900 dark:text-yellow-300">
-                    <input
-                      className="ml-1 w-40 px-1"
-                      value={settings.password ?? ''}
-                      type={showPassword ? 'text' : 'password'}
-                      onChange={(e) =>
-                        setSettings((prevValue) => ({
-                          ...prevValue,
-                          password: e.target.value,
-                        }))
-                      }
-                    />
-                    <Button
-                      variant="unstyled"
-                      onClick={() => setShowPassword((prevValue) => !prevValue)}
-                    >
-                      👁️
-                    </Button>
-                  </div>
+                <label className="mb-1 block">Password</label>
+                <div className="flex items-center gap-1 rounded-lg border-2 border-slate-300 bg-white pr-1 text-lg font-bold text-slate-800 transition-all duration-200 focus-within:ring-2 focus-within:ring-amber-400 dark:border-amber-700 dark:bg-amber-900 dark:text-yellow-300">
+                  <input
+                    aria-label="Password input"
+                    className="min-w-0 flex-1 px-2 focus:outline-0"
+                    autoComplete="off"
+                    value={settings.password ?? ''}
+                    type={showPassword ? 'text' : 'password'}
+                    onChange={(e) =>
+                      setSettings((prevValue) => ({
+                        ...prevValue,
+                        password: e.target.value,
+                      }))
+                    }
+                  />
                   <Button
-                    className="mr-1 ml-1"
+                    aria-label="Show or hide password"
                     variant="unstyled"
-                    onClick={() => {
-                      navigator.clipboard.writeText(settings.password ?? '');
-                      toast('Password copied to clipboard!');
-                    }}
+                    onClick={() => setShowPassword((prevValue) => !prevValue)}
+                    title="Show or hide password"
                   >
-                    📋
+                    {showPassword ? (
+                      <SvgEyeSlash className="h-8 w-8" />
+                    ) : (
+                      <SvgEyeOpen className="h-8 w-8" />
+                    )}
                   </Button>
                   <Button
                     variant="unstyled"
-                    className="ml-1"
+                    aria-label="Copy the password"
+                    title="Copy the password"
+                    onClick={() => {
+                      navigator.clipboard
+                        .writeText(settings.password ?? '')
+                        .then(() => toast('Password copied to clipboard!'))
+                        .catch(() => toast('Could not copy password'));
+                    }}
+                  >
+                    <SvgCopy className="h-8 w-8" />
+                  </Button>
+                  <Button
+                    variant="unstyled"
+                    aria-label="Generate random password"
+                    title="Generate random password"
                     onClick={() => {
                       const randomString = generateString(5);
                       setSettings((prevValue) => ({
@@ -275,7 +277,7 @@ export default function CreateRoomModal({ onClose }: Props) {
                       toast('Random password generated!');
                     }}
                   >
-                    🔄
+                    <SvgReload className="h-8 w-8" />
                   </Button>
                 </div>
               </div>
