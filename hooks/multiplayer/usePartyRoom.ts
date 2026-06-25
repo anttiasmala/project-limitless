@@ -14,7 +14,12 @@ export function usePartyRoom(
   roomId: string,
   initialSettings?: RoomSettings,
   profile?: { name: string; icon: string },
-  onEmojiReaction?: (data: { emoji: string; isMe: boolean }) => void,
+  onEmojiReaction?: (data: {
+    emoji: string;
+    isMe: boolean;
+    isSpectator: boolean;
+    whoReacted?: { name: string; icon: string };
+  }) => void,
 ) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
@@ -36,6 +41,14 @@ export function usePartyRoom(
   useEffect(() => {
     onEmojiReactionRef.current = onEmojiReaction;
   }, [onEmojiReaction]);
+
+  // onMessage is bound once, so its closure captures a stale roomState. Mirror
+  // the latest roomState into a ref so the emoji-reaction handler can look up
+  // the sender's profile against the current state.
+  const roomStateRef = useRef(roomState);
+  useEffect(() => {
+    roomStateRef.current = roomState;
+  }, [roomState]);
 
   const socket = usePartySocket({
     // Check internal IP and put it into .env.local in testing
@@ -70,9 +83,14 @@ export function usePartyRoom(
         setGamePasswordMessage(null); // password accepted (or not needed) -> drop the password input
       }
       if (msg.type === 'emoji-reaction') {
+        const senderProfile = roomStateRef.current?.players[msg.senderId];
         onEmojiReactionRef.current?.({
           emoji: msg.emoji,
           isMe: msg.senderId === socket.id,
+          isSpectator,
+          whoReacted: senderProfile
+            ? { name: senderProfile.name, icon: senderProfile.icon }
+            : undefined,
         });
       }
       if (msg.type === 'opponent-disconnected') {

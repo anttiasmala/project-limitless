@@ -91,8 +91,19 @@ export default function MultiplayerBoard({
     roomId,
     initialSettings,
     multiplayerProfile,
-    ({ emoji, isMe }) =>
-      toast(isMe ? `You reacted: ${emoji}` : `Opponent reacted: ${emoji}`),
+    ({ emoji, isMe, isSpectator, whoReacted }) => {
+      const spectatorText =
+        whoReacted?.name && whoReacted?.icon
+          ? `${whoReacted.icon} ${whoReacted.name} reacted: ${emoji}`
+          : `Player reacted: ${emoji}`;
+      toast(
+        isMe
+          ? `You reacted: ${emoji}`
+          : isSpectator
+            ? spectatorText
+            : `Opponent reacted: ${emoji}`,
+      );
+    },
   );
   const cols = BOARD_COLS[roomState?.settings.boardSize ?? '3'];
   const { gridRef, measurement } = useGridMeasure(cols);
