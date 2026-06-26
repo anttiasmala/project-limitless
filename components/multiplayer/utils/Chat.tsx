@@ -175,7 +175,7 @@ export default function Chat({ isSpectator, messages, myId, onSend }: Props) {
               handleSend(draft);
             }}
           >
-            <div ref={emojiPickerRef} className="relative flex flex-1">
+            <div ref={emojiPickerRef} className="relative flex min-w-0 flex-1">
               <Input
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
