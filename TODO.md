@@ -41,6 +41,8 @@
 17. In Multiplayer Lobby, perhaps add possibility to player use the "Enter room code..." to join as a Spectator. Currently it is joining only as a player
 18. Add a possibility to Spectators to react?
 19. When #17 is done, perhaps add a way to mute player (suppress chats / emoji reactions)
+20. Perhaps add a "cooldown" on chat messages / send emojis?
+21. Perhaps change inputs' focus border color from white to yellowish?
 
 # Notes
 
