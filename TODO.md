@@ -6,9 +6,8 @@
 
 1. Add login system and save winLossDraw stats to backend SQL database. Perhaps PostgreSQL and Prisma?
 2. Save multiplayer settings to LocalStorage so player does not have to set the settings always again?
-3. Show settings of a gameroom in Lobby list, so player knows that if there is for example turn timer and how long it is, etc
+3. Show settings of a gameroom in Lobby list, so player knows that if there is for example turn timer and how long it is, etc || 7. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
 4. When site is going live, add somekind of feedback system?
-
 5. If a player wins a game with Best Of Series scores activated, if a player leaves after the SeriesWinnerModal, game does not reset the scores.
    How to reproduce the issue:
    1. Create a room with Victories for action: 5, and Best of Series scores: Best of 3. Add the debugging values for score and Best of Series score in /party/games.ts
@@ -19,14 +18,12 @@
    How to reproduce issue:
    1. Set Victories: 1 and Best of Series: Off
    2. Win a round
-7. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
-8. Add a way to players to see if someone is spectating their game
-9. Add Toastify for toasts (for example Error messages could be shown in Toastify's toasts)
-10. Perhaps set a max amount in VictoriesForAction and Seconds per turn in Multiplayer?
-11. Perhaps allow player to choose how many icons have to be inline for a win.
-    1. For example: player could choose that 10x10 board would require 3 inline to win, is this a good idea?
-12. If there are not any Multiplayer rooms, add "Create New Room"-button into the Lobby List
-13. Make chat edits:
+7. Add a way to players to see if someone is spectating their game
+8. Perhaps set a max amount in VictoriesForAction and Seconds per turn in Multiplayer?
+9. Perhaps allow player to choose how many icons have to be inline for a win.
+   1. For example: player could choose that 10x10 board would require 3 inline to win, is this a good idea?
+10. If there are not any Multiplayer rooms, add "Create New Room"-button into the Lobby List
+11. Make chat edits:
     1. window movable in X-axis?
     2. time in a message?
     3. Possibility to delete messages?
@@ -35,14 +32,14 @@
     6. Add an info button that tells 100 messages is max and then they will dissapear. Oldest dissapears first
     7. Perhaps in Smallest Screen Needed mobile view use full screen chat. At the moment the chat section is really small
     8. In Spectator mode, have messages to be two-sided instead of all messages being in left-side
-14. Add a list that lists players & spectators?
-15. Perhaps make Enter-key to be "confirmation" in Create Lobby Modal?
-16. Add Switch&Case system instead of multiple if-statements? For example in /hooks/multiplayer/usePartyRoom.ts
-17. In Multiplayer Lobby, perhaps add possibility to player use the "Enter room code..." to join as a Spectator. Currently it is joining only as a player
-18. Add a possibility to Spectators to react?
-19. When #17 is done, perhaps add a way to mute player (suppress chats / emoji reactions)
-20. Perhaps add a "cooldown" on chat messages / send emojis?
-21. Perhaps change inputs' focus border color from white to yellowish?
+12. Add a list that lists players & spectators?
+13. Perhaps make Enter-key to be "confirmation" in Create Lobby Modal?
+14. Add Switch&Case system instead of multiple if-statements? For example in /hooks/multiplayer/usePartyRoom.ts
+15. In Multiplayer Lobby, perhaps add possibility to player use the "Enter room code..." to join as a Spectator. Currently it is joining only as a player
+16. Add a possibility to Spectators to react?
+17. When #14 is done, perhaps add a way to mute player (suppress chats / emoji reactions)
+18. Perhaps add a "cooldown" on chat messages / send emojis?
+19. Perhaps change inputs' focus border color from white to yellowish?
 
 # Notes
 
