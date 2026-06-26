@@ -183,7 +183,7 @@ export default function Chat({ isSpectator, messages, myId, onSend }: Props) {
                 aria-label="Chat message"
                 maxLength={200}
                 disabled={isSpectator}
-                className="min-w-0 flex-1 px-2 py-2 pr-9 text-base font-normal disabled:cursor-not-allowed disabled:opacity-60"
+                className="min-w-0 flex-1 px-2 py-2 pr-10 text-base font-normal disabled:cursor-not-allowed disabled:opacity-60"
               />
               <Button
                 type="button"
@@ -191,13 +191,13 @@ export default function Chat({ isSpectator, messages, myId, onSend }: Props) {
                 variant="unstyled"
                 aria-label="Toggle emoji picker"
                 disabled={isSpectator}
-                className="absolute top-1/2 right-1 -translate-y-1/2 disabled:cursor-not-allowed disabled:opacity-60"
+                className="absolute top-1/2 right-1 -translate-y-1/2 rounded-full bg-amber-100 p-1 hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-red-800 dark:hover:bg-red-700"
               >
                 <SvgSmileyFace
-                  className={`h-7 w-7 transition-colors ${
+                  className={`h-6 w-6 transition-colors ${
                     showEmojiPicker
-                      ? 'text-amber-600 dark:text-yellow-300'
-                      : 'text-amber-500 hover:text-amber-600 dark:text-amber-300 dark:hover:text-yellow-300'
+                      ? 'text-amber-700 dark:text-yellow-300'
+                      : 'text-amber-600 dark:text-yellow-400'
                   }`}
                 />
               </Button>
