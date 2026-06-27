@@ -58,7 +58,7 @@ export default function CreateRoomModal({ onClose }: Props) {
           <h2 className="shrink-0 text-center text-lg font-black tracking-wide text-amber-700 dark:text-yellow-400">
             🏴‍☠️ Room Settings
           </h2>
-          <div className="absolute right-6">
+          <div className="relative ml-3">
             <Button
               size="sm"
               className="h-6 w-14"
