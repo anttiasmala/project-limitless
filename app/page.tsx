@@ -1,6 +1,10 @@
 // app/page.tsx — Limitless Arcade landing page
 
 import Link from 'next/link';
+import { ReactNode } from 'react';
+import { twMerge } from 'tailwind-merge';
+
+const TITLE = 'Limitless Arcade';
 
 // Registry of apps available in the arcade. Add a new entry here (and a matching
 // route under app/<href>) to surface a new app on the landing page.
@@ -31,9 +35,19 @@ export default function Home() {
 
       <div className="relative z-10 flex w-full max-w-3xl flex-col items-center gap-10">
         <header className="text-center">
-          <h1 className="mb-2 text-4xl font-black tracking-tight text-slate-800 sm:text-6xl dark:text-slate-100">
-            Limitless Arcade
-          </h1>
+          {/* Real heading for screen readers / SEO; the animated letters below
+              are decorative (aria-hidden). */}
+          <h1 className="sr-only">Limitless Arcade</h1>
+          <div
+            aria-hidden
+            className="relative mb-2 flex flex-row justify-center text-4xl font-black tracking-tight text-slate-800 sm:text-6xl dark:text-slate-100"
+          >
+            {TITLE.split('').map((char, i) => (
+              <WaveLetter key={i} index={i}>
+                {char === ' ' ? ' ' : char}
+              </WaveLetter>
+            ))}
+          </div>
           <p className="text-sm tracking-wide text-slate-500 sm:text-base dark:text-slate-400">
             A growing collection of little apps &amp; games.
           </p>
@@ -61,5 +75,31 @@ export default function Home() {
         </ul>
       </div>
     </main>
+  );
+}
+
+// A single letter of the title. Every letter runs the same `wave` keyframe
+// (defined in globals.css), but a staggered animation-delay makes the bob
+// travel across the word. inline-block is required for translateY to apply,
+// and motion-reduce disables the animation for users who prefer less motion.
+function WaveLetter({
+  index,
+  className,
+  children,
+}: {
+  index: number;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <span
+      className={twMerge(
+        'inline-block animate-[wave_2.2s_ease-in-out_infinite] whitespace-pre motion-reduce:animate-none',
+        className,
+      )}
+      style={{ animationDelay: `${index * 0.08}s` }}
+    >
+      {children}
+    </span>
   );
 }

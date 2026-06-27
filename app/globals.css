@@ -43,3 +43,16 @@ body {
     opacity: 1;
   }
 }
+
+/* Ambient up/down bob for the Limitless Arcade title. Each letter shares this
+   animation but gets a staggered animation-delay, producing a travelling wave.
+   Uses em so the amplitude scales with the responsive font size. */
+@keyframes wave {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.3em);
+  }
+}
