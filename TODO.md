@@ -1,7 +1,5 @@
 # Currently Implementing:
 
-1. Save multiplayer settings to LocalStorage so player does not have to set the settings always again?
-
 # TODO:
 
 # Ideas:
@@ -38,12 +36,9 @@
 13. Add Switch&Case system instead of multiple if-statements? For example in /hooks/multiplayer/usePartyRoom.ts
 14. In Multiplayer Lobby, perhaps add possibility to player use the "Enter room code..." to join as a Spectator. Currently it is joining only as a player
 15. Add a possibility to Spectators to react?
-16. When #14 is done, perhaps add a way to mute player (suppress chats / emoji reactions)
+16. When #11 is done, perhaps add a way to mute player (suppress chats / emoji reactions)
 17. Perhaps add a "cooldown" on chat messages / send emojis?
 18. Perhaps change inputs' focus border color from white to yellowish?
-19. Make Reset Stats and Reset Score to use new ConfirmModal.tsx
-    1. Make Singleplayer's Stats-settings' Reset Stats modal to use ConfirmModal
-    2. Make Singleplayer's Reset Score modal to use ConfirmModal
 
 # Notes
 
