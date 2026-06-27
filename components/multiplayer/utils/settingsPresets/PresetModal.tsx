@@ -7,7 +7,7 @@ import {
   DEFAULT_ROOM_SETTINGS,
   RoomSettings,
 } from '@/utils/multiplayer/multiplayerTypes';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { nextPresetName, usePresets } from './usePresets';
 
