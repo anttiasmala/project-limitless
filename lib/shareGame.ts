@@ -5,7 +5,7 @@
 // the URL. The recipient's home page decodes it and opens the ReplayModal.
 
 import { AI, HUMAN, Player } from '@/lib/gameLogic';
-import { GameMode, MoveEntry } from '@/utils/types';
+import { GameMode, MoveEntry } from '@/utils/tictactoe/types';
 
 export type BoardSize = 3 | 5 | 10;
 

@@ -2,7 +2,7 @@
 
 import { AI, HUMAN, Player } from '@/lib/gameLogic';
 import TreasureChests, { BestOfTreasureChests } from './TreasureChests';
-import { BestOfSeriesNames, GameMode } from '@/utils/types';
+import { BestOfSeriesNames, GameMode } from '@/utils/tictactoe/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 type PlayerDisplay = { name: string; icon: string };

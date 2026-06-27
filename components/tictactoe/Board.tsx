@@ -29,7 +29,7 @@ import {
   GameMode,
   INITIAL_WIN_LOSS_DRAW,
   MoveEntry,
-} from '@/utils/types';
+} from '@/utils/tictactoe/types';
 import { useTournament } from '@/hooks/useTournament';
 import TournamentBracket from './TournamentBracket';
 import TournamentResultModal from './TournamentResultModal';
@@ -37,7 +37,7 @@ import MoveHistory from './MoveHistory';
 import { useTimer } from '@/hooks/useTimer';
 import HourglassTimer from './HourglassTimer';
 import KrakenAvatar from './KrakenAvatar';
-import { getKrakenMood } from '@/utils/krakenMood';
+import { getKrakenMood } from '@/utils/tictactoe/krakenMood';
 import { SettingsModal } from './SettingsModal';
 import { useGridNavigation } from '@/hooks/useGridNavigation';
 import SeriesWinnerModal from './SeriesWinnerModal';
@@ -50,7 +50,7 @@ import ScoreBoard from './ScoreBoard';
 import DifficultySelector from './DifficultySelector';
 import SpeedSelector from './SpeedSelector';
 import ReplayModal from './ReplayModal';
-import { getStormLevel } from '@/utils/stormLevel';
+import { getStormLevel } from '@/utils/tictactoe/stormLevel';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import Button from '@/components/shared/Button';

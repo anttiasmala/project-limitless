@@ -8,7 +8,7 @@ import {
   Player,
 } from '@/lib/gameLogic';
 import WinningLine from './WinningLine';
-import { MoveEntry } from '@/utils/types';
+import { MoveEntry } from '@/utils/tictactoe/types';
 import useReplay from '@/hooks/useReplay';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
 import Button from '@/components/shared/Button';

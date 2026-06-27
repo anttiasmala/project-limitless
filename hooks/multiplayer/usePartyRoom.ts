@@ -7,7 +7,7 @@ import {
   type ServerMessage,
   type ClientMessage,
   RoomSettings,
-} from '@/utils/multiplayer/multiplayerTypes';
+} from '@/utils/tictactoe/multiplayer/multiplayerTypes';
 import { useSearchParams } from 'next/navigation';
 
 export function usePartyRoom(

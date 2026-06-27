@@ -3,7 +3,7 @@
 
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Player } from '@/lib/gameLogic';
-import { CELL_LABELS, MoveEntry } from '@/utils/types';
+import { CELL_LABELS, MoveEntry } from '@/utils/tictactoe/types';
 
 type PlayerDisplay = { name: string; icon: string };
 

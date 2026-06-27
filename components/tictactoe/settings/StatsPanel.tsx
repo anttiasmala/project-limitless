@@ -1,6 +1,6 @@
 // components/settings/StatsPanel.tsx
 
-import { WinLossDrawStats } from '@/utils/types';
+import { WinLossDrawStats } from '@/utils/tictactoe/types';
 import { useState } from 'react';
 import Button from '@/components/shared/Button';
 import { Modal } from '@/components/shared/Modal';

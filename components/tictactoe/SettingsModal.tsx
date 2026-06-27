@@ -2,7 +2,7 @@
 
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Player } from '@/lib/gameLogic';
-import { BaseSettingsProps, GameMode, WinLossDrawStats } from '@/utils/types';
+import { BaseSettingsProps, GameMode, WinLossDrawStats } from '@/utils/tictactoe/types';
 import { useCallback, useEffect, useState } from 'react';
 import { GamePanel } from './settings/GamePanel';
 import { PlayersPanel } from './settings/PlayersPanel';

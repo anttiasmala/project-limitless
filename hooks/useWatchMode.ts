@@ -15,7 +15,7 @@ import {
   getAIMove5,
   isDraw,
 } from '@/lib/gameLogic';
-import { GameMode, MoveEntry } from '@/utils/types';
+import { GameMode, MoveEntry } from '@/utils/tictactoe/types';
 import { useLocalStorage } from './useLocalStorage';
 
 export type WatchSpeed = 'slow' | 'normal' | 'fast';

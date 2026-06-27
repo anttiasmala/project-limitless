@@ -1,4 +1,4 @@
-import { GameMode } from '@/utils/types';
+import { GameMode } from '@/utils/tictactoe/types';
 import Button from '@/components/shared/Button';
 
 type Props = {

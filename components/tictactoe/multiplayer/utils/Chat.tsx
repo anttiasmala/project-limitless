@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/shared/Button';
 import Input from '@/components/shared/Input';
-import type { ChatMessage } from '@/utils/multiplayer/multiplayerTypes';
+import type { ChatMessage } from '@/utils/tictactoe/multiplayer/multiplayerTypes';
 import SvgSmileyFace from '@/icons/smiley_face';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';

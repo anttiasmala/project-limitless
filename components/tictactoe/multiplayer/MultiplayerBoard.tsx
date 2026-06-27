@@ -14,7 +14,7 @@ import { usePartyRoom } from '@/hooks/multiplayer/usePartyRoom';
 import Square from '../Square';
 import WinningLine from '../WinningLine';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
-import { CELL_LABELS, PlayerNames } from '@/utils/types';
+import { CELL_LABELS, PlayerNames } from '@/utils/tictactoe/types';
 import MoveHistory from '../MoveHistory';
 import ScoreBoard from '@/components/tictactoe/ScoreBoard';
 import { useRouter } from 'next/navigation';
@@ -28,7 +28,7 @@ import SvgSettings from '@/icons/settings';
 import {
   RoomSettings,
   GAME_PASSWORD_MESSAGES,
-} from '@/utils/multiplayer/multiplayerTypes';
+} from '@/utils/tictactoe/multiplayer/multiplayerTypes';
 import SeriesWinnerModal from '../SeriesWinnerModal';
 import HourglassTimer from '../HourglassTimer';
 import ReplayModal from '../ReplayModal';

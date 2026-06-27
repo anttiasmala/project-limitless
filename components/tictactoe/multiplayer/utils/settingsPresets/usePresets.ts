@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { RoomSettings } from '@/utils/multiplayer/multiplayerTypes';
+import { RoomSettings } from '@/utils/tictactoe/multiplayer/multiplayerTypes';
 import { nanoid } from 'nanoid';
 import { PresetType } from './presetTypes';
 

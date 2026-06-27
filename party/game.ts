@@ -22,7 +22,7 @@ import {
   type ServerMessage,
   DEFAULT_ROOM_SETTINGS,
   GAME_PASSWORD_MESSAGES,
-} from '@/utils/multiplayer/multiplayerTypes';
+} from '@/utils/tictactoe/multiplayer/multiplayerTypes';
 
 const SERIES_POINT_THRESHOLDS = { bo3: 2, bo5: 3, off: Infinity } as const;
 const BOARD_SIZE = { '3': 3, '5': 5, '10': 10 } as const;

@@ -1,7 +1,7 @@
 // components/settings/PlayersPanel.tsx
 
 import { useState } from 'react';
-import { GameMode } from '@/utils/types';
+import { GameMode } from '@/utils/tictactoe/types';
 import { IconPickerModal } from './IconPickerModal';
 import Button from '@/components/shared/Button';
 import SvgReload from '@/icons/reload';

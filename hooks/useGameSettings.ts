@@ -1,4 +1,4 @@
-import { INITIAL_WIN_LOSS_DRAW, WinLossDrawStats } from '@/utils/types';
+import { INITIAL_WIN_LOSS_DRAW, WinLossDrawStats } from '@/utils/tictactoe/types';
 import { useLocalStorage } from './useLocalStorage';
 
 export function useGameSettings() {

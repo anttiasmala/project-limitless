@@ -9,7 +9,7 @@ import { Modal } from '@/components/shared/Modal';
 import {
   DEFAULT_ROOM_SETTINGS,
   RoomSettings,
-} from '@/utils/multiplayer/multiplayerTypes';
+} from '@/utils/tictactoe/multiplayer/multiplayerTypes';
 import SvgReload from '@/icons/reload';
 import RoomSettingsForm from './RoomSettingsForm';
 import SettingPresets from './utils/settingsPresets/SettingPresets';

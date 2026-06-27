@@ -9,7 +9,7 @@ import { SettingsModal } from '@/components/tictactoe/SettingsModal';
 import { useGameSettings } from '@/hooks/multiplayer/useGameSettings';
 import { useGameAudio } from '@/hooks/useGameAudio';
 import SvgSettings from '@/icons/settings';
-import type { LobbyEntry } from '@/utils/multiplayer/multiplayerTypes';
+import type { LobbyEntry } from '@/utils/tictactoe/multiplayer/multiplayerTypes';
 import CreateRoomModal from './CreateRoomModal';
 
 export default function Lobby() {

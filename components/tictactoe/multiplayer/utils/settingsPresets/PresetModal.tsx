@@ -6,7 +6,7 @@ import SvgReload from '@/icons/reload';
 import {
   DEFAULT_ROOM_SETTINGS,
   RoomSettings,
-} from '@/utils/multiplayer/multiplayerTypes';
+} from '@/utils/tictactoe/multiplayer/multiplayerTypes';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { nextPresetName, usePresets } from './usePresets';

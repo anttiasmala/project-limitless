@@ -3,7 +3,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import MultiplayerBoard from './MultiplayerBoard';
-import { RoomSettings } from '@/utils/multiplayer/multiplayerTypes';
+import { RoomSettings } from '@/utils/tictactoe/multiplayer/multiplayerTypes';
 import OceanBackground from '../OceanBackground';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useEffect, useState } from 'react';

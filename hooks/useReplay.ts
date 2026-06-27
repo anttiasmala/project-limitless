@@ -1,5 +1,5 @@
 import { Board as BoardType } from '@/lib/gameLogic';
-import { MoveEntry } from '@/utils/types';
+import { MoveEntry } from '@/utils/tictactoe/types';
 import { useEffect, useState } from 'react';
 
 function buildBoardAtStep(

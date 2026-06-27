@@ -1,4 +1,4 @@
-import { KrakenMood } from '@/utils/krakenMood';
+import { KrakenMood } from '@/utils/tictactoe/krakenMood';
 import { twMerge } from 'tailwind-merge';
 
 const MOOD_CONFIG: Record<

@@ -1,7 +1,7 @@
 import Button from '@/components/shared/Button';
 import { Modal } from '@/components/shared/Modal';
 import VictoriesInfoModal from '@/components/tictactoe/VictoriesInfoModal';
-import { RoomSettings } from '@/utils/multiplayer/multiplayerTypes';
+import { RoomSettings } from '@/utils/tictactoe/multiplayer/multiplayerTypes';
 import { ReactNode, useState } from 'react';
 
 type Props = {
