@@ -141,7 +141,7 @@ export default function SettingPresets({ onClose, applySettings }: Props) {
         {view.mode === 'create' && (
           <PresetModal
             showModal
-            setShowModal={() => setView({ mode: 'list' })}
+            onClose={() => setView({ mode: 'list' })}
             initialSettings={DEFAULT_ROOM_SETTINGS}
             onSave={(name, settings) => {
               addPreset(name, settings);
@@ -154,7 +154,7 @@ export default function SettingPresets({ onClose, applySettings }: Props) {
         {view.mode === 'edit' && (
           <PresetModal
             showModal
-            setShowModal={() => setView({ mode: 'list' })}
+            onClose={() => setView({ mode: 'list' })}
             initialSettings={view.preset.settings}
             initialName={view.preset.name}
             createOrEdit="Edit"
