@@ -10,7 +10,7 @@ import {
   RoomSettings,
 } from '@/utils/multiplayer/multiplayerTypes';
 import { generateString } from '@/utils/utils';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, ReactNode, SetStateAction, useState } from 'react';
 import { toast } from 'react-toastify';
 import Button from '../utils/Button';
 
@@ -25,6 +25,12 @@ type Props = {
   /** z-index/styling overrides for the nested Victories-info modal. */
   victoriesInfoOverlayClassName?: string;
   victoriesInfoClassName?: string;
+  /**
+   * Extra content rendered at the top of the form's scroll container (e.g. the
+   * preset-name field). Placing it here keeps it inside the single scroll area
+   * instead of pinned above it.
+   */
+  leadingContent?: ReactNode;
 };
 
 // The shared Room Settings form, rendered by both the Create Room modal and the
@@ -37,6 +43,7 @@ export default function RoomSettingsForm({
   onNestedModalOpenChange,
   victoriesInfoOverlayClassName,
   victoriesInfoClassName,
+  leadingContent,
 }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [showVictoriesInfoModal, setShowVictoriesInfoModal] = useState(false);
@@ -48,6 +55,8 @@ export default function RoomSettingsForm({
 
   return (
     <div className="flex min-h-0 flex-col gap-5 overflow-y-auto font-semibold text-slate-700 dark:text-yellow-300">
+      {leadingContent}
+
       {/* Board Size */}
       <label className="flex items-center justify-between select-none">
         Board Size
