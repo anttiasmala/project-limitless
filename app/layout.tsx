@@ -2,11 +2,14 @@
 
 import type { Metadata } from 'next';
 import './globals.css';
-import ThemedToastContainer from '@/components/ThemedToastContainer';
+import ThemedToastContainer from '@/components/shared/ThemedToastContainer';
 
 export const metadata: Metadata = {
-  title: 'Pirate Tic-Tac-Toe',
-  description: 'Claim the seas — three in a row!',
+  title: {
+    default: 'Limitless Arcade',
+    template: '%s · Limitless Arcade',
+  },
+  description: 'A growing collection of little apps & games.',
 };
 
 export default function RootLayout({
