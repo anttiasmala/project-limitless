@@ -13,7 +13,7 @@ import { nextPresetName, usePresets } from './usePresets';
 
 type Props = {
   showModal: boolean;
-  setShowModal: Dispatch<SetStateAction<boolean>>;
+  onClose: () => void;
   /** Settings the form starts from. For "Edit" this is the preset's settings. */
   initialSettings: RoomSettings;
   /** Preset name the form starts from (only meaningful when editing). */
@@ -25,9 +25,9 @@ type Props = {
 
 export default function PresetModal({
   showModal,
-  setShowModal,
   initialSettings,
   initialName = 'Preset',
+  onClose,
   onSave,
   createOrEdit = 'Create',
 }: Props) {
@@ -40,7 +40,8 @@ export default function PresetModal({
   // recomputes as the stored presets load, so no effect/sync is needed.
   const [typedName, setTypedName] = useState<string | null>(null);
   const presetName =
-    typedName ?? (isCreate ? nextPresetName(presets, initialName) : initialName);
+    typedName ??
+    (isCreate ? nextPresetName(presets, initialName) : initialName);
 
   function handleSave() {
     const trimmedName = presetName.trim();
@@ -49,7 +50,7 @@ export default function PresetModal({
       return;
     }
     onSave(trimmedName, settings);
-    setShowModal(false);
+    onClose();
   }
 
   return (
@@ -57,7 +58,7 @@ export default function PresetModal({
       overlayClassName="z-107 bg-black"
       className="z-108"
       ariaLabel="Preset creation modal"
-      onClose={() => setShowModal(false)}
+      onClose={onClose}
       open={showModal}
       lockScroll={false}
       closeOnEscape={!isNestedModalOpen}
@@ -83,30 +84,30 @@ export default function PresetModal({
           </div>
         </div>
 
-        {/* Preset name */}
-        <label className="flex items-center justify-between font-bold text-slate-700 select-none dark:text-yellow-300">
-          Preset name
-          <Input
-            value={presetName}
-            onChange={(e) => setTypedName(e.target.value)}
-            maxLength={20}
-            className="ml-1 min-w-0 flex-1"
-          />
-        </label>
-
         <RoomSettingsForm
           settings={settings}
           setSettings={setSettings}
           onNestedModalOpenChange={setIsNestedModalOpen}
           victoriesInfoOverlayClassName="z-110"
           victoriesInfoClassName="z-111"
+          leadingContent={
+            <label className="flex items-center justify-between font-bold text-slate-700 select-none dark:text-yellow-300">
+              Preset name
+              <Input
+                value={presetName}
+                onChange={(e) => setTypedName(e.target.value)}
+                maxLength={20}
+                className="ml-1 min-w-0 flex-1"
+              />
+            </label>
+          }
         />
 
         {/* Buttons */}
         <div className="flex shrink-0 gap-3 pt-2">
           <Button
             className="flex-1 py-0 text-sm whitespace-nowrap sm:py-3 sm:text-lg"
-            onClick={() => setShowModal(false)}
+            onClick={onClose}
           >
             Cancel
           </Button>
