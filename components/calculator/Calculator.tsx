@@ -2,6 +2,7 @@
 
 import {
   ButtonHTMLAttributes,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -15,14 +16,99 @@ import {
 } from './calculatorUtils';
 import { toast } from 'react-toastify';
 
-const OPERATOR_VALUES = {
-  '×': 2,
-  '/': 2,
-  '+': 1,
-  '-': 1,
-} as const;
-
 const OPERATORS = ['+', '-', '×', '/'];
+
+/** Separates numbers from operators like ["2", "+", "2"] */
+function tokenize(string: string) {
+  return string.match(/\d+\.?\d*|[+\-×/]/g) ?? [];
+}
+
+// A leading '-'/'+' or one right after another operator is unary (part of the
+// number), e.g. -2 or 2 - -3. Merge it into the following number so evaluate()
+// keeps its number, operator, number, operator... structure.
+// Important: Unary means the "-" or "+" sign is part of the number. For example -1 + 2, the "-" in 1 is a unary
+function normalizeSigns(tokens: string[]) {
+  // the list we build up and return, values are like (e.g. ["-2", "+", "2"])
+  const result: string[] = [];
+
+  // loop through every token from the raw tokenize() output
+  for (let i = 0; i < tokens.length; i++) {
+    // the token we are currently looking at
+    const token = tokens[i];
+
+    // the previous token we already pushed into result. Used to decide
+    // whether the current sign is unary. undefined when result is empty.
+    const prev = result[result.length - 1];
+
+    // a '-' or '+' is unary (a sign on a number (positive ("+") / negative ("-")), not subtraction/addition)
+    // when it is either:
+    //   - at the very start of the expression (result.length === 0), or
+    //   - directly after another operator (e.g. the second '-' in "2 - -3", looks in calculator: "2--3")
+    const isUnary =
+      (token === '-' || token === '+') &&
+      (result.length === 0 || OPERATORS.includes(prev));
+
+    // only merge if it's unary AND there is a number after it to attach to
+    if (isUnary && i + 1 < tokens.length) {
+      // glue the sign onto the next number: '-' makes it negative,
+      // a unary '+' is a positive, so we just keep the number as it is, so no sign needed
+      result.push(token === '-' ? '-' + tokens[i + 1] : tokens[i + 1]);
+      // we just used tokens[i + 1], so skip it on the next loop by incrementing the "i"
+      i++;
+    } else {
+      // not a unary sign — a normal number or binary operator, keep it
+      result.push(token);
+    }
+  }
+
+  // result now alternates number, operator, number... with signs folded in
+  return result;
+}
+
+function evaluate(tokens: string[]) {
+  let number = 0;
+  const array1: (string | number)[] = [tokens[0]];
+  let operator = '';
+  // regex splits the tokens array like this
+  // [1, "+", 2, "/"], etc. Every second value is an operator
+  // that's why i += 2 instead of i++, with i++ the order would break
+  for (let i = 1; i < tokens.length; i += 2) {
+    // we can set operator to tokens[i], because we know how REGEX splits the values
+    // indexes 1, 3, 5, 7, etc are operators
+    operator = tokens[i];
+    // indexes 0, 2, 4, 6, etc are numbers
+    number = Number(tokens[i + 1]);
+    // first we check is the operator multiplier or divider
+    if (operator === '×' || operator === '/') {
+      // we get the first value by removing it from the array. It as well clears the array
+      const prev = Number(array1.pop());
+      array1.push(operator === '×' ? prev * number : prev / number);
+    } else {
+      // if operator is not multiplier or divider, add the operator (for example: '+')
+      // and the number into the array
+      array1.push(operator, number);
+    }
+  }
+  // when code gets here, the multipliers and dividers have been calculated
+  // we know the first value is a number, we can set it here
+  let result = Number(array1[0]);
+
+  for (let i = 1; i < array1.length; i += 2) {
+    const _operator = array1[i];
+    const _number = Number(array1[i + 1]);
+    result = _operator === '+' ? result + _number : result - _number;
+  }
+  return result;
+}
+
+/** This adds thousand separator that is shown for user */
+function formatForDisplay(raw: string): string {
+  return raw.replace(/\d+(\.\d*)?/g, (match) => {
+    const [intPart, decPart] = match.split('.');
+    const grouped = Number(intPart).toLocaleString('en-US');
+    return decPart !== undefined ? `${grouped}.${decPart}` : grouped;
+  });
+}
 
 export default function Calculator() {
   const [currentDraft, setCurrentDraft] = useState<string | null>(null);
@@ -30,23 +116,6 @@ export default function Calculator() {
   // Where we want the caret AFTER the next render, measured in the raw
   // (unformatted) string. null means "leave the caret where the browser put it".
   const rawCaretRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      calculatorSwitchCase({
-        e,
-        key: e.key,
-        addNumber: (number) => addNumber(number),
-        removeNumber,
-        removeAheadNumber,
-        setCurrentDraft,
-        calculateAnswer,
-      });
-    }
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [currentDraft]);
 
   // After every render React shows the freshly formatted value and the browser
   // drops the caret at the end. We run AFTER that (useLayoutEffect, before the
@@ -61,7 +130,7 @@ export default function Calculator() {
     rawCaretRef.current = null;
   });
 
-  function addNumber(stringNumber: string) {
+  const addNumber = useCallback(function addNumber(stringNumber: string) {
     // Read the caret from the input NOW (before the state update). This index
     // is into the DISPLAYED text, so it includes the thousand separators.
     const displayCaret = inputRef.current?.selectionStart ?? 0;
@@ -96,8 +165,6 @@ export default function Calculator() {
         }
       }
 
-      ('addNumber');
-
       const newValue =
         prevValue.slice(0, rawCaret) + toInsert + prevValue.slice(rawCaret);
       // Caret should sit right after the characters we just inserted (still in
@@ -105,10 +172,10 @@ export default function Calculator() {
       rawCaretRef.current = rawCaret + toInsert.length;
       return newValue;
     });
-  }
+  }, []);
 
   /** Removes a number / operator **left**-side of caret */
-  function removeNumber() {
+  const removeNumber = useCallback(function removeNumber() {
     // Same idea as addNumber: read the caret (display coordinates) up front.
     const displayCaret = inputRef.current?.selectionStart ?? 0;
 
@@ -132,10 +199,10 @@ export default function Calculator() {
 
       return newValue === '' ? null : newValue;
     });
-  }
+  }, []);
 
   /** Removes a number / operator **right**-side of caret */
-  function removeAheadNumber() {
+  const removeAheadNumber = useCallback(function removeAheadNumber() {
     const displayCaret = inputRef.current?.selectionStart ?? 0;
 
     setCurrentDraft((prevValue) => {
@@ -157,56 +224,9 @@ export default function Calculator() {
       // Empty string -> back to null so the "0" placeholder shows again.
       return newValue === '' ? null : newValue;
     });
-  }
+  }, []);
 
-  /** Separates numbers from operators like ["2", "+", "2"] */
-  function tokenize(string: string) {
-    return string.match(/\d+\.?\d*|[+\-×/]/g) ?? [];
-  }
-
-  // A leading '-'/'+' or one right after another operator is unary (part of the
-  // number), e.g. -2 or 2 - -3. Merge it into the following number so evaluate()
-  // keeps its number, operator, number, operator... structure.
-  // Important: Unary means the "-" or "+" sign is part of the number. For example -1 + 2, the "-" in 1 is a unary
-  function normalizeSigns(tokens: string[]) {
-    // the list we build up and return, values are like (e.g. ["-2", "+", "2"])
-    const result: string[] = [];
-
-    // loop through every token from the raw tokenize() output
-    for (let i = 0; i < tokens.length; i++) {
-      // the token we are currently looking at
-      const token = tokens[i];
-
-      // the previous token we already pushed into result. Used to decide
-      // whether the current sign is unary. undefined when result is empty.
-      const prev = result[result.length - 1];
-
-      // a '-' or '+' is unary (a sign on a number (positive ("+") / negative ("-")), not subtraction/addition)
-      // when it is either:
-      //   - at the very start of the expression (result.length === 0), or
-      //   - directly after another operator (e.g. the second '-' in "2 - -3", looks in calculator: "2--3")
-      const isUnary =
-        (token === '-' || token === '+') &&
-        (result.length === 0 || OPERATORS.includes(prev));
-
-      // only merge if it's unary AND there is a number after it to attach to
-      if (isUnary && i + 1 < tokens.length) {
-        // glue the sign onto the next number: '-' makes it negative,
-        // a unary '+' is a positive, so we just keep the number as it is, so no sign needed
-        result.push(token === '-' ? '-' + tokens[i + 1] : tokens[i + 1]);
-        // we just used tokens[i + 1], so skip it on the next loop by incrementing the "i"
-        i++;
-      } else {
-        // not a unary sign — a normal number or binary operator, keep it
-        result.push(token);
-      }
-    }
-
-    // result now alternates number, operator, number... with signs folded in
-    return result;
-  }
-
-  function calculateAnswer() {
+  const calculateAnswer = useCallback(function calculateAnswer() {
     setCurrentDraft((prev) => {
       if (prev === null) return prev;
       const answer = evaluate(normalizeSigns(tokenize(prev)));
@@ -220,52 +240,24 @@ export default function Calculator() {
       rawCaretRef.current = result.length;
       return result;
     });
-  }
+  }, []);
 
-  function evaluate(tokens: string[]) {
-    let number = 0;
-    const array1: (string | number)[] = [tokens[0]];
-    let operator = '';
-    // regex splits the tokens array like this
-    // [1, "+", 2, "/"], etc. Every second value is an operator
-    // that's why i += 2 instead of i++, with i++ the order would break
-    for (let i = 1; i < tokens.length; i += 2) {
-      // we can set operator to tokens[i], because we know how REGEX splits the values
-      // indexes 1, 3, 5, 7, etc are operators
-      operator = tokens[i];
-      // indexes 0, 2, 4, 6, etc are numbers
-      number = Number(tokens[i + 1]);
-      // first we check is the operator multiplier or divider
-      if (operator === '×' || operator === '/') {
-        // we get the first value by removing it from the array. It as well clears the array
-        const prev = Number(array1.pop());
-        array1.push(operator === '×' ? prev * number : prev / number);
-      } else {
-        // if operator is not multiplier or divider, add the operator (for example: '+')
-        // and the number into the array
-        array1.push(operator, number);
-      }
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      calculatorSwitchCase({
+        e,
+        key: e.key,
+        addNumber: (number) => addNumber(number),
+        removeNumber,
+        removeAheadNumber,
+        setCurrentDraft,
+        calculateAnswer,
+      });
     }
-    // when code gets here, the multipliers and dividers have been calculated
-    // we know the first value is a number, we can set it here
-    let result = Number(array1[0]);
+    document.addEventListener('keydown', handleKeyDown);
 
-    for (let i = 1; i < array1.length; i += 2) {
-      const _operator = array1[i];
-      const _number = Number(array1[i + 1]);
-      result = _operator === '+' ? result + _number : result - _number;
-    }
-    return result;
-  }
-
-  /** This adds thousand separator that is shown for user */
-  function formatForDisplay(raw: string): string {
-    return raw.replace(/\d+(\.\d*)?/g, (match) => {
-      const [intPart, decPart] = match.split('.');
-      const grouped = Number(intPart).toLocaleString('en-US');
-      return decPart !== undefined ? `${grouped}.${decPart}` : grouped;
-    });
-  }
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [addNumber, removeNumber, removeAheadNumber, calculateAnswer]);
 
   return (
     <div>
