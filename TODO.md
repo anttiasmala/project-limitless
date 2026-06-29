@@ -2,6 +2,11 @@
 
 # TODO:
 
+1.  In Calculator, perhaps allow negative values. Like -2 + 2 = 0, currently -2 + 2 = NaN
+2.  In Calculator, multiple -/\*+ signs can be added. Limit it
+3.  In Calculator, for example value: 1,234, if 0 is added into start (01,234) it is not shown
+    1.  But if value is addded again into start (101,234) then the zero is displayed. Perhaps don't allow 0 to be at the start of "whole" integer. Allow 0.2, etc ofcourse
+
 # Ideas:
 
 1. Add login system and save winLossDraw stats to backend SQL database. Perhaps PostgreSQL and Prisma?
