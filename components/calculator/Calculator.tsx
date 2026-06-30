@@ -105,7 +105,7 @@ function evaluate(tokens: string[]) {
 function formatForDisplay(raw: string): string {
   return raw.replace(/\d+(\.\d*)?/g, (match) => {
     const [intPart, decPart] = match.split('.');
-    const grouped = Number(intPart).toLocaleString('en-US');
+    const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return decPart !== undefined ? `${grouped}.${decPart}` : grouped;
   });
 }
@@ -170,6 +170,7 @@ export default function Calculator() {
       // Caret should sit right after the characters we just inserted (still in
       // raw coordinates, the layout effect maps it back to a display position).
       rawCaretRef.current = rawCaret + toInsert.length;
+
       return newValue;
     });
   }, []);
