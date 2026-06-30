@@ -305,97 +305,102 @@ export default function Calculator() {
   }, [addNumber, removeNumber, removeAheadNumber, calculateAnswer]);
 
   return (
-    <div>
-      <div>
-        <input
-          ref={inputRef}
-          id="input"
-          inputMode="none"
-          placeholder="1+1=2...."
-          onChange={() => {}}
-          // Controlled input: the value always comes from currentDraft, so the
-          // browser's own edits are reverted on the next render. We deliberately
-          // do NOT use readOnly here: read-only inputs hide the blinking caret
-          // in some browsers, and we want the caret visible so the user can
-          // place it. The caret is read on demand in addNumber/removeNumber
-          className="mr-3 w-full rounded-sm border-2 text-end text-2xl caret-cyan-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400 focus:outline-none"
-          value={currentDraft === null ? '' : formatForDisplay(currentDraft)}
-        />
-      </div>
-      <div className="flex flex-row border-2">
-        <div className="w-max">
-          <div>
-            <Button onClick={() => addNumber('7')}>7</Button>
-            <Button onClick={() => addNumber('8')}>8</Button>
-            <Button onClick={() => addNumber('9')}>9</Button>
-          </div>
-          <div>
-            <Button onClick={() => addNumber('4')}>4</Button>
-            <Button onClick={() => addNumber('5')}>5</Button>
-            <Button onClick={() => addNumber('6')}>6</Button>
-          </div>
-          <div>
-            <Button onClick={() => addNumber('1')}>1</Button>
-            <Button onClick={() => addNumber('2')}>2</Button>
-            <Button onClick={() => addNumber('3')}>3</Button>
-          </div>
+    <div className="w-full max-w-xs rounded-2xl border border-slate-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-900/70">
+      <input
+        ref={inputRef}
+        id="input"
+        inputMode="none"
+        placeholder="1+1=2...."
+        onChange={() => {}}
+        // Controlled input: the value always comes from currentDraft, so the
+        // browser's own edits are reverted on the next render. We deliberately
+        // do NOT use readOnly here: read-only inputs hide the blinking caret
+        // in some browsers, and we want the caret visible so the user can
+        // place it. The caret is read on demand in addNumber/removeNumber
+        className="mb-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-end text-3xl tabular-nums caret-cyan-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400 focus:outline-none dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-100"
+        value={currentDraft === null ? '' : formatForDisplay(currentDraft)}
+      />
+      <div className="grid grid-cols-4 gap-2">
+        {/* Top utility row */}
+        <Button variant="danger" onClick={() => setCurrentDraft(null)}>
+          CE
+        </Button>
+        <Button variant="danger" onClick={removeNumber}>
+          {'<-'}
+        </Button>
+        <Button variant="operator" onClick={() => addNumber('(')}>
+          (
+        </Button>
+        <Button variant="operator" onClick={() => addNumber(')')}>
+          )
+        </Button>
 
-          <div className="ml-5">
-            <Button onClick={() => addNumber('0')}>0</Button>
-            <Button onClick={() => addNumber('.')}>.</Button>
-          </div>
-        </div>
-        <div>
-          <div>
-            <Button
-              className="bg-blue-500 font-bold"
-              onClick={() => setCurrentDraft(null)}
-            >
-              CE
-            </Button>
-            <Button className="bg-red-500 font-bold" onClick={removeNumber}>
-              {'<-'}
-            </Button>
-          </div>
-          <div>
-            <Button className="bg-cyan-600" onClick={() => addNumber('×')}>
-              ×
-            </Button>
-            <Button className="bg-pink-800" onClick={() => addNumber('/')}>
-              /
-            </Button>
-          </div>
-          <div>
-            <Button className="bg-amber-500" onClick={() => addNumber('-')}>
-              -
-            </Button>
-          </div>
-          <div>
-            <Button className="bg-orange-500" onClick={() => addNumber('+')}>
-              +
-            </Button>
-            <Button
-              className="absolute bottom-0 h-31 bg-green-500"
-              onClick={calculateAnswer}
-            >
-              =
-            </Button>
-          </div>
-        </div>
+        {/* Row 1 */}
+        <Button onClick={() => addNumber('7')}>7</Button>
+        <Button onClick={() => addNumber('8')}>8</Button>
+        <Button onClick={() => addNumber('9')}>9</Button>
+        <Button variant="operator" onClick={() => addNumber('/')}>
+          /
+        </Button>
+
+        {/* Row 2 */}
+        <Button onClick={() => addNumber('4')}>4</Button>
+        <Button onClick={() => addNumber('5')}>5</Button>
+        <Button onClick={() => addNumber('6')}>6</Button>
+        <Button variant="operator" onClick={() => addNumber('×')}>
+          ×
+        </Button>
+
+        {/* Row 3 */}
+        <Button onClick={() => addNumber('1')}>1</Button>
+        <Button onClick={() => addNumber('2')}>2</Button>
+        <Button onClick={() => addNumber('3')}>3</Button>
+        <Button variant="operator" onClick={() => addNumber('-')}>
+          -
+        </Button>
+
+        {/* Row 4 */}
+        <Button onClick={() => addNumber('0')}>0</Button>
+        <Button onClick={() => addNumber('.')}>.</Button>
+        <Button variant="equals" onClick={calculateAnswer}>
+          =
+        </Button>
+        <Button variant="operator" onClick={() => addNumber('+')}>
+          +
+        </Button>
       </div>
     </div>
   );
 }
 
+type ButtonVariant = 'digit' | 'operator' | 'equals' | 'danger';
+
+const VARIANT_CLASSES: Record<ButtonVariant, string> = {
+  // Digits: neutral, dark-mode aware
+  digit:
+    'bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700',
+  // Operators: cyan accent (matches the display focus/caret + app ocean theme)
+  operator:
+    'bg-cyan-500 text-white hover:bg-cyan-600 dark:bg-cyan-600 dark:hover:bg-cyan-500',
+  // The "go" action stands apart in green
+  equals:
+    'bg-emerald-500 text-white hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500',
+  // CE / backspace: muted destructive tone
+  danger:
+    'bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/40 dark:text-rose-300 dark:hover:bg-rose-900/70',
+};
+
 function Button({
   children,
   className,
+  variant = 'digit',
   ...rest
-}: ButtonHTMLAttributes<HTMLButtonElement>) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant }) {
   return (
     <button
       className={twMerge(
-        'm-1 h-14 w-14 cursor-pointer rounded-sm bg-cyan-300 text-2xl text-black hover:bg-cyan-500',
+        'flex aspect-square cursor-pointer items-center justify-center rounded-xl text-2xl font-medium shadow-sm transition-colors duration-150 active:scale-95',
+        VARIANT_CLASSES[variant],
         className,
       )}
       {...rest}
