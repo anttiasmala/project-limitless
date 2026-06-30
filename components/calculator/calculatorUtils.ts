@@ -52,6 +52,10 @@ export function calculatorKeyPressHandler({
   setCurrentDraft,
   calculateAnswer,
 }: Props) {
+  // Let modifier combos (Ctrl/Meta/Alt) through — they're shortcuts like
+  // Ctrl+3 for tab switching, not calculator input. Shift key is NOT intentionally
+  // included, since Shift is be used on '/' and '*' (Finnish keyboard layout)
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
   // Pick the action for this key, but don't run it yet. Keys we don't handle
   // (arrows, Home/End, copy/paste, …) leave `handler` undefined so the browser
   // keeps its default behaviour.
