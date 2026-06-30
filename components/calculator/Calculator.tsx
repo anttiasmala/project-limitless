@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { twMerge } from 'tailwind-merge';
 import {
-  calculatorSwitchCase,
+  calculatorKeyPressHandler,
   displayToRawIndex,
   rawToDisplayIndex,
 } from './calculatorUtils';
@@ -235,16 +235,26 @@ export default function Calculator() {
         return prev; // keep the user given expression so the user can fix it
       }
       const result = answer.toString();
-      // After "=", drop the caret at the very end of the answer (end of line),
+      // After "=", move the caret to the very end of the answer (end of line),
       // like a normal calculator, instead of leaving it mid-number.
       rawCaretRef.current = result.length;
+      // When the value is just a number (no operators), "result" (achieved by clicking "=" button) equals
+      // "prev", so React skips the re-render and the caret layout effect never
+      // runs. Focus + place the caret here so "=" always lands it at the end.
+      // Use the *display* length so thousand separators don't shift it.
+      const input = inputRef.current;
+      if (input) {
+        input.focus();
+        const end = formatForDisplay(result).length;
+        input.setSelectionRange(end, end);
+      }
       return result;
     });
   }, []);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      calculatorSwitchCase({
+      calculatorKeyPressHandler({
         e,
         key: e.key,
         addNumber: (number) => addNumber(number),

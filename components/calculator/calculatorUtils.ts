@@ -43,7 +43,7 @@ type Props = {
   calculateAnswer: () => void;
 };
 
-export function calculatorSwitchCase({
+export function calculatorKeyPressHandler({
   e,
   key,
   addNumber,
