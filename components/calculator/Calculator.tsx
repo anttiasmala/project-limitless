@@ -178,24 +178,41 @@ export default function Calculator() {
   /** Removes a number / operator **left**-side of caret */
   const removeNumber = useCallback(function removeNumber() {
     // Same idea as addNumber: read the caret (display coordinates) up front.
-    const displayCaret = inputRef.current?.selectionStart ?? 0;
+    const caretStart = inputRef.current?.selectionStart ?? 0;
+    const caretEnd = inputRef.current?.selectionEnd ?? 0;
 
     setCurrentDraft((prevValue) => {
       if (prevValue === null) return null;
 
       // Map to the raw string so we delete the character the user actually sees
       // to the left of the caret, not just the last one.
-      const rawCaret = displayToRawIndex(
+      const rawCaretStart = displayToRawIndex(
         formatForDisplay(prevValue),
-        displayCaret,
+        caretStart,
       );
+
+      const rawCaretEnd = displayToRawIndex(
+        formatForDisplay(prevValue),
+        caretEnd,
+      );
+
+      // A selection (the user "painted" some digits): delete exactly the
+      // selected range — keep what's before the start and after the end.
+      if (caretStart !== caretEnd) {
+        const newValue =
+          prevValue.slice(0, rawCaretStart) + prevValue.slice(rawCaretEnd);
+        // Caret stays where the selection started.
+        rawCaretRef.current = rawCaretStart;
+        return newValue === '' ? null : newValue;
+      }
+
       // Caret at the very start: nothing to the left to delete.
-      if (rawCaret === 0) return prevValue;
+      if (rawCaretStart === 0) return prevValue;
 
       const newValue =
-        prevValue.slice(0, rawCaret - 1) + prevValue.slice(rawCaret);
+        prevValue.slice(0, rawCaretStart - 1) + prevValue.slice(rawCaretStart);
       // Caret shifts one left, onto the spot the removed character used to hold.
-      rawCaretRef.current = rawCaret - 1;
+      rawCaretRef.current = rawCaretStart - 1;
       // Empty string -> back to null so the "0" placeholder shows again.
 
       return newValue === '' ? null : newValue;
@@ -204,24 +221,41 @@ export default function Calculator() {
 
   /** Removes a number / operator **right**-side of caret */
   const removeAheadNumber = useCallback(function removeAheadNumber() {
-    const displayCaret = inputRef.current?.selectionStart ?? 0;
+    const caretStart = inputRef.current?.selectionStart ?? 0;
+    const caretEnd = inputRef.current?.selectionEnd ?? 0;
 
     setCurrentDraft((prevValue) => {
       if (prevValue === null) return null;
 
-      // Map the display caret to the raw string, same as removeNumber.
-      const rawCaret = displayToRawIndex(
+      // Map the display caret(s) to the raw string, same as removeNumber.
+      const rawCaretStart = displayToRawIndex(
         formatForDisplay(prevValue),
-        displayCaret,
+        caretStart,
       );
+
+      const rawCaretEnd = displayToRawIndex(
+        formatForDisplay(prevValue),
+        caretEnd,
+      );
+
+      // A selection (the user "painted" some digits): delete exactly the
+      // selected range — keep what's before the start and after the end.
+      if (caretStart !== caretEnd) {
+        const newValue =
+          prevValue.slice(0, rawCaretStart) + prevValue.slice(rawCaretEnd);
+        // Caret stays where the selection started.
+        rawCaretRef.current = rawCaretStart;
+        return newValue === '' ? null : newValue;
+      }
+
       // Caret at the very end: nothing to the right to delete.
-      if (rawCaret === prevValue.length) return prevValue;
+      if (rawCaretStart === prevValue.length) return prevValue;
 
       // Drop the character the caret sits in front of (the one to its right).
       const newValue =
-        prevValue.slice(0, rawCaret) + prevValue.slice(rawCaret + 1);
+        prevValue.slice(0, rawCaretStart) + prevValue.slice(rawCaretStart + 1);
       // The caret doesn't move: everything left of it is untouched.
-      rawCaretRef.current = rawCaret;
+      rawCaretRef.current = rawCaretStart;
       // Empty string -> back to null so the "0" placeholder shows again.
       return newValue === '' ? null : newValue;
     });
