@@ -4,9 +4,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Button from '../shared/Button';
+import { WindowModal } from './indexTypes';
 
 export default function Index() {
   const [time, setTime] = useState('');
+  const [windowModal, setWindowModal] = useState<WindowModal[]>([]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -36,7 +38,20 @@ export default function Index() {
           <Button
             variant="unstyled"
             className="group flex cursor-default flex-col"
-            onDoubleClick={() => console.log('Double Click')}
+            onDoubleClick={() =>
+              setWindowModal((prevValue) => {
+                return [
+                  ...prevValue,
+                  {
+                    uuid: crypto.randomUUID(),
+                    isOpen: true,
+                    modalIcon: '/images/index-page/folder-opened-icon.png',
+                    modalName: 'Folder',
+                    zIndex: '1',
+                  },
+                ];
+              })
+            }
           >
             <Image
               alt="Folder icon"
@@ -45,12 +60,63 @@ export default function Index() {
               height={32}
               className="group-focus:opacity-50"
             />
-            <span className="group-focus:bg-[#0b61ff] group-focus:opacity-100">
+            <span className="text-sm group-focus:bg-[#0b61ff] group-focus:opacity-100">
               Games
             </span>
           </Button>
         </div>
       </div>
+
+      {windowModal[0] && (
+        <div className="h-125 w-165 overflow-hidden rounded-t-lg border border-[#0831d9] bg-white shadow-2xl">
+          {/* XP Luna title bar */}
+          <div className="flex h-7.5 items-center rounded-t-[7px] border-b border-b-[#0831d9] bg-[linear-gradient(to_bottom,#0997ff_0%,#0053ee_8%,#0050ee_40%,#0060ff_88%,#0060ff_93%,#0855dd_95%,#0855dd_96%,#003bbb_100%)] pr-1 pl-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
+            <Image
+              alt=""
+              src={windowModal[0].modalIcon}
+              width={16}
+              height={16}
+              className="shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]"
+            />
+            <p className="ml-1.5 truncate text-sm font-bold text-white select-none [text-shadow:1px_1px_1px_rgba(0,0,0,0.6)]">
+              {windowModal[0].modalName}
+            </p>
+
+            {/* Window controls */}
+            <div className="ml-auto flex items-center gap-0.5">
+              {/* Minimize */}
+              <button
+                type="button"
+                aria-label="Minimize"
+                className="relative flex h-5.25 w-5.25 items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#3f8df5_0%,#0e5ce6_45%,#0a4bce_50%,#1560e6_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
+              >
+                <span className="mt-2 h-0.75 w-2.25 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
+              </button>
+
+              {/* Maximize */}
+              <button
+                type="button"
+                aria-label="Maximize"
+                className="flex h-5.25 w-5.25 items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#3f8df5_0%,#0e5ce6_45%,#0a4bce_50%,#1560e6_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
+              >
+                <span className="h-2.5 w-2.75 rounded-[1px] border-2 border-t-[3px] border-white bg-transparent shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
+              </button>
+
+              {/* Close */}
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={() => setWindowModal([])}
+                className="relative flex h-5.25 w-5.25 items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#f7a17d_0%,#e04a2b_45%,#c62d15_50%,#e35a37_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
+              >
+                <span className="absolute h-0.5 w-3 rotate-45 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
+                <span className="absolute h-0.5 w-3 -rotate-45 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
+              </button>
+            </div>
+          </div>
+          <div className="w-full bg-[#f0efe7] font-black">a</div>
+        </div>
+      )}
 
       <footer className="fixed bottom-0 left-0 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]">
         <Image
