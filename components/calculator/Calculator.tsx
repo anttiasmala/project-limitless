@@ -20,84 +20,82 @@ const OPERATORS = ['+', '-', '×', '/'];
 
 /** Separates numbers from operators like ["2", "+", "2"] */
 function tokenize(string: string) {
-  return string.match(/\d+\.?\d*|[+\-×/]/g) ?? [];
+  // Brackets '(' and ')' are in the character class too, otherwise match()
+  // would silently drop them (they'd match nothing and vanish from the tokens).
+  return string.match(/\d+\.?\d*|[+\-×/()]/g) ?? [];
 }
 
-// A leading '-'/'+' or one right after another operator is unary (part of the
-// number), e.g. -2 or 2 - -3. Merge it into the following number so evaluate()
-// keeps its number, operator, number, operator... structure.
-// Important: Unary means the "-" or "+" sign is part of the number. For example -1 + 2, the "-" in 1 is a unary
-function normalizeSigns(tokens: string[]) {
-  // the list we build up and return, values are like (e.g. ["-2", "+", "2"])
-  const result: string[] = [];
+// Recursive-descent parser. It walks the token list once, using a `pos` cursor,
+// and calls each other by precedence (lowest first). This single pass replaces
+// the old flat evaluate() + normalizeSigns(), and it naturally supports
+// brackets, operator precedence, and unary +/- signs.
 
-  // loop through every token from the raw tokenize() output
-  for (let i = 0; i < tokens.length; i++) {
-    // the token we are currently looking at
-    const token = tokens[i];
+// On anything malformed (missing bracket, stray operator, ...) it throws, and
+// the caller turns that into the "Malformed expression" toast.
+function evaluate(tokens: string[]): number {
+  // Where we are in the token list. Every parse function advances it.
+  let pos = 0;
 
-    // the previous token we already pushed into result. Used to decide
-    // whether the current sign is unary. undefined when result is empty.
-    const prev = result[result.length - 1];
+  // The token we are about to look at (undefined once we run off the end).
+  const peek = () => tokens[pos];
 
-    // a '-' or '+' is unary (a sign on a number (positive ("+") / negative ("-")), not subtraction/addition)
-    // when it is either:
-    //   - at the very start of the expression (result.length === 0), or
-    //   - directly after another operator (e.g. the second '-' in "2 - -3", looks in calculator: "2--3")
-    const isUnary =
-      (token === '-' || token === '+') &&
-      (result.length === 0 || OPERATORS.includes(prev));
-
-    // only merge if it's unary AND there is a number after it to attach to
-    if (isUnary && i + 1 < tokens.length) {
-      // glue the sign onto the next number: '-' makes it negative,
-      // a unary '+' is a positive, so we just keep the number as it is, so no sign needed
-      result.push(token === '-' ? '-' + tokens[i + 1] : tokens[i + 1]);
-      // we just used tokens[i + 1], so skip it on the next loop by incrementing the "i"
-      i++;
-    } else {
-      // not a unary sign — a normal number or binary operator, keep it
-      result.push(token);
+  // expr: a chain of terms joined by '+' / '-' (evaluated left to right).
+  function parseExpr(): number {
+    let value = parseTerm();
+    while (peek() === '+' || peek() === '-') {
+      const operator = tokens[pos++]; // consume the operator
+      const rhs = parseTerm();
+      value = operator === '+' ? value + rhs : value - rhs;
     }
+    return value;
   }
 
-  // result now alternates number, operator, number... with signs folded in
-  return result;
-}
-
-function evaluate(tokens: string[]) {
-  let number = 0;
-  const array1: (string | number)[] = [tokens[0]];
-  let operator = '';
-  // regex splits the tokens array like this
-  // [1, "+", 2, "/"], etc. Every second value is an operator
-  // that's why i += 2 instead of i++, with i++ the order would break
-  for (let i = 1; i < tokens.length; i += 2) {
-    // we can set operator to tokens[i], because we know how REGEX splits the values
-    // indexes 1, 3, 5, 7, etc are operators
-    operator = tokens[i];
-    // indexes 0, 2, 4, 6, etc are numbers
-    number = Number(tokens[i + 1]);
-    // first we check is the operator multiplier or divider
-    if (operator === '×' || operator === '/') {
-      // we get the first value by removing it from the array. It as well clears the array
-      const prev = Number(array1.pop());
-      array1.push(operator === '×' ? prev * number : prev / number);
-    } else {
-      // if operator is not multiplier or divider, add the operator (for example: '+')
-      // and the number into the array
-      array1.push(operator, number);
+  // term: a chain of factors joined by '×' / '/'. Because term sits *below*
+  // expr, these bind tighter, so precedence is handled for free.
+  function parseTerm(): number {
+    let value = parseFactor();
+    while (peek() === '×' || peek() === '/') {
+      const operator = tokens[pos++]; // consume the operator
+      const rhs = parseFactor();
+      value = operator === '×' ? value * rhs : value / rhs;
     }
+    return value;
   }
-  // when code gets here, the multipliers and dividers have been calculated
-  // we know the first value is a number, we can set it here
-  let result = Number(array1[0]);
 
-  for (let i = 1; i < array1.length; i += 2) {
-    const _operator = array1[i];
-    const _number = Number(array1[i + 1]);
-    result = _operator === '+' ? result + _number : result - _number;
+  // factor: the smallest pieces — a unary-signed value, a bracket group, or a
+  // plain number.
+  function parseFactor(): number {
+    const token = peek();
+
+    // Unary '+' / '-': the sign belongs to whatever follows. Recurse back into
+    // factor so things like "--2" (double negative) or "-(1+2)" also work.
+    if (token === '+' || token === '-') {
+      pos++; // consume the sign
+      const value = parseFactor();
+      return token === '-' ? -value : value;
+    }
+
+    // '(' ... ')': parse the inside as a full expression, then demand the ')'.
+    if (token === '(') {
+      pos++; // consume '('
+      const value = parseExpr();
+      if (peek() !== ')') throw new Error('Missing closing bracket');
+      pos++; // consume ')'
+      return value;
+    }
+
+    // Otherwise it has to be a number.
+    const number = Number(token);
+    if (token === undefined || Number.isNaN(number)) {
+      throw new Error('Expected a number');
+    }
+    pos++; // consume the number
+    return number;
   }
+
+  const result = parseExpr();
+  // If tokens are left over (e.g. an unmatched ')'), the input was malformed.
+  if (pos !== tokens.length) throw new Error('Unexpected trailing tokens');
   return result;
 }
 
@@ -264,7 +262,14 @@ export default function Calculator() {
   const calculateAnswer = useCallback(function calculateAnswer() {
     setCurrentDraft((prev) => {
       if (prev === null) return prev;
-      const answer = evaluate(normalizeSigns(tokenize(prev)));
+      // evaluate() throws on malformed input (bad brackets, stray operators,
+      // ...); treat that the same as a non-finite result below.
+      let answer: number;
+      try {
+        answer = evaluate(tokenize(prev));
+      } catch {
+        answer = NaN;
+      }
       if (!Number.isFinite(answer)) {
         toast('Malformed expression'); // toast the error to frontend
         return prev; // keep the user given expression so the user can fix it
