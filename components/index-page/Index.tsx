@@ -38,10 +38,10 @@ export default function Index() {
   };
 
   // Open the Games folder, or focus it if it is already open.
-  const openGames = () => {
+  const openFolder = (folderName: string) => {
     setWindowModal((prev) => {
       const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
-      const existing = prev.find((w) => w.modalName === 'Games');
+      const existing = prev.find((w) => w.modalName === folderName);
       if (existing) {
         return prev.map((w) =>
           w.uuid === existing.uuid ? { ...w, zIndex: maxZ + 1 } : w,
@@ -57,7 +57,7 @@ export default function Index() {
           top: 96 + offset,
           left: 40 + offset,
           modalIcon: '/images/index-page/folder-opened-icon.png',
-          modalName: 'Games',
+          modalName: folderName,
         },
       ];
     });
@@ -78,7 +78,7 @@ export default function Index() {
           <Button
             variant="unstyled"
             className="group flex cursor-default flex-col"
-            onDoubleClick={openGames}
+            onDoubleClick={() => openFolder('Games')}
           >
             <Image
               alt="Folder icon"
@@ -89,6 +89,24 @@ export default function Index() {
             />
             <span className="text-sm group-focus:bg-[#0b61ff] group-focus:opacity-100">
               Games
+            </span>
+          </Button>
+        </div>
+        <div className="mt-3">
+          <Button
+            variant="unstyled"
+            className="group flex cursor-default flex-col"
+            onDoubleClick={() => openFolder('Utils')}
+          >
+            <Image
+              alt="Folder icon"
+              src={'/images/index-page/folder-icon.png'}
+              width={32}
+              height={32}
+              className="group-focus:opacity-50"
+            />
+            <span className="text-sm group-focus:bg-[#0b61ff] group-focus:opacity-100">
+              Utils
             </span>
           </Button>
         </div>
