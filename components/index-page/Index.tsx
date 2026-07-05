@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Button from '../shared/Button';
 import WindowModal from './components/WindowModal';
-import { WindowModal as WindowModalType } from './indexTypes';
+import { FOLDERS } from './folders';
+import { Folder, WindowModal as WindowModalType } from './indexTypes';
 
 export default function Index() {
   const [time, setTime] = useState('');
@@ -37,11 +38,11 @@ export default function Index() {
     });
   };
 
-  // Open a folder by name, or focus it if it is already open.
-  const openFolder = (folderName: string) => {
+  // Open a folder, or focus it if it is already open.
+  const openFolder = (folder: Folder) => {
     setWindowModal((prev) => {
       const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
-      const existing = prev.find((w) => w.modalName === folderName);
+      const existing = prev.find((w) => w.modalName === folder.name);
       if (existing) {
         return prev.map((w) =>
           w.uuid === existing.uuid ? { ...w, zIndex: maxZ + 1 } : w,
@@ -57,7 +58,8 @@ export default function Index() {
           top: 96 + offset,
           left: 40 + offset,
           modalIcon: '/images/index-page/folder/folder-opened-icon.png',
-          modalName: folderName,
+          modalName: folder.name,
+          items: folder.items,
         },
       ];
     });
@@ -73,43 +75,26 @@ export default function Index() {
         ← Home
       </Link>
 
-      <div className="absolute top-20 left-10">
-        <div>
+      <div className="absolute top-20 left-10 flex flex-col gap-3">
+        {FOLDERS.map((folder) => (
           <Button
+            key={folder.name}
             variant="unstyled"
             className="group flex cursor-default flex-col"
-            onDoubleClick={() => openFolder('Games')}
+            onDoubleClick={() => openFolder(folder)}
           >
             <Image
               alt="Folder icon"
-              src={'/images/index-page/folder-icon.png'}
+              src={folder.icon}
               width={32}
               height={32}
               className="group-focus:opacity-50"
             />
             <span className="text-sm group-focus:bg-[#0b61ff] group-focus:opacity-100">
-              Games
+              {folder.name}
             </span>
           </Button>
-        </div>
-        <div className="mt-3">
-          <Button
-            variant="unstyled"
-            className="group flex cursor-default flex-col"
-            onDoubleClick={() => openFolder('Utils')}
-          >
-            <Image
-              alt="Folder icon"
-              src={'/images/index-page/folder-icon.png'}
-              width={32}
-              height={32}
-              className="group-focus:opacity-50"
-            />
-            <span className="text-sm group-focus:bg-[#0b61ff] group-focus:opacity-100">
-              Utils
-            </span>
-          </Button>
-        </div>
+        ))}
       </div>
 
       {windowModal.map((modal) => (
@@ -118,7 +103,9 @@ export default function Index() {
           modal={modal}
           onFocus={focusWindow}
           onClose={(uuid) =>
-            setWindowModal((prev) => prev.filter((m) => m.uuid !== uuid))
+            setWindowModal((prev) =>
+              prev.filter((modal) => modal.uuid !== uuid),
+            )
           }
         />
       ))}
