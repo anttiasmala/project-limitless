@@ -60,8 +60,14 @@ export default function WindowModal({
     const startLeft = div.offsetLeft;
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
-      div.style.top = `${startTop + (moveEvent.clientY - startY)}px`;
-      div.style.left = `${startLeft + (moveEvent.clientX - startX)}px`;
+      const maxLeft = document.documentElement.clientWidth - div.offsetWidth;
+      const maxTop = document.documentElement.clientHeight - div.offsetHeight;
+
+      const nextLeft = startLeft + (moveEvent.clientX - startX);
+      const nextTop = startTop + (moveEvent.clientY - startY);
+
+      div.style.left = `${Math.max(0, Math.min(nextLeft, maxLeft))}px`;
+      div.style.top = `${Math.max(0, Math.min(nextTop, maxTop - 35))}px`;
     };
 
     const handleMouseUp = () => {
