@@ -24,8 +24,47 @@ export default function Index() {
       clearInterval(interval);
     };
   }, []);
+
+  // Bring a window to the front by giving it the highest z-index.
+  const focusWindow = (uuid: string) => {
+    setWindowModal((prev) => {
+      const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
+      const target = prev.find((w) => w.uuid === uuid);
+      if (!target || target.zIndex === maxZ) return prev;
+      return prev.map((w) =>
+        w.uuid === uuid ? { ...w, zIndex: maxZ + 1 } : w,
+      );
+    });
+  };
+
+  // Open the Games folder, or focus it if it is already open.
+  const openGames = () => {
+    setWindowModal((prev) => {
+      const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
+      const existing = prev.find((w) => w.modalName === 'Games');
+      if (existing) {
+        return prev.map((w) =>
+          w.uuid === existing.uuid ? { ...w, zIndex: maxZ + 1 } : w,
+        );
+      }
+      const offset = prev.length * 24;
+      return [
+        ...prev,
+        {
+          uuid: crypto.randomUUID(),
+          isOpen: true,
+          zIndex: maxZ + 1,
+          top: 96 + offset,
+          left: 40 + offset,
+          modalIcon: '/images/index-page/folder-opened-icon.png',
+          modalName: 'Games',
+        },
+      ];
+    });
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100 bg-[url(/images/index-page/background.jpeg)] bg-cover px-4">
+    <main className="relative flex min-h-screen flex-col items-center justify-center bg-slate-100 bg-[url(/images/index-page/background.jpeg)] bg-cover px-4">
       {/* Back to the arcade landing page */}
       <Link
         href="/"
@@ -39,20 +78,7 @@ export default function Index() {
           <Button
             variant="unstyled"
             className="group flex cursor-default flex-col"
-            onDoubleClick={() =>
-              setWindowModal((prevValue) => {
-                return [
-                  ...prevValue,
-                  {
-                    uuid: crypto.randomUUID(),
-                    isOpen: true,
-                    modalIcon: '/images/index-page/folder-opened-icon.png',
-                    modalName: 'Games',
-                    zIndex: '1',
-                  },
-                ];
-              })
-            }
+            onDoubleClick={openGames}
           >
             <Image
               alt="Folder icon"
@@ -72,6 +98,7 @@ export default function Index() {
         <WindowModal
           key={modal.uuid}
           modal={modal}
+          onFocus={focusWindow}
           onClose={(uuid) =>
             setWindowModal((prev) => prev.filter((m) => m.uuid !== uuid))
           }
