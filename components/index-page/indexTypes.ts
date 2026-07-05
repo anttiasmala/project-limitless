@@ -1,3 +1,15 @@
+export type FolderApp = {
+  name: string;
+  icon: string;
+  href: string;
+};
+
+export type Folder = {
+  name: string;
+  icon: string;
+  items: FolderApp[];
+};
+
 export type WindowModal = {
   uuid: string;
   isOpen: boolean;
@@ -6,4 +18,5 @@ export type WindowModal = {
   left: number;
   modalName: string;
   modalIcon: string;
+  items: FolderApp[];
 };
