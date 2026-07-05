@@ -1,16 +1,99 @@
 import Image from 'next/image';
+import { ReactNode } from 'react';
 import { WindowModal as WindowModalType } from '../indexTypes';
 
 type Props = {
   modal: WindowModalType;
   onClose: (uuid: string) => void;
+  onFocus: (uuid: string) => void;
 };
 
-export default function WindowModal({ modal, onClose }: Props) {
+// Placeholder icon used until real per-item icons are added.
+const PLACEHOLDER = '/images/index-page/folder/folder-opened-icon.png';
+const PATH = '/images/index-page/folder';
+
+const fileTasks = [
+  { icon: `${PATH}/make-a-new-folder.png`, label: 'Make a new folder' },
+  {
+    icon: `${PATH}/publish-this-folder-to-the-web.png`,
+    label: 'Publish this folder to the Web',
+  },
+  {
+    icon: `${PATH}/share-this-folder.png`,
+    label: 'Share this folder',
+  },
+];
+
+const otherPlaces = [
+  { icon: PLACEHOLDER, label: 'Documents and Settings' },
+  { icon: `${PATH}/my-documents.png`, label: 'My Documents' },
+  { icon: PLACEHOLDER, label: 'Shared Dcouments' },
+  { icon: `${PATH}/my-computer.png`, label: 'My Computer' },
+  { icon: `${PATH}/my-network-places.png`, label: 'My Network Places' },
+];
+
+const folderItems = ['Desktop', 'Favorites', 'My Documents', 'Start Menu'];
+
+// A collapsible XP "webview" panel: light header bar + gradient body.
+function SidebarPanel({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="overflow-hidden rounded-[3px] shadow-[0_1px_2px_rgba(0,0,0,0.25)]">
+      <div className="flex items-center justify-between bg-[linear-gradient(to_right,#f4f8ff,#c5d6f5)] px-2 py-1">
+        <span className="text-[11px] font-bold text-[#15428b] select-none">
+          {title}
+        </span>
+        <span className="group flex h-4 w-4 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(to_bottom,#a7c1ee,#5b7fd6)] shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
+          <Image
+            alt=""
+            src="/images/index-page/folder/double-arrow-up.png"
+            width={32}
+            height={32}
+            className="group-hover:brightness-110"
+          />
+        </span>
+      </div>
+      <div className="bg-[linear-gradient(to_bottom,#ffffff,#c5d7f4)] px-2.5 py-2">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function SidebarItem({ icon, label }: { icon: string; label: string }) {
+  return (
+    <button
+      type="button"
+      className="group flex w-full items-center gap-2 py-0.5 text-left"
+    >
+      <Image
+        alt=""
+        src={icon}
+        width={16}
+        height={16}
+        className="h-4 w-4 shrink-0"
+      />
+      <span className="text-[11px] text-[#0c327d] group-hover:underline">
+        {label}
+      </span>
+    </button>
+  );
+}
+
+export default function WindowModal({ modal, onClose, onFocus }: Props) {
   if (!modal.isOpen) return null;
 
   return (
-    <div className="h-125 w-165 overflow-hidden rounded-t-lg border border-[#0831d9] bg-white shadow-2xl">
+    <div
+      onMouseDown={() => onFocus(modal.uuid)}
+      style={{ zIndex: modal.zIndex, top: modal.top, left: modal.left }}
+      className="absolute flex h-125 w-165 flex-col overflow-hidden rounded-t-lg border border-[#0831d9] bg-white shadow-2xl"
+    >
       {/* XP Luna title bar */}
       <div className="flex h-7.5 items-center rounded-t-[7px] border-b border-b-[#0831d9] bg-[linear-gradient(to_bottom,#0997ff_0%,#0053ee_8%,#0050ee_40%,#0060ff_88%,#0060ff_93%,#0855dd_95%,#0855dd_96%,#003bbb_100%)] pr-1 pl-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
         <Image
@@ -145,7 +228,7 @@ export default function WindowModal({ modal, onClose }: Props) {
       </div>
       <div className="flex w-full flex-row bg-[#f0efe7]">
         <p className="ml-2 text-xs text-[#797a72]">Address</p>
-        <div className="ml-2 flex w-4/5 flex-row items-center justify-between border border-[#919b9f] bg-white">
+        <div className="ml-2 flex w-5/6 flex-row items-center justify-between border border-[#919b9f] bg-white">
           <div className="flex flex-row">
             <Image
               alt=""
@@ -168,7 +251,7 @@ export default function WindowModal({ modal, onClose }: Props) {
             />
           </div>
         </div>
-        <div className="group ml-3 flex cursor-default flex-row items-center">
+        <div className="group ml-1 flex cursor-default flex-row items-center">
           <Image
             alt=""
             src={'/images/index-page/folder/arrow-right.png'}
@@ -178,6 +261,59 @@ export default function WindowModal({ modal, onClose }: Props) {
           />
           <p className="ml-1 text-xs text-black">Go</p>
         </div>
+      </div>
+
+      <div className="flex min-h-0 flex-1 text-black">
+        {/* Left task pane */}
+        <aside className="w-52 shrink-0 space-y-3.5 overflow-y-auto bg-[linear-gradient(to_bottom,#7ba0f0_0%,#4062c8_100%)] px-2.5 py-3.5">
+          <SidebarPanel title="File and Folder Tasks">
+            {fileTasks.map((task) => (
+              <SidebarItem
+                key={task.label}
+                icon={task.icon}
+                label={task.label}
+              />
+            ))}
+          </SidebarPanel>
+
+          <SidebarPanel title="Other Places">
+            {otherPlaces.map((place) => (
+              <SidebarItem
+                key={place.label}
+                icon={place.icon}
+                label={place.label}
+              />
+            ))}
+          </SidebarPanel>
+
+          <SidebarPanel title="Details">
+            <span className="text-[11px] text-[#0c327d]">
+              {modal.modalName}
+            </span>
+          </SidebarPanel>
+        </aside>
+
+        {/* Folder contents */}
+        <section className="grid flex-1 grid-cols-2 content-start gap-x-2 gap-y-3 overflow-y-auto bg-white p-4">
+          {folderItems.map((name) => (
+            <button
+              key={name}
+              type="button"
+              className="group flex items-center gap-2 rounded p-1 text-left"
+            >
+              <Image
+                alt=""
+                src={PLACEHOLDER}
+                width={40}
+                height={40}
+                className="shrink-0"
+              />
+              <span className="rounded-sm px-0.5 text-xs group-hover:bg-[#316ac5] group-hover:text-white">
+                {name}
+              </span>
+            </button>
+          ))}
+        </section>
       </div>
     </div>
   );
