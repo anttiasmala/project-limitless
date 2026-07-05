@@ -61,7 +61,7 @@ export function calculatorKeyPressHandler({
   // keeps its default behaviour.
   let handler: (() => void) | undefined;
 
-  if ('0123456789.+-/'.includes(key)) {
+  if ('0123456789.+-/()'.includes(key)) {
     handler = () => addNumber(key);
   } else if (key === '*') {
     handler = () => addNumber('×');
