@@ -39,31 +39,45 @@ function evaluate(tokens: string[]): number {
   // The token we are about to look at (undefined once we run off the end).
   const peek = () => tokens[pos];
 
-  // expr: a chain of terms joined by '+' / '-' (evaluated left to right).
+  // Handles the LOWEST-priority operators: + and -.
+  // It reads a value, then keeps adding/subtracting more values after it,
+  // left to right. e.g. "1 + 2 - 3" -> (1 + 2) then - 3.
+  // Each "value" here is a parseTerm(), so any × or / inside is already
+  // worked out first — that's how precedence ("× before +") happens.
   function parseExpr(): number {
     let value = parseTerm();
     while (peek() === '+' || peek() === '-') {
       const operator = tokens[pos++]; // consume the operator
-      const rhs = parseTerm();
-      value = operator === '+' ? value + rhs : value - rhs;
+
+      const rightHandSide = parseTerm();
+      value = operator === '+' ? value + rightHandSide : value - rightHandSide;
     }
     return value;
   }
 
-  // term: a chain of factors joined by '×' / '/'. Because term sits *below*
-  // expr, these bind tighter, so precedence is handled for free.
+  // Handles the HIGHER-priority operators: × and /.
+  // Same shape as parseExpr, but for multiply/divide. Because parseExpr calls
+  // this for each of its values, a "2 × 3" gets fully calculated before the
+  // surrounding + or - ever sees it. e.g. "2 + 3 × 4" -> 3 × 4 = 12 first.
+  // and 2 + 12. Just like order of calculations works
   function parseTerm(): number {
     let value = parseFactor();
     while (peek() === '×' || peek() === '/') {
       const operator = tokens[pos++]; // consume the operator
-      const rhs = parseFactor();
-      value = operator === '×' ? value * rhs : value / rhs;
+
+      const rightHandSide = parseFactor();
+      value = operator === '×' ? value * rightHandSide : value / rightHandSide;
     }
     return value;
   }
 
-  // factor: the smallest pieces — a unary-signed value, a bracket group, or a
-  // plain number.
+  // Handles the smallest building blocks — the actual "values". A factor is one
+  // of three things:
+  //   1. a sign in front of a value:  -2  or  +2  (see below)
+  //   2. a bracket group:  (1 + 2)  -> calculate the inside, use its result
+  //   3. a plain number:   42
+  // Brackets get their answer here, which is why "(1 + 2) × 3" works: the group
+  // is turned into a single value (3) before parseTerm multiplies it.
   function parseFactor(): number {
     const token = peek();
 
