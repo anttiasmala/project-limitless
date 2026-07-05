@@ -10,6 +10,7 @@ type Props = {
   onClose: (uuid: string) => void;
   onFocus: (uuid: string) => void;
   onMove: (uuid: string, top: number, left: number) => void;
+  onMaximize: (uuid: string) => void;
 };
 
 // Placeholder icon used until real per-item icons are added.
@@ -41,6 +42,7 @@ export default function WindowModal({
   onClose,
   onFocus,
   onMove,
+  onMaximize,
 }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -50,6 +52,7 @@ export default function WindowModal({
   // node while dragging for smoothness, then committed to state on release.
   const handleDragStart = (e: React.MouseEvent) => {
     if (e.button !== 0) return; // left button only
+    if (modal.isMaximized) return; // a maximized window stays put
     const div = rootRef.current;
     if (!div) return;
     e.preventDefault(); // avoid selecting the title text while dragging
@@ -84,13 +87,22 @@ export default function WindowModal({
     <div
       ref={rootRef}
       onMouseDown={() => onFocus(modal.uuid)}
-      style={{ zIndex: modal.zIndex, top: modal.top, left: modal.left }}
-      className="absolute flex h-125 w-165 flex-col overflow-hidden rounded-t-lg border border-[#0831d9] bg-white shadow-2xl"
+      style={{
+        zIndex: modal.zIndex,
+        top: modal.top,
+        left: modal.left,
+        width: modal.width,
+        height: modal.height,
+      }}
+      className="absolute flex flex-col overflow-hidden rounded-t-lg border border-[#0831d9] bg-white shadow-2xl"
     >
       {/* XP Luna title bar */}
       <div
         onMouseDown={handleDragStart}
-        className="flex h-7.5 cursor-move items-center rounded-t-[7px] border-b border-b-[#0831d9] bg-[linear-gradient(to_bottom,#0997ff_0%,#0053ee_8%,#0050ee_40%,#0060ff_88%,#0060ff_93%,#0855dd_95%,#0855dd_96%,#003bbb_100%)] pr-1 pl-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]"
+        onDoubleClick={() => onMaximize(modal.uuid)}
+        className={`flex h-7.5 items-center rounded-t-[7px] border-b border-b-[#0831d9] bg-[linear-gradient(to_bottom,#0997ff_0%,#0053ee_8%,#0050ee_40%,#0060ff_88%,#0060ff_93%,#0855dd_95%,#0855dd_96%,#003bbb_100%)] pr-1 pl-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] ${
+          modal.isMaximized ? 'cursor-default' : 'cursor-move'
+        }`}
       >
         <Image
           alt=""
@@ -114,11 +126,12 @@ export default function WindowModal({
             <span className="mt-2 h-0.75 w-2.25 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
           </button>
 
-          {/* Maximize */}
+          {/* Maximize / Restore */}
           <button
             type="button"
-            aria-label="Maximize"
+            aria-label={modal.isMaximized ? 'Restore' : 'Maximize'}
             className="flex h-5.25 w-5.25 items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#3f8df5_0%,#0e5ce6_45%,#0a4bce_50%,#1560e6_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
+            onClick={() => onMaximize(modal.uuid)}
           >
             <span className="h-2.5 w-2.75 rounded-[1px] border-2 border-t-[3px] border-white bg-transparent shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
           </button>

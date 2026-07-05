@@ -8,6 +8,14 @@ import WindowModal from './components/WindowModal';
 import { FOLDERS } from './folders';
 import { Folder, WindowModal as WindowModalType } from './indexTypes';
 
+// Default window size, matching the previous fixed Tailwind classes
+// (w-165 = 660px, h-125 = 500px).
+const DEFAULT_WIDTH = 660;
+const DEFAULT_HEIGHT = 500;
+// Height reserved at the bottom of the screen for the (future) taskbar, so a
+// maximized window stops just above it like in Windows XP.
+const TASKBAR_HEIGHT = 34;
+
 export default function Index() {
   const [time, setTime] = useState('');
   const [windowModal, setWindowModal] = useState<WindowModalType[]>([]);
@@ -45,6 +53,41 @@ export default function Index() {
     );
   };
 
+  // Toggle a window between maximized (filling the viewport above the taskbar)
+  // and its previous position/size.
+  const toggleMaximize = (uuid: string) => {
+    setWindowModal((prev) =>
+      prev.map((w) => {
+        if (w.uuid !== uuid) return w;
+        if (w.isMaximized && w.restoreRect) {
+          return {
+            ...w,
+            isMaximized: false,
+            top: w.restoreRect.top,
+            left: w.restoreRect.left,
+            width: w.restoreRect.width,
+            height: w.restoreRect.height,
+            restoreRect: undefined,
+          };
+        }
+        return {
+          ...w,
+          isMaximized: true,
+          restoreRect: {
+            top: w.top,
+            left: w.left,
+            width: w.width,
+            height: w.height,
+          },
+          top: 0,
+          left: 0,
+          width: document.documentElement.clientWidth,
+          height: document.documentElement.clientHeight - TASKBAR_HEIGHT,
+        };
+      }),
+    );
+  };
+
   // Open a folder, or focus it if it is already open.
   const openFolder = (folder: Folder) => {
     setWindowModal((prev) => {
@@ -64,6 +107,9 @@ export default function Index() {
           zIndex: maxZ + 1,
           top: 96 + offset,
           left: 40 + offset,
+          width: DEFAULT_WIDTH,
+          height: DEFAULT_HEIGHT,
+          isMaximized: false,
           modalIcon: '/images/index-page/folder/folder-opened-icon.png',
           modalName: folder.name,
           items: folder.items,
@@ -110,6 +156,7 @@ export default function Index() {
           modal={modal}
           onFocus={focusWindow}
           onMove={moveWindow}
+          onMaximize={toggleMaximize}
           onClose={(uuid) =>
             setWindowModal((prev) =>
               prev.filter((modal) => modal.uuid !== uuid),
