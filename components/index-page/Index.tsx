@@ -38,6 +38,13 @@ export default function Index() {
     });
   };
 
+  // Persist a window's position after a drag.
+  const moveWindow = (uuid: string, top: number, left: number) => {
+    setWindowModal((prev) =>
+      prev.map((w) => (w.uuid === uuid ? { ...w, top, left } : w)),
+    );
+  };
+
   // Open a folder, or focus it if it is already open.
   const openFolder = (folder: Folder) => {
     setWindowModal((prev) => {
@@ -102,6 +109,7 @@ export default function Index() {
           key={modal.uuid}
           modal={modal}
           onFocus={focusWindow}
+          onMove={moveWindow}
           onClose={(uuid) =>
             setWindowModal((prev) =>
               prev.filter((modal) => modal.uuid !== uuid),

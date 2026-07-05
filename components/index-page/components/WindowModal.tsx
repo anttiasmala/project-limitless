@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRef } from 'react';
 import { WindowModal as WindowModalType } from '../indexTypes';
 import SidebarItem from './SidebarItem';
 import SidebarPanel from './SidebarPanel';
@@ -8,6 +9,7 @@ type Props = {
   modal: WindowModalType;
   onClose: (uuid: string) => void;
   onFocus: (uuid: string) => void;
+  onMove: (uuid: string, top: number, left: number) => void;
 };
 
 // Placeholder icon used until real per-item icons are added.
@@ -34,17 +36,62 @@ const otherPlaces = [
   { icon: `${PATH}/my-network-places.png`, label: 'My Network Places' },
 ];
 
-export default function WindowModal({ modal, onClose, onFocus }: Props) {
+export default function WindowModal({
+  modal,
+  onClose,
+  onFocus,
+  onMove,
+}: Props) {
+  const rootRef = useRef<HTMLDivElement>(null);
+
   if (!modal.isOpen) return null;
+
+  // Drag the window by its title bar. Position is tracked directly on the DOM
+  // node while dragging for smoothness, then committed to state on release.
+  const handleDragStart = (e: React.MouseEvent) => {
+    if (e.button !== 0) return; // left button only
+    const div = rootRef.current;
+    if (!div) return;
+    e.preventDefault(); // avoid selecting the title text while dragging
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startTop = div.offsetTop;
+    const startLeft = div.offsetLeft;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const maxLeft = document.documentElement.clientWidth - div.offsetWidth;
+      const maxTop = document.documentElement.clientHeight - div.offsetHeight;
+
+      const nextLeft = startLeft + (moveEvent.clientX - startX);
+      const nextTop = startTop + (moveEvent.clientY - startY);
+
+      div.style.left = `${Math.max(0, Math.min(nextLeft, maxLeft))}px`;
+      div.style.top = `${Math.max(0, Math.min(nextTop, maxTop - 35))}px`;
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      onMove(modal.uuid, div.offsetTop, div.offsetLeft);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
 
   return (
     <div
+      ref={rootRef}
       onMouseDown={() => onFocus(modal.uuid)}
       style={{ zIndex: modal.zIndex, top: modal.top, left: modal.left }}
       className="absolute flex h-125 w-165 flex-col overflow-hidden rounded-t-lg border border-[#0831d9] bg-white shadow-2xl"
     >
       {/* XP Luna title bar */}
-      <div className="flex h-7.5 items-center rounded-t-[7px] border-b border-b-[#0831d9] bg-[linear-gradient(to_bottom,#0997ff_0%,#0053ee_8%,#0050ee_40%,#0060ff_88%,#0060ff_93%,#0855dd_95%,#0855dd_96%,#003bbb_100%)] pr-1 pl-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
+      <div
+        onMouseDown={handleDragStart}
+        className="flex h-7.5 cursor-move items-center rounded-t-[7px] border-b border-b-[#0831d9] bg-[linear-gradient(to_bottom,#0997ff_0%,#0053ee_8%,#0050ee_40%,#0060ff_88%,#0060ff_93%,#0855dd_95%,#0855dd_96%,#003bbb_100%)] pr-1 pl-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]"
+      >
         <Image
           alt=""
           src={modal.modalIcon}
