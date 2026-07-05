@@ -1,7 +1,9 @@
 export type WindowModal = {
   uuid: string;
   isOpen: boolean;
-  zIndex: string;
+  zIndex: number;
+  top: number;
+  left: number;
   modalName: string;
   modalIcon: string;
 };
