@@ -91,7 +91,7 @@ export default function WindowModal({ modal, onClose, onFocus }: Props) {
       </div>
       <div className="w-full bg-[#f0efe7] text-black">
         <div className="flex flex-row justify-between text-xs">
-          <div className="flex flex-row">
+          <div className="flex flex-row select-none">
             <p className="ml-1 p-1 hover:bg-blue-500 hover:text-white">File</p>
             <p className="ml-3 p-1 hover:bg-blue-500 hover:text-white">Edit</p>
             <p className="ml-3 p-1 hover:bg-blue-500 hover:text-white">View</p>
@@ -113,7 +113,7 @@ export default function WindowModal({ modal, onClose, onFocus }: Props) {
 
       <div className="flex h-12 w-full flex-row border-t border-[#e0ded3] bg-[#f0efe7]">
         <button
-          className="flex h-full cursor-pointer flex-row items-center pr-1.5 text-xs text-black"
+          className="flex h-full cursor-pointer flex-row items-center pr-1.5 text-xs text-black hover:brightness-110"
           onClick={() => onClose(modal.uuid)}
         >
           <Image
@@ -145,7 +145,7 @@ export default function WindowModal({ modal, onClose, onFocus }: Props) {
           />
         </div>
 
-        <div className="group ml-3 flex h-full items-center border-[#e0ded3] hover:border active:bg-[#dedede]">
+        <div className="group ml-3 flex h-full cursor-default items-center border-[#e0ded3] hover:border active:bg-[#dedede]">
           <Image
             alt=""
             src={'/images/index-page/folder/magnifying-glass.png'}
@@ -155,7 +155,7 @@ export default function WindowModal({ modal, onClose, onFocus }: Props) {
           />
           <p className="ml-2 text-xs text-black">Search</p>
         </div>
-        <div className="group ml-3 flex items-center border-r border-[#e0ded3] border-r-[#e0ded3] hover:border active:bg-[#dedede]">
+        <div className="group ml-3 flex cursor-default items-center border-r border-[#e0ded3] border-r-[#e0ded3] hover:border active:bg-[#dedede]">
           <Image
             alt=""
             src={'/images/index-page/folder/open-folder-big.png'}
@@ -177,7 +177,7 @@ export default function WindowModal({ modal, onClose, onFocus }: Props) {
         </div>
       </div>
       <div className="flex w-full flex-row bg-[#f0efe7]">
-        <p className="ml-2 text-xs text-[#797a72]">Address</p>
+        <p className="ml-2 text-xs text-[#797a72] select-none">Address</p>
         <div className="ml-2 flex w-5/6 flex-row items-center justify-between border border-[#919b9f] bg-white">
           <div className="flex flex-row">
             <Image
@@ -207,7 +207,7 @@ export default function WindowModal({ modal, onClose, onFocus }: Props) {
             src={'/images/index-page/folder/arrow-right.png'}
             width={16}
             height={16}
-            className="group-hover:brightness-110"
+            className="group-hover:brightness-110 group-active:h-3.5 group-active:w-3.5"
           />
           <p className="ml-1 text-xs text-black">Go</p>
         </div>
