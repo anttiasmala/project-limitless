@@ -37,7 +37,7 @@ export default function Index() {
     });
   };
 
-  // Open the Games folder, or focus it if it is already open.
+  // Open a folder by name, or focus it if it is already open.
   const openFolder = (folderName: string) => {
     setWindowModal((prev) => {
       const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
@@ -56,7 +56,7 @@ export default function Index() {
           zIndex: maxZ + 1,
           top: 96 + offset,
           left: 40 + offset,
-          modalIcon: '/images/index-page/folder-opened-icon.png',
+          modalIcon: '/images/index-page/folder/folder-opened-icon.png',
           modalName: folderName,
         },
       ];
