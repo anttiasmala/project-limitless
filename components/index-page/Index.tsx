@@ -53,6 +53,12 @@ export default function Index() {
     );
   };
 
+  const resizeWindow = (uuid: string, width: number, height: number) => {
+    setWindowModal((prev) =>
+      prev.map((w) => (w.uuid === uuid ? { ...w, width, height } : w)),
+    );
+  };
+
   // Toggle a window between maximized (filling the viewport above the taskbar)
   // and its previous position/size.
   const toggleMaximize = (uuid: string) => {
@@ -157,6 +163,7 @@ export default function Index() {
           onFocus={focusWindow}
           onMove={moveWindow}
           onMaximize={toggleMaximize}
+          onResize={resizeWindow}
           onClose={(uuid) =>
             setWindowModal((prev) =>
               prev.filter((modal) => modal.uuid !== uuid),
