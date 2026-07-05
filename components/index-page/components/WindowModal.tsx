@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { WindowModal as WindowModalType } from '../indexTypes';
 import SidebarItem from './SidebarItem';
 import SidebarPanel from './SidebarPanel';
@@ -32,8 +33,6 @@ const otherPlaces = [
   { icon: `${PATH}/my-computer.png`, label: 'My Computer' },
   { icon: `${PATH}/my-network-places.png`, label: 'My Network Places' },
 ];
-
-const folderItems = ['Desktop', 'Favorites', 'My Documents', 'Start Menu'];
 
 export default function WindowModal({ modal, onClose, onFocus }: Props) {
   if (!modal.isOpen) return null;
@@ -245,23 +244,24 @@ export default function WindowModal({ modal, onClose, onFocus }: Props) {
 
         {/* Folder contents */}
         <section className="grid flex-1 grid-cols-2 content-start gap-x-2 gap-y-3 overflow-y-auto bg-white p-4">
-          {folderItems.map((name) => (
-            <button
-              key={name}
-              type="button"
+          {modal.items.map((app) => (
+            <Link
+              key={app.href}
+              href={app.href}
               className="group flex items-center gap-2 rounded p-1 text-left"
+              target="_blank"
             >
               <Image
                 alt=""
-                src={PLACEHOLDER}
+                src={app.icon}
                 width={40}
                 height={40}
                 className="shrink-0"
               />
               <span className="rounded-sm px-0.5 text-xs group-hover:bg-[#316ac5] group-hover:text-white">
-                {name}
+                {app.name}
               </span>
-            </button>
+            </Link>
           ))}
         </section>
       </div>
