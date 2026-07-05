@@ -16,6 +16,12 @@ export type WindowModal = {
   zIndex: number;
   top: number;
   left: number;
+  width: number;
+  height: number;
+  // When maximized the window fills the viewport (minus the taskbar) and the
+  // pre-maximize position/size is kept in restoreRect so it can be restored.
+  isMaximized: boolean;
+  restoreRect?: { top: number; left: number; width: number; height: number };
   modalName: string;
   modalIcon: string;
   items: FolderApp[];
