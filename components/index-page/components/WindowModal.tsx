@@ -10,12 +10,17 @@ type Props = {
   onClose: (uuid: string) => void;
   onFocus: (uuid: string) => void;
   onMove: (uuid: string, top: number, left: number) => void;
+  onResize: (uuid: string, width: number, height: number) => void;
   onMaximize: (uuid: string) => void;
 };
 
 // Placeholder icon used until real per-item icons are added.
 const PLACEHOLDER = '/images/index-page/folder/folder-opened-icon.png';
 const PATH = '/images/index-page/folder';
+
+// Smallest a window may be dragged down to while resizing.
+const MIN_WIDTH = 300;
+const MIN_HEIGHT = 200;
 
 const fileTasks = [
   { icon: `${PATH}/make-a-new-folder.png`, label: 'Make a new folder' },
@@ -42,6 +47,7 @@ export default function WindowModal({
   onClose,
   onFocus,
   onMove,
+  onResize,
   onMaximize,
 }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -83,6 +89,63 @@ export default function WindowModal({
     document.addEventListener('mouseup', handleMouseUp);
   };
 
+  // Resize from any edge or corner. `dir` names the edges being dragged
+  // (n/s/e/w); only those edges move, and only the west/north edges shift the
+  // window origin so the opposite edge stays anchored.
+  const startResize =
+    (dir: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw') =>
+    (e: React.MouseEvent) => {
+      if (e.button !== 0) return; // left button only
+      if (modal.isMaximized) return; // can't resize while maximized
+      const div = rootRef.current;
+      if (!div) return;
+      e.preventDefault(); // avoid text selection while dragging
+
+      const north = dir.includes('n');
+      const south = dir.includes('s');
+      const east = dir.includes('e');
+      const west = dir.includes('w');
+
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startTop = div.offsetTop;
+      const startLeft = div.offsetLeft;
+      const startWidth = div.offsetWidth;
+      const startHeight = div.offsetHeight;
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        const dx = moveEvent.clientX - startX;
+        const dy = moveEvent.clientY - startY;
+
+        // East/south edges grow with the cursor; west/north edges grow against
+        // it (dragging left/up makes the window bigger).
+        let nextWidth = startWidth;
+        let nextHeight = startHeight;
+        if (east) nextWidth = Math.max(MIN_WIDTH, startWidth + dx);
+        if (west) nextWidth = Math.max(MIN_WIDTH, startWidth - dx);
+        if (south) nextHeight = Math.max(MIN_HEIGHT, startHeight + dy);
+        if (north) nextHeight = Math.max(MIN_HEIGHT, startHeight - dy);
+
+        div.style.width = `${nextWidth}px`;
+        div.style.height = `${nextHeight}px`;
+        // Only the west/north edges move the origin. Shifting by the size delta
+        // (not the raw cursor delta) keeps the opposite edge pinned even after
+        // the window hits its minimum size.
+        if (west) div.style.left = `${startLeft + (startWidth - nextWidth)}px`;
+        if (north) div.style.top = `${startTop + (startHeight - nextHeight)}px`;
+      };
+
+      const handleMouseUp = () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        onResize(modal.uuid, div.offsetWidth, div.offsetHeight);
+        onMove(modal.uuid, div.offsetTop, div.offsetLeft);
+      };
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    };
+
   return (
     <div
       ref={rootRef}
@@ -96,6 +159,39 @@ export default function WindowModal({
       }}
       className="absolute flex flex-col overflow-hidden rounded-t-lg border border-[#0831d9] bg-white shadow-2xl"
     >
+      <div
+        className="absolute top-0 left-0 z-1 h-1 w-1 cursor-nw-resize"
+        onMouseDown={startResize('nw')}
+      />
+      <div
+        className="absolute top-0 left-0 h-1 w-full cursor-n-resize"
+        onMouseDown={startResize('n')}
+      />
+      <div
+        className="absolute top-0 right-0 z-1 h-1 w-1 cursor-ne-resize"
+        onMouseDown={startResize('ne')}
+      />
+      <div
+        className="absolute top-0 right-0 h-full w-1 cursor-e-resize"
+        onMouseDown={startResize('e')}
+      />
+      <div
+        className="absolute right-0 bottom-0 z-1 h-1 w-1 cursor-se-resize"
+        onMouseDown={startResize('se')}
+      />
+      <div
+        className="absolute right-0 bottom-0 h-1 w-full cursor-s-resize"
+        onMouseDown={startResize('s')}
+      />
+      <div
+        className="absolute bottom-0 left-0 z-1 h-1 w-1 cursor-sw-resize"
+        onMouseDown={startResize('sw')}
+      />
+      <div
+        className="absolute bottom-0 left-0 h-full w-1 cursor-w-resize"
+        onMouseDown={startResize('w')}
+      />
+
       {/* XP Luna title bar */}
       <div
         onMouseDown={handleDragStart}
