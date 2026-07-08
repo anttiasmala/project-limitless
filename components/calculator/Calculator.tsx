@@ -2,6 +2,7 @@
 
 import {
   ButtonHTMLAttributes,
+  PointerEvent as ReactPointerEvent,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -137,7 +138,9 @@ export default function Calculator() {
     const input = inputRef.current;
     if (!input || rawCaretRef.current === null) return;
     const displayCaret = rawToDisplayIndex(input.value, rawCaretRef.current);
-    input.focus();
+    // preventScroll: on small screens the input can be off-screen when a bottom
+    // button is tapped; a plain focus() scrolls it into view and makes the page jump
+    input.focus({ preventScroll: true });
     input.setSelectionRange(displayCaret, displayCaret);
     rawCaretRef.current = null;
   });
@@ -288,7 +291,12 @@ export default function Calculator() {
         toast('Malformed expression'); // toast the error to frontend
         return prev; // keep the user given expression so the user can fix it
       }
-      const result = answer.toString();
+      // Doubles carry ~15-17 significant decimal digits, and floating-point
+      // noise (e.g. 1.1 + 2.2 -> 3.3000000000000003) always shows up in that
+      // last digit or two. Rounding to 15 significant figures strips that noise
+      // while keeping every digit the user could legitimately have entered. The
+      // Number(...) round-trip then drops the trailing zeros toPrecision pads with.
+      const result = Number(answer.toPrecision(15)).toString();
       // After "=", move the caret to the very end of the answer (end of line),
       // like a normal calculator, instead of leaving it mid-number.
       rawCaretRef.current = result.length;
@@ -298,7 +306,7 @@ export default function Calculator() {
       // Use the *display* length so thousand separators don't shift it.
       const input = inputRef.current;
       if (input) {
-        input.focus();
+        input.focus({ preventScroll: true }); // see the comments in other input.focus()
         const end = formatForDisplay(result).length;
         input.setSelectionRange(end, end);
       }
@@ -413,12 +421,42 @@ function Button({
   children,
   className,
   variant = 'digit',
+  onPointerDown,
   ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant }) {
+  // Adds a ripple that grows from the touch/click point to
+  // the button's edges. This is far easier to notice on a phone than the small
+  // active:scale feedback alone. The Web Animations API is used + currentColor so
+  // there are no global CSS keyframes to maintain. The ripple automatically
+  // tints itself to match each variant's text color (visible on every button).
+  function spawnRipple(e: ReactPointerEvent<HTMLButtonElement>) {
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
+    // Diameter big enough to cover the whole button from wherever it starts.
+    const size = Math.max(rect.width, rect.height) * 2;
+
+    const ripple = document.createElement('span');
+    ripple.style.cssText = `position:absolute;border-radius:9999px;pointer-events:none;background:currentColor;width:${size}px;height:${size}px;left:${e.clientX - rect.left - size / 2}px;top:${e.clientY - rect.top - size / 2}px;`;
+    button.appendChild(ripple);
+
+    const animation = ripple.animate(
+      [
+        { transform: 'scale(0)', opacity: 1 },
+        { transform: 'scale(1)', opacity: 0 },
+      ],
+      { duration: 500, easing: 'ease-out' },
+    );
+    animation.onfinish = () => ripple.remove();
+  }
+
   return (
     <button
+      onPointerDown={(e) => {
+        spawnRipple(e);
+        onPointerDown?.(e);
+      }}
       className={twMerge(
-        'flex aspect-square cursor-pointer items-center justify-center rounded-xl text-2xl font-medium shadow-sm transition-colors duration-150 active:scale-95',
+        'relative flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-xl text-2xl font-medium shadow-sm transition-colors duration-150 active:scale-95',
         VARIANT_CLASSES[variant],
         className,
       )}
