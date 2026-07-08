@@ -178,9 +178,13 @@ export default function Calculator() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Copy the reducer state into a ref so the event callbacks below can read
-  // the newest draft without being re-created on every keypress
+  // the newest draft without being re-created on every keypress. We sync it in
+  // an effect (not during render) — the effect runs before any later event, so
+  // the callbacks always see the current value.
   const stateRef = useRef(state);
-  stateRef.current = state;
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   // Where we want the caret AFTER the next render, measured in the raw
   // (unformatted) string. null means "leave the caret where the browser put it".
