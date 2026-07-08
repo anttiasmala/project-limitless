@@ -291,7 +291,12 @@ export default function Calculator() {
         toast('Malformed expression'); // toast the error to frontend
         return prev; // keep the user given expression so the user can fix it
       }
-      const result = answer.toString();
+      // Doubles carry ~15-17 significant decimal digits, and floating-point
+      // noise (e.g. 1.1 + 2.2 -> 3.3000000000000003) always shows up in that
+      // last digit or two. Rounding to 15 significant figures strips that noise
+      // while keeping every digit the user could legitimately have entered. The
+      // Number(...) round-trip then drops the trailing zeros toPrecision pads with.
+      const result = Number(answer.toPrecision(15)).toString();
       // After "=", move the caret to the very end of the answer (end of line),
       // like a normal calculator, instead of leaving it mid-number.
       rawCaretRef.current = result.length;
@@ -419,7 +424,7 @@ function Button({
   onPointerDown,
   ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant }) {
-  // Adds a ripple that grows from the touch/click point from center to
+  // Adds a ripple that grows from the touch/click point to
   // the button's edges. This is far easier to notice on a phone than the small
   // active:scale feedback alone. The Web Animations API is used + currentColor so
   // there are no global CSS keyframes to maintain. The ripple automatically
