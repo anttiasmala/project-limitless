@@ -462,6 +462,7 @@ export default function Calculator() {
         inputMode="none"
         placeholder="1+1=2...."
         onChange={() => {}}
+        autoComplete="off"
         // Controlled input: the value always comes from the reducer's present, so
         // the browser's own edits are reverted on the next render. We deliberately
         // do NOT use readOnly here: read-only inputs hide the blinking caret
