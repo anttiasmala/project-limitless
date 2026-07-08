@@ -149,8 +149,36 @@ export default function Calculator() {
     // Read the caret from the input NOW (before the state update). This index
     // is into the DISPLAYED text, so it includes the thousand separators.
     const displayCaret = inputRef.current?.selectionStart ?? 0;
+    const caretEnd = inputRef.current?.selectionEnd ?? 0;
 
     setCurrentDraft((prevValue) => {
+      // The user "painted" a range: replace exactly that selection with what was
+      // typed. e.g. select the whole "1+1" and press 3 -> "3".
+      if (displayCaret !== caretEnd && prevValue) {
+        // Map BOTH ends of the selection from display coordinates (commas
+        // counted) into the raw string (commas ignored), same as in removeNumber.
+        const formatted = formatForDisplay(prevValue);
+        const rawStart = displayToRawIndex(formatted, displayCaret);
+        const rawEnd = displayToRawIndex(formatted, caretEnd);
+
+        // Same dot rules as a normal insert, judged by the character that will
+        // sit just left of the caret once the selection is gone.
+        const charBefore = prevValue[rawStart - 1];
+        let toInsert = stringNumber;
+        if (stringNumber === '.') {
+          // right after an operator (or at the start) a dot becomes "0."
+          if (charBefore === undefined || OPERATORS.includes(charBefore)) {
+            toInsert = '0.';
+          }
+        }
+
+        const newValue =
+          prevValue.slice(0, rawStart) + toInsert + prevValue.slice(rawEnd);
+        // Caret sits right after the characters we just inserted.
+        rawCaretRef.current = rawStart + toInsert.length;
+        // Empty string -> null so the "0" placeholder shows again.
+        return newValue === '' ? null : newValue;
+      }
       // if value is null, it means there is not any value, 0 is a placeholder
       // if (.) is clicked, add (0.). Otherwise whatever was clicked
       if (prevValue === null) {
@@ -292,7 +320,7 @@ export default function Calculator() {
         return prev; // keep the user given expression so the user can fix it
       }
       // Doubles carry ~15-17 significant decimal digits, and floating-point
-      // noise (e.g. 1.1 + 2.2 -> 3.3000000000000003) always shows up in that
+      // "noise" (e.g. 1.1 + 2.2 -> 3.3000000000000003) always shows up in that
       // last digit or two. Rounding to 15 significant figures strips that noise
       // while keeping every digit the user could legitimately have entered. The
       // Number(...) round-trip then drops the trailing zeros toPrecision pads with.
