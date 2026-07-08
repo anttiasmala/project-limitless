@@ -2,6 +2,8 @@
 
 # TODO:
 
+1. When characters are "painted" and number / operator is clicked, remove the "painted" characters and add the number / operator into it. Let's say 1+1 is "painted" and now number 3 is clicked, change the value to be 3 instead of 1+13
+
 # Ideas:
 
 1. Add login system and save winLossDraw stats to backend SQL database. Perhaps PostgreSQL and Prisma?
