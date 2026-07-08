@@ -6,8 +6,8 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useReducer,
   useRef,
-  useState,
 } from 'react';
 import { twMerge } from 'tailwind-merge';
 import {
@@ -123,9 +123,69 @@ function formatForDisplay(raw: string): string {
   });
 }
 
+// `present` is the current draft (null = empty, which shows the "0" placeholder).
+// Every change pushes the `present` onto `past`.
+// Undo/redo just shuttle values between past <-> present <-> future.
+//
+// We store SNAPSHOTS (the whole draft string (e.g. "1+1" instead of "1", "+", "1")) rather than an action log, so
+// undo never has to "invert" an edit (which is hard for painted-selection
+// replaces or the "." -> "0." rewrites), it just restores the earlier string.
+type CalcState = {
+  past: (string | null)[];
+  present: string | null;
+  future: (string | null)[];
+};
+
+type CalcAction =
+  | { type: 'commit'; value: string | null }
+  | { type: 'undo' }
+  | { type: 'redo' };
+
+const initialCalcState: CalcState = { past: [], present: null, future: [] };
+
+// This function "owns" every draft change
+function calcReducer(state: CalcState, action: CalcAction): CalcState {
+  switch (action.type) {
+    // A new draft value. If nothing actually changed, don't record a snapshot.
+    case 'commit':
+      if (action.value === state.present) return state;
+      return {
+        past: [...state.past, state.present],
+        present: action.value,
+        future: [], // a fresh edit deletes any redo history
+      };
+    // Step back one snapshot, remembering the current one for redo.
+    case 'undo':
+      if (state.past.length === 0) return state;
+      return {
+        past: state.past.slice(0, -1),
+        present: state.past[state.past.length - 1],
+        future: [state.present, ...state.future],
+      };
+    // Step forward again, mirror image of undo.
+    case 'redo':
+      if (state.future.length === 0) return state;
+      return {
+        past: [...state.past, state.present],
+        present: state.future[0],
+        future: state.future.slice(1),
+      };
+  }
+}
+
 export default function Calculator() {
-  const [currentDraft, setCurrentDraft] = useState<string | null>(null);
+  const [state, dispatch] = useReducer(calcReducer, initialCalcState);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Copy the reducer state into a ref so the event callbacks below can read
+  // the newest draft without being re-created on every keypress. We sync it in
+  // an effect (not during render) — the effect runs before any later event, so
+  // the callbacks always see the current value.
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
   // Where we want the caret AFTER the next render, measured in the raw
   // (unformatted) string. null means "leave the caret where the browser put it".
   const rawCaretRef = useRef<number | null>(null);
@@ -149,8 +209,38 @@ export default function Calculator() {
     // Read the caret from the input NOW (before the state update). This index
     // is into the DISPLAYED text, so it includes the thousand separators.
     const displayCaret = inputRef.current?.selectionStart ?? 0;
+    const caretEnd = inputRef.current?.selectionEnd ?? 0;
 
-    setCurrentDraft((prevValue) => {
+    // Compute the next draft from the freshest present value. The caret side
+    // effects (rawCaretRef) run exactly once here, outside the reducer.
+    const computeNext = (prevValue: string | null): string | null => {
+      // The user "painted" a range: replace exactly that selection with what was
+      // typed. e.g. select the whole "1+1" and press 3 -> "3".
+      if (displayCaret !== caretEnd && prevValue) {
+        // Map BOTH ends of the selection from display coordinates (commas
+        // counted) into the raw string (commas ignored), same as in removeNumber.
+        const formatted = formatForDisplay(prevValue);
+        const rawStart = displayToRawIndex(formatted, displayCaret);
+        const rawEnd = displayToRawIndex(formatted, caretEnd);
+
+        // Same dot rules as a normal insert, judged by the character that will
+        // sit just left of the caret once the selection is gone.
+        const charBefore = prevValue[rawStart - 1];
+        let toInsert = stringNumber;
+        if (stringNumber === '.') {
+          // right after an operator (or at the start) a dot becomes "0."
+          if (charBefore === undefined || OPERATORS.includes(charBefore)) {
+            toInsert = '0.';
+          }
+        }
+
+        const newValue =
+          prevValue.slice(0, rawStart) + toInsert + prevValue.slice(rawEnd);
+        // Caret sits right after the characters we just inserted.
+        rawCaretRef.current = rawStart + toInsert.length;
+        // Empty string -> null so the "0" placeholder shows again.
+        return newValue === '' ? null : newValue;
+      }
       // if value is null, it means there is not any value, 0 is a placeholder
       // if (.) is clicked, add (0.). Otherwise whatever was clicked
       if (prevValue === null) {
@@ -185,9 +275,10 @@ export default function Calculator() {
       // Caret should sit right after the characters we just inserted (still in
       // raw coordinates, the layout effect maps it back to a display position).
       rawCaretRef.current = rawCaret + toInsert.length;
-
       return newValue;
-    });
+    };
+
+    dispatch({ type: 'commit', value: computeNext(stateRef.current.present) });
   }, []);
 
   /** Removes a number / operator **left**-side of caret */
@@ -196,7 +287,7 @@ export default function Calculator() {
     const caretStart = inputRef.current?.selectionStart ?? 0;
     const caretEnd = inputRef.current?.selectionEnd ?? 0;
 
-    setCurrentDraft((prevValue) => {
+    const computeNext = (prevValue: string | null): string | null => {
       if (prevValue === null) return null;
 
       // Map to the raw string so we delete the character the user actually sees
@@ -231,7 +322,9 @@ export default function Calculator() {
       // Empty string -> back to null so the "0" placeholder shows again.
 
       return newValue === '' ? null : newValue;
-    });
+    };
+
+    dispatch({ type: 'commit', value: computeNext(stateRef.current.present) });
   }, []);
 
   /** Removes a number / operator **right**-side of caret */
@@ -239,7 +332,7 @@ export default function Calculator() {
     const caretStart = inputRef.current?.selectionStart ?? 0;
     const caretEnd = inputRef.current?.selectionEnd ?? 0;
 
-    setCurrentDraft((prevValue) => {
+    const computeNext = (prevValue: string | null): string | null => {
       if (prevValue === null) return null;
 
       // Map the display caret(s) to the raw string, same as removeNumber.
@@ -273,11 +366,13 @@ export default function Calculator() {
       rawCaretRef.current = rawCaretStart;
       // Empty string -> back to null so the "0" placeholder shows again.
       return newValue === '' ? null : newValue;
-    });
+    };
+
+    dispatch({ type: 'commit', value: computeNext(stateRef.current.present) });
   }, []);
 
   const calculateAnswer = useCallback(function calculateAnswer() {
-    setCurrentDraft((prev) => {
+    const computeNext = (prev: string | null): string | null => {
       if (prev === null) return prev;
       // evaluate() throws on malformed input (bad brackets, stray operators,
       // ...); treat that the same as a non-finite result below.
@@ -292,7 +387,7 @@ export default function Calculator() {
         return prev; // keep the user given expression so the user can fix it
       }
       // Doubles carry ~15-17 significant decimal digits, and floating-point
-      // noise (e.g. 1.1 + 2.2 -> 3.3000000000000003) always shows up in that
+      // "noise" (e.g. 1.1 + 2.2 -> 3.3000000000000003) always shows up in that
       // last digit or two. Rounding to 15 significant figures strips that noise
       // while keeping every digit the user could legitimately have entered. The
       // Number(...) round-trip then drops the trailing zeros toPrecision pads with.
@@ -311,7 +406,35 @@ export default function Calculator() {
         input.setSelectionRange(end, end);
       }
       return result;
-    });
+    };
+
+    dispatch({ type: 'commit', value: computeNext(stateRef.current.present) });
+  }, []);
+
+  // History (undo/redo). Ctrl/⌘+Z steps back, Ctrl/⌘+Shift+Z (or Ctrl+Y) steps
+  // forward. We put the caret at the end of the restored draft
+  // We can't use useKeyPress here due to no way of getting e.g. ctrlKey or shiftKey value
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (!e.ctrlKey && !e.metaKey) return;
+      const key = e.key.toLowerCase();
+
+      if (key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        const restored = stateRef.current.past.at(-1);
+        // restored can be null (draft was empty at that point) -> leave caret.
+        rawCaretRef.current = restored == null ? null : restored.length;
+        dispatch({ type: 'undo' });
+      } else if ((key === 'z' && e.shiftKey) || key === 'y') {
+        e.preventDefault();
+        const restored = stateRef.current.future[0];
+        rawCaretRef.current = restored == null ? null : restored.length;
+        dispatch({ type: 'redo' });
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -322,7 +445,7 @@ export default function Calculator() {
         addNumber: (number) => addNumber(number),
         removeNumber,
         removeAheadNumber,
-        setCurrentDraft,
+        clearDraft: () => dispatch({ type: 'commit', value: null }),
         calculateAnswer,
       });
     }
@@ -339,17 +462,20 @@ export default function Calculator() {
         inputMode="none"
         placeholder="1+1=2...."
         onChange={() => {}}
-        // Controlled input: the value always comes from currentDraft, so the
-        // browser's own edits are reverted on the next render. We deliberately
+        // Controlled input: the value always comes from the reducer's present, so
+        // the browser's own edits are reverted on the next render. We deliberately
         // do NOT use readOnly here: read-only inputs hide the blinking caret
         // in some browsers, and we want the caret visible so the user can
         // place it. The caret is read on demand in addNumber/removeNumber
         className="mb-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-end text-3xl tabular-nums caret-cyan-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400 focus:outline-none dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-100"
-        value={currentDraft === null ? '' : formatForDisplay(currentDraft)}
+        value={state.present === null ? '' : formatForDisplay(state.present)}
       />
       <div className="grid grid-cols-4 gap-2">
         {/* Top utility row */}
-        <Button variant="danger" onClick={() => setCurrentDraft(null)}>
+        <Button
+          variant="danger"
+          onClick={() => dispatch({ type: 'commit', value: null })}
+        >
           CE
         </Button>
         <Button variant="danger" onClick={removeNumber}>
