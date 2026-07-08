@@ -2,6 +2,7 @@
 
 import {
   ButtonHTMLAttributes,
+  PointerEvent as ReactPointerEvent,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -415,12 +416,42 @@ function Button({
   children,
   className,
   variant = 'digit',
+  onPointerDown,
   ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant }) {
+  // Adds a ripple that grows from the touch/click point from center to
+  // the button's edges. This is far easier to notice on a phone than the small
+  // active:scale feedback alone. The Web Animations API is used + currentColor so
+  // there are no global CSS keyframes to maintain. The ripple automatically
+  // tints itself to match each variant's text color (visible on every button).
+  function spawnRipple(e: ReactPointerEvent<HTMLButtonElement>) {
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
+    // Diameter big enough to cover the whole button from wherever it starts.
+    const size = Math.max(rect.width, rect.height) * 2;
+
+    const ripple = document.createElement('span');
+    ripple.style.cssText = `position:absolute;border-radius:9999px;pointer-events:none;background:currentColor;width:${size}px;height:${size}px;left:${e.clientX - rect.left - size / 2}px;top:${e.clientY - rect.top - size / 2}px;`;
+    button.appendChild(ripple);
+
+    const animation = ripple.animate(
+      [
+        { transform: 'scale(0)', opacity: 1 },
+        { transform: 'scale(1)', opacity: 0 },
+      ],
+      { duration: 500, easing: 'ease-out' },
+    );
+    animation.onfinish = () => ripple.remove();
+  }
+
   return (
     <button
+      onPointerDown={(e) => {
+        spawnRipple(e);
+        onPointerDown?.(e);
+      }}
       className={twMerge(
-        'flex aspect-square cursor-pointer items-center justify-center rounded-xl text-2xl font-medium shadow-sm transition-colors duration-150 active:scale-95',
+        'relative flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-xl text-2xl font-medium shadow-sm transition-colors duration-150 active:scale-95',
         VARIANT_CLASSES[variant],
         className,
       )}
