@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from 'react';
-
 /**
  * The input shows a formatted string (with thousand separators, e.g. "1,234")
  * while we store the raw string ("1234"). A caret index therefore means two
@@ -39,7 +37,7 @@ type Props = {
   addNumber: (number: string) => void;
   removeNumber: () => void;
   removeAheadNumber: () => void;
-  setCurrentDraft: Dispatch<SetStateAction<string | null>>;
+  clearDraft: () => void;
   calculateAnswer: () => void;
 };
 
@@ -49,7 +47,7 @@ export function calculatorKeyPressHandler({
   addNumber,
   removeNumber,
   removeAheadNumber,
-  setCurrentDraft,
+  clearDraft,
   calculateAnswer,
 }: Props) {
   // Let modifier combos (Ctrl/Meta/Alt) through — they're shortcuts like
@@ -70,7 +68,7 @@ export function calculatorKeyPressHandler({
   } else if (key === 'Delete') {
     handler = removeAheadNumber;
   } else if (key === 'Escape') {
-    handler = () => setCurrentDraft(null);
+    handler = clearDraft;
   } else if (key === 'Enter' || key === '=') {
     handler = calculateAnswer;
   }
