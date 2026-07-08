@@ -371,6 +371,57 @@ export default function Calculator() {
     dispatch({ type: 'commit', value: computeNext(stateRef.current.present) });
   }, []);
 
+  /**
+   * Ctrl+Backspace: removes a whole token to the **left** of the caret — an
+   * entire number (its digits and dot), or a single operator/bracket. The
+   * thousand separators are cosmetic (they don't exist in the raw string), so
+   * "1,234" is one number and gets deleted whole, not chipped at the comma.
+   */
+  const removeWordNumber = useCallback(function removeWordNumber() {
+    const caretStart = inputRef.current?.selectionStart ?? 0;
+    const caretEnd = inputRef.current?.selectionEnd ?? 0;
+
+    const computeNext = (prevValue: string | null): string | null => {
+      if (prevValue === null) return null;
+
+      const formatted = formatForDisplay(prevValue);
+      const rawStart = displayToRawIndex(formatted, caretStart);
+      const rawEnd = displayToRawIndex(formatted, caretEnd);
+
+      // A painted selection wins over the "word" logic: delete exactly the
+      // range, same as removeNumber does.
+      if (caretStart !== caretEnd) {
+        const newValue = prevValue.slice(0, rawStart) + prevValue.slice(rawEnd);
+        rawCaretRef.current = rawStart;
+        return newValue === '' ? null : newValue;
+      }
+
+      // Caret at the very start: nothing to the left to delete.
+      if (rawStart === 0) return prevValue;
+
+      // Walk left from the caret to find where the token starts. A digit run
+      // (digits and dots of one number) is swallowed whole; anything else
+      // (operator or bracket) is a single-character token.
+      const isNumberChar = (char: string) => /[\d.]/.test(char);
+      let tokenStart = rawStart;
+      if (isNumberChar(prevValue[tokenStart - 1])) {
+        while (tokenStart > 0 && isNumberChar(prevValue[tokenStart - 1])) {
+          tokenStart--;
+        }
+      } else {
+        tokenStart--; // a lone operator / bracket
+      }
+
+      const newValue =
+        prevValue.slice(0, tokenStart) + prevValue.slice(rawStart);
+      // Caret collapses onto the spot where the deleted token began.
+      rawCaretRef.current = tokenStart;
+      return newValue === '' ? null : newValue;
+    };
+
+    dispatch({ type: 'commit', value: computeNext(stateRef.current.present) });
+  }, []);
+
   const calculateAnswer = useCallback(function calculateAnswer() {
     const computeNext = (prev: string | null): string | null => {
       if (prev === null) return prev;
@@ -413,11 +464,19 @@ export default function Calculator() {
 
   // History (undo/redo). Ctrl/⌘+Z steps back, Ctrl/⌘+Shift+Z (or Ctrl+Y) steps
   // forward. We put the caret at the end of the restored draft
-  // We can't use useKeyPress here due to no way of getting e.g. ctrlKey or shiftKey value
+  // We can't use useKeyPress-hook here due to no way of getting e.g. ctrlKey or shiftKey value
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (!e.ctrlKey && !e.metaKey) return;
       const key = e.key.toLowerCase();
+
+      if (key === 'backspace') {
+        // Ctrl+Backspace: delete a whole token to the left. preventDefault so
+        // the browser's native word-delete doesn't fight the controlled input.
+        e.preventDefault();
+        removeWordNumber();
+        return;
+      }
 
       if (key === 'z' && !e.shiftKey) {
         e.preventDefault();
@@ -435,7 +494,7 @@ export default function Calculator() {
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [removeWordNumber]);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
