@@ -137,7 +137,9 @@ export default function Calculator() {
     const input = inputRef.current;
     if (!input || rawCaretRef.current === null) return;
     const displayCaret = rawToDisplayIndex(input.value, rawCaretRef.current);
-    input.focus();
+    // preventScroll: on small screens the input can be off-screen when a bottom
+    // button is tapped; a plain focus() scrolls it into view and makes the page jump
+    input.focus({ preventScroll: true });
     input.setSelectionRange(displayCaret, displayCaret);
     rawCaretRef.current = null;
   });
@@ -298,7 +300,7 @@ export default function Calculator() {
       // Use the *display* length so thousand separators don't shift it.
       const input = inputRef.current;
       if (input) {
-        input.focus();
+        input.focus({ preventScroll: true }); // see the comments in other input.focus()
         const end = formatForDisplay(result).length;
         input.setSelectionRange(end, end);
       }
