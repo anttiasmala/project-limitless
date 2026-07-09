@@ -30,7 +30,7 @@ const apps: {
     href: '/index-page',
     title: 'Windows XP styled index page',
     description:
-      'Windows XP styled index page. It has all the apps like in this page.',
+      'Windows XP styled index page. It has all the apps like in this page. Work in progress',
     icon: '🖥️',
   },
 ];
