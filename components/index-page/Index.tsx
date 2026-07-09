@@ -39,13 +39,13 @@ export default function Index() {
     setWindowModal((prev) => {
       const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
       const target = prev.find((w) => w.uuid === uuid);
-      if (!target || target.zIndex === maxZ) return prev;
+      if (!target || (target.zIndex === maxZ && target.isOpen)) return prev;
       return prev.map((w) => {
         if (w.isFocused) {
-          w = { ...w, isFocused: false };
+          w = { ...w, isFocused: false, isOpen: true };
         }
         return w.uuid === uuid
-          ? { ...w, zIndex: maxZ + 1, isFocused: true }
+          ? { ...w, zIndex: maxZ + 1, isFocused: true, isOpen: true }
           : w;
       });
     });
@@ -65,7 +65,11 @@ export default function Index() {
   };
 
   const toggleMinimize = (uuid: string) => {
-    console.log('Minimize clicked', uuid);
+    setWindowModal((prev) => {
+      return prev.map((w) => {
+        return w.uuid === uuid ? { ...w, isOpen: false, isFocused: false } : w;
+      });
+    });
   };
 
   // Toggle a window between maximized (filling the viewport above the taskbar)
@@ -113,7 +117,7 @@ export default function Index() {
         // focus highlight off whichever window currently has it.
         return prev.map((w) =>
           w.uuid === existing.uuid
-            ? { ...w, zIndex: maxZ + 1, isFocused: true }
+            ? { ...w, zIndex: maxZ + 1, isFocused: true, isOpen: true }
             : w.isFocused
               ? { ...w, isFocused: false }
               : w,
@@ -209,7 +213,11 @@ export default function Index() {
                     ? 'bg-[linear-gradient(to_bottom,#1c4fc4_0%,#2a64dd_50%,#3f8df5_100%)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.45)]'
                     : 'bg-[linear-gradient(to_bottom,#3f8df5_0%,#2a64dd_50%,#225ad4_100%)] hover:brightness-110'
                 }`}
-                onClick={() => focusWindow(modal.uuid)}
+                onClick={() =>
+                  modal.isOpen && modal.isFocused
+                    ? toggleMinimize(modal.uuid)
+                    : focusWindow(modal.uuid)
+                }
               >
                 <Image
                   alt="Window icon"
