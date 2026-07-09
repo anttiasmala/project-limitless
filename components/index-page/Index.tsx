@@ -39,7 +39,12 @@ export default function Index() {
     setWindowModal((prev) => {
       const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
       const target = prev.find((w) => w.uuid === uuid);
-      if (!target || (target.zIndex === maxZ && target.isOpen)) return prev;
+
+      if (
+        !target ||
+        (target.zIndex === maxZ && target.isOpen && target.isFocused)
+      )
+        return prev;
       return prev.map((w) => {
         if (w.isFocused) {
           w = { ...w, isFocused: false, isOpen: true };
@@ -147,7 +152,17 @@ export default function Index() {
   };
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center bg-slate-100 bg-[url(/images/index-page/background.jpeg)] bg-cover px-4">
+    <main
+      className="relative flex min-h-screen flex-col items-center justify-center bg-slate-100 bg-[url(/images/index-page/background.jpeg)] bg-cover px-4"
+      onClick={(e) => {
+        if (e.target !== e.currentTarget) return;
+        setWindowModal((prev) =>
+          prev.some((w) => w.isFocused)
+            ? prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w))
+            : prev,
+        );
+      }}
+    >
       {/* Back to the arcade landing page */}
       <Link
         href="/"
