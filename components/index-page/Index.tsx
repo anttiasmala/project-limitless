@@ -192,7 +192,7 @@ export default function Index() {
             </div>
             <Image
               alt="Shield icon"
-              src={'/images/index-page/taskbar/1shield.png'}
+              src={'/images/index-page/taskbar/shield.png'}
               height={16}
               width={16}
             />
