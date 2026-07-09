@@ -13,6 +13,7 @@ export type Folder = {
 export type WindowModal = {
   uuid: string;
   isOpen: boolean;
+  isFocused: boolean;
   zIndex: number;
   top: number;
   left: number;
@@ -21,6 +22,7 @@ export type WindowModal = {
   // When maximized the window fills the viewport (minus the taskbar) and the
   // pre-maximize position/size is kept in restoreRect so it can be restored.
   isMaximized: boolean;
+  isMinimized: boolean;
   restoreRect?: { top: number; left: number; width: number; height: number };
   modalName: string;
   modalIcon: string;
