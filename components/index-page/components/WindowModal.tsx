@@ -11,6 +11,7 @@ type Props = {
   onFocus: (uuid: string) => void;
   onMove: (uuid: string, top: number, left: number) => void;
   onResize: (uuid: string, width: number, height: number) => void;
+  onMinimize: (uuid: string) => void;
   onMaximize: (uuid: string) => void;
 };
 
@@ -48,6 +49,7 @@ export default function WindowModal({
   onFocus,
   onMove,
   onResize,
+  onMinimize,
   onMaximize,
 }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -218,6 +220,7 @@ export default function WindowModal({
             type="button"
             aria-label="Minimize"
             className="relative flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#3f8df5_0%,#0e5ce6_45%,#0a4bce_50%,#1560e6_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
+            onClick={() => onMinimize(modal.uuid)}
           >
             <span className="mt-2 h-0.75 w-2.25 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
           </button>
