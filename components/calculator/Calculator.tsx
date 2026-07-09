@@ -26,13 +26,8 @@ function tokenize(string: string) {
   return string.match(/\d+\.?\d*|[+\-×/()]/g) ?? [];
 }
 
-// Recursive-descent parser. It walks the token list once, using a `pos` cursor,
-// and calls each other by precedence (lowest first). This single pass replaces
-// the old flat evaluate() + normalizeSigns(), and it naturally supports
-// brackets, operator precedence, and unary +/- signs.
-
-// On anything malformed (missing bracket, stray operator, ...) it throws, and
-// the caller turns that into the "Malformed expression" toast.
+// On anything malformed (missing bracket, stray operator, etc) it throws, and
+// the "Malformed expression" toast will be shown.
 function evaluate(tokens: string[]): number {
   // Where we are in the token list. Every parse function advances it.
   let pos = 0;
@@ -43,13 +38,10 @@ function evaluate(tokens: string[]): number {
   // Handles the LOWEST-priority operators: + and -.
   // It reads a value, then keeps adding/subtracting more values after it,
   // left to right. e.g. "1 + 2 - 3" -> (1 + 2) then - 3.
-  // Each "value" here is a parseTerm(), so any × or / inside is already
-  // worked out first — that's how precedence ("× before +") happens.
   function parseExpr(): number {
     let value = parseTerm();
     while (peek() === '+' || peek() === '-') {
-      const operator = tokens[pos++]; // consume the operator
-
+      const operator = tokens[pos++];
       const rightHandSide = parseTerm();
       value = operator === '+' ? value + rightHandSide : value - rightHandSide;
     }
@@ -57,45 +49,37 @@ function evaluate(tokens: string[]): number {
   }
 
   // Handles the HIGHER-priority operators: × and /.
-  // Same shape as parseExpr, but for multiply/divide. Because parseExpr calls
-  // this for each of its values, a "2 × 3" gets fully calculated before the
-  // surrounding + or - ever sees it. e.g. "2 + 3 × 4" -> 3 × 4 = 12 first.
-  // and 2 + 12. Just like order of calculations works
+  // Same shape as parseExpr, but for multiply/divide. e.g. "2 + 3 × 4" -> 3 × 4 = 12 first.
+  // and 2 + 12. Just like the order of calculations works
   function parseTerm(): number {
     let value = parseFactor();
     while (peek() === '×' || peek() === '/') {
-      const operator = tokens[pos++]; // consume the operator
-
+      const operator = tokens[pos++];
       const rightHandSide = parseFactor();
       value = operator === '×' ? value * rightHandSide : value / rightHandSide;
     }
     return value;
   }
 
-  // Handles the smallest building blocks — the actual "values". A factor is one
-  // of three things:
-  //   1. a sign in front of a value:  -2  or  +2  (see below)
-  //   2. a bracket group:  (1 + 2)  -> calculate the inside, use its result
-  //   3. a plain number:   42
-  // Brackets get their answer here, which is why "(1 + 2) × 3" works: the group
-  // is turned into a single value (3) before parseTerm multiplies it.
+  // Brackets get their answer here, which is why "(2 + 3) × 3" works: the value
+  // is turned into a single value (5) before parseTerm multiplies it.
   function parseFactor(): number {
     const token = peek();
 
     // Unary '+' / '-': the sign belongs to whatever follows. Recurse back into
     // factor so things like "--2" (double negative) or "-(1+2)" also work.
     if (token === '+' || token === '-') {
-      pos++; // consume the sign
+      pos++;
       const value = parseFactor();
       return token === '-' ? -value : value;
     }
 
     // '(' ... ')': parse the inside as a full expression, then demand the ')'.
     if (token === '(') {
-      pos++; // consume '('
+      pos++;
       const value = parseExpr();
       if (peek() !== ')') throw new Error('Missing closing bracket');
-      pos++; // consume ')'
+      pos++;
       return value;
     }
 
@@ -104,7 +88,7 @@ function evaluate(tokens: string[]): number {
     if (token === undefined || Number.isNaN(number)) {
       throw new Error('Expected a number');
     }
-    pos++; // consume the number
+    pos++;
     return number;
   }
 
@@ -125,7 +109,7 @@ function formatForDisplay(raw: string): string {
 
 // `present` is the current draft (null = empty, which shows the "0" placeholder).
 // Every change pushes the `present` onto `past`.
-// Undo/redo just shuttle values between past <-> present <-> future.
+// Undo/redo just changes values between past <-> present <-> future.
 //
 // We store SNAPSHOTS (the whole draft string (e.g. "1+1" instead of "1", "+", "1")) rather than an action log, so
 // undo never has to "invert" an edit (which is hard for painted-selection
@@ -187,7 +171,7 @@ export default function Calculator() {
   }, [state]);
 
   // Where we want the caret AFTER the next render, measured in the raw
-  // (unformatted) string. null means "leave the caret where the browser put it".
+  // (unformatted) string. null means "leave the caret where the browser puts it".
   const rawCaretRef = useRef<number | null>(null);
 
   // After every render React shows the freshly formatted value and the browser
@@ -206,15 +190,14 @@ export default function Calculator() {
   });
 
   const addNumber = useCallback(function addNumber(stringNumber: string) {
-    // Read the caret from the input NOW (before the state update). This index
-    // is into the DISPLAYED text, so it includes the thousand separators.
+    // Read the caret from the input NOW (before the state update).
+    // This is the DISPLAYED text, so it includes the thousand separators.
     const displayCaret = inputRef.current?.selectionStart ?? 0;
     const caretEnd = inputRef.current?.selectionEnd ?? 0;
 
-    // Compute the next draft from the freshest present value. The caret side
-    // effects (rawCaretRef) run exactly once here, outside the reducer.
+    // Compute the next draft from the freshest present value.
     const computeNext = (prevValue: string | null): string | null => {
-      // The user "painted" a range: replace exactly that selection with what was
+      // The user has "painted" a range: replace exactly that selection with what was
       // typed. e.g. select the whole "1+1" and press 3 -> "3".
       if (displayCaret !== caretEnd && prevValue) {
         // Map BOTH ends of the selection from display coordinates (commas
@@ -223,8 +206,7 @@ export default function Calculator() {
         const rawStart = displayToRawIndex(formatted, displayCaret);
         const rawEnd = displayToRawIndex(formatted, caretEnd);
 
-        // Same dot rules as a normal insert, judged by the character that will
-        // sit just left of the caret once the selection is gone.
+        // Check if character is a dot
         const charBefore = prevValue[rawStart - 1];
         let toInsert = stringNumber;
         if (stringNumber === '.') {
@@ -256,7 +238,7 @@ export default function Calculator() {
         displayCaret,
       );
 
-      // The character immediately left of the caret drives the dot rules below.
+      // The character immediately left of the caret
       const charBefore = prevValue[rawCaret - 1];
 
       let toInsert = stringNumber;
@@ -272,8 +254,7 @@ export default function Calculator() {
 
       const newValue =
         prevValue.slice(0, rawCaret) + toInsert + prevValue.slice(rawCaret);
-      // Caret should sit right after the characters we just inserted (still in
-      // raw coordinates, the layout effect maps it back to a display position).
+      // Caret should sit right after the characters we just inserted
       rawCaretRef.current = rawCaret + toInsert.length;
       return newValue;
     };
@@ -346,8 +327,7 @@ export default function Calculator() {
         caretEnd,
       );
 
-      // A selection (the user "painted" some digits): delete exactly the
-      // selected range — keep what's before the start and after the end.
+      // A painted selection: delete exactly the range, same as removeNumber.
       if (caretStart !== caretEnd) {
         const newValue =
           prevValue.slice(0, rawCaretStart) + prevValue.slice(rawCaretEnd);
@@ -434,7 +414,7 @@ export default function Calculator() {
         answer = NaN;
       }
       if (!Number.isFinite(answer)) {
-        toast('Malformed expression'); // toast the error to frontend
+        toast('Malformed expression');
         return prev; // keep the user given expression so the user can fix it
       }
       // Doubles carry ~15-17 significant decimal digits, and floating-point
@@ -462,7 +442,7 @@ export default function Calculator() {
     dispatch({ type: 'commit', value: computeNext(stateRef.current.present) });
   }, []);
 
-  // History (undo/redo). Ctrl/⌘+Z steps back, Ctrl/⌘+Shift+Z (or Ctrl+Y) steps
+  // History (undo/redo). Ctrl+Z steps back, Ctrl+Shift+Z (or Ctrl+Y) steps
   // forward. We put the caret at the end of the restored draft
   // We can't use useKeyPress-hook here due to no way of getting e.g. ctrlKey or shiftKey value
   useEffect(() => {
@@ -523,7 +503,7 @@ export default function Calculator() {
         onChange={() => {}}
         autoComplete="off"
         // Controlled input: the value always comes from the reducer's present, so
-        // the browser's own edits are reverted on the next render. We deliberately
+        // the browser's own edits are reverted on the next render. We purposely
         // do NOT use readOnly here: read-only inputs hide the blinking caret
         // in some browsers, and we want the caret visible so the user can
         // place it. The caret is read on demand in addNumber/removeNumber
