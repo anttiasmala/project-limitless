@@ -6,8 +6,8 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useReducer,
   useRef,
-  useState,
 } from 'react';
 import { twMerge } from 'tailwind-merge';
 import {
@@ -26,13 +26,8 @@ function tokenize(string: string) {
   return string.match(/\d+\.?\d*|[+\-×/()]/g) ?? [];
 }
 
-// Recursive-descent parser. It walks the token list once, using a `pos` cursor,
-// and calls each other by precedence (lowest first). This single pass replaces
-// the old flat evaluate() + normalizeSigns(), and it naturally supports
-// brackets, operator precedence, and unary +/- signs.
-
-// On anything malformed (missing bracket, stray operator, ...) it throws, and
-// the caller turns that into the "Malformed expression" toast.
+// On anything malformed (missing bracket, stray operator, etc) it throws, and
+// the "Malformed expression" toast will be shown.
 function evaluate(tokens: string[]): number {
   // Where we are in the token list. Every parse function advances it.
   let pos = 0;
@@ -43,13 +38,10 @@ function evaluate(tokens: string[]): number {
   // Handles the LOWEST-priority operators: + and -.
   // It reads a value, then keeps adding/subtracting more values after it,
   // left to right. e.g. "1 + 2 - 3" -> (1 + 2) then - 3.
-  // Each "value" here is a parseTerm(), so any × or / inside is already
-  // worked out first — that's how precedence ("× before +") happens.
   function parseExpr(): number {
     let value = parseTerm();
     while (peek() === '+' || peek() === '-') {
-      const operator = tokens[pos++]; // consume the operator
-
+      const operator = tokens[pos++];
       const rightHandSide = parseTerm();
       value = operator === '+' ? value + rightHandSide : value - rightHandSide;
     }
@@ -57,45 +49,37 @@ function evaluate(tokens: string[]): number {
   }
 
   // Handles the HIGHER-priority operators: × and /.
-  // Same shape as parseExpr, but for multiply/divide. Because parseExpr calls
-  // this for each of its values, a "2 × 3" gets fully calculated before the
-  // surrounding + or - ever sees it. e.g. "2 + 3 × 4" -> 3 × 4 = 12 first.
-  // and 2 + 12. Just like order of calculations works
+  // Same shape as parseExpr, but for multiply/divide. e.g. "2 + 3 × 4" -> 3 × 4 = 12 first.
+  // and 2 + 12. Just like the order of calculations works
   function parseTerm(): number {
     let value = parseFactor();
     while (peek() === '×' || peek() === '/') {
-      const operator = tokens[pos++]; // consume the operator
-
+      const operator = tokens[pos++];
       const rightHandSide = parseFactor();
       value = operator === '×' ? value * rightHandSide : value / rightHandSide;
     }
     return value;
   }
 
-  // Handles the smallest building blocks — the actual "values". A factor is one
-  // of three things:
-  //   1. a sign in front of a value:  -2  or  +2  (see below)
-  //   2. a bracket group:  (1 + 2)  -> calculate the inside, use its result
-  //   3. a plain number:   42
-  // Brackets get their answer here, which is why "(1 + 2) × 3" works: the group
-  // is turned into a single value (3) before parseTerm multiplies it.
+  // Brackets get their answer here, which is why "(2 + 3) × 3" works: the value
+  // is turned into a single value (5) before parseTerm multiplies it.
   function parseFactor(): number {
     const token = peek();
 
     // Unary '+' / '-': the sign belongs to whatever follows. Recurse back into
     // factor so things like "--2" (double negative) or "-(1+2)" also work.
     if (token === '+' || token === '-') {
-      pos++; // consume the sign
+      pos++;
       const value = parseFactor();
       return token === '-' ? -value : value;
     }
 
     // '(' ... ')': parse the inside as a full expression, then demand the ')'.
     if (token === '(') {
-      pos++; // consume '('
+      pos++;
       const value = parseExpr();
       if (peek() !== ')') throw new Error('Missing closing bracket');
-      pos++; // consume ')'
+      pos++;
       return value;
     }
 
@@ -104,7 +88,7 @@ function evaluate(tokens: string[]): number {
     if (token === undefined || Number.isNaN(number)) {
       throw new Error('Expected a number');
     }
-    pos++; // consume the number
+    pos++;
     return number;
   }
 
@@ -123,11 +107,71 @@ function formatForDisplay(raw: string): string {
   });
 }
 
+// `present` is the current draft (null = empty, which shows the "0" placeholder).
+// Every change pushes the `present` onto `past`.
+// Undo/redo just changes values between past <-> present <-> future.
+//
+// We store SNAPSHOTS (the whole draft string (e.g. "1+1" instead of "1", "+", "1")) rather than an action log, so
+// undo never has to "invert" an edit (which is hard for painted-selection
+// replaces or the "." -> "0." rewrites), it just restores the earlier string.
+type CalcState = {
+  past: (string | null)[];
+  present: string | null;
+  future: (string | null)[];
+};
+
+type CalcAction =
+  | { type: 'commit'; value: string | null }
+  | { type: 'undo' }
+  | { type: 'redo' };
+
+const initialCalcState: CalcState = { past: [], present: null, future: [] };
+
+// This function "owns" every draft change
+function calcReducer(state: CalcState, action: CalcAction): CalcState {
+  switch (action.type) {
+    // A new draft value. If nothing actually changed, don't record a snapshot.
+    case 'commit':
+      if (action.value === state.present) return state;
+      return {
+        past: [...state.past, state.present],
+        present: action.value,
+        future: [], // a fresh edit deletes any redo history
+      };
+    // Step back one snapshot, remembering the current one for redo.
+    case 'undo':
+      if (state.past.length === 0) return state;
+      return {
+        past: state.past.slice(0, -1),
+        present: state.past[state.past.length - 1],
+        future: [state.present, ...state.future],
+      };
+    // Step forward again, mirror image of undo.
+    case 'redo':
+      if (state.future.length === 0) return state;
+      return {
+        past: [...state.past, state.present],
+        present: state.future[0],
+        future: state.future.slice(1),
+      };
+  }
+}
+
 export default function Calculator() {
-  const [currentDraft, setCurrentDraft] = useState<string | null>(null);
+  const [state, dispatch] = useReducer(calcReducer, initialCalcState);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Copy the reducer state into a ref so the event callbacks below can read
+  // the newest draft without being re-created on every keypress. We sync it in
+  // an effect (not during render) — the effect runs before any later event, so
+  // the callbacks always see the current value.
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
   // Where we want the caret AFTER the next render, measured in the raw
-  // (unformatted) string. null means "leave the caret where the browser put it".
+  // (unformatted) string. null means "leave the caret where the browser puts it".
   const rawCaretRef = useRef<number | null>(null);
 
   // After every render React shows the freshly formatted value and the browser
@@ -146,11 +190,39 @@ export default function Calculator() {
   });
 
   const addNumber = useCallback(function addNumber(stringNumber: string) {
-    // Read the caret from the input NOW (before the state update). This index
-    // is into the DISPLAYED text, so it includes the thousand separators.
+    // Read the caret from the input NOW (before the state update).
+    // This is the DISPLAYED text, so it includes the thousand separators.
     const displayCaret = inputRef.current?.selectionStart ?? 0;
+    const caretEnd = inputRef.current?.selectionEnd ?? 0;
 
-    setCurrentDraft((prevValue) => {
+    // Compute the next draft from the freshest present value.
+    const computeNext = (prevValue: string | null): string | null => {
+      // The user has "painted" a range: replace exactly that selection with what was
+      // typed. e.g. select the whole "1+1" and press 3 -> "3".
+      if (displayCaret !== caretEnd && prevValue) {
+        // Map BOTH ends of the selection from display coordinates (commas
+        // counted) into the raw string (commas ignored), same as in removeNumber.
+        const formatted = formatForDisplay(prevValue);
+        const rawStart = displayToRawIndex(formatted, displayCaret);
+        const rawEnd = displayToRawIndex(formatted, caretEnd);
+
+        // Check if character is a dot
+        const charBefore = prevValue[rawStart - 1];
+        let toInsert = stringNumber;
+        if (stringNumber === '.') {
+          // right after an operator (or at the start) a dot becomes "0."
+          if (charBefore === undefined || OPERATORS.includes(charBefore)) {
+            toInsert = '0.';
+          }
+        }
+
+        const newValue =
+          prevValue.slice(0, rawStart) + toInsert + prevValue.slice(rawEnd);
+        // Caret sits right after the characters we just inserted.
+        rawCaretRef.current = rawStart + toInsert.length;
+        // Empty string -> null so the "0" placeholder shows again.
+        return newValue === '' ? null : newValue;
+      }
       // if value is null, it means there is not any value, 0 is a placeholder
       // if (.) is clicked, add (0.). Otherwise whatever was clicked
       if (prevValue === null) {
@@ -166,7 +238,7 @@ export default function Calculator() {
         displayCaret,
       );
 
-      // The character immediately left of the caret drives the dot rules below.
+      // The character immediately left of the caret
       const charBefore = prevValue[rawCaret - 1];
 
       let toInsert = stringNumber;
@@ -182,12 +254,12 @@ export default function Calculator() {
 
       const newValue =
         prevValue.slice(0, rawCaret) + toInsert + prevValue.slice(rawCaret);
-      // Caret should sit right after the characters we just inserted (still in
-      // raw coordinates, the layout effect maps it back to a display position).
+      // Caret should sit right after the characters we just inserted
       rawCaretRef.current = rawCaret + toInsert.length;
-
       return newValue;
-    });
+    };
+
+    dispatch({ type: 'commit', value: computeNext(stateRef.current.present) });
   }, []);
 
   /** Removes a number / operator **left**-side of caret */
@@ -196,7 +268,7 @@ export default function Calculator() {
     const caretStart = inputRef.current?.selectionStart ?? 0;
     const caretEnd = inputRef.current?.selectionEnd ?? 0;
 
-    setCurrentDraft((prevValue) => {
+    const computeNext = (prevValue: string | null): string | null => {
       if (prevValue === null) return null;
 
       // Map to the raw string so we delete the character the user actually sees
@@ -231,7 +303,9 @@ export default function Calculator() {
       // Empty string -> back to null so the "0" placeholder shows again.
 
       return newValue === '' ? null : newValue;
-    });
+    };
+
+    dispatch({ type: 'commit', value: computeNext(stateRef.current.present) });
   }, []);
 
   /** Removes a number / operator **right**-side of caret */
@@ -239,7 +313,7 @@ export default function Calculator() {
     const caretStart = inputRef.current?.selectionStart ?? 0;
     const caretEnd = inputRef.current?.selectionEnd ?? 0;
 
-    setCurrentDraft((prevValue) => {
+    const computeNext = (prevValue: string | null): string | null => {
       if (prevValue === null) return null;
 
       // Map the display caret(s) to the raw string, same as removeNumber.
@@ -253,8 +327,7 @@ export default function Calculator() {
         caretEnd,
       );
 
-      // A selection (the user "painted" some digits): delete exactly the
-      // selected range — keep what's before the start and after the end.
+      // A painted selection: delete exactly the range, same as removeNumber.
       if (caretStart !== caretEnd) {
         const newValue =
           prevValue.slice(0, rawCaretStart) + prevValue.slice(rawCaretEnd);
@@ -273,11 +346,64 @@ export default function Calculator() {
       rawCaretRef.current = rawCaretStart;
       // Empty string -> back to null so the "0" placeholder shows again.
       return newValue === '' ? null : newValue;
-    });
+    };
+
+    dispatch({ type: 'commit', value: computeNext(stateRef.current.present) });
+  }, []);
+
+  /**
+   * Ctrl+Backspace: removes a whole token to the **left** of the caret — an
+   * entire number (its digits and dot), or a single operator/bracket. The
+   * thousand separators are cosmetic (they don't exist in the raw string), so
+   * "1,234" is one number and gets deleted whole, not chipped at the comma.
+   */
+  const removeWordNumber = useCallback(function removeWordNumber() {
+    const caretStart = inputRef.current?.selectionStart ?? 0;
+    const caretEnd = inputRef.current?.selectionEnd ?? 0;
+
+    const computeNext = (prevValue: string | null): string | null => {
+      if (prevValue === null) return null;
+
+      const formatted = formatForDisplay(prevValue);
+      const rawStart = displayToRawIndex(formatted, caretStart);
+      const rawEnd = displayToRawIndex(formatted, caretEnd);
+
+      // A painted selection wins over the "word" logic: delete exactly the
+      // range, same as removeNumber does.
+      if (caretStart !== caretEnd) {
+        const newValue = prevValue.slice(0, rawStart) + prevValue.slice(rawEnd);
+        rawCaretRef.current = rawStart;
+        return newValue === '' ? null : newValue;
+      }
+
+      // Caret at the very start: nothing to the left to delete.
+      if (rawStart === 0) return prevValue;
+
+      // Walk left from the caret to find where the token starts. A digit run
+      // (digits and dots of one number) is swallowed whole; anything else
+      // (operator or bracket) is a single-character token.
+      const isNumberChar = (char: string) => /[\d.]/.test(char);
+      let tokenStart = rawStart;
+      if (isNumberChar(prevValue[tokenStart - 1])) {
+        while (tokenStart > 0 && isNumberChar(prevValue[tokenStart - 1])) {
+          tokenStart--;
+        }
+      } else {
+        tokenStart--; // a lone operator / bracket
+      }
+
+      const newValue =
+        prevValue.slice(0, tokenStart) + prevValue.slice(rawStart);
+      // Caret collapses onto the spot where the deleted token began.
+      rawCaretRef.current = tokenStart;
+      return newValue === '' ? null : newValue;
+    };
+
+    dispatch({ type: 'commit', value: computeNext(stateRef.current.present) });
   }, []);
 
   const calculateAnswer = useCallback(function calculateAnswer() {
-    setCurrentDraft((prev) => {
+    const computeNext = (prev: string | null): string | null => {
       if (prev === null) return prev;
       // evaluate() throws on malformed input (bad brackets, stray operators,
       // ...); treat that the same as a non-finite result below.
@@ -288,11 +414,11 @@ export default function Calculator() {
         answer = NaN;
       }
       if (!Number.isFinite(answer)) {
-        toast('Malformed expression'); // toast the error to frontend
+        toast('Malformed expression');
         return prev; // keep the user given expression so the user can fix it
       }
       // Doubles carry ~15-17 significant decimal digits, and floating-point
-      // noise (e.g. 1.1 + 2.2 -> 3.3000000000000003) always shows up in that
+      // "noise" (e.g. 1.1 + 2.2 -> 3.3000000000000003) always shows up in that
       // last digit or two. Rounding to 15 significant figures strips that noise
       // while keeping every digit the user could legitimately have entered. The
       // Number(...) round-trip then drops the trailing zeros toPrecision pads with.
@@ -311,8 +437,44 @@ export default function Calculator() {
         input.setSelectionRange(end, end);
       }
       return result;
-    });
+    };
+
+    dispatch({ type: 'commit', value: computeNext(stateRef.current.present) });
   }, []);
+
+  // History (undo/redo). Ctrl+Z steps back, Ctrl+Shift+Z (or Ctrl+Y) steps
+  // forward. We put the caret at the end of the restored draft
+  // We can't use useKeyPress-hook here due to no way of getting e.g. ctrlKey or shiftKey value
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (!e.ctrlKey && !e.metaKey) return;
+      const key = e.key.toLowerCase();
+
+      if (key === 'backspace') {
+        // Ctrl+Backspace: delete a whole token to the left. preventDefault so
+        // the browser's native word-delete doesn't fight the controlled input.
+        e.preventDefault();
+        removeWordNumber();
+        return;
+      }
+
+      if (key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        const restored = stateRef.current.past.at(-1);
+        // restored can be null (draft was empty at that point) -> leave caret.
+        rawCaretRef.current = restored == null ? null : restored.length;
+        dispatch({ type: 'undo' });
+      } else if ((key === 'z' && e.shiftKey) || key === 'y') {
+        e.preventDefault();
+        const restored = stateRef.current.future[0];
+        rawCaretRef.current = restored == null ? null : restored.length;
+        dispatch({ type: 'redo' });
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [removeWordNumber]);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -322,7 +484,7 @@ export default function Calculator() {
         addNumber: (number) => addNumber(number),
         removeNumber,
         removeAheadNumber,
-        setCurrentDraft,
+        clearDraft: () => dispatch({ type: 'commit', value: null }),
         calculateAnswer,
       });
     }
@@ -339,20 +501,25 @@ export default function Calculator() {
         inputMode="none"
         placeholder="1+1=2...."
         onChange={() => {}}
-        // Controlled input: the value always comes from currentDraft, so the
-        // browser's own edits are reverted on the next render. We deliberately
+        autoComplete="off"
+        // Controlled input: the value always comes from the reducer's present, so
+        // the browser's own edits are reverted on the next render. We purposely
         // do NOT use readOnly here: read-only inputs hide the blinking caret
         // in some browsers, and we want the caret visible so the user can
         // place it. The caret is read on demand in addNumber/removeNumber
         className="mb-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-end text-3xl tabular-nums caret-cyan-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400 focus:outline-none dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-100"
-        value={currentDraft === null ? '' : formatForDisplay(currentDraft)}
+        value={state.present === null ? '' : formatForDisplay(state.present)}
       />
       <div className="grid grid-cols-4 gap-2">
         {/* Top utility row */}
-        <Button variant="danger" onClick={() => setCurrentDraft(null)}>
+        <Button
+          variant="danger"
+          onClick={() => dispatch({ type: 'commit', value: null })}
+          title="Escape-key"
+        >
           CE
         </Button>
-        <Button variant="danger" onClick={removeNumber}>
+        <Button variant="danger" onClick={removeNumber} title="Backspace-key">
           {'<-'}
         </Button>
         <Button variant="operator" onClick={() => addNumber('(')}>
