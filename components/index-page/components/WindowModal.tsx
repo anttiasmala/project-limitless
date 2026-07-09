@@ -58,7 +58,7 @@ export default function WindowModal({
   // node while dragging for smoothness, then committed to state on release.
   const handleDragStart = (e: React.MouseEvent) => {
     if (e.button !== 0) return; // left button only
-    if (modal.isMaximized) return; // a maximized window stays put
+    if (modal.isMaximized) return; // a maximized window cannot be dragged
     const div = rootRef.current;
     if (!div) return;
     e.preventDefault(); // avoid selecting the title text while dragging
@@ -217,7 +217,7 @@ export default function WindowModal({
           <button
             type="button"
             aria-label="Minimize"
-            className="relative flex h-5.25 w-5.25 items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#3f8df5_0%,#0e5ce6_45%,#0a4bce_50%,#1560e6_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
+            className="relative flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#3f8df5_0%,#0e5ce6_45%,#0a4bce_50%,#1560e6_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
           >
             <span className="mt-2 h-0.75 w-2.25 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
           </button>
@@ -226,7 +226,7 @@ export default function WindowModal({
           <button
             type="button"
             aria-label={modal.isMaximized ? 'Restore' : 'Maximize'}
-            className="flex h-5.25 w-5.25 items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#3f8df5_0%,#0e5ce6_45%,#0a4bce_50%,#1560e6_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
+            className="flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#3f8df5_0%,#0e5ce6_45%,#0a4bce_50%,#1560e6_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
             onClick={() => onMaximize(modal.uuid)}
           >
             <span className="h-2.5 w-2.75 rounded-[1px] border-2 border-t-[3px] border-white bg-transparent shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
@@ -237,7 +237,7 @@ export default function WindowModal({
             type="button"
             aria-label="Close"
             onClick={() => onClose(modal.uuid)}
-            className="relative flex h-5.25 w-5.25 items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#f7a17d_0%,#e04a2b_45%,#c62d15_50%,#e35a37_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
+            className="relative flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#f7a17d_0%,#e04a2b_45%,#c62d15_50%,#e35a37_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
           >
             <span className="absolute h-0.5 w-3 rotate-45 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
             <span className="absolute h-0.5 w-3 -rotate-45 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
