@@ -11,6 +11,7 @@ type Props = {
   onFocus: (uuid: string) => void;
   onMove: (uuid: string, top: number, left: number) => void;
   onResize: (uuid: string, width: number, height: number) => void;
+  onMinimize: (uuid: string) => void;
   onMaximize: (uuid: string) => void;
 };
 
@@ -48,6 +49,7 @@ export default function WindowModal({
   onFocus,
   onMove,
   onResize,
+  onMinimize,
   onMaximize,
 }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -196,7 +198,7 @@ export default function WindowModal({
       <div
         onMouseDown={handleDragStart}
         onDoubleClick={() => onMaximize(modal.uuid)}
-        className={`flex h-7.5 items-center rounded-t-[7px] border-b border-b-[#0831d9] bg-[linear-gradient(to_bottom,#0997ff_0%,#0053ee_8%,#0050ee_40%,#0060ff_88%,#0060ff_93%,#0855dd_95%,#0855dd_96%,#003bbb_100%)] pr-1 pl-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] ${
+        className={`flex h-7.5 items-center rounded-t-[7px] border-b pr-1 pl-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] ${modal.isFocused ? 'border-b-[#0831d9] xp-titlebar-active' : 'border-b-[#7196dd] xp-titlebar-inactive'} ${
           modal.isMaximized ? 'cursor-default' : 'cursor-move'
         }`}
       >
@@ -207,7 +209,9 @@ export default function WindowModal({
           height={16}
           className="shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]"
         />
-        <p className="mt-1 ml-1.5 truncate text-sm font-bold text-white select-none [text-shadow:1px_1px_1px_rgba(0,0,0,0.6)]">
+        <p
+          className={`mt-1 ml-1.5 truncate text-sm font-bold select-none [text-shadow:1px_1px_1px_rgba(0,0,0,0.6)] ${modal.isFocused ? 'text-white' : 'text-[#d9e4f5]'}`}
+        >
           {modal.modalName}
         </p>
 
@@ -217,7 +221,8 @@ export default function WindowModal({
           <button
             type="button"
             aria-label="Minimize"
-            className="relative flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#3f8df5_0%,#0e5ce6_45%,#0a4bce_50%,#1560e6_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
+            className={`relative flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90 ${modal.isFocused ? 'border-white/80 xp-btn-active' : 'border-white/50 xp-btn-inactive'}`}
+            onClick={() => onMinimize(modal.uuid)}
           >
             <span className="mt-2 h-0.75 w-2.25 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
           </button>
@@ -226,7 +231,7 @@ export default function WindowModal({
           <button
             type="button"
             aria-label={modal.isMaximized ? 'Restore' : 'Maximize'}
-            className="flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#3f8df5_0%,#0e5ce6_45%,#0a4bce_50%,#1560e6_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
+            className={`flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90 ${modal.isFocused ? 'border-white/80 xp-btn-active' : 'border-white/50 xp-btn-inactive'}`}
             onClick={() => onMaximize(modal.uuid)}
           >
             <span className="h-2.5 w-2.75 rounded-[1px] border-2 border-t-[3px] border-white bg-transparent shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
@@ -237,7 +242,7 @@ export default function WindowModal({
             type="button"
             aria-label="Close"
             onClick={() => onClose(modal.uuid)}
-            className="relative flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border border-white/80 bg-[linear-gradient(to_bottom,#f7a17d_0%,#e04a2b_45%,#c62d15_50%,#e35a37_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90"
+            className={`relative flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90 ${modal.isFocused ? 'border-white/80 xp-close-active' : 'border-white/50 xp-close-inactive'}`}
           >
             <span className="absolute h-0.5 w-3 rotate-45 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
             <span className="absolute h-0.5 w-3 -rotate-45 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />

@@ -1,8 +1,10 @@
 # Currently Implementing:
 
-1. Add history so CTRL+Z, CTRL+SHIFT+Z and CTRL+Y would work
-
 # TODO:
+
+1. Windows are movable when pressing any of the Window controls. If for example minimize-button is clicked, don't allow window drag
+2. Currently non-focused windows have same color as focused windows. Change non-focuised windows to have light-blue color
+3. Fix Mobile view in index-page
 
 # Ideas:
 

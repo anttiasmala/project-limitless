@@ -32,6 +32,71 @@ body {
   /* font-family: 'Pirata One', cursive, sans-serif; */
 }
 
+/* Windows XP "Luna" title bar + window-control gradients.
+   Each has a focused (vivid) and non-focused (desaturated) variant. */
+@utility xp-titlebar-active {
+  background-image: linear-gradient(
+    to bottom,
+    #0997ff 0%,
+    #0053ee 8%,
+    #0050ee 40%,
+    #0060ff 88%,
+    #0060ff 93%,
+    #0855dd 95%,
+    #0855dd 96%,
+    #003bbb 100%
+  );
+}
+@utility xp-titlebar-inactive {
+  background-image: linear-gradient(
+    to bottom,
+    #94b8ec 0%,
+    #7ba3e0 8%,
+    #799fdd 40%,
+    #7ba1de 88%,
+    #7ba1de 93%,
+    #6d94dd 95%,
+    #6d94dd 96%,
+    #5f88d4 100%
+  );
+}
+@utility xp-btn-active {
+  background-image: linear-gradient(
+    to bottom,
+    #3f8df5 0%,
+    #0e5ce6 45%,
+    #0a4bce 50%,
+    #1560e6 100%
+  );
+}
+@utility xp-btn-inactive {
+  background-image: linear-gradient(
+    to bottom,
+    #93b4e8 0%,
+    #6d94dd 45%,
+    #6389d6 50%,
+    #7aa0e0 100%
+  );
+}
+@utility xp-close-active {
+  background-image: linear-gradient(
+    to bottom,
+    #f7a17d 0%,
+    #e04a2b 45%,
+    #c62d15 50%,
+    #e35a37 100%
+  );
+}
+@utility xp-close-inactive {
+  background-image: linear-gradient(
+    to bottom,
+    #e6b09e 0%,
+    #c17c69 45%,
+    #b56d5a 50%,
+    #cd8b78 100%
+  );
+}
+
 @keyframes drawLine {
   to {
     stroke-dashoffset: 0;

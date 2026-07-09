@@ -39,10 +39,15 @@ export default function Index() {
     setWindowModal((prev) => {
       const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
       const target = prev.find((w) => w.uuid === uuid);
-      if (!target || target.zIndex === maxZ) return prev;
-      return prev.map((w) =>
-        w.uuid === uuid ? { ...w, zIndex: maxZ + 1 } : w,
-      );
+      if (!target || (target.zIndex === maxZ && target.isOpen)) return prev;
+      return prev.map((w) => {
+        if (w.isFocused) {
+          w = { ...w, isFocused: false, isOpen: true };
+        }
+        return w.uuid === uuid
+          ? { ...w, zIndex: maxZ + 1, isFocused: true, isOpen: true }
+          : w;
+      });
     });
   };
 
@@ -57,6 +62,14 @@ export default function Index() {
     setWindowModal((prev) =>
       prev.map((w) => (w.uuid === uuid ? { ...w, width, height } : w)),
     );
+  };
+
+  const toggleMinimize = (uuid: string) => {
+    setWindowModal((prev) => {
+      return prev.map((w) => {
+        return w.uuid === uuid ? { ...w, isOpen: false, isFocused: false } : w;
+      });
+    });
   };
 
   // Toggle a window between maximized (filling the viewport above the taskbar)
@@ -100,22 +113,31 @@ export default function Index() {
       const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
       const existing = prev.find((w) => w.modalName === folder.name);
       if (existing) {
+        // Focus the already-open window: bring it to the front and move the
+        // focus highlight off whichever window currently has it.
         return prev.map((w) =>
-          w.uuid === existing.uuid ? { ...w, zIndex: maxZ + 1 } : w,
+          w.uuid === existing.uuid
+            ? { ...w, zIndex: maxZ + 1, isFocused: true, isOpen: true }
+            : w.isFocused
+              ? { ...w, isFocused: false }
+              : w,
         );
       }
       const offset = prev.length * 24;
       return [
-        ...prev,
+        // A new window steals focus, so clear it from the previous one.
+        ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
         {
           uuid: crypto.randomUUID(),
           isOpen: true,
+          isFocused: true,
           zIndex: maxZ + 1,
           top: 96 + offset,
           left: 40 + offset,
           width: DEFAULT_WIDTH,
           height: DEFAULT_HEIGHT,
           isMaximized: false,
+          isMinimized: false,
           modalIcon: '/images/index-page/folder/folder-opened-icon.png',
           modalName: folder.name,
           items: folder.items,
@@ -162,6 +184,7 @@ export default function Index() {
           modal={modal}
           onFocus={focusWindow}
           onMove={moveWindow}
+          onMinimize={toggleMinimize}
           onMaximize={toggleMaximize}
           onResize={resizeWindow}
           onClose={(uuid) =>
@@ -173,13 +196,41 @@ export default function Index() {
       ))}
 
       <footer className="fixed bottom-0 left-0 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]">
-        <Image
-          alt="Start button"
-          src={'/images/index-page/taskbar/start-button.png'}
-          width={106}
-          height={34}
-          loading="eager"
-        />
+        <div className="flex flex-row">
+          <Image
+            alt="Start button"
+            src={'/images/index-page/taskbar/start-button.png'}
+            width={106}
+            height={34}
+            loading="eager"
+          />
+          <div className="flex min-w-0 flex-1 flex-row pr-24 text-sm">
+            {windowModal.map((modal) => (
+              <button
+                key={modal.uuid}
+                className={`mt-1 ml-2 flex max-w-40 min-w-0 flex-1 cursor-pointer items-center gap-1 rounded-[3px] border border-[#1c4fc4] px-2 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] ${
+                  modal.isFocused
+                    ? 'bg-[linear-gradient(to_bottom,#1c4fc4_0%,#2a64dd_50%,#3f8df5_100%)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.45)]'
+                    : 'bg-[linear-gradient(to_bottom,#3f8df5_0%,#2a64dd_50%,#225ad4_100%)] hover:brightness-110'
+                }`}
+                onClick={() =>
+                  modal.isOpen && modal.isFocused
+                    ? toggleMinimize(modal.uuid)
+                    : focusWindow(modal.uuid)
+                }
+              >
+                <Image
+                  alt="Window icon"
+                  src={modal.modalIcon}
+                  width={16}
+                  height={16}
+                  className="h-4 w-4 shrink-0"
+                />
+                <p className="min-w-0 truncate">{modal.modalName}</p>
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="absolute right-0 bottom-0 flex h-full w-24 flex-row border-l border-l-[#0c3aa5] bg-[linear-gradient(to_bottom,#14a5f0_0%,#128ee8_50%,#0e7ad9_100%)] shadow-[inset_1px_0_0_#3a9ff5]">
           <div className="flex h-full w-full items-center">
             <div className="ml-3">
