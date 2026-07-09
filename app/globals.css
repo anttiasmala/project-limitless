@@ -34,7 +34,7 @@ body {
 
 /* Windows XP "Luna" title bar + window-control gradients.
    Each has a focused (vivid) and non-focused (desaturated) variant. */
-@utility xp-titlebar-active {
+.xp-titlebar-active {
   background-image: linear-gradient(
     to bottom,
     #0997ff 0%,
@@ -47,7 +47,7 @@ body {
     #003bbb 100%
   );
 }
-@utility xp-titlebar-inactive {
+.xp-titlebar-inactive {
   background-image: linear-gradient(
     to bottom,
     #94b8ec 0%,
@@ -60,7 +60,7 @@ body {
     #5f88d4 100%
   );
 }
-@utility xp-btn-active {
+.xp-btn-active {
   background-image: linear-gradient(
     to bottom,
     #3f8df5 0%,
@@ -69,7 +69,7 @@ body {
     #1560e6 100%
   );
 }
-@utility xp-btn-inactive {
+.xp-btn-inactive {
   background-image: linear-gradient(
     to bottom,
     #93b4e8 0%,
@@ -78,7 +78,7 @@ body {
     #7aa0e0 100%
   );
 }
-@utility xp-close-active {
+.xp-close-active {
   background-image: linear-gradient(
     to bottom,
     #f7a17d 0%,
@@ -87,7 +87,7 @@ body {
     #e35a37 100%
   );
 }
-@utility xp-close-inactive {
+.xp-close-inactive {
   background-image: linear-gradient(
     to bottom,
     #e6b09e 0%,
