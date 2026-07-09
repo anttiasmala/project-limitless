@@ -23,8 +23,15 @@ const apps: {
   {
     href: '/calculator',
     title: 'Calculator',
-    description: 'A simple calculator — work in progress.',
+    description: 'A simple calculator.',
     icon: '🧮',
+  },
+  {
+    href: '/index-page',
+    title: 'Windows XP styled index page',
+    description:
+      'Windows XP styled index page. It has all the apps like in this page.',
+    icon: '🖥️',
   },
 ];
 
