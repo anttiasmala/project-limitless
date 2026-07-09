@@ -515,10 +515,11 @@ export default function Calculator() {
         <Button
           variant="danger"
           onClick={() => dispatch({ type: 'commit', value: null })}
+          title="Escape-key"
         >
           CE
         </Button>
-        <Button variant="danger" onClick={removeNumber}>
+        <Button variant="danger" onClick={removeNumber} title="Backspace-key">
           {'<-'}
         </Button>
         <Button variant="operator" onClick={() => addNumber('(')}>
