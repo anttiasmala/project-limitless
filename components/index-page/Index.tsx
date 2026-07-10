@@ -170,8 +170,7 @@ export default function Index() {
   // Handle a folder tap/click: select on the first tap, open on a second tap
   // within DOUBLE_TAP_MS. This replaces the native double-click, which never
   // fires on touch devices, so the same gesture works on desktop and mobile.
-  const handleFolderActivate = (folder: Folder) => {
-    const now = Date.now();
+  const handleFolderActivate = (folder: Folder, now: number) => {
     const last = lastTapRef.current;
     if (last && last.name === folder.name && now - last.time < DOUBLE_TAP_MS) {
       lastTapRef.current = null;
@@ -295,7 +294,7 @@ export default function Index() {
                 e.stopPropagation();
                 setSelectedFolders(new Set([folder.name]));
               }}
-              onClick={() => handleFolderActivate(folder)}
+              onClick={(e) => handleFolderActivate(folder, e.timeStamp)}
             >
               <Image
                 alt="Folder icon"
