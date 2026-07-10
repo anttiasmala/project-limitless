@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { MarqueeRect, useMarquee } from '../../hooks/useMarquee';
+import { MarqueeRect, useMarquee } from '../../hooks/index-page/useMarquee';
 import Button from '../shared/Button';
 import WindowModal from './components/WindowModal';
 import { FOLDERS } from './folders';
