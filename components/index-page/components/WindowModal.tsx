@@ -196,7 +196,13 @@ export default function WindowModal({
 
       {/* XP Luna title bar */}
       <div
-        onMouseDown={handleDragStart}
+        onMouseDown={(e) => {
+          if (!(e.target instanceof Element)) return;
+
+          // Ignore dragging if <button> is clicked
+          if (e.target.closest('button')) return;
+          handleDragStart(e);
+        }}
         onDoubleClick={() => onMaximize(modal.uuid)}
         className={`flex h-7.5 items-center rounded-t-[7px] border-b pr-1 pl-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] ${modal.isFocused ? 'border-b-[#0831d9] xp-titlebar-active' : 'border-b-[#7196dd] xp-titlebar-inactive'} ${
           modal.isMaximized ? 'cursor-default' : 'cursor-move'
