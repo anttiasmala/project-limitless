@@ -1,10 +1,8 @@
 # Currently Implementing:
 
-1. Windows are movable when pressing any of the Window controls. If for example minimize-button is clicked, don't allow window drag
+1. Fix Mobile view in index-page
 
 # TODO:
-
-1. Fix Mobile view in index-page
 
 # Ideas:
 
