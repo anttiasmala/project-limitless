@@ -8,6 +8,7 @@ import Button from '../shared/Button';
 import WindowModal from './components/WindowModal';
 import { FOLDERS } from './folders';
 import { Folder, WindowModal as WindowModalType } from './indexTypes';
+import { nanoid } from 'nanoid';
 
 // Default window size, matching the previous fixed Tailwind classes
 // (w-165 = 660px, h-125 = 500px).
@@ -16,6 +17,9 @@ const DEFAULT_HEIGHT = 500;
 // Height reserved at the bottom of the screen for the (future) taskbar, so a
 // maximized window stops just above it like in Windows XP.
 const TASKBAR_HEIGHT = 34;
+// Gap kept between a freshly opened window and the screen edges, so it never
+// opens flush against the sides on small (mobile) viewports.
+const WINDOW_MARGIN = 16;
 
 export default function Index() {
   const [time, setTime] = useState('');
@@ -29,6 +33,12 @@ export default function Index() {
   // marquee can hit-test folder icons in the container's coordinate space.
   const desktopRef = useRef<HTMLElement>(null);
   const folderRefs = useRef(new Map<string, HTMLButtonElement>());
+
+  // Tracks the last folder tap so we can detect a double-tap manually. The
+  // native onDoubleClick event never fires on touch devices, so on mobile a
+  // folder could otherwise never be opened. This is a workaround
+  const lastTapRef = useRef<{ name: string; time: number } | null>(null);
+  const DOUBLE_TAP_MS = 400;
 
   // Clear focus + selection when a marquee starts (mouse-down on empty desktop).
   const clearDesktop = () => {
@@ -157,8 +167,33 @@ export default function Index() {
     );
   };
 
+  // Handle a folder tap/click: select on the first tap, open on a second tap
+  // within DOUBLE_TAP_MS. This replaces the native double-click, which never
+  // fires on touch devices, so the same gesture works on desktop and mobile.
+  const handleFolderActivate = (folder: Folder, now: number) => {
+    const last = lastTapRef.current;
+    if (last && last.name === folder.name && now - last.time < DOUBLE_TAP_MS) {
+      lastTapRef.current = null;
+      openFolder(folder);
+    } else {
+      lastTapRef.current = { name: folder.name, time: now };
+    }
+  };
+
   // Open a folder, or focus it if it is already open.
   const openFolder = (folder: Folder) => {
+    // Fit the new window to the viewport so it never opens larger than the
+    // screen (e.g. on mobile, where it can't be resized or dragged smaller (maybe adding it later)).
+    // On larger desktop screens this caps out at the default size, so nothing
+    // changes there.
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = document.documentElement.clientHeight;
+    const width = Math.min(DEFAULT_WIDTH, viewportWidth - WINDOW_MARGIN * 2);
+    const height = Math.min(
+      DEFAULT_HEIGHT,
+      viewportHeight - TASKBAR_HEIGHT - WINDOW_MARGIN * 2,
+    );
+
     setWindowModal((prev) => {
       const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
       const existing = prev.find((w) => w.modalName === folder.name);
@@ -174,18 +209,36 @@ export default function Index() {
         );
       }
       const offset = prev.length * 24;
+
+      // Move from the usual spot, but clamp so the window stays fully
+      // on-screen (above the taskbar) no matter how small the viewport is.
+      const left = Math.max(
+        WINDOW_MARGIN,
+        Math.min(40 + offset, viewportWidth - width - WINDOW_MARGIN),
+      );
+      const top = Math.max(
+        WINDOW_MARGIN,
+        Math.min(
+          96 + offset,
+          viewportHeight - TASKBAR_HEIGHT - height - WINDOW_MARGIN,
+        ),
+      );
       return [
         // A new window steals focus, so clear it from the previous one.
         ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
         {
+          // CHECK THIS, so I don't forget to change nanoid to crypto. Theoratically shouldn't be an issue to use nanoid, but let's go with crypto.randomUUID()
+          // crypto does not work on unsecure (HTTP-connection) so let's use nanoid instead during dev and testing
+          // with nanoid, I can test with my phone the site (it has HTTP-connection)
           uuid: crypto.randomUUID(),
+          //uuid: nanoid(),
           isOpen: true,
           isFocused: true,
           zIndex: maxZ + 1,
-          top: 96 + offset,
-          left: 40 + offset,
-          width: DEFAULT_WIDTH,
-          height: DEFAULT_HEIGHT,
+          top,
+          left,
+          width,
+          height,
           isMaximized: false,
           isMinimized: false,
           modalIcon: '/images/index-page/folder/folder-opened-icon.png',
@@ -241,7 +294,7 @@ export default function Index() {
                 e.stopPropagation();
                 setSelectedFolders(new Set([folder.name]));
               }}
-              onDoubleClick={() => openFolder(folder)}
+              onClick={(e) => handleFolderActivate(folder, e.timeStamp)}
             >
               <Image
                 alt="Folder icon"
