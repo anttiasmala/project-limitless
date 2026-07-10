@@ -234,7 +234,7 @@ export default function Index() {
                 else folderRefs.current.delete(folder.name);
               }}
               variant="unstyled"
-              className="group flex cursor-default flex-col"
+              className="flex cursor-default flex-col"
               onMouseDown={(e) => {
                 // Select just this folder; stop the press from starting a
                 // marquee / clearing the selection on the desktop.
@@ -248,10 +248,10 @@ export default function Index() {
                 src={folder.icon}
                 width={32}
                 height={32}
-                className={`group-focus:opacity-50 ${isSelected ? 'opacity-50' : ''}`}
+                className={isSelected ? 'opacity-50' : ''}
               />
               <span
-                className={`text-sm group-focus:bg-[#0b61ff] group-focus:opacity-100 ${
+                className={`text-sm ${
                   isSelected ? 'bg-[#0b61ff] text-white' : ''
                 }`}
               >
