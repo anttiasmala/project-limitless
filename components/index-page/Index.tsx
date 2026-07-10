@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { MarqueeRect, useMarquee } from '../../hooks/useMarquee';
 import Button from '../shared/Button';
 import WindowModal from './components/WindowModal';
 import { FOLDERS } from './folders';
@@ -19,6 +20,50 @@ const TASKBAR_HEIGHT = 34;
 export default function Index() {
   const [time, setTime] = useState('');
   const [windowModal, setWindowModal] = useState<WindowModalType[]>([]);
+  // Desktop folders currently highlighted by a click or a marquee drag.
+  const [selectedFolders, setSelectedFolders] = useState<Set<string>>(
+    () => new Set(),
+  );
+
+  // The <main> element (marquee container) and each folder button, so the
+  // marquee can hit-test folder icons in the container's coordinate space.
+  const desktopRef = useRef<HTMLElement>(null);
+  const folderRefs = useRef(new Map<string, HTMLButtonElement>());
+
+  // Clear focus + selection when a marquee starts (mouse-down on empty desktop).
+  const clearDesktop = () => {
+    setSelectedFolders((prev) => (prev.size ? new Set() : prev));
+    setWindowModal((prev) =>
+      prev.some((w) => w.isFocused)
+        ? prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w))
+        : prev,
+    );
+  };
+
+  // Highlight every folder whose icon intersects the current marquee rectangle.
+  const selectWithinMarquee = (marquee: MarqueeRect) => {
+    const container = desktopRef.current;
+    if (!container) return;
+    const bounds = container.getBoundingClientRect();
+    const next = new Set<string>();
+    folderRefs.current.forEach((el, name) => {
+      const r = el.getBoundingClientRect();
+      const left = r.left - bounds.left;
+      const top = r.top - bounds.top;
+      const intersects =
+        left < marquee.left + marquee.width &&
+        left + r.width > marquee.left &&
+        top < marquee.top + marquee.height &&
+        top + r.height > marquee.top;
+      if (intersects) next.add(name);
+    });
+    setSelectedFolders(next);
+  };
+
+  const { rect: marqueeRect, onMouseDown: onMarqueeDown } = useMarquee(
+    desktopRef,
+    { onStart: clearDesktop, onChange: selectWithinMarquee },
+  );
 
   useEffect(() => {
     const updateTime = () => {
@@ -153,16 +198,23 @@ export default function Index() {
 
   return (
     <main
+      ref={desktopRef}
       className="relative flex min-h-screen flex-col items-center justify-center bg-slate-100 bg-[url(/images/index-page/background.jpeg)] bg-cover px-4"
-      onClick={(e) => {
-        if (e.target !== e.currentTarget) return;
-        setWindowModal((prev) =>
-          prev.some((w) => w.isFocused)
-            ? prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w))
-            : prev,
-        );
-      }}
+      onMouseDown={onMarqueeDown}
     >
+      {/* Rubber-band selection rectangle, drawn while dragging on the desktop */}
+      {marqueeRect && (
+        <div
+          className="pointer-events-none absolute z-30 border border-[#3f8df5] bg-[#3f8df5]/25"
+          style={{
+            left: marqueeRect.left,
+            top: marqueeRect.top,
+            width: marqueeRect.width,
+            height: marqueeRect.height,
+          }}
+        />
+      )}
+
       {/* Back to the arcade landing page */}
       <Link
         href="/"
@@ -172,25 +224,42 @@ export default function Index() {
       </Link>
 
       <div className="absolute top-20 left-10 flex flex-col gap-3">
-        {FOLDERS.map((folder) => (
-          <Button
-            key={folder.name}
-            variant="unstyled"
-            className="group flex cursor-default flex-col"
-            onDoubleClick={() => openFolder(folder)}
-          >
-            <Image
-              alt="Folder icon"
-              src={folder.icon}
-              width={32}
-              height={32}
-              className="group-focus:opacity-50"
-            />
-            <span className="text-sm group-focus:bg-[#0b61ff] group-focus:opacity-100">
-              {folder.name}
-            </span>
-          </Button>
-        ))}
+        {FOLDERS.map((folder) => {
+          const isSelected = selectedFolders.has(folder.name);
+          return (
+            <Button
+              key={folder.name}
+              ref={(el) => {
+                if (el) folderRefs.current.set(folder.name, el);
+                else folderRefs.current.delete(folder.name);
+              }}
+              variant="unstyled"
+              className="flex cursor-default flex-col"
+              onMouseDown={(e) => {
+                // Select just this folder; stop the press from starting a
+                // marquee / clearing the selection on the desktop.
+                e.stopPropagation();
+                setSelectedFolders(new Set([folder.name]));
+              }}
+              onDoubleClick={() => openFolder(folder)}
+            >
+              <Image
+                alt="Folder icon"
+                src={folder.icon}
+                width={32}
+                height={32}
+                className={isSelected ? 'opacity-50' : ''}
+              />
+              <span
+                className={`text-sm ${
+                  isSelected ? 'bg-[#0b61ff] text-white' : ''
+                }`}
+              >
+                {folder.name}
+              </span>
+            </Button>
+          );
+        })}
       </div>
 
       {windowModal.map((modal) => (
