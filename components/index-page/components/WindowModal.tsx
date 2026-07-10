@@ -204,7 +204,7 @@ export default function WindowModal({
           handleDragStart(e);
         }}
         onDoubleClick={() => onMaximize(modal.uuid)}
-        className={`flex h-7.5 items-center rounded-t-[7px] border-b pr-1 pl-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] ${modal.isFocused ? 'border-b-[#0831d9] xp-titlebar-active' : 'border-b-[#7196dd] xp-titlebar-inactive'} ${
+        className={`flex h-7.5 items-center rounded-t-[7px] border-b pr-1 pl-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] ${modal.isFocused ? 'xp-titlebar-active border-b-[#0831d9]' : 'xp-titlebar-inactive border-b-[#7196dd]'} ${
           modal.isMaximized ? 'cursor-default' : 'cursor-move'
         }`}
       >
@@ -227,7 +227,7 @@ export default function WindowModal({
           <button
             type="button"
             aria-label="Minimize"
-            className={`relative flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90 ${modal.isFocused ? 'border-white/80 xp-btn-active' : 'border-white/50 xp-btn-inactive'}`}
+            className={`relative flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90 ${modal.isFocused ? 'xp-btn-active border-white/80' : 'xp-btn-inactive border-white/50'}`}
             onClick={() => onMinimize(modal.uuid)}
           >
             <span className="mt-2 h-0.75 w-2.25 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
@@ -237,7 +237,7 @@ export default function WindowModal({
           <button
             type="button"
             aria-label={modal.isMaximized ? 'Restore' : 'Maximize'}
-            className={`flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90 ${modal.isFocused ? 'border-white/80 xp-btn-active' : 'border-white/50 xp-btn-inactive'}`}
+            className={`flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90 ${modal.isFocused ? 'xp-btn-active border-white/80' : 'xp-btn-inactive border-white/50'}`}
             onClick={() => onMaximize(modal.uuid)}
           >
             <span className="h-2.5 w-2.75 rounded-[1px] border-2 border-t-[3px] border-white bg-transparent shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
@@ -248,7 +248,7 @@ export default function WindowModal({
             type="button"
             aria-label="Close"
             onClick={() => onClose(modal.uuid)}
-            className={`relative flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90 ${modal.isFocused ? 'border-white/80 xp-close-active' : 'border-white/50 xp-close-inactive'}`}
+            className={`relative flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90 ${modal.isFocused ? 'xp-close-active border-white/80' : 'xp-close-inactive border-white/50'}`}
           >
             <span className="absolute h-0.5 w-3 rotate-45 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
             <span className="absolute h-0.5 w-3 -rotate-45 rounded-[1px] bg-white shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
