@@ -8,6 +8,7 @@ import Button from '../shared/Button';
 import WindowModal from './components/WindowModal';
 import { FOLDERS } from './folders';
 import { Folder, WindowModal as WindowModalType } from './indexTypes';
+import { nanoid } from 'nanoid';
 
 // Default window size, matching the previous fixed Tailwind classes
 // (w-165 = 660px, h-125 = 500px).
@@ -198,7 +199,11 @@ export default function Index() {
         // A new window steals focus, so clear it from the previous one.
         ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
         {
+          // CHECK THIS, so I don't forget to change nanoid to crypto. Theoratically shouldn't be an issue to use nanoid, but let's go with crypto.randomUUID()
+          // crypto does not work on unsecure (HTTP-connection) so let's use nanoid instead during dev and testing
+          // with nanoid, I can test with my phone the site (it has HTTP-connection)
           uuid: crypto.randomUUID(),
+          //uuid: nanoid(),
           isOpen: true,
           isFocused: true,
           zIndex: maxZ + 1,
