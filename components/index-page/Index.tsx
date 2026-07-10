@@ -30,6 +30,12 @@ export default function Index() {
   const desktopRef = useRef<HTMLElement>(null);
   const folderRefs = useRef(new Map<string, HTMLButtonElement>());
 
+  // Tracks the last folder tap so we can detect a double-tap manually. The
+  // native onDoubleClick event never fires on touch devices, so on mobile a
+  // folder could otherwise never be opened. This is a workaround
+  const lastTapRef = useRef<{ name: string; time: number } | null>(null);
+  const DOUBLE_TAP_MS = 400;
+
   // Clear focus + selection when a marquee starts (mouse-down on empty desktop).
   const clearDesktop = () => {
     setSelectedFolders((prev) => (prev.size ? new Set() : prev));
@@ -157,6 +163,20 @@ export default function Index() {
     );
   };
 
+  // Handle a folder tap/click: select on the first tap, open on a second tap
+  // within DOUBLE_TAP_MS. This replaces the native double-click, which never
+  // fires on touch devices, so the same gesture works on desktop and mobile.
+  const handleFolderActivate = (folder: Folder) => {
+    const now = Date.now();
+    const last = lastTapRef.current;
+    if (last && last.name === folder.name && now - last.time < DOUBLE_TAP_MS) {
+      lastTapRef.current = null;
+      openFolder(folder);
+    } else {
+      lastTapRef.current = { name: folder.name, time: now };
+    }
+  };
+
   // Open a folder, or focus it if it is already open.
   const openFolder = (folder: Folder) => {
     setWindowModal((prev) => {
@@ -241,7 +261,7 @@ export default function Index() {
                 e.stopPropagation();
                 setSelectedFolders(new Set([folder.name]));
               }}
-              onDoubleClick={() => openFolder(folder)}
+              onClick={() => handleFolderActivate(folder)}
             >
               <Image
                 alt="Folder icon"
