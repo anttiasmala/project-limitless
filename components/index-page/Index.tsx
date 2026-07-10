@@ -17,6 +17,9 @@ const DEFAULT_HEIGHT = 500;
 // Height reserved at the bottom of the screen for the (future) taskbar, so a
 // maximized window stops just above it like in Windows XP.
 const TASKBAR_HEIGHT = 34;
+// Gap kept between a freshly opened window and the screen edges, so it never
+// opens flush against the sides on small (mobile) viewports.
+const WINDOW_MARGIN = 16;
 
 export default function Index() {
   const [time, setTime] = useState('');
@@ -180,6 +183,18 @@ export default function Index() {
 
   // Open a folder, or focus it if it is already open.
   const openFolder = (folder: Folder) => {
+    // Fit the new window to the viewport so it never opens larger than the
+    // screen (e.g. on mobile, where it can't be resized or dragged smaller (maybe adding it later)).
+    // On larger desktop screens this caps out at the default size, so nothing
+    // changes there.
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = document.documentElement.clientHeight;
+    const width = Math.min(DEFAULT_WIDTH, viewportWidth - WINDOW_MARGIN * 2);
+    const height = Math.min(
+      DEFAULT_HEIGHT,
+      viewportHeight - TASKBAR_HEIGHT - WINDOW_MARGIN * 2,
+    );
+
     setWindowModal((prev) => {
       const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
       const existing = prev.find((w) => w.modalName === folder.name);
@@ -195,6 +210,20 @@ export default function Index() {
         );
       }
       const offset = prev.length * 24;
+
+      // Move from the usual spot, but clamp so the window stays fully
+      // on-screen (above the taskbar) no matter how small the viewport is.
+      const left = Math.max(
+        WINDOW_MARGIN,
+        Math.min(40 + offset, viewportWidth - width - WINDOW_MARGIN),
+      );
+      const top = Math.max(
+        WINDOW_MARGIN,
+        Math.min(
+          96 + offset,
+          viewportHeight - TASKBAR_HEIGHT - height - WINDOW_MARGIN,
+        ),
+      );
       return [
         // A new window steals focus, so clear it from the previous one.
         ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
@@ -207,10 +236,10 @@ export default function Index() {
           isOpen: true,
           isFocused: true,
           zIndex: maxZ + 1,
-          top: 96 + offset,
-          left: 40 + offset,
-          width: DEFAULT_WIDTH,
-          height: DEFAULT_HEIGHT,
+          top,
+          left,
+          width,
+          height,
           isMaximized: false,
           isMinimized: false,
           modalIcon: '/images/index-page/folder/folder-opened-icon.png',
