@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { WindowModal as WindowModalType } from '../indexTypes';
 import SidebarItem from './SidebarItem';
 import SidebarPanel from './SidebarPanel';
+import WindowMenuBar from './WindowMenuBar';
 
 type Props = {
   modal: WindowModalType;
@@ -257,16 +258,7 @@ export default function WindowModal({
       </div>
       <div className="w-full bg-[#f0efe7] text-black">
         <div className="flex flex-row justify-between text-xs">
-          <div className="flex flex-row select-none">
-            <p className="ml-1 p-1 hover:bg-blue-500 hover:text-white">File</p>
-            <p className="ml-3 p-1 hover:bg-blue-500 hover:text-white">Edit</p>
-            <p className="ml-3 p-1 hover:bg-blue-500 hover:text-white">View</p>
-            <p className="ml-3 p-1 hover:bg-blue-500 hover:text-white">
-              Favorites
-            </p>
-            <p className="ml-3 p-1 hover:bg-blue-500 hover:text-white">Tools</p>
-            <p className="ml-3 p-1 hover:bg-blue-500 hover:text-white">Help</p>
-          </div>
+          <WindowMenuBar onClose={() => onClose(modal.uuid)} />
           <Image
             alt=""
             src={'/images/index-page/folder/windows-logo.png'}
