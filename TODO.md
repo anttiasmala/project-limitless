@@ -1,7 +1,5 @@
 # Currently Implementing:
 
-1. Fix Mobile view in index-page
-
 # TODO:
 
 # Ideas:
