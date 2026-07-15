@@ -134,7 +134,7 @@ export default function StartMenu({
             <div className="relative m-2 flex items-center justify-center gap-1 pt-1 pr-2 pb-1 font-bold select-none hover:bg-[#2f71cd] hover:text-white">
               <p className="text-xs font-semibold">All Programs</p>
               <Image
-                className="absolute right-7"
+                className="absolute right-4 sm:right-7"
                 alt="All programs icon"
                 src={`${PATH}/all-programs.ico`}
                 width={24}
@@ -143,7 +143,7 @@ export default function StartMenu({
             </div>
           </div>
         </div>
-        <div className="flex-1 bg-[#d3e5fa] text-black">
+        <div className="flex-1 overflow-y-auto min-h-0 bg-[#d3e5fa] pb-2 text-black">
           {ICONS.map((icon, i) => {
             if (icon.isSeparator) {
               return (
