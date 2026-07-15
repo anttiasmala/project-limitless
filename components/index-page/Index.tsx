@@ -9,6 +9,7 @@ import WindowModal from './components/WindowModal';
 import { FOLDERS } from './folders';
 import { Folder, WindowModal as WindowModalType } from './indexTypes';
 import { nanoid } from 'nanoid';
+import StartMenu from './components/start-menu/StartMenu';
 
 // Default window size, matching the previous fixed Tailwind classes
 // (w-165 = 660px, h-125 = 500px).
@@ -22,6 +23,7 @@ const TASKBAR_HEIGHT = 34;
 const WINDOW_MARGIN = 16;
 
 export default function Index() {
+  const [showStartMenu, setShowStartMenu] = useState(false);
   const [time, setTime] = useState('');
   const [windowModal, setWindowModal] = useState<WindowModalType[]>([]);
   // Desktop folders currently highlighted by a click or a marquee drag.
@@ -33,6 +35,9 @@ export default function Index() {
   // marquee can hit-test folder icons in the container's coordinate space.
   const desktopRef = useRef<HTMLElement>(null);
   const folderRefs = useRef(new Map<string, HTMLButtonElement>());
+
+  const startMenuRef = useRef<HTMLDivElement>(null);
+  const startButtonRef = useRef<HTMLButtonElement>(null);
 
   // Tracks the last folder tap so we can detect a double-tap manually. The
   // native onDoubleClick event never fires on touch devices, so on mobile a
@@ -74,6 +79,25 @@ export default function Index() {
     desktopRef,
     { onStart: clearDesktop, onChange: selectWithinMarquee },
   );
+
+  // Close the Start Menu when a click lands outside it. The Start button
+  // is excluded so its click can still toggle the menu closed instead of the
+  // outside-handler closing it and the button's onClick reopening it.
+  useEffect(() => {
+    if (!showStartMenu) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        startMenuRef.current?.contains(target) ||
+        startButtonRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setShowStartMenu(false);
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [showStartMenu]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -334,13 +358,22 @@ export default function Index() {
 
       <footer className="fixed bottom-0 left-0 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]">
         <div className="flex flex-row">
-          <Image
-            alt="Start button"
-            src={'/images/index-page/taskbar/start-button.png'}
-            width={106}
-            height={34}
-            loading="eager"
-          />
+          <button
+            ref={startButtonRef}
+            className="cursor-pointer hover:brightness-110"
+            onClick={() => setShowStartMenu((prev) => !prev)}
+          >
+            <Image
+              alt="Start button"
+              src={'/images/index-page/taskbar/start-button.png'}
+              width={106}
+              height={34}
+              loading="eager"
+            />
+          </button>
+
+          {showStartMenu && <StartMenu ref={startMenuRef} />}
+
           <div className="flex min-w-0 flex-1 flex-row pr-24 text-sm">
             {windowModal.map((modal) => (
               <button
