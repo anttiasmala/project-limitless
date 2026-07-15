@@ -108,7 +108,7 @@ export default function StartMenu({
               className="relative mt-2 mr-1 ml-1 flex cursor-pointer items-center hover:bg-[#2f71cd] hover:text-white"
             >
               <span className="relative flex h-8 w-8 items-center justify-center">
-                <span className="text-2xl leading-none">🖩</span>
+                <span className="text-2xl leading-none">🧮</span>
                 <span className="absolute -right-0.5 -bottom-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-white text-[8px] leading-none text-blue-700 shadow ring-1 ring-blue-400">
                   ↗
                 </span>
