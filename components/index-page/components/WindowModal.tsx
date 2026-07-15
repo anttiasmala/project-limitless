@@ -415,7 +415,7 @@ export default function WindowModal({
                 src={app.icon}
                 width={40}
                 height={40}
-                className="shrink-0"
+                className="size-10 shrink-0"
               />
               <span className="rounded-sm px-0.5 text-xs group-hover:bg-[#316ac5] group-hover:text-white">
                 {app.name}

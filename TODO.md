@@ -1,8 +1,18 @@
 # Currently Implementing:
 
+1. Start Menu
+
 # TODO:
 
 # Ideas:
+
+## Windows XP desktop
+
+1. Add something to clock / notifications area
+2. Right-click menu on the desktop
+3. Perhaps more apps, like Notepad, Minesweeper, Solitaire (maybe in XP context?), My Computer, Recycle Bin?
+
+## Tic-tac-toe
 
 1. Add login system and save winLossDraw stats to backend SQL database. Perhaps PostgreSQL and Prisma?
 2. Show settings of a gameroom in Lobby list, so player knows that if there is for example turn timer and how long it is, etc || 7. Add to Game Lobbies a way to see game settings (like if it has Sand Timer enabled, etc)
