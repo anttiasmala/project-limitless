@@ -101,7 +101,7 @@ export default function StartMenu({
               />
               <p className="ml-1 text-xs">Internet Explorer</p>
             </div>
-            <div className="mx-2 mt-3 border-b border-[#c3d4ea]" />
+            <div className="my-2 h-px w-full bg-[linear-gradient(to_right,transparent,#9aa8be_50%,transparent)]" />
             <Link
               href={'/calculator'}
               target="_blank"
@@ -130,9 +130,9 @@ export default function StartMenu({
             </Link>
           </div>
           <div>
-            <div className="w-full border-t border-[#aab8cc] shadow-[inset_0_1px_0_#ffffff]" />
+            <div className="h-px w-full bg-[linear-gradient(to_right,transparent,#9aa8be_50%,transparent)]" />
             <div className="relative m-2 flex items-center justify-center gap-1 pt-1 pr-2 pb-1 font-bold select-none hover:bg-[#2f71cd] hover:text-white">
-              <p className="text-xs">All Programs</p>
+              <p className="text-xs font-semibold">All Programs</p>
               <Image
                 className="absolute right-7"
                 alt="All programs icon"
