@@ -80,7 +80,7 @@ export default function StartMenu({
       <div className="relative h-16 shrink-0 rounded-t-md border-b-2 border-b-[#e78e33] bg-[linear-gradient(to_bottom,#4d9bf5_0%,#3f8df5_18%,#2f6fd8_55%,#2a64dd_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
         <div className="absolute top-2 left-2 flex items-center">
           <Image
-            className="h-12 w-12"
+            className="size-12 border border-[#dedede]"
             alt="Profile Picture"
             src={'/images/index-page/start-menu/duck.png'}
             width={48}
