@@ -3,6 +3,10 @@ import Link from 'next/link';
 
 const PATH = '/images/index-page/start-menu';
 
+// Shown when a menu item that was never implemented is clicked
+const notFoundMessage = (name: string) =>
+  `Application '${name}' does not exist.`;
+
 const ICONS: {
   text: string;
   icon: string;
@@ -68,9 +72,15 @@ const ICONS: {
 ];
 
 export default function StartMenu({
+  onOpenError,
   ref,
+  onClose,
 }: {
+  // Opens a message box. Every entry here is a placeholder, so this is the
+  // only thing the menu can currently do.
+  onOpenError: (title: string, message: string) => void;
   ref?: React.Ref<HTMLDivElement>;
+  onClose: () => void;
 }) {
   return (
     <div
@@ -92,7 +102,16 @@ export default function StartMenu({
       <div className="flex min-h-0 flex-1 bg-white">
         <div className="flex flex-[1.2] flex-col justify-between border-r border-[#aec9ed] bg-white text-black">
           <div className="w-full">
-            <div className="relative mt-1 mr-1 ml-1 flex cursor-pointer items-center hover:bg-[#2f71cd] hover:text-white">
+            <button
+              onClick={() => {
+                onOpenError(
+                  'Internet Explorer',
+                  notFoundMessage('iexplore.exe'),
+                );
+                onClose();
+              }}
+              className="relative mt-1 mr-1 ml-1 flex w-full cursor-pointer items-center hover:bg-[#2f71cd] hover:text-white"
+            >
               <Image
                 alt="Internet Explorer icon"
                 src={`${PATH}/internet-explorer.png`}
@@ -100,7 +119,7 @@ export default function StartMenu({
                 height={32}
               />
               <p className="ml-1 text-xs">Internet Explorer</p>
-            </div>
+            </button>
             <div className="my-2 h-px w-full bg-[linear-gradient(to_right,transparent,#9aa8be_50%,transparent)]" />
             <Link
               href={'/calculator'}
@@ -143,7 +162,7 @@ export default function StartMenu({
             </div>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto min-h-0 bg-[#d3e5fa] pb-2 text-black">
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[#d3e5fa] pb-2 text-black">
           {ICONS.map((icon, i) => {
             if (icon.isSeparator) {
               return (
@@ -162,6 +181,10 @@ export default function StartMenu({
                   text={icon.text}
                   icon={icon.icon}
                   isSubMenu={icon.isSubMenu ?? false}
+                  onClick={() => {
+                    onOpenError(icon.text, notFoundMessage(icon.text));
+                    onClose();
+                  }}
                 />
               </div>
             );
@@ -202,11 +225,12 @@ type ButtonProps = Partial<HTMLButtonElement> & {
   text: string;
   icon: string;
   isSubMenu: boolean;
+  onClick: () => void;
 };
 
-function Button({ text, icon, isSubMenu }: ButtonProps) {
+function Button({ text, icon, isSubMenu, onClick }: ButtonProps) {
   return (
-    <button className="flex cursor-pointer">
+    <button onClick={onClick} className="flex w-full cursor-pointer">
       <Image alt={`${text} icon`} src={icon} width={24} height={24} />
       <p className="flex items-center pl-2 text-xs">
         {text}
