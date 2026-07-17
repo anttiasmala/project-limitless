@@ -259,7 +259,7 @@ export default function StartMenu({
           onMouseEnter={keepSubMenuOpen}
           onMouseLeave={scheduleCloseSubMenu}
           style={{ top: subMenu.top, left: subMenu.left }}
-          className="group fixed z-50 min-w-32 border border-[#2a64dd] bg-white px-3 py-1 shadow-[2px_2px_8px_rgba(0,0,0,0.4)] hover:bg-[#1b65cc] hover:text-white"
+          className="group fixed z-50 min-w-32 border border-l-4 border-[#2a64dd] bg-white px-3 py-1 shadow-[2px_2px_8px_rgba(0,0,0,0.4)] hover:bg-[#1b65cc] hover:text-white"
         >
           <p className="text-xs text-[#6d6d6d] select-none group-hover:text-white">
             (Empty)
