@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { MarqueeRect, useMarquee } from '../../hooks/index-page/useMarquee';
 import Button from '../shared/Button';
-import WindowModal from './components/WindowModal';
+import ErrorWindow from './components/window/ErrorWindow';
+import FolderWindow from './components/window/FolderWindow';
 import { FOLDERS } from './folders';
 import { Folder, WindowModal as WindowModalType } from './indexTypes';
 import { nanoid } from 'nanoid';
@@ -15,6 +16,9 @@ import StartMenu from './components/start-menu/StartMenu';
 // (w-165 = 660px, h-125 = 500px).
 const DEFAULT_WIDTH = 660;
 const DEFAULT_HEIGHT = 500;
+// Message boxes are fixed-size and much smaller than an File Explorer window.
+const ERROR_WIDTH = 420;
+const ERROR_HEIGHT = 170;
 // Height reserved at the bottom of the screen for the (future) taskbar, so a
 // maximized window stops just above it like in Windows XP.
 const TASKBAR_HEIGHT = 34;
@@ -135,6 +139,10 @@ export default function Index() {
     });
   };
 
+  const closeWindow = (uuid: string) => {
+    setWindowModal((prev) => prev.filter((w) => w.uuid !== uuid));
+  };
+
   // Persist a window's position after a drag.
   const moveWindow = (uuid: string, top: number, left: number) => {
     setWindowModal((prev) =>
@@ -162,6 +170,8 @@ export default function Index() {
     setWindowModal((prev) =>
       prev.map((w) => {
         if (w.uuid !== uuid) return w;
+        // Message boxes have no maximize control, so nothing can ask for this.
+        if (w.kind !== 'folder') return w;
         if (w.isMaximized && w.restoreRect) {
           return {
             ...w,
@@ -220,7 +230,9 @@ export default function Index() {
 
     setWindowModal((prev) => {
       const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
-      const existing = prev.find((w) => w.modalName === folder.name);
+      const existing = prev.find(
+        (w) => w.kind === 'folder' && w.modalName === folder.name,
+      );
       if (existing) {
         // Focus the already-open window: bring it to the front and move the
         // focus highlight off whichever window currently has it.
@@ -251,6 +263,7 @@ export default function Index() {
         // A new window steals focus, so clear it from the previous one.
         ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
         {
+          kind: 'folder',
           // CHECK THIS, so I don't forget to change nanoid to crypto. Theoratically shouldn't be an issue to use nanoid, but let's go with crypto.randomUUID()
           // crypto does not work on unsecure (HTTP-connection) so let's use nanoid instead during dev and testing
           // with nanoid, I can test with my phone the site (it has HTTP-connection)
@@ -268,6 +281,50 @@ export default function Index() {
           modalIcon: '/images/index-page/folder/folder-opened-icon.png',
           modalName: folder.name,
           items: folder.items,
+        },
+      ];
+    });
+  };
+
+  // Open an XP message box. Unlike folders these are never deduplicated: two
+  // errors with the same title are two separate dialogs.
+  const openError = (title: string, message: string) => {
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = document.documentElement.clientHeight;
+    const width = Math.min(ERROR_WIDTH, viewportWidth - WINDOW_MARGIN * 2);
+    const height = Math.min(
+      ERROR_HEIGHT,
+      viewportHeight - TASKBAR_HEIGHT - WINDOW_MARGIN * 2,
+    );
+
+    setWindowModal((prev) => {
+      const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
+      // A message box opens centred on the desktop, like in XP.
+      const left = Math.max(
+        WINDOW_MARGIN,
+        Math.round((viewportWidth - width) / 2),
+      );
+      const top = Math.max(
+        WINDOW_MARGIN,
+        Math.round((viewportHeight - TASKBAR_HEIGHT - height) / 2),
+      );
+      return [
+        // A new window steals focus, so clear it from the previous one.
+        ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
+        {
+          kind: 'error',
+          uuid: crypto.randomUUID(),
+          isOpen: true,
+          isFocused: true,
+          zIndex: maxZ + 1,
+          top,
+          left,
+          width,
+          height,
+          isMaximized: false,
+          isMinimized: false,
+          modalName: title,
+          message,
         },
       ];
     });
@@ -339,22 +396,28 @@ export default function Index() {
         })}
       </div>
 
-      {windowModal.map((modal) => (
-        <WindowModal
-          key={modal.uuid}
-          modal={modal}
-          onFocus={focusWindow}
-          onMove={moveWindow}
-          onMinimize={toggleMinimize}
-          onMaximize={toggleMaximize}
-          onResize={resizeWindow}
-          onClose={(uuid) =>
-            setWindowModal((prev) =>
-              prev.filter((modal) => modal.uuid !== uuid),
-            )
-          }
-        />
-      ))}
+      {windowModal.map((modal) =>
+        modal.kind === 'folder' ? (
+          <FolderWindow
+            key={modal.uuid}
+            modal={modal}
+            onFocus={focusWindow}
+            onMove={moveWindow}
+            onMinimize={toggleMinimize}
+            onMaximize={toggleMaximize}
+            onResize={resizeWindow}
+            onClose={closeWindow}
+          />
+        ) : (
+          <ErrorWindow
+            key={modal.uuid}
+            modal={modal}
+            onFocus={focusWindow}
+            onMove={moveWindow}
+            onClose={closeWindow}
+          />
+        ),
+      )}
 
       <footer className="fixed bottom-0 left-0 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]">
         <div className="flex flex-row">
@@ -372,7 +435,13 @@ export default function Index() {
             />
           </button>
 
-          {showStartMenu && <StartMenu ref={startMenuRef} />}
+          {showStartMenu && (
+            <StartMenu
+              onClose={() => setShowStartMenu(false)}
+              onOpenError={openError}
+              ref={startMenuRef}
+            />
+          )}
 
           <div className="flex min-w-0 flex-1 flex-row pr-24 text-sm">
             {windowModal.map((modal) => (
@@ -389,13 +458,15 @@ export default function Index() {
                     : focusWindow(modal.uuid)
                 }
               >
-                <Image
-                  alt="Window icon"
-                  src={modal.modalIcon}
-                  width={16}
-                  height={16}
-                  className="h-4 w-4 shrink-0"
-                />
+                {modal.modalIcon && (
+                  <Image
+                    alt="Window icon"
+                    src={modal.modalIcon}
+                    width={16}
+                    height={16}
+                    className="h-4 w-4 shrink-0"
+                  />
+                )}
                 <p className="min-w-0 truncate">{modal.modalName}</p>
               </button>
             ))}
