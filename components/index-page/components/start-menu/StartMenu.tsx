@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRef, useState } from 'react';
 
 const PATH = '/images/index-page/start-menu';
 
@@ -82,6 +83,31 @@ export default function StartMenu({
   ref?: React.Ref<HTMLDivElement>;
   onClose: () => void;
 }) {
+  // Position (viewport coords) of the flyout shown when a submenu item is
+  // hovered, or null when none is open. Fixed positioning lets the flyout
+  // escape the menu's `overflow-hidden` clipping.
+  const [subMenu, setSubMenu] = useState<{ top: number; left: number } | null>(
+    null,
+  );
+  // Delays closing so the pointer can travel from the item into the flyout
+  // without it flickering shut in between.
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openSubMenu = (e: React.MouseEvent<HTMLElement>) => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    const rect = e.currentTarget.getBoundingClientRect();
+    setSubMenu({ top: rect.top, left: rect.right });
+  };
+
+  const scheduleCloseSubMenu = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setSubMenu(null), 120);
+  };
+
+  const keepSubMenuOpen = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  };
+
   return (
     <div
       ref={ref}
@@ -172,16 +198,22 @@ export default function StartMenu({
                 ></div>
               );
             }
+            const isSubMenu = icon.isSubMenu ?? false;
             return (
               <div
                 className="mt-2 w-full cursor-pointer pl-2 hover:bg-[#2f71cd] hover:text-white"
                 key={icon.text + i}
+                onMouseEnter={isSubMenu ? openSubMenu : scheduleCloseSubMenu}
+                onMouseLeave={isSubMenu ? scheduleCloseSubMenu : undefined}
               >
                 <Button
                   text={icon.text}
                   icon={icon.icon}
-                  isSubMenu={icon.isSubMenu ?? false}
+                  isSubMenu={isSubMenu}
                   onClick={() => {
+                    // Submenu parents (e.g. My Recent Documents) reveal their
+                    // flyout on hover and do nothing on click, like Windows XP.
+                    if (isSubMenu) return;
                     onOpenError(icon.text, notFoundMessage(icon.text));
                     onClose();
                   }}
@@ -217,6 +249,23 @@ export default function StartMenu({
           </button>
         </div>
       </div>
+
+      {subMenu && (
+        <button
+          onClick={() => {
+            onOpenError('Error', 'This submenu is empty.');
+            onClose();
+          }}
+          onMouseEnter={keepSubMenuOpen}
+          onMouseLeave={scheduleCloseSubMenu}
+          style={{ top: subMenu.top, left: subMenu.left }}
+          className="group fixed z-50 min-w-32 border border-[#2a64dd] bg-white px-3 py-1 shadow-[2px_2px_8px_rgba(0,0,0,0.4)] hover:bg-[#1b65cc] hover:text-white"
+        >
+          <p className="text-xs text-[#6d6d6d] select-none group-hover:text-white">
+            (Empty)
+          </p>
+        </button>
+      )}
     </div>
   );
 }
