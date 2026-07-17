@@ -6,7 +6,8 @@ How to be able to run "git push" in recently cloned repository (This is working 
 2. Create a SSH key by running the following command: `ssh-keygen -t ed25519 -C "youremail@email.com"` **DON'T use `sudo`**.
    Go to: `https://github.com/settings/ssh/new` and add the text inside `id_ed25519.pub` to the Key section. The `ìd_ed25519.pub` file is located in `/home/USER/.ssh/`
 3. Add the SSH key
-4. Now `git push` should work
+4. Change remote's origin url to e.g. "git remote set-url origin git@github.com:anttiasmala/project-limitless.git"
+5. Now `git push` should work
 
 #
 
