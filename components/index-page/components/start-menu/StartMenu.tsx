@@ -83,13 +83,13 @@ export default function StartMenu({
   ref?: React.Ref<HTMLDivElement>;
   onClose: () => void;
 }) {
-  // Position (viewport coords) of the flyout shown when a submenu item is
-  // hovered, or null when none is open. Fixed positioning lets the flyout
+  // Position (viewport coords) of the window shown when a submenu item is
+  // hovered, or null when none is open. Fixed positioning lets the window
   // escape the menu's `overflow-hidden` clipping.
   const [subMenu, setSubMenu] = useState<{ top: number; left: number } | null>(
     null,
   );
-  // Delays closing so the pointer can travel from the item into the flyout
+  // Delays closing so the pointer can travel from the item into the window
   // without it flickering shut in between.
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
