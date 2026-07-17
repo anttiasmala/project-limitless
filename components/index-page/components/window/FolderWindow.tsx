@@ -175,7 +175,7 @@ export default function FolderWindow({
       </div>
 
       <div className="flex min-h-0 flex-1 text-black">
-        {/* Left task pane */}
+        {/* Left task panel */}
         <aside className="w-32 shrink-0 space-y-3.5 overflow-y-auto bg-[linear-gradient(to_bottom,#7ba0f0_0%,#4062c8_100%)] px-2.5 py-3.5 sm:w-52">
           <SidebarPanel title="File and Folder Tasks">
             {fileTasks.map((task) => (
