@@ -247,7 +247,7 @@ export default function StartMenu({
             bottom: menu.bottom,
             left: menu.left,
           }}
-          className="fixed z-50 flex min-w-40 flex-col border border-l-4 border-[#2a64dd] bg-white py-1 shadow-[2px_2px_8px_rgba(0,0,0,0.4)]"
+          className="fixed z-50 flex min-w-40 flex-col border border-l-4 border-[#2a64dd] bg-white shadow-[2px_2px_8px_rgba(0,0,0,0.4)]"
         >
           {SUB_MENUS[menu.name]?.length ? (
             SUB_MENUS[menu.name].map((entry) => {
