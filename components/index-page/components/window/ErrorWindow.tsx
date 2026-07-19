@@ -64,13 +64,13 @@ export default function ErrorWindow({
       onMove={onMove}
     >
       <div className="flex min-h-0 flex-1 flex-col bg-[#f0efe7] text-black">
-        <div className="flex flex-1 items-start gap-4 overflow-y-auto px-5 py-4">
+        <div className="flex flex-1 items-center gap-3 overflow-y-auto px-4 py-3">
           <ErrorIcon />
           <p className="text-xs leading-relaxed whitespace-pre-line">
             {modal.message}
           </p>
         </div>
-        <div className="flex shrink-0 justify-center pb-4">
+        <div className="flex shrink-0 justify-center pb-3">
           <button
             type="button"
             autoFocus

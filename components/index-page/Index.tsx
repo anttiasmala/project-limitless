@@ -17,8 +17,8 @@ import StartMenu from './components/start-menu/StartMenu';
 const DEFAULT_WIDTH = 660;
 const DEFAULT_HEIGHT = 500;
 // Message boxes are fixed-size and much smaller than an File Explorer window.
-const ERROR_WIDTH = 420;
-const ERROR_HEIGHT = 170;
+const ERROR_WIDTH = 340;
+const ERROR_HEIGHT = 135;
 // Height reserved at the bottom of the screen for the (future) taskbar, so a
 // maximized window stops just above it like in Windows XP.
 const TASKBAR_HEIGHT = 34;
@@ -296,6 +296,9 @@ export default function Index() {
       ERROR_HEIGHT,
       viewportHeight - TASKBAR_HEIGHT - WINDOW_MARGIN * 2,
     );
+
+    // play error sound when error window opens
+    void new Audio('/sounds/index-page/error.wav').play();
 
     setWindowModal((prev) => {
       const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
