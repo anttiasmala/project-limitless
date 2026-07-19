@@ -74,6 +74,11 @@ export default function StartMenu({
     if (closeTimer.current) clearTimeout(closeTimer.current);
   };
 
+  // Returns true if level `level` has an open submenu named `name`
+  // e.g. "All Programs" is open at level 0, "Games" at level 1, etc.
+  const isOpenParent = (level: number, name: string) =>
+    subMenus[level]?.name === name;
+
   return (
     <div
       ref={ref}
@@ -143,7 +148,9 @@ export default function StartMenu({
           <div>
             <div className="h-px w-full bg-[linear-gradient(to_right,transparent,#9aa8be_50%,transparent)]" />
             <div
-              className="relative m-2 flex items-center justify-center gap-1 pt-1 pr-2 pb-1 font-bold select-none hover:bg-[#2f71cd] hover:text-white"
+              className={`relative m-2 flex items-center justify-center gap-1 pt-1 pr-2 pb-1 font-bold select-none hover:bg-[#2f71cd] hover:text-white ${
+                isOpenParent(0, 'All Programs') ? 'bg-[#2f71cd] text-white' : ''
+              }`}
               onMouseEnter={(e) => openSubMenu(e, 'All Programs', 0, true)}
               onMouseLeave={scheduleCloseSubMenu}
             >
@@ -173,7 +180,11 @@ export default function StartMenu({
             const isSubMenu = icon.isSubMenu ?? false;
             return (
               <div
-                className="mt-2 w-full cursor-pointer pl-2 hover:bg-[#2f71cd] hover:text-white"
+                className={`mt-2 w-full cursor-pointer pl-2 hover:bg-[#2f71cd] hover:text-white ${
+                  isSubMenu && isOpenParent(0, icon.text)
+                    ? 'bg-[#2f71cd] text-white'
+                    : ''
+                }`}
                 key={icon.text + i}
                 onMouseEnter={
                   isSubMenu
@@ -239,46 +250,60 @@ export default function StartMenu({
           className="fixed z-50 flex min-w-40 flex-col border border-l-4 border-[#2a64dd] bg-white py-1 shadow-[2px_2px_8px_rgba(0,0,0,0.4)]"
         >
           {SUB_MENUS[menu.name]?.length ? (
-            SUB_MENUS[menu.name].map((entry) => (
-              <button
-                key={entry.text}
-                onMouseEnter={
-                  entry.isSubMenu
-                    ? (e) => openSubMenu(e, entry.text, level + 1, menu.growUp)
-                    : () => closeSubMenusFrom(level + 1)
-                }
-                onClick={() => {
-                  // Like the start menu itself, a window that has its own
-                  // window opens it on hover and ignores clicks.
-                  if (entry.isSubMenu) return;
-                  if (entry.href) {
-                    window.open(entry.href, '_blank');
-                    return;
+            SUB_MENUS[menu.name].map((entry) => {
+              const isActive =
+                (entry.isSubMenu ?? false) &&
+                isOpenParent(level + 1, entry.text);
+              return (
+                <button
+                  key={entry.text}
+                  onMouseEnter={
+                    entry.isSubMenu
+                      ? (e) =>
+                          openSubMenu(e, entry.text, level + 1, menu.growUp)
+                      : () => closeSubMenusFrom(level + 1)
                   }
-                  onOpenError(entry.text, notFoundMessage(entry.text));
-                  onClose();
-                }}
-                className="group flex w-full cursor-pointer items-center gap-2 px-3 py-0.5 text-left hover:bg-[#1b65cc] hover:text-white"
-              >
-                {entry.icon ? (
-                  <Image
-                    alt={`${entry.text} icon`}
-                    src={entry.icon}
-                    width={16}
-                    height={16}
-                  />
-                ) : (
-                  <span className="size-4 shrink-0" />
-                )}
-                <p className="flex items-center text-xs text-black select-none group-hover:text-white">
-                  {entry.text}
-                  {entry.isSubMenu && (
-                    <span className="ml-1.5 h-0 w-0 border-y-3 border-l-[3px] border-y-transparent border-l-current" />
+                  onClick={() => {
+                    // Like the start menu itself, a window that has its own
+                    // window opens it on hover and ignores clicks.
+                    if (entry.isSubMenu) return;
+                    if (entry.href) {
+                      window.open(entry.href, '_blank');
+                      return;
+                    }
+                    onOpenError(entry.text, notFoundMessage(entry.text));
+                    onClose();
+                  }}
+                  className={`group flex w-full cursor-pointer items-center gap-2 px-3 py-0.5 text-left hover:bg-[#1b65cc] hover:text-white ${
+                    isActive ? 'bg-[#1b65cc] text-white' : ''
+                  }`}
+                >
+                  {entry.icon ? (
+                    <Image
+                      alt={`${entry.text} icon`}
+                      src={entry.icon}
+                      width={16}
+                      height={16}
+                    />
+                  ) : (
+                    <span className="size-4 shrink-0" />
                   )}
-                  {entry.href && <span style={{ fontSize: '0.6rem' }}>↗</span>}
-                </p>
-              </button>
-            ))
+                  <p
+                    className={`flex items-center text-xs select-none group-hover:text-white ${
+                      isActive ? 'text-white' : 'text-black'
+                    }`}
+                  >
+                    {entry.text}
+                    {entry.isSubMenu && (
+                      <span className="ml-1.5 h-0 w-0 border-y-3 border-l-[3px] border-y-transparent border-l-current" />
+                    )}
+                    {entry.href && (
+                      <span style={{ fontSize: '0.6rem' }}>↗</span>
+                    )}
+                  </p>
+                </button>
+              );
+            })
           ) : (
             <button
               onClick={() => {
