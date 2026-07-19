@@ -2,75 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 
-const PATH = '/images/index-page/start-menu';
-
-// Shown when a menu item that was never implemented is clicked
-const notFoundMessage = (name: string) =>
-  `Application '${name}' does not exist.`;
-
-const ICONS: {
-  text: string;
-  icon: string;
-  isSubMenu?: boolean;
-  isSeparator?: boolean;
-}[] = [
-  {
-    text: 'My Documents',
-    icon: `${PATH}/my-documents.png`,
-  },
-  {
-    text: 'My Recent Documents',
-    icon: `${PATH}/my-recent-documents.png`,
-    isSubMenu: true,
-  },
-  {
-    text: 'My Pictures',
-    icon: `${PATH}/my-pictures.png`,
-  },
-  {
-    text: 'My Music',
-    icon: `${PATH}/my-music.png`,
-  },
-  {
-    text: 'My Computer',
-    icon: `${PATH}/my-computer.png`,
-  },
-  {
-    text: 'Separator',
-    icon: `${PATH}/my-computer.png`,
-    isSeparator: true,
-  },
-
-  {
-    text: 'Control Panel',
-    icon: `${PATH}/control-panel.png`,
-  },
-  {
-    text: 'Default Programs',
-    icon: `${PATH}/default-programs.png`,
-  },
-  {
-    text: 'Printers',
-    icon: `${PATH}/printers.png`,
-  },
-  {
-    text: 'Separator',
-    icon: `${PATH}/my-computer.png`,
-    isSeparator: true,
-  },
-  {
-    text: 'Help and Support',
-    icon: `${PATH}/help-and-support.png`,
-  },
-  {
-    text: 'Search',
-    icon: `/images/index-page/folder/magnifying-glass.png`,
-  },
-  {
-    text: 'Run...',
-    icon: `${PATH}/run.png`,
-  },
-];
+import { ICONS, notFoundMessage, PATH, SUB_MENUS } from './menuData';
 
 export default function StartMenu({
   onOpenError,
@@ -83,25 +15,59 @@ export default function StartMenu({
   ref?: React.Ref<HTMLDivElement>;
   onClose: () => void;
 }) {
-  // Position (viewport coords) of the window shown when a submenu item is
-  // hovered, or null when none is open. Fixed positioning lets the window
-  // escape the menu's `overflow-hidden` clipping.
-  const [subMenu, setSubMenu] = useState<{ top: number; left: number } | null>(
-    null,
-  );
+  // The chain of open windows, outermost first: index 0 is opened from the
+  // start menu itself, index 1 from an entry inside that window, and so on.
+  // Each holds a key of SUB_MENUS and where to draw it, in viewport coords.
+  // Fixed positioning lets the windows escape the menu's `overflow-hidden`.
+  const [subMenus, setSubMenus] = useState<
+    {
+      name: string;
+      left: number;
+      top?: number;
+      bottom?: number;
+      growUp: boolean;
+    }[]
+  >([]);
   // Delays closing so the pointer can travel from the item into the window
   // without it flickering shut in between.
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const openSubMenu = (e: React.MouseEvent<HTMLElement>) => {
+  // Opens `name` at depth `level`, discarding any windows already open at
+  // that depth or deeper. `growUp` determines if growth of the window should go upwards.
+  // "All Programs" does grow upwards in Windows XP.
+  // Anchoring via CSS `bottom` keeps that correct no matter how many entries
+  // the window has.
+  const openSubMenu = (
+    e: React.MouseEvent<HTMLElement>,
+    name: string,
+    level: number,
+    growUp: boolean,
+  ) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     const rect = e.currentTarget.getBoundingClientRect();
-    setSubMenu({ top: rect.top, left: rect.right });
+    setSubMenus((prev) => [
+      ...prev.slice(0, level),
+      {
+        name,
+        growUp,
+        left: rect.right,
+        ...(growUp
+          ? { bottom: window.innerHeight - rect.bottom }
+          : { top: rect.top }),
+      },
+    ]);
+  };
+
+  // Closes everything from `level` down, e.g. when the pointer moves onto a
+  // plain entry that has no window of its own.
+  const closeSubMenusFrom = (level: number) => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setSubMenus((prev) => prev.slice(0, level));
   };
 
   const scheduleCloseSubMenu = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    closeTimer.current = setTimeout(() => setSubMenu(null), 120);
+    closeTimer.current = setTimeout(() => setSubMenus([]), 120);
   };
 
   const keepSubMenuOpen = () => {
@@ -176,8 +142,14 @@ export default function StartMenu({
           </div>
           <div>
             <div className="h-px w-full bg-[linear-gradient(to_right,transparent,#9aa8be_50%,transparent)]" />
-            <div className="relative m-2 flex items-center justify-center gap-1 pt-1 pr-2 pb-1 font-bold select-none hover:bg-[#2f71cd] hover:text-white">
-              <p className="text-xs font-semibold">All Programs</p>
+            <div
+              className="relative m-2 flex items-center justify-center gap-1 pt-1 pr-2 pb-1 font-bold select-none hover:bg-[#2f71cd] hover:text-white"
+              onMouseEnter={(e) => openSubMenu(e, 'All Programs', 0, true)}
+              onMouseLeave={scheduleCloseSubMenu}
+            >
+              <p className="flex items-center text-xs font-semibold">
+                All Programs
+              </p>
               <Image
                 className="absolute right-4 sm:right-7"
                 alt="All programs icon"
@@ -203,7 +175,11 @@ export default function StartMenu({
               <div
                 className="mt-2 w-full cursor-pointer pl-2 hover:bg-[#2f71cd] hover:text-white"
                 key={icon.text + i}
-                onMouseEnter={isSubMenu ? openSubMenu : scheduleCloseSubMenu}
+                onMouseEnter={
+                  isSubMenu
+                    ? (e) => openSubMenu(e, icon.text, 0, false)
+                    : scheduleCloseSubMenu
+                }
                 onMouseLeave={isSubMenu ? scheduleCloseSubMenu : undefined}
               >
                 <Button
@@ -250,22 +226,74 @@ export default function StartMenu({
         </div>
       </div>
 
-      {subMenu && (
-        <button
-          onClick={() => {
-            onOpenError('Error', 'This submenu is empty.');
-            onClose();
-          }}
+      {subMenus.map((menu, level) => (
+        <div
+          key={level}
           onMouseEnter={keepSubMenuOpen}
           onMouseLeave={scheduleCloseSubMenu}
-          style={{ top: subMenu.top, left: subMenu.left }}
-          className="group fixed z-50 min-w-32 border border-l-4 border-[#2a64dd] bg-white px-3 py-1 shadow-[2px_2px_8px_rgba(0,0,0,0.4)] hover:bg-[#1b65cc] hover:text-white"
+          style={{
+            top: menu.top,
+            bottom: menu.bottom,
+            left: menu.left,
+          }}
+          className="fixed z-50 flex min-w-40 flex-col border border-l-4 border-[#2a64dd] bg-white py-1 shadow-[2px_2px_8px_rgba(0,0,0,0.4)]"
         >
-          <p className="text-xs text-[#6d6d6d] select-none group-hover:text-white">
-            (Empty)
-          </p>
-        </button>
-      )}
+          {SUB_MENUS[menu.name]?.length ? (
+            SUB_MENUS[menu.name].map((entry) => (
+              <button
+                key={entry.text}
+                onMouseEnter={
+                  entry.isSubMenu
+                    ? (e) => openSubMenu(e, entry.text, level + 1, menu.growUp)
+                    : () => closeSubMenusFrom(level + 1)
+                }
+                onClick={() => {
+                  // Like the start menu itself, a window that has its own
+                  // window opens it on hover and ignores clicks.
+                  if (entry.isSubMenu) return;
+                  if (entry.href) {
+                    window.open(entry.href, '_blank');
+                    return;
+                  }
+                  onOpenError(entry.text, notFoundMessage(entry.text));
+                  onClose();
+                }}
+                className="group flex w-full cursor-pointer items-center gap-2 px-3 py-0.5 text-left hover:bg-[#1b65cc] hover:text-white"
+              >
+                {entry.icon ? (
+                  <Image
+                    alt={`${entry.text} icon`}
+                    src={entry.icon}
+                    width={16}
+                    height={16}
+                  />
+                ) : (
+                  <span className="size-4 shrink-0" />
+                )}
+                <p className="flex items-center text-xs text-black select-none group-hover:text-white">
+                  {entry.text}
+                  {entry.isSubMenu && (
+                    <span className="ml-1.5 h-0 w-0 border-y-3 border-l-[3px] border-y-transparent border-l-current" />
+                  )}
+                  {entry.href && <span style={{ fontSize: '0.6rem' }}>↗</span>}
+                </p>
+              </button>
+            ))
+          ) : (
+            <button
+              onClick={() => {
+                onOpenError('Error', 'This submenu is empty.');
+                onClose();
+              }}
+              className="group w-full cursor-pointer px-3 py-0.5 text-left hover:bg-[#1b65cc] hover:text-white"
+            >
+              <p className="text-xs text-[#6d6d6d] select-none group-hover:text-white">
+                (Empty)
+              </p>
+            </button>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

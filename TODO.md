@@ -4,6 +4,9 @@
 
 # TODO:
 
+1. Start Menu. When for example "My Recent Document" window is open, have the "active" blue color on that.
+   Remove the color when window is closed
+
 # Ideas:
 
 ## Windows XP desktop
