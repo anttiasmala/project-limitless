@@ -4,9 +4,6 @@
 
 # TODO:
 
-1. Start Menu. When for example "My Recent Document" window is open, have the "active" blue color on that.
-   Remove the color when window is closed
-
 # Ideas:
 
 ## Windows XP desktop
@@ -14,6 +11,8 @@
 1. Add something to clock / notifications area
 2. Right-click menu on the desktop
 3. Perhaps more apps, like Notepad, Minesweeper, Solitaire (maybe in XP context?), My Computer, Recycle Bin?
+4. Start Menu. When for example "My Recent Document" window is open, have the "active" blue color on that.
+   Remove the color when window is closed
 
 ## Tic-tac-toe
 
