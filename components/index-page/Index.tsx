@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { MarqueeRect, useMarquee } from '../../hooks/index-page/useMarquee';
 import Button from '../shared/Button';
+import DateTimeWindow from './components/window/DateTimeWindow';
 import ErrorWindow from './components/window/ErrorWindow';
 import FolderWindow from './components/window/FolderWindow';
 import { FOLDERS } from './folders';
 import { Folder, WindowModal as WindowModalType } from './indexTypes';
-import { nanoid } from 'nanoid';
 import StartMenu from './components/start-menu/StartMenu';
 
 // Default window size, matching the previous fixed Tailwind classes
@@ -19,6 +19,9 @@ const DEFAULT_HEIGHT = 500;
 // Message boxes are fixed-size and much smaller than an File Explorer window.
 const ERROR_WIDTH = 340;
 const ERROR_HEIGHT = 135;
+// The Date and Time Properties dialog is fixed-size, like in the Control Panel.
+const DATE_TIME_WIDTH = 400;
+const DATE_TIME_HEIGHT = 400;
 // Height reserved at the bottom of the screen for the (future) taskbar, so a
 // maximized window stops just above it like in Windows XP.
 const TASKBAR_HEIGHT = 34;
@@ -29,6 +32,12 @@ const WINDOW_MARGIN = 16;
 export default function Index() {
   const [showStartMenu, setShowStartMenu] = useState(false);
   const [time, setTime] = useState('');
+  // The desktop clock is the real clock plus an offset, so "setting" the time
+  // in Date and Time Properties never touches the user's actual system clock.
+  const [clockOffsetMs, setClockOffsetMs] = useState(0);
+  const [timeZoneHours, setTimeZoneHours] = useState(
+    () => -new Date().getTimezoneOffset() / 60,
+  );
   const [windowModal, setWindowModal] = useState<WindowModalType[]>([]);
   // Desktop folders currently highlighted by a click or a marquee drag.
   const [selectedFolders, setSelectedFolders] = useState<Set<string>>(
@@ -105,7 +114,7 @@ export default function Index() {
 
   useEffect(() => {
     const updateTime = () => {
-      const dateTime = new Date();
+      const dateTime = new Date(Date.now() + clockOffsetMs);
       const minutes = dateTime.getMinutes().toString().padStart(2, '0');
       setTime(`${dateTime.getHours()}:${minutes}`);
     };
@@ -115,7 +124,7 @@ export default function Index() {
       clearTimeout(timeout);
       clearInterval(interval);
     };
-  }, []);
+  }, [clockOffsetMs]);
 
   // Bring a window to the front by giving it the highest z-index.
   const focusWindow = (uuid: string) => {
@@ -333,6 +342,57 @@ export default function Index() {
     });
   };
 
+  // Open Date and Time Properties, or focus it if the clock was clicked twice.
+  // Only one copy may exist, like the real Control Panel dialog.
+  const openDateTime = () => {
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = document.documentElement.clientHeight;
+    const width = Math.min(DATE_TIME_WIDTH, viewportWidth - WINDOW_MARGIN * 2);
+    const height = Math.min(
+      DATE_TIME_HEIGHT,
+      viewportHeight - TASKBAR_HEIGHT - WINDOW_MARGIN * 2,
+    );
+
+    setWindowModal((prev) => {
+      const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
+      const existing = prev.find((w) => w.kind === 'date-time');
+      if (existing) {
+        return prev.map((w) =>
+          w.uuid === existing.uuid
+            ? { ...w, zIndex: maxZ + 1, isFocused: true, isOpen: true }
+            : w.isFocused
+              ? { ...w, isFocused: false }
+              : w,
+        );
+      }
+      const left = Math.max(
+        WINDOW_MARGIN,
+        Math.round((viewportWidth - width) / 2),
+      );
+      const top = Math.max(
+        WINDOW_MARGIN,
+        Math.round((viewportHeight - TASKBAR_HEIGHT - height) / 2),
+      );
+      return [
+        ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
+        {
+          kind: 'date-time',
+          uuid: crypto.randomUUID(),
+          isOpen: true,
+          isFocused: true,
+          zIndex: maxZ + 1,
+          top,
+          left,
+          width,
+          height,
+          isMaximized: false,
+          isMinimized: false,
+          modalName: 'Date and Time Properties',
+        },
+      ];
+    });
+  };
+
   return (
     <main
       ref={desktopRef}
@@ -411,10 +471,24 @@ export default function Index() {
             onResize={resizeWindow}
             onClose={closeWindow}
           />
-        ) : (
+        ) : modal.kind === 'error' ? (
           <ErrorWindow
             key={modal.uuid}
             modal={modal}
+            onFocus={focusWindow}
+            onMove={moveWindow}
+            onClose={closeWindow}
+          />
+        ) : (
+          <DateTimeWindow
+            key={modal.uuid}
+            modal={modal}
+            offsetMs={clockOffsetMs}
+            timeZoneHours={timeZoneHours}
+            onApply={(offset, zone) => {
+              setClockOffsetMs(offset);
+              setTimeZoneHours(zone);
+            }}
             onFocus={focusWindow}
             onMove={moveWindow}
             onClose={closeWindow}
@@ -491,7 +565,13 @@ export default function Index() {
               height={16}
               width={16}
             />
-            <p className="ml-2 text-sm select-none">{time}</p>
+            <button
+              onClick={openDateTime}
+              title="Click to adjust date and time"
+              className="ml-2 cursor-pointer text-sm select-none"
+            >
+              {time}
+            </button>
           </div>
         </div>
       </footer>
