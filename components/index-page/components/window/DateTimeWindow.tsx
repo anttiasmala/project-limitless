@@ -173,6 +173,13 @@ export default function DateTimeWindow({
     setIsModified(false);
   };
 
+  // Reset the clock to the current time
+  const resetTime = () => {
+    onApply(0, zone);
+    setIsModified(false);
+    setDraft(new Date());
+  };
+
   const timeField = (
     value: number,
     max: number,
@@ -346,7 +353,7 @@ export default function DateTimeWindow({
                   type="checkbox"
                   id="checkbox"
                   defaultChecked
-                  className="h-3.5 w-3.5 shrink-0 cursor-pointer appearance-none border border-[#7f9db9] bg-white bg-[length:11px_11px] bg-center bg-no-repeat checked:bg-[url(/images/index-page/clock/checkbox.svg)]"
+                  className="h-3.5 w-3.5 shrink-0 cursor-pointer appearance-none border border-[#7f9db9] bg-white bg-size-[11px_11px] bg-center bg-no-repeat checked:bg-[url(/images/index-page/clock/checkbox.svg)]"
                 />
                 <label htmlFor="checkbox" className="ml-1 text-xs select-none">
                   Automatically adjust clock for daylight saving changes
@@ -366,6 +373,15 @@ export default function DateTimeWindow({
 
         {/* OK applies and closes, Apply applies and stays, Cancel just closes */}
         <div className="flex shrink-0 justify-end gap-1.5 pt-2.5">
+          <button
+            type="button"
+            className={`${XP_BUTTON} mr-auto`}
+            disabled={offsetMs === 0 && !isModified}
+            onClick={resetTime}
+            title="Set the clock back to the real current time"
+          >
+            Reset time
+          </button>
           <button
             type="button"
             className={XP_BUTTON}
