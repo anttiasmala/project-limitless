@@ -46,4 +46,11 @@ export type ErrorWindowModal = BaseWindowModal & {
   message: string;
 };
 
-export type WindowModal = FolderWindowModal | ErrorWindowModal;
+// The Control Panel's "Date and Time Properties" dialog, opened by clicking the
+// taskbar clock. Fixed size and close-only, like a message box.
+export type DateTimeWindowModal = BaseWindowModal & {
+  kind: 'date-time';
+};
+
+export type WindowModal =
+  FolderWindowModal | ErrorWindowModal | DateTimeWindowModal;
