@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// A single row of the menu. A row is either a separator, a plain command, or a
+// A single row of the menu. A row is either a separator, a regular value, or a
 // parent that reveals a flyout submenu on hover. `disabled` greys the row out
-// and makes it unclickable, like XP's Paste when the clipboard is empty.
+// and makes it unclickable, like e.g. XP's Paste when the clipboard is empty.
 export type ContextMenuItem = {
   label?: string;
   bold?: boolean;
@@ -15,7 +15,7 @@ export type ContextMenuItem = {
 };
 
 // Keep the menu this far from the viewport edge when clamping, so it never
-// opens flush against the side of the screen.
+// opens window against the side of the screen.
 const EDGE_MARGIN = 4;
 
 export default function DesktopContextMenu({
@@ -31,8 +31,6 @@ export default function DesktopContextMenu({
   onClose: () => void;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
-  // The flyout submenu is a separate DOM subtree (a sibling of rootRef), so it
-  // needs its own ref to be recognised as "inside" the menu.
   const subRef = useRef<HTMLDivElement>(null);
   // Where the menu is actually drawn: starts at the cursor, then gets nudged
   // back on-screen once we can measure it.
@@ -65,8 +63,7 @@ export default function DesktopContextMenu({
     [x, y],
   );
 
-  // Close on outside click, Escape, or anything that would move the menu out
-  // from under the cursor (scroll / resize), matching native context menus.
+  // Close on outside click, Escape-key press or scroll/resize
   useEffect(() => {
     const onPointerDown = (e: MouseEvent) => {
       const target = e.target as Node;
@@ -124,7 +121,7 @@ export default function DesktopContextMenu({
           items={items[openSub.index].submenu!}
           style={{ left: openSub.left, top: openSub.top }}
           openIndex={null}
-          // A grandchild flyout isn't supported; hovering rows in here just
+          // A "grandchild" flyout isn't supported. Hovering rows in here just
           // keeps the parent open.
           onItemEnter={() => {}}
           onItemClick={runItem}
@@ -186,7 +183,7 @@ function Menu({
           >
             <span className={item.bold ? 'font-bold' : ''}>{item.label}</span>
             {item.submenu && (
-              // The ► that marks a row with a flyout.
+              // The ► that marks a row with a sub flyout menu.
               <span className="h-0 w-0 border-y-4 border-l-4 border-y-transparent border-l-current" />
             )}
           </button>

@@ -411,7 +411,7 @@ export default function Index() {
   };
 
   // Placeholder action for the many menu entries that aren't wired to real
-  // behavior yet: pops an XP message box, like the Start Menu's stubs.
+  // behavior yet: pops an XP message box, like the Start Menu's placeholders.
   const menuError = (name: string) => () =>
     openError(name, `'${name}' is not available.`);
 
