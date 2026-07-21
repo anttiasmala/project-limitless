@@ -6,8 +6,7 @@
 
 ## Windows XP desktop
 
-1. Right-click menu on the desktop
-2. Perhaps more apps, like Notepad, Minesweeper, Solitaire (maybe in XP context?), My Computer, Recycle Bin?
+1. Perhaps more apps, like Notepad, Minesweeper, Solitaire (maybe in XP context?), My Computer, Recycle Bin?
 
 ## Tic-tac-toe
 
