@@ -165,8 +165,8 @@ export default function DateTimeWindow({
           )}
         </div>
 
-        {/* OK applies and closes, Apply applies and stays, Cancel just closes */}
-        <div className="flex shrink-0 justify-end gap-1.5 pt-2.5">
+        {/* OK applies and closes, Apply applies and stays, Cancel just closes.*/}
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 pt-2.5">
           <button
             type="button"
             className={`${XP_BUTTON} mr-auto`}
@@ -176,31 +176,33 @@ export default function DateTimeWindow({
           >
             Reset time
           </button>
-          <button
-            type="button"
-            className={XP_BUTTON}
-            onClick={() => {
-              applyChanges();
-              onClose(modal.uuid);
-            }}
-          >
-            OK
-          </button>
-          <button
-            type="button"
-            className={XP_BUTTON}
-            onClick={() => onClose(modal.uuid)}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className={XP_BUTTON}
-            disabled={!isModified && zone === timeZoneHours}
-            onClick={applyChanges}
-          >
-            Apply
-          </button>
+          <div className="flex gap-1.5">
+            <button
+              type="button"
+              className={XP_BUTTON}
+              onClick={() => {
+                applyChanges();
+                onClose(modal.uuid);
+              }}
+            >
+              OK
+            </button>
+            <button
+              type="button"
+              className={XP_BUTTON}
+              onClick={() => onClose(modal.uuid)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className={XP_BUTTON}
+              disabled={!isModified && zone === timeZoneHours}
+              onClick={applyChanges}
+            >
+              Apply
+            </button>
+          </div>
         </div>
       </div>
     </WindowFrame>
