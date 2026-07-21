@@ -11,6 +11,13 @@ import FolderWindow from './components/window/FolderWindow';
 import { FOLDERS } from './folders';
 import { Folder, WindowModal as WindowModalType } from './indexTypes';
 import StartMenu from './components/start-menu/StartMenu';
+import DesktopContextMenu, {
+  ContextMenuItem,
+} from './components/context-menu/DesktopContextMenu';
+import {
+  buildDesktopMenu,
+  buildFolderMenu,
+} from './components/context-menu/menuItems';
 
 // Default window size, matching the previous fixed Tailwind classes
 // (w-165 = 660px, h-125 = 500px).
@@ -30,6 +37,15 @@ const TASKBAR_HEIGHT = 34;
 const WINDOW_MARGIN = 16;
 
 export default function Index() {
+  const [desktopMenuItems, setDesktopMenuItems] = useState<ContextMenuItem[]>(
+    [],
+  );
+  // Desktop right-click menu, positioned at the cursor (viewport coords) while
+  // open; null when closed.
+  const [rightClickMenu, setRightClickMenu] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [showStartMenu, setShowStartMenu] = useState(false);
   const [time, setTime] = useState('');
   // The desktop clock is the real clock plus an offset, so "setting" the time
@@ -66,6 +82,7 @@ export default function Index() {
         ? prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w))
         : prev,
     );
+    setRightClickMenu(null);
   };
 
   // Highlight every folder whose icon intersects the current marquee rectangle.
@@ -393,12 +410,33 @@ export default function Index() {
     });
   };
 
+  // Placeholder action for the many menu entries that aren't wired to real
+  // behavior yet: pops an XP message box, like the Start Menu's stubs.
+  const menuError = (name: string) => () =>
+    openError(name, `'${name}' is not available.`);
+
   return (
     <main
       ref={desktopRef}
       className="relative flex min-h-screen flex-col items-center justify-center bg-slate-100 bg-[url(/images/index-page/background.jpeg)] bg-cover px-4"
       onMouseDown={onMarqueeDown}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        setRightClickMenu({ x: e.clientX, y: e.clientY });
+        if (e.target === e.currentTarget) {
+          setDesktopMenuItems(buildDesktopMenu({ menuError, clearDesktop }));
+        }
+      }}
     >
+      {rightClickMenu && (
+        <DesktopContextMenu
+          x={rightClickMenu.x}
+          y={rightClickMenu.y}
+          items={desktopMenuItems}
+          onClose={() => setRightClickMenu(null)}
+        />
+      )}
+
       {/* Rubber-band selection rectangle, drawn while dragging on the desktop */}
       {marqueeRect && (
         <div
@@ -439,6 +477,13 @@ export default function Index() {
                 setSelectedFolders(new Set([folder.name]));
               }}
               onClick={(e) => handleFolderActivate(folder, e.timeStamp)}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                setRightClickMenu({ x: e.clientX, y: e.clientY });
+                setDesktopMenuItems(
+                  buildFolderMenu(folder, { menuError, openFolder }),
+                );
+              }}
             >
               <Image
                 alt="Folder icon"
