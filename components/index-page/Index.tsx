@@ -422,10 +422,10 @@ export default function Index() {
       onMouseDown={onMarqueeDown}
       onContextMenu={(e) => {
         e.preventDefault();
+        // Folders and the taskbar stop propagation and handle their own
+        // right-click, so anything reaching here is the bare desktop.
+        setDesktopMenuItems(buildDesktopMenu({ menuError, clearDesktop }));
         setRightClickMenu({ x: e.clientX, y: e.clientY });
-        if (e.target === e.currentTarget) {
-          setDesktopMenuItems(buildDesktopMenu({ menuError, clearDesktop }));
-        }
       }}
     >
       {rightClickMenu && (
@@ -479,10 +479,13 @@ export default function Index() {
               onClick={(e) => handleFolderActivate(folder, e.timeStamp)}
               onContextMenu={(e) => {
                 e.preventDefault();
-                setRightClickMenu({ x: e.clientX, y: e.clientY });
+                // Keep this from bubbling to <main>, which would replace the
+                // folder menu with the desktop menu.
+                e.stopPropagation();
                 setDesktopMenuItems(
                   buildFolderMenu(folder, { menuError, openFolder }),
                 );
+                setRightClickMenu({ x: e.clientX, y: e.clientY });
               }}
             >
               <Image
@@ -541,7 +544,16 @@ export default function Index() {
         ),
       )}
 
-      <footer className="fixed bottom-0 left-0 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]">
+      <footer
+        className="fixed bottom-0 left-0 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]"
+        onContextMenu={(e) => {
+          // The taskbar has no menu of its own yet. "Destroy" the right-click so
+          // it doesn't fall through to the desktop menu.
+          e.preventDefault();
+          e.stopPropagation();
+          setRightClickMenu(null);
+        }}
+      >
         <div className="flex flex-row">
           <button
             ref={startButtonRef}
