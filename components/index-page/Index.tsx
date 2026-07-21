@@ -11,6 +11,13 @@ import FolderWindow from './components/window/FolderWindow';
 import { FOLDERS } from './folders';
 import { Folder, WindowModal as WindowModalType } from './indexTypes';
 import StartMenu from './components/start-menu/StartMenu';
+import DesktopContextMenu, {
+  ContextMenuItem,
+} from './components/context-menu/DesktopContextMenu';
+import {
+  buildDesktopMenu,
+  buildFolderMenu,
+} from './components/context-menu/menuItems';
 
 // Default window size, matching the previous fixed Tailwind classes
 // (w-165 = 660px, h-125 = 500px).
@@ -30,6 +37,15 @@ const TASKBAR_HEIGHT = 34;
 const WINDOW_MARGIN = 16;
 
 export default function Index() {
+  const [desktopMenuItems, setDesktopMenuItems] = useState<ContextMenuItem[]>(
+    [],
+  );
+  // Desktop right-click menu, positioned at the cursor (viewport coords) while
+  // open; null when closed.
+  const [rightClickMenu, setRightClickMenu] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [showStartMenu, setShowStartMenu] = useState(false);
   const [time, setTime] = useState('');
   // The desktop clock is the real clock plus an offset, so "setting" the time
@@ -66,6 +82,7 @@ export default function Index() {
         ? prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w))
         : prev,
     );
+    setRightClickMenu(null);
   };
 
   // Highlight every folder whose icon intersects the current marquee rectangle.
@@ -393,12 +410,33 @@ export default function Index() {
     });
   };
 
+  // Placeholder action for the many menu entries that aren't wired to real
+  // behavior yet: pops an XP message box, like the Start Menu's stubs.
+  const menuError = (name: string) => () =>
+    openError(name, `'${name}' is not available.`);
+
   return (
     <main
       ref={desktopRef}
       className="relative flex min-h-screen flex-col items-center justify-center bg-slate-100 bg-[url(/images/index-page/background.jpeg)] bg-cover px-4"
       onMouseDown={onMarqueeDown}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        // Folders and the taskbar stop propagation and handle their own
+        // right-click, so anything reaching here is the bare desktop.
+        setDesktopMenuItems(buildDesktopMenu({ menuError, clearDesktop }));
+        setRightClickMenu({ x: e.clientX, y: e.clientY });
+      }}
     >
+      {rightClickMenu && (
+        <DesktopContextMenu
+          x={rightClickMenu.x}
+          y={rightClickMenu.y}
+          items={desktopMenuItems}
+          onClose={() => setRightClickMenu(null)}
+        />
+      )}
+
       {/* Rubber-band selection rectangle, drawn while dragging on the desktop */}
       {marqueeRect && (
         <div
@@ -439,6 +477,16 @@ export default function Index() {
                 setSelectedFolders(new Set([folder.name]));
               }}
               onClick={(e) => handleFolderActivate(folder, e.timeStamp)}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                // Keep this from bubbling to <main>, which would replace the
+                // folder menu with the desktop menu.
+                e.stopPropagation();
+                setDesktopMenuItems(
+                  buildFolderMenu(folder, { menuError, openFolder }),
+                );
+                setRightClickMenu({ x: e.clientX, y: e.clientY });
+              }}
             >
               <Image
                 alt="Folder icon"
@@ -496,7 +544,16 @@ export default function Index() {
         ),
       )}
 
-      <footer className="fixed bottom-0 left-0 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]">
+      <footer
+        className="fixed bottom-0 left-0 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]"
+        onContextMenu={(e) => {
+          // The taskbar has no menu of its own yet. "Destroy" the right-click so
+          // it doesn't fall through to the desktop menu.
+          e.preventDefault();
+          e.stopPropagation();
+          setRightClickMenu(null);
+        }}
+      >
         <div className="flex flex-row">
           <button
             ref={startButtonRef}
