@@ -1,6 +1,7 @@
 import { useId } from 'react';
 import { ErrorWindowModal } from '../../indexTypes';
 import WindowFrame from './WindowFrame';
+import { XP_BUTTON } from './xpStyles';
 
 type Props = {
   modal: ErrorWindowModal;
@@ -75,7 +76,7 @@ export default function ErrorWindow({
             type="button"
             autoFocus
             onClick={() => onClose(modal.uuid)}
-            className="min-w-18.75 cursor-pointer rounded-[3px] border border-[#003c74] bg-[linear-gradient(to_bottom,#fdfdfd_0%,#f0f0ea_45%,#e3e3db_50%,#eeeef2_100%)] px-4 py-0.5 text-xs shadow-[inset_0_0_0_1px_#fff] hover:border-[#0078d7] focus:outline-1 focus:outline-offset-[-3px] focus:outline-dotted active:bg-[linear-gradient(to_bottom,#e3e3db_0%,#eeeef2_100%)]"
+            className={XP_BUTTON}
           >
             OK
           </button>
