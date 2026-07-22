@@ -87,3 +87,29 @@ export function buildFolderMenu(
     { label: 'Properties', onSelect: menuError('Properties') },
   ];
 }
+
+export function buildNotepadMenu(
+  name: string,
+  { menuError, openNotepad }: { menuError: MenuError; openNotepad: () => void },
+) {
+  return [
+    {
+      label: `Open ${name}`,
+      bold: true,
+      onSelect: () => openNotepad(),
+    },
+    { label: 'Explore', onSelect: menuError('Explore') },
+    { separator: true },
+    { label: 'Cut', onSelect: menuError('Cut') },
+    { label: 'Copy', onSelect: menuError('Copy') },
+    { separator: true },
+    {
+      label: 'Create Shortcut',
+      onSelect: menuError('Create Shortcut'),
+    },
+    { label: 'Delete', onSelect: menuError('Delete') },
+    { label: 'Rename', onSelect: menuError('Rename') },
+    { separator: true },
+    { label: 'Properties', onSelect: menuError('Properties') },
+  ];
+}
