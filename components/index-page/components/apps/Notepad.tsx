@@ -16,8 +16,8 @@ type Props = {
   onMaximize: (uuid: string) => void;
 };
 
-// The wired-up menu commands. An entry with one of these is clickable; an entry
-// without is a greyed-out placeholder (shown, but inert) like real XP menus
+// The wired-up menu commands. An entry with one of these is clickable. An entry
+// without is a greyed-out placeholder (shown, but not clickable) like real XP menus
 // whose commands aren't implemented here.
 type Action =
   | 'new'
@@ -98,7 +98,7 @@ export default function Notepad({
   };
 
   // Record a pre-edit snapshot so it can be brought back, discarding any redo
-  // history (a fresh edit forks the timeline).
+  // history (a fresh edit overwrites the timeline).
   const pushUndo = (snapshot: string) => {
     setUndoStack((s) => [...s, snapshot]);
     setRedoStack((r) => (r.length ? [] : r));
@@ -150,7 +150,7 @@ export default function Notepad({
     try {
       await navigator.clipboard.writeText(text.slice(start, end));
     } catch {
-      // Clipboard write was blocked or denied; nothing to do.
+      // Clipboard write was blocked or denied - nothing to do.
     }
   };
 
