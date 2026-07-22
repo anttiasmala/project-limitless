@@ -61,7 +61,7 @@ export default function Index() {
   );
   const [windowModal, setWindowModal] = useState<WindowModalType[]>([]);
   // Desktop folders currently highlighted by a click or a marquee drag.
-  const [selectedFolders, setSelectedFolders] = useState<Set<string>>(
+  const [selectedApps, setSelectedApps] = useState<Set<string>>(
     () => new Set(),
   );
 
@@ -81,7 +81,7 @@ export default function Index() {
 
   // Clear focus + selection when a marquee starts (mouse-down on empty desktop).
   const clearDesktop = () => {
-    setSelectedFolders((prev) => (prev.size ? new Set() : prev));
+    setSelectedApps((prev) => (prev.size ? new Set() : prev));
     setWindowModal((prev) =>
       prev.some((w) => w.isFocused)
         ? prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w))
@@ -107,7 +107,7 @@ export default function Index() {
         top + r.height > marquee.top;
       if (intersects) next.add(name);
     });
-    setSelectedFolders(next);
+    setSelectedApps(next);
   };
 
   const { rect: marqueeRect, onMouseDown: onMarqueeDown } = useMarquee(
@@ -518,7 +518,7 @@ export default function Index() {
 
       <div className="absolute top-20 left-10 flex flex-col gap-3">
         {FOLDERS.map((folder) => {
-          const isSelected = selectedFolders.has(folder.name);
+          const isSelected = selectedApps.has(folder.name);
           return (
             <Button
               key={folder.name}
@@ -532,7 +532,7 @@ export default function Index() {
                 // Select just this folder; stop the press from starting a
                 // marquee / clearing the selection on the desktop.
                 e.stopPropagation();
-                setSelectedFolders(new Set([folder.name]));
+                setSelectedApps(new Set([folder.name]));
               }}
               onClick={(e) => handleFolderActivate(folder, e.timeStamp)}
               onContextMenu={(e) => {
@@ -565,8 +565,8 @@ export default function Index() {
         })}
         <Button
           ref={(el) => {
-            // Register alongside the folders so the marquee can hit-test and
-            // highlight this icon with the same generic selection logic.
+            // Register alongside the folders so the marquee can highlight
+            // this icon with the same generic selection logic.
             if (el) folderRefs.current.set('Notepad', el);
             else folderRefs.current.delete('Notepad');
           }}
@@ -574,7 +574,7 @@ export default function Index() {
           className="flex cursor-default flex-col items-center"
           onMouseDown={(e) => {
             e.stopPropagation();
-            setSelectedFolders(new Set(['Notepad']));
+            setSelectedApps(new Set(['Notepad']));
           }}
           onContextMenu={(e) => {
             e.preventDefault();
@@ -606,11 +606,11 @@ export default function Index() {
             src={'/images/index-page/apps/notepad.png'}
             width={32}
             height={32}
-            className={selectedFolders.has('Notepad') ? 'opacity-50' : ''}
+            className={selectedApps.has('Notepad') ? 'opacity-50' : ''}
           />
           <span
             className={`text-sm ${
-              selectedFolders.has('Notepad') ? 'bg-[#0b61ff] text-white' : ''
+              selectedApps.has('Notepad') ? 'bg-[#0b61ff] text-white' : ''
             }`}
           >
             Notepad
