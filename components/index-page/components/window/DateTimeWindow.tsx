@@ -165,7 +165,7 @@ export default function DateTimeWindow({
           )}
         </div>
 
-        {/* OK applies and closes, Apply applies and stays, Cancel just closes.*/}
+        {/* OK applies and closes, Apply applies and stays, Cancel just closes */}
         <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 pt-2.5">
           <button
             type="button"

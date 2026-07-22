@@ -52,5 +52,16 @@ export type DateTimeWindowModal = BaseWindowModal & {
   kind: 'date-time';
 };
 
+// Windows XP Notepad: a resizable window whose whole body is a plain-text
+// editor. The typed text lives inside the window component's own state (it
+// survives minimizing because the component stays mounted), so nothing extra
+// is needed on the modal here.
+export type NotepadWindowModal = BaseWindowModal & {
+  kind: 'notepad';
+};
+
 export type WindowModal =
-  FolderWindowModal | ErrorWindowModal | DateTimeWindowModal;
+  | FolderWindowModal
+  | ErrorWindowModal
+  | DateTimeWindowModal
+  | NotepadWindowModal;

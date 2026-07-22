@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { MarqueeRect, useMarquee } from '../../hooks/index-page/useMarquee';
 import Button from '../shared/Button';
+import Notepad from './components/apps/Notepad';
 import DateTimeWindow from './components/window/DateTimeWindow';
 import ErrorWindow from './components/window/ErrorWindow';
 import FolderWindow from './components/window/FolderWindow';
@@ -17,6 +18,7 @@ import DesktopContextMenu, {
 import {
   buildDesktopMenu,
   buildFolderMenu,
+  buildNotepadMenu,
 } from './components/context-menu/menuItems';
 
 // Default window size, matching the previous fixed Tailwind classes
@@ -29,6 +31,9 @@ const ERROR_HEIGHT = 135;
 // The Date and Time Properties dialog is fixed-size, like in the Control Panel.
 const DATE_TIME_WIDTH = 400;
 const DATE_TIME_HEIGHT = 400;
+// Default size a Notepad window opens at (it is freely resizable afterwards).
+const NOTEPAD_WIDTH = 500;
+const NOTEPAD_HEIGHT = 400;
 // Height reserved at the bottom of the screen for the (future) taskbar, so a
 // maximized window stops just above it like in Windows XP.
 const TASKBAR_HEIGHT = 34;
@@ -196,8 +201,9 @@ export default function Index() {
     setWindowModal((prev) =>
       prev.map((w) => {
         if (w.uuid !== uuid) return w;
-        // Message boxes have no maximize control, so nothing can ask for this.
-        if (w.kind !== 'folder') return w;
+        // Only resizable windows have a maximize control; message boxes and the
+        // Date/Time dialog are fixed-size, so ignore them
+        if (w.kind !== 'folder' && w.kind !== 'notepad') return w;
         if (w.isMaximized && w.restoreRect) {
           return {
             ...w,
@@ -410,6 +416,58 @@ export default function Index() {
     });
   };
 
+  // Open Notepad, or focus it if it's already open. Only one copy exists, so
+  // the desktop icon acts as a toggle-to-front rather than adding duplicates.
+  const openNotepad = () => {
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = document.documentElement.clientHeight;
+    const width = Math.min(NOTEPAD_WIDTH, viewportWidth - WINDOW_MARGIN * 2);
+    const height = Math.min(
+      NOTEPAD_HEIGHT,
+      viewportHeight - TASKBAR_HEIGHT - WINDOW_MARGIN * 2,
+    );
+
+    setWindowModal((prev) => {
+      const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
+      const existing = prev.find((w) => w.kind === 'notepad');
+      if (existing) {
+        return prev.map((w) =>
+          w.uuid === existing.uuid
+            ? { ...w, zIndex: maxZ + 1, isFocused: true, isOpen: true }
+            : w.isFocused
+              ? { ...w, isFocused: false }
+              : w,
+        );
+      }
+      const left = Math.max(
+        WINDOW_MARGIN,
+        Math.round((viewportWidth - width) / 2),
+      );
+      const top = Math.max(
+        WINDOW_MARGIN,
+        Math.round((viewportHeight - TASKBAR_HEIGHT - height) / 2),
+      );
+      return [
+        ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
+        {
+          kind: 'notepad',
+          uuid: crypto.randomUUID(),
+          isOpen: true,
+          isFocused: true,
+          zIndex: maxZ + 1,
+          top,
+          left,
+          width,
+          height,
+          isMaximized: false,
+          isMinimized: false,
+          modalName: 'Untitled - Notepad',
+          modalIcon: '/images/index-page/apps/notepad.png',
+        },
+      ];
+    });
+  };
+
   // Placeholder action for the many menu entries that aren't wired to real
   // behavior yet: pops an XP message box, like the Start Menu's placeholders.
   const menuError = (name: string) => () =>
@@ -505,6 +563,59 @@ export default function Index() {
             </Button>
           );
         })}
+        <Button
+          ref={(el) => {
+            // Register alongside the folders so the marquee can hit-test and
+            // highlight this icon with the same generic selection logic.
+            if (el) folderRefs.current.set('Notepad', el);
+            else folderRefs.current.delete('Notepad');
+          }}
+          variant="unstyled"
+          className="flex cursor-default flex-col items-center"
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            setSelectedFolders(new Set(['Notepad']));
+          }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setDesktopMenuItems(
+              buildNotepadMenu('Notepad', { menuError, openNotepad }),
+            );
+            setRightClickMenu({ x: e.clientX, y: e.clientY });
+          }}
+          onClick={(e) => {
+            // Same manual double-tap as folders, so one gesture opens Notepad
+            // on both desktop (double-click) and touch (double-tap).
+            const now = e.timeStamp;
+            const last = lastTapRef.current;
+            if (
+              last &&
+              last.name === 'Notepad' &&
+              now - last.time < DOUBLE_TAP_MS
+            ) {
+              lastTapRef.current = null;
+              openNotepad();
+            } else {
+              lastTapRef.current = { name: 'Notepad', time: now };
+            }
+          }}
+        >
+          <Image
+            alt="Notepad icon"
+            src={'/images/index-page/apps/notepad.png'}
+            width={32}
+            height={32}
+            className={selectedFolders.has('Notepad') ? 'opacity-50' : ''}
+          />
+          <span
+            className={`text-sm ${
+              selectedFolders.has('Notepad') ? 'bg-[#0b61ff] text-white' : ''
+            }`}
+          >
+            Notepad
+          </span>
+        </Button>
       </div>
 
       {windowModal.map((modal) =>
@@ -525,6 +636,17 @@ export default function Index() {
             modal={modal}
             onFocus={focusWindow}
             onMove={moveWindow}
+            onClose={closeWindow}
+          />
+        ) : modal.kind === 'notepad' ? (
+          <Notepad
+            key={modal.uuid}
+            modal={modal}
+            onFocus={focusWindow}
+            onMove={moveWindow}
+            onMinimize={toggleMinimize}
+            onMaximize={toggleMaximize}
+            onResize={resizeWindow}
             onClose={closeWindow}
           />
         ) : (
