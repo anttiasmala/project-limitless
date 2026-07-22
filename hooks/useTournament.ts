@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import { AI, Difficulty, HUMAN, Player } from '@/lib/gameLogic';
+import { AI, Difficulty, HUMAN, Player } from '@/lib/tictactoe/gameLogic';
 import {
   Opponent,
   TournamentState,
@@ -8,7 +8,7 @@ import {
   makeTournament,
   simulateMatch,
   wasDefeatedAtFinal,
-} from '@/lib/tournament';
+} from '@/lib/tictactoe/tournament';
 
 export type TournamentOutcome = 'champion' | 'eliminated' | null;
 

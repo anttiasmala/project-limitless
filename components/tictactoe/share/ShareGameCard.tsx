@@ -4,8 +4,13 @@
 // PNG. Intentionally NOT interactive (no Square buttons) so html-to-image gets
 // a clean snapshot that reads well posted on its own.
 
-import { AI, Board as BoardType, HUMAN, Player } from '@/lib/gameLogic';
-import { BoardSize } from '@/lib/shareGame';
+import {
+  AI,
+  Board as BoardType,
+  HUMAN,
+  Player,
+} from '@/lib/tictactoe/gameLogic';
+import { BoardSize } from '@/lib/tictactoe/shareGame';
 
 type PlayerInfo = { name: string; icon: string };
 

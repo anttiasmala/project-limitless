@@ -1,5 +1,5 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { AI, HUMAN, Player } from '@/lib/gameLogic';
+import { AI, HUMAN, Player } from '@/lib/tictactoe/gameLogic';
 import Button from '@/components/shared/Button';
 
 type PlayerDisplay = { name: string; icon: string };

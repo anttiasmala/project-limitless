@@ -6,7 +6,7 @@ import {
   calculateWinner5,
   calculateWinner10,
   Player,
-} from '@/lib/gameLogic';
+} from '@/lib/tictactoe/gameLogic';
 import WinningLine from './WinningLine';
 import { MoveEntry } from '@/utils/tictactoe/types';
 import useReplay from '@/hooks/useReplay';

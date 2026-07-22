@@ -2,7 +2,7 @@
 
 'use client';
 
-import { AI, HUMAN, INITIAL_SCORE } from '@/lib/gameLogic';
+import { AI, HUMAN, INITIAL_SCORE } from '@/lib/tictactoe/gameLogic';
 import { useEffect, useState } from 'react';
 import Board from './Board';
 import ResetScore from './ResetScore';

@@ -2,7 +2,7 @@
 'use client';
 
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { Player } from '@/lib/gameLogic';
+import { Player } from '@/lib/tictactoe/gameLogic';
 import { GameMode } from '@/utils/tictactoe/types';
 import GameOverModal from '@/components/tictactoe/GameOverModal';
 

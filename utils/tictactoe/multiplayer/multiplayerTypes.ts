@@ -1,6 +1,6 @@
 // utils/multiplayer/multiplayerTypes.ts
 
-import type { Board as BoardType, Player } from '@/lib/gameLogic';
+import type { Board as BoardType, Player } from '@/lib/tictactoe/gameLogic';
 import type { MoveEntry } from '../types';
 
 // Messages carried by the `game-password` channel. Shared between the server

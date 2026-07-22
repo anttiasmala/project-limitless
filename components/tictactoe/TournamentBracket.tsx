@@ -1,6 +1,6 @@
 'use client';
 
-import { TournamentState } from '@/lib/tournament';
+import { TournamentState } from '@/lib/tictactoe/tournament';
 
 type Props = {
   tournament: TournamentState;

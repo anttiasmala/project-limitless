@@ -20,7 +20,7 @@ import {
   AI,
   HUMAN,
   INITIAL_SCORE,
-} from '@/lib/gameLogic';
+} from '@/lib/tictactoe/gameLogic';
 import WinningLine from './WinningLine';
 import { useGridMeasure } from '@/hooks/useGridMeasure';
 import {
@@ -57,7 +57,7 @@ import Button from '@/components/shared/Button';
 import SvgSettings from '@/icons/settings';
 import ShareExportModal from './share/ShareExportModal';
 import ShareGameCard from './share/ShareGameCard';
-import { encodeGame, decodeGame } from '@/lib/shareGame';
+import { encodeGame, decodeGame } from '@/lib/tictactoe/shareGame';
 import { toBlob, toPng } from 'html-to-image';
 
 type BoardProps = {

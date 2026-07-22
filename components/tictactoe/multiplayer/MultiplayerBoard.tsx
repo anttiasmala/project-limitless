@@ -9,7 +9,7 @@ import {
   calculateWinner5,
   calculateWinner10,
   Board as BoardType,
-} from '@/lib/gameLogic';
+} from '@/lib/tictactoe/gameLogic';
 import { usePartyRoom } from '@/hooks/multiplayer/usePartyRoom';
 import Square from '../Square';
 import WinningLine from '../WinningLine';

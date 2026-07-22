@@ -4,7 +4,7 @@
 // game can be shared as a link with NO backend — the whole replay travels in
 // the URL. The recipient's home page decodes it and opens the ReplayModal.
 
-import { AI, HUMAN, Player } from '@/lib/gameLogic';
+import { AI, HUMAN, Player } from '@/lib/tictactoe/gameLogic';
 import { GameMode, MoveEntry } from '@/utils/tictactoe/types';
 
 export type BoardSize = 3 | 5 | 10;

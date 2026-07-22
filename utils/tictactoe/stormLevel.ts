@@ -1,4 +1,4 @@
-import { Board as BoardType, Player, AI } from '@/lib/gameLogic';
+import { Board as BoardType, Player, AI } from '@/lib/tictactoe/gameLogic';
 
 type StormInput = {
   board: BoardType;

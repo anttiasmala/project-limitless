@@ -1,6 +1,6 @@
 // components/settings/GamePanel.tsx
 
-import { INITIAL_SCORE, Player } from '@/lib/gameLogic';
+import { INITIAL_SCORE, Player } from '@/lib/tictactoe/gameLogic';
 import Input from '@/components/shared/Input';
 import { useState } from 'react';
 import usePreventBackgroundScrolling from '@/hooks/usePreventBackgroundScrolling';

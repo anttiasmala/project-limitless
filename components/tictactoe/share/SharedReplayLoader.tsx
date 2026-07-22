@@ -8,7 +8,7 @@
 
 import { useMemo, useSyncExternalStore } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { decodeGame } from '@/lib/shareGame';
+import { decodeGame } from '@/lib/tictactoe/shareGame';
 import ReplayModal from '../ReplayModal';
 
 // Never resubscribes; the snapshot is constant per environment.

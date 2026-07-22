@@ -1,15 +1,21 @@
 // components/SettingsModal.tsx
 
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { Player } from '@/lib/gameLogic';
-import { BaseSettingsProps, GameMode, WinLossDrawStats } from '@/utils/tictactoe/types';
+import { Player } from '@/lib/tictactoe/gameLogic';
+import {
+  BaseSettingsProps,
+  GameMode,
+  WinLossDrawStats,
+} from '@/utils/tictactoe/types';
 import { useCallback, useEffect, useState } from 'react';
 import { GamePanel } from './settings/GamePanel';
 import { PlayersPanel } from './settings/PlayersPanel';
 import { StatsPanel } from './settings/StatsPanel';
 import Button from '@/components/shared/Button';
 import { Modal } from '@/components/shared/Modal';
-import ToggleSwitch, { ToggleSwitchDarkLightTheme } from '@/components/shared/ToggleSwitch';
+import ToggleSwitch, {
+  ToggleSwitchDarkLightTheme,
+} from '@/components/shared/ToggleSwitch';
 
 type SettingsModalProps = BaseSettingsProps & {
   // Single-player only — omit these in multiplayer

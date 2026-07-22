@@ -1,7 +1,7 @@
 // components/Square.tsx
 
 import { twMerge } from 'tailwind-merge';
-import { HUMAN, Player } from '@/lib/gameLogic';
+import { HUMAN, Player } from '@/lib/tictactoe/gameLogic';
 
 interface SquareProps {
   value: Player | null;

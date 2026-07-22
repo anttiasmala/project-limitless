@@ -1,4 +1,4 @@
-import { Difficulty } from '@/lib/gameLogic';
+import { Difficulty } from '@/lib/tictactoe/gameLogic';
 import Button from '@/components/shared/Button';
 
 type Props = {

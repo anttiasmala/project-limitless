@@ -1,6 +1,6 @@
 // utils/tictactoe/types.ts
 
-import { Player } from '@/lib/gameLogic';
+import { Player } from '@/lib/tictactoe/gameLogic';
 
 export type GameMode = 'pvp' | 'pvc' | 'watch' | 'tournament';
 
@@ -28,9 +28,9 @@ export const CELL_LABELS: Record<number, string> = {
 };
 
 export enum BestOfSeriesNames {
-  'off' = 0,
-  'bo3' = 2, // Best of 3 needs only 2 wins
-  'bo5' = 3, // Best of 5 needs only 3 wins
+  off = 0,
+  bo3 = 2, // Best of 3 needs only 2 wins
+  bo5 = 3, // Best of 5 needs only 3 wins
 }
 
 export type WinLossDrawStats = Record<

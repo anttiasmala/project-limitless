@@ -4,7 +4,7 @@ import {
   HUMAN,
   WINNING_LINES as LINES,
   Player,
-} from '@/lib/gameLogic';
+} from '@/lib/tictactoe/gameLogic';
 
 export type KrakenMood =
   | 'idle'

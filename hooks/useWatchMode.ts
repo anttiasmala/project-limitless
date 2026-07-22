@@ -14,7 +14,7 @@ import {
   getAIMove10,
   getAIMove5,
   isDraw,
-} from '@/lib/gameLogic';
+} from '@/lib/tictactoe/gameLogic';
 import { GameMode, MoveEntry } from '@/utils/tictactoe/types';
 import { useLocalStorage } from './useLocalStorage';
 
@@ -136,8 +136,8 @@ export function useWatchMode({
       boardSize === 10
         ? getAIMove10(board, movingPlayer, opponent, moveDifficulty)
         : boardSize === 5
-        ? getAIMove5(board, movingPlayer, opponent, moveDifficulty)
-        : getAIMove(board, movingPlayer, opponent, moveDifficulty);
+          ? getAIMove5(board, movingPlayer, opponent, moveDifficulty)
+          : getAIMove(board, movingPlayer, opponent, moveDifficulty);
     const thinkingTimeout = setTimeout(() => setAiThinking(true), 0);
     const moveTimeout = setTimeout(() => {
       if (move === -1) {
@@ -156,8 +156,8 @@ export function useWatchMode({
         boardSize === 10
           ? calculateWinner10(newBoard)
           : boardSize === 5
-          ? calculateWinner5(newBoard)
-          : calculateWinner(newBoard);
+            ? calculateWinner5(newBoard)
+            : calculateWinner(newBoard);
 
       const _isDraw = isDraw(newBoard);
       if (_winner) {

@@ -1,4 +1,4 @@
-import { Board as BoardType } from '@/lib/gameLogic';
+import { Board as BoardType } from '@/lib/tictactoe/gameLogic';
 import { MoveEntry } from '@/utils/tictactoe/types';
 import { useEffect, useState } from 'react';
 

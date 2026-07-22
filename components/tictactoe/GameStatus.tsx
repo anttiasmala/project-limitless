@@ -1,7 +1,7 @@
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { FORFEIT_MESSAGE } from '@/utils/utils';
 import { GameMode } from '@/utils/tictactoe/types';
-import { Player } from '@/lib/gameLogic';
+import { Player } from '@/lib/tictactoe/gameLogic';
 
 type PlayerDisplay = { name: string; icon: string };
 

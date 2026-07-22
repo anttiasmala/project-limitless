@@ -13,7 +13,7 @@ import {
   HUMAN,
   calculateWinner5,
   calculateWinner10,
-} from '@/lib/gameLogic';
+} from '@/lib/tictactoe/gameLogic';
 
 import {
   type RoomState,
