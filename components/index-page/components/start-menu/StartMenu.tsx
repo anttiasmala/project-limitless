@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useRef, useState } from 'react';
 
 import { ICONS, notFoundMessage, PATH, SUB_MENUS } from './menuData';
 
@@ -8,12 +8,19 @@ export default function StartMenu({
   onOpenError,
   ref,
   onClose,
+  setShowShutdownMenu,
 }: {
   // Opens a message box. Every entry here is a placeholder, so this is the
   // only thing the menu can currently do.
   onOpenError: (title: string, message: string) => void;
   ref?: React.Ref<HTMLDivElement>;
   onClose: () => void;
+  setShowShutdownMenu: Dispatch<
+    SetStateAction<{
+      type: 'turnOffComputer' | 'logOff';
+      show: boolean;
+    }>
+  >;
 }) {
   // The chain of open windows, outermost first: index 0 is opened from the
   // start menu itself, index 1 from an entry inside that window, and so on.
@@ -212,7 +219,13 @@ export default function StartMenu({
       </div>
       <div className="flex h-12 w-full shrink-0 justify-end rounded-b-md border-t-2 border-t-[#e78e33] bg-[linear-gradient(to_bottom,#4d9bf5_0%,#3f8df5_18%,#2f6fd8_55%,#2a64dd_100%)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
         <div className="pt-2 pr-2">
-          <button className="flex cursor-pointer items-center text-xs hover:brightness-110">
+          <button
+            onClick={() => {
+              setShowShutdownMenu({ type: 'logOff', show: true });
+              onClose();
+            }}
+            className="flex cursor-pointer items-center text-xs hover:brightness-110"
+          >
             <Image
               alt="Logout button"
               src={`${PATH}/logout.png`}
@@ -225,7 +238,13 @@ export default function StartMenu({
           </button>
         </div>
         <div className="pt-2 pr-2">
-          <button className="flex cursor-pointer items-center text-xs hover:brightness-110">
+          <button
+            className="flex cursor-pointer items-center text-xs hover:brightness-110"
+            onClick={() => {
+              setShowShutdownMenu({ type: 'turnOffComputer', show: true });
+              onClose();
+            }}
+          >
             <Image
               alt="Logout button"
               src={`${PATH}/shutdown.png`}

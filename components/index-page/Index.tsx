@@ -12,6 +12,7 @@ import FolderWindow from './components/window/FolderWindow';
 import { FOLDERS } from './folders';
 import { Folder, WindowModal as WindowModalType } from './indexTypes';
 import StartMenu from './components/start-menu/StartMenu';
+import ShutdownMenu from './components/shutdown-menu/ShutdownMenu';
 import DesktopContextMenu, {
   ContextMenuItem,
 } from './components/context-menu/DesktopContextMenu';
@@ -34,6 +35,7 @@ const DATE_TIME_HEIGHT = 400;
 // Default size a Notepad window opens at (it is freely resizable afterwards).
 const NOTEPAD_WIDTH = 500;
 const NOTEPAD_HEIGHT = 400;
+
 // Height reserved at the bottom of the screen for the (future) taskbar, so a
 // maximized window stops just above it like in Windows XP.
 const TASKBAR_HEIGHT = 34;
@@ -42,6 +44,11 @@ const TASKBAR_HEIGHT = 34;
 const WINDOW_MARGIN = 16;
 
 export default function Index() {
+  const [showShutdownMenu, setShowShutdownMenu] = useState<{
+    type: 'turnOffComputer' | 'logOff';
+    show: boolean;
+  }>({ type: 'turnOffComputer', show: false });
+
   const [desktopMenuItems, setDesktopMenuItems] = useState<ContextMenuItem[]>(
     [],
   );
@@ -61,7 +68,7 @@ export default function Index() {
   );
   const [windowModal, setWindowModal] = useState<WindowModalType[]>([]);
   // Desktop folders currently highlighted by a click or a marquee drag.
-  const [selectedFolders, setSelectedFolders] = useState<Set<string>>(
+  const [selectedApps, setSelectedApps] = useState<Set<string>>(
     () => new Set(),
   );
 
@@ -81,7 +88,7 @@ export default function Index() {
 
   // Clear focus + selection when a marquee starts (mouse-down on empty desktop).
   const clearDesktop = () => {
-    setSelectedFolders((prev) => (prev.size ? new Set() : prev));
+    setSelectedApps((prev) => (prev.size ? new Set() : prev));
     setWindowModal((prev) =>
       prev.some((w) => w.isFocused)
         ? prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w))
@@ -107,7 +114,7 @@ export default function Index() {
         top + r.height > marquee.top;
       if (intersects) next.add(name);
     });
-    setSelectedFolders(next);
+    setSelectedApps(next);
   };
 
   const { rect: marqueeRect, onMouseDown: onMarqueeDown } = useMarquee(
@@ -477,6 +484,13 @@ export default function Index() {
     <main
       ref={desktopRef}
       className="relative flex min-h-screen flex-col items-center justify-center bg-slate-100 bg-[url(/images/index-page/background.jpeg)] bg-cover px-4"
+      // Windows XP fades the desktop to gray when the Turn Off / Log Off dialog opens
+      style={{
+        transition: showShutdownMenu.show
+          ? 'filter 3000ms ease'
+          : 'filter 1ms ease',
+        filter: showShutdownMenu.show ? 'grayscale(1)' : undefined,
+      }}
       onMouseDown={onMarqueeDown}
       onContextMenu={(e) => {
         e.preventDefault();
@@ -518,7 +532,7 @@ export default function Index() {
 
       <div className="absolute top-20 left-10 flex flex-col gap-3">
         {FOLDERS.map((folder) => {
-          const isSelected = selectedFolders.has(folder.name);
+          const isSelected = selectedApps.has(folder.name);
           return (
             <Button
               key={folder.name}
@@ -532,7 +546,7 @@ export default function Index() {
                 // Select just this folder; stop the press from starting a
                 // marquee / clearing the selection on the desktop.
                 e.stopPropagation();
-                setSelectedFolders(new Set([folder.name]));
+                setSelectedApps(new Set([folder.name]));
               }}
               onClick={(e) => handleFolderActivate(folder, e.timeStamp)}
               onContextMenu={(e) => {
@@ -565,8 +579,8 @@ export default function Index() {
         })}
         <Button
           ref={(el) => {
-            // Register alongside the folders so the marquee can hit-test and
-            // highlight this icon with the same generic selection logic.
+            // Register alongside the folders so the marquee can highlight
+            // this icon with the same generic selection logic.
             if (el) folderRefs.current.set('Notepad', el);
             else folderRefs.current.delete('Notepad');
           }}
@@ -574,7 +588,7 @@ export default function Index() {
           className="flex cursor-default flex-col items-center"
           onMouseDown={(e) => {
             e.stopPropagation();
-            setSelectedFolders(new Set(['Notepad']));
+            setSelectedApps(new Set(['Notepad']));
           }}
           onContextMenu={(e) => {
             e.preventDefault();
@@ -606,11 +620,11 @@ export default function Index() {
             src={'/images/index-page/apps/notepad.png'}
             width={32}
             height={32}
-            className={selectedFolders.has('Notepad') ? 'opacity-50' : ''}
+            className={selectedApps.has('Notepad') ? 'opacity-50' : ''}
           />
           <span
             className={`text-sm ${
-              selectedFolders.has('Notepad') ? 'bg-[#0b61ff] text-white' : ''
+              selectedApps.has('Notepad') ? 'bg-[#0b61ff] text-white' : ''
             }`}
           >
             Notepad
@@ -666,6 +680,16 @@ export default function Index() {
         ),
       )}
 
+      {showShutdownMenu.show && (
+        <ShutdownMenu
+          type={showShutdownMenu.type}
+          onClose={() =>
+            setShowShutdownMenu((prev) => ({ ...prev, show: false }))
+          }
+          onOpenError={openError}
+        />
+      )}
+
       <footer
         className="fixed bottom-0 left-0 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]"
         onContextMenu={(e) => {
@@ -696,6 +720,7 @@ export default function Index() {
               onClose={() => setShowStartMenu(false)}
               onOpenError={openError}
               ref={startMenuRef}
+              setShowShutdownMenu={setShowShutdownMenu}
             />
           )}
 
