@@ -12,6 +12,7 @@ import FolderWindow from './components/window/FolderWindow';
 import { FOLDERS } from './folders';
 import { Folder, WindowModal as WindowModalType } from './indexTypes';
 import StartMenu from './components/start-menu/StartMenu';
+import ShutdownMenu from './components/shutdown-menu/ShutdownMenu';
 import DesktopContextMenu, {
   ContextMenuItem,
 } from './components/context-menu/DesktopContextMenu';
@@ -34,6 +35,7 @@ const DATE_TIME_HEIGHT = 400;
 // Default size a Notepad window opens at (it is freely resizable afterwards).
 const NOTEPAD_WIDTH = 500;
 const NOTEPAD_HEIGHT = 400;
+
 // Height reserved at the bottom of the screen for the (future) taskbar, so a
 // maximized window stops just above it like in Windows XP.
 const TASKBAR_HEIGHT = 34;
@@ -42,6 +44,11 @@ const TASKBAR_HEIGHT = 34;
 const WINDOW_MARGIN = 16;
 
 export default function Index() {
+  const [showShutdownMenu, setShowShutdownMenu] = useState<{
+    type: 'turnOffComputer' | 'logOff';
+    show: boolean;
+  }>({ type: 'turnOffComputer', show: false });
+
   const [desktopMenuItems, setDesktopMenuItems] = useState<ContextMenuItem[]>(
     [],
   );
@@ -477,6 +484,13 @@ export default function Index() {
     <main
       ref={desktopRef}
       className="relative flex min-h-screen flex-col items-center justify-center bg-slate-100 bg-[url(/images/index-page/background.jpeg)] bg-cover px-4"
+      // Windows XP fades the desktop to gray when the Turn Off / Log Off dialog opens
+      style={{
+        transition: showShutdownMenu.show
+          ? 'filter 3000ms ease'
+          : 'filter 1ms ease',
+        filter: showShutdownMenu.show ? 'grayscale(1)' : undefined,
+      }}
       onMouseDown={onMarqueeDown}
       onContextMenu={(e) => {
         e.preventDefault();
@@ -666,6 +680,16 @@ export default function Index() {
         ),
       )}
 
+      {showShutdownMenu.show && (
+        <ShutdownMenu
+          type={showShutdownMenu.type}
+          onClose={() =>
+            setShowShutdownMenu((prev) => ({ ...prev, show: false }))
+          }
+          onOpenError={openError}
+        />
+      )}
+
       <footer
         className="fixed bottom-0 left-0 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]"
         onContextMenu={(e) => {
@@ -696,6 +720,7 @@ export default function Index() {
               onClose={() => setShowStartMenu(false)}
               onOpenError={openError}
               ref={startMenuRef}
+              setShowShutdownMenu={setShowShutdownMenu}
             />
           )}
 
