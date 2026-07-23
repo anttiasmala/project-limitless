@@ -70,11 +70,18 @@ export const ICONS: {
   },
 ];
 
+// Id of an in-page windowed app the desktop knows how to open
+export type AppId = 'notepad';
+
 export type SubMenuEntry = {
   text: string;
   icon?: string;
   isSubMenu?: boolean;
+  // Opens this path in a new browser tab (e.g. Calculator), shown with a ↗ badge.
   href?: string;
+  // Opens an in-page windowed app on the desktop (e.g. Notepad), like the
+  // matching desktop icon. Add new apps (e.g. CMD, Paint) by extending AppId.
+  app?: AppId;
 };
 
 // Contents of each hovered window, keyed by the parent item's `text`. An empty array renders the greyed-out
@@ -87,7 +94,11 @@ export const SUB_MENUS: Record<string, SubMenuEntry[]> = {
       icon: `${PATH}/all-programs/accessories/calculator.png`,
       href: '/calculator',
     },
-    { text: 'Notepad', icon: `${PATH}/all-programs/accessories/notepad.png` },
+    {
+      text: 'Notepad',
+      icon: `${PATH}/all-programs/accessories/notepad.png`,
+      app: 'notepad',
+    },
     { text: 'Paint', icon: `${PATH}/all-programs/accessories/paint.png` },
     {
       text: 'Command Prompt',
