@@ -89,7 +89,7 @@ export default function Index() {
   // The <main> element (marquee container) and each folder button, so the
   // marquee can hit-test folder icons in the container's coordinate space.
   const desktopRef = useRef<HTMLElement>(null);
-  const folderRefs = useRef(new Map<string, HTMLButtonElement>());
+  const appRefs = useRef(new Map<string, HTMLButtonElement>());
 
   const startMenuRef = useRef<HTMLDivElement>(null);
   const startButtonRef = useRef<HTMLButtonElement>(null);
@@ -117,7 +117,7 @@ export default function Index() {
     if (!container) return;
     const bounds = container.getBoundingClientRect();
     const next = new Set<string>();
-    folderRefs.current.forEach((el, name) => {
+    appRefs.current.forEach((el, name) => {
       const r = el.getBoundingClientRect();
       const left = r.left - bounds.left;
       const top = r.top - bounds.top;
@@ -613,8 +613,8 @@ export default function Index() {
             <Button
               key={folder.name}
               ref={(el) => {
-                if (el) folderRefs.current.set(folder.name, el);
-                else folderRefs.current.delete(folder.name);
+                if (el) appRefs.current.set(folder.name, el);
+                else appRefs.current.delete(folder.name);
               }}
               variant="unstyled"
               className="flex cursor-default flex-col"
@@ -657,8 +657,8 @@ export default function Index() {
           ref={(el) => {
             // Register alongside the folders so the marquee can highlight
             // this icon with the same generic selection logic.
-            if (el) folderRefs.current.set('Notepad', el);
-            else folderRefs.current.delete('Notepad');
+            if (el) appRefs.current.set('Notepad', el);
+            else appRefs.current.delete('Notepad');
           }}
           variant="unstyled"
           className="flex cursor-default flex-col items-center"
@@ -711,8 +711,8 @@ export default function Index() {
           ref={(el) => {
             // Register alongside the folders so the marquee can highlight
             // this icon with the same generic selection logic.
-            if (el) folderRefs.current.set('Paint', el);
-            else folderRefs.current.delete('Paint');
+            if (el) appRefs.current.set('Paint', el);
+            else appRefs.current.delete('Paint');
           }}
           variant="unstyled"
           className="flex cursor-default flex-col items-center"
