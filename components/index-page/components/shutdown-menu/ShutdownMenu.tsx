@@ -172,7 +172,13 @@ function ActionButton({
       onClick={onClick}
       className="flex flex-col items-center enabled:cursor-pointer enabled:hover:brightness-110 disabled:opacity-30"
     >
-      <Image alt={`${label} icon`} src={icon} width={32} height={32} />
+      <Image
+        alt={`${label} icon`}
+        className="size-8"
+        src={icon}
+        width={32}
+        height={32}
+      />
       <p className={`text-sm ${disabled ? 'text-gray-500' : ''}`}>
         <AcceleratorLabel label={label} accelIndex={accelIndex} />
       </p>
