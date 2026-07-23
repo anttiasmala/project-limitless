@@ -2,8 +2,6 @@
 
 # TODO:
 
-1. Check if restart.ico can be changed to .png
-
 # Ideas:
 
 ## Windows XP desktop
