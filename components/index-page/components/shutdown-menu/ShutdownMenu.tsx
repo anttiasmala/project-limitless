@@ -160,7 +160,7 @@ function ActionButton({
 }: {
   icon: string;
   label: string;
-  // Index of the letter to underline as the keyboard accelerator.
+  /** Index of the letter to underline */
   accelIndex: number;
   onClick?: () => void;
   disabled?: boolean;
@@ -186,8 +186,7 @@ function ActionButton({
   );
 }
 
-// Renders `label` with the letter at `accelIndex` underlined, matching the
-// keyboard-accelerator hints XP shows on its buttons.
+// Renders `label` with the letter at `accelIndex` underlined
 function AcceleratorLabel({
   label,
   accelIndex,
