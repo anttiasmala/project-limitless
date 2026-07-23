@@ -6,12 +6,10 @@ import { createPortal } from 'react-dom';
 const DIALOG_WIDTH = 300;
 const DIALOG_HEIGHT = 200;
 
-// What the two dialogs need from their parent: a way to run one of their
-// (placeholder) actions, and a way to dismiss themselves.
 type DialogActions = {
   // Runs a named action: pops a "does not exist" message box, then closes.
   onAction: (name: string) => void;
-  // Dismisses the dialog (Cancel button).
+  // Dismisses the dialog (Cancel button). Escape-key closes as well
   onClose: () => void;
 };
 
@@ -20,8 +18,7 @@ export default function ShutdownMenu({
   onClose,
   onOpenError,
 }: {
-  // Which flavor of the dialog to show. The two share the same chrome and only
-  // differ in their title and the actions they offer.
+  // Show Log off or Turn off Computer dialog
   type: 'turnOffComputer' | 'logOff';
   // Opens a message box. Every action here is a placeholder, so they just
   // report that they don't exist, like the rest of this XP clone.
@@ -42,7 +39,7 @@ export default function ShutdownMenu({
   if (typeof document === 'undefined') return null;
 
   // Every button is a placeholder, so they all resolve the same way: report the
-  // feature is missing, then dismiss the dialog.
+  // feature is missing, then dismiss the shutdown / log off dialog.
   const onAction = (name: string) => {
     onOpenError(name, `${name} does not exist`);
     onClose();
@@ -51,7 +48,7 @@ export default function ShutdownMenu({
 
   return createPortal(
     // Full-screen backdrop rendered outside <main> (so the grayscale filter on
-    // the desktop never touches it). It sits above everything and swallows all
+    // the desktop never affects it). It is above everything and "destroys" all
     // pointer events, making the dialog modal: the desktop, folders and taskbar
     // can't be clicked while it is open, like in Windows XP.
     <div
@@ -119,8 +116,7 @@ function DialogShell({
 }: {
   title: string;
   onClose: () => void;
-  // Tailwind gap class for the action strip; two buttons sit wider apart than
-  // three, so callers can override the default.
+  // Tailwind gap class for the action strip. Two buttons sit wider apart than three
   gap?: string;
   children: ReactNode;
 }) {
