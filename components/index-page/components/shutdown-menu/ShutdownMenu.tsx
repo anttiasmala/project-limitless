@@ -78,7 +78,7 @@ function Shutdown({ onAction, onClose }: DialogActions) {
         onClick={() => onAction('Shutdown')}
       />
       <ActionButton
-        icon="/images/index-page/shutdown-menu/restart.ico"
+        icon="/images/index-page/shutdown-menu/restart.png"
         label="Restart"
         accelIndex={0}
         onClick={() => onAction('Restart')}
