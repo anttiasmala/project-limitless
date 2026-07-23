@@ -2,6 +2,9 @@
 
 # TODO:
 
+1. In index-page change foldersRef to something more generic
+2. In index-page if possible, perhaps move the "openPaint" and "openNotepad" to other file? Index.tsx is almost 1000 lines long
+
 # Ideas:
 
 ## Windows XP desktop

@@ -18,10 +18,11 @@ import DesktopContextMenu, {
   ContextMenuItem,
 } from './components/context-menu/DesktopContextMenu';
 import {
+  buildAppMenu,
   buildDesktopMenu,
   buildFolderMenu,
-  buildNotepadMenu,
 } from './components/context-menu/menuItems';
+import Paint from './components/apps/Paint';
 
 // Default window size, matching the previous fixed Tailwind classes
 // (w-165 = 660px, h-125 = 500px).
@@ -36,6 +37,18 @@ const DATE_TIME_HEIGHT = 400;
 // Default size a Notepad window opens at (it is freely resizable afterwards).
 const NOTEPAD_WIDTH = 500;
 const NOTEPAD_HEIGHT = 400;
+// Paint opens larger than Notepad: it's a canvas app that needs room for the
+// toolbox, palette and drawing area (still freely resizable afterwards).
+const PAINT_WIDTH = 720;
+const PAINT_HEIGHT = 540;
+
+// Window kinds that can be maximized/resized. Message boxes and the Date/Time
+// dialog are fixed-size, so they're left out. Add new resizable apps here.
+const MAXIMIZABLE_KINDS: WindowModalType['kind'][] = [
+  'folder',
+  'notepad',
+  'paint',
+];
 
 // Height reserved at the bottom of the screen for the (future) taskbar, so a
 // maximized window stops just above it like in Windows XP.
@@ -211,7 +224,7 @@ export default function Index() {
         if (w.uuid !== uuid) return w;
         // Only resizable windows have a maximize control; message boxes and the
         // Date/Time dialog are fixed-size, so ignore them
-        if (w.kind !== 'folder' && w.kind !== 'notepad') return w;
+        if (!MAXIMIZABLE_KINDS.includes(w.kind)) return w;
         if (w.isMaximized && w.restoreRect) {
           return {
             ...w,
@@ -476,11 +489,64 @@ export default function Index() {
     });
   };
 
+  const openPaint = () => {
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = document.documentElement.clientHeight;
+    const width = Math.min(PAINT_WIDTH, viewportWidth - WINDOW_MARGIN * 2);
+    const height = Math.min(
+      PAINT_HEIGHT,
+      viewportHeight - TASKBAR_HEIGHT - WINDOW_MARGIN * 2,
+    );
+
+    setWindowModal((prev) => {
+      const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
+      const existing = prev.find((w) => w.kind === 'paint');
+      if (existing) {
+        return prev.map((w) =>
+          w.uuid === existing.uuid
+            ? { ...w, zIndex: maxZ + 1, isFocused: true, isOpen: true }
+            : w.isFocused
+              ? { ...w, isFocused: false }
+              : w,
+        );
+      }
+      const left = Math.max(
+        WINDOW_MARGIN,
+        Math.round((viewportWidth - width) / 2),
+      );
+      const top = Math.max(
+        WINDOW_MARGIN,
+        Math.round((viewportHeight - TASKBAR_HEIGHT - height) / 2),
+      );
+      return [
+        ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
+        {
+          kind: 'paint',
+          uuid: crypto.randomUUID(),
+          isOpen: true,
+          isFocused: true,
+          zIndex: maxZ + 1,
+          top,
+          left,
+          width,
+          height,
+          isMaximized: false,
+          isMinimized: false,
+          modalName: 'Paint - https://jspaint.app',
+          modalIcon: '/images/index-page/apps/paint.png',
+        },
+      ];
+    });
+  };
+
   // Maps a Start Menu app id to the window it opens. New in-page apps (CMD, Notepad, etc...)
   const launchApp = (app: AppId) => {
     switch (app) {
       case 'notepad':
         openNotepad();
+        break;
+      case 'paint':
+        openPaint();
         break;
     }
   };
@@ -604,7 +670,7 @@ export default function Index() {
             e.preventDefault();
             e.stopPropagation();
             setDesktopMenuItems(
-              buildNotepadMenu('Notepad', { menuError, openNotepad }),
+              buildAppMenu('Notepad', { menuError, openApp: openNotepad }),
             );
             setRightClickMenu({ x: e.clientX, y: e.clientY });
           }}
@@ -640,6 +706,60 @@ export default function Index() {
             Notepad
           </span>
         </Button>
+
+        <Button
+          ref={(el) => {
+            // Register alongside the folders so the marquee can highlight
+            // this icon with the same generic selection logic.
+            if (el) folderRefs.current.set('Paint', el);
+            else folderRefs.current.delete('Paint');
+          }}
+          variant="unstyled"
+          className="flex cursor-default flex-col items-center"
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            setSelectedApps(new Set(['Paint']));
+          }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setDesktopMenuItems(
+              buildAppMenu('Paint', { menuError, openApp: openPaint }),
+            );
+            setRightClickMenu({ x: e.clientX, y: e.clientY });
+          }}
+          onClick={(e) => {
+            // Same manual double-tap as folders, so one gesture opens Paint
+            // on both desktop (double-click) and touch (double-tap).
+            const now = e.timeStamp;
+            const last = lastTapRef.current;
+            if (
+              last &&
+              last.name === 'Paint' &&
+              now - last.time < DOUBLE_TAP_MS
+            ) {
+              lastTapRef.current = null;
+              openPaint();
+            } else {
+              lastTapRef.current = { name: 'Paint', time: now };
+            }
+          }}
+        >
+          <Image
+            alt="Paint icon"
+            src={'/images/index-page/apps/paint.png'}
+            width={32}
+            height={32}
+            className={selectedApps.has('Paint') ? 'opacity-50' : ''}
+          />
+          <span
+            className={`text-sm ${
+              selectedApps.has('Paint') ? 'bg-[#0b61ff] text-white' : ''
+            }`}
+          >
+            Paint
+          </span>
+        </Button>
       </div>
 
       {windowModal.map((modal) =>
@@ -673,7 +793,7 @@ export default function Index() {
             onResize={resizeWindow}
             onClose={closeWindow}
           />
-        ) : (
+        ) : modal.kind === 'date-time' ? (
           <DateTimeWindow
             key={modal.uuid}
             modal={modal}
@@ -686,6 +806,17 @@ export default function Index() {
             onFocus={focusWindow}
             onMove={moveWindow}
             onClose={closeWindow}
+          />
+        ) : (
+          <Paint
+            key={modal.uuid}
+            modal={modal}
+            onClose={closeWindow}
+            onFocus={focusWindow}
+            onMove={moveWindow}
+            onResize={resizeWindow}
+            onMinimize={toggleMinimize}
+            onMaximize={toggleMaximize}
           />
         ),
       )}

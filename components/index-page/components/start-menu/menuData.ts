@@ -71,7 +71,7 @@ export const ICONS: {
 ];
 
 // Id of an in-page windowed app the desktop knows how to open
-export type AppId = 'notepad';
+export type AppId = 'notepad' | 'paint';
 
 export type SubMenuEntry = {
   text: string;
@@ -99,7 +99,11 @@ export const SUB_MENUS: Record<string, SubMenuEntry[]> = {
       icon: `${PATH}/all-programs/accessories/notepad.png`,
       app: 'notepad',
     },
-    { text: 'Paint', icon: `${PATH}/all-programs/accessories/paint.png` },
+    {
+      text: 'Paint',
+      icon: `${PATH}/all-programs/accessories/paint.png`,
+      app: 'paint',
+    },
     {
       text: 'Command Prompt',
       icon: `${PATH}/all-programs/accessories/command-prompt.png`,

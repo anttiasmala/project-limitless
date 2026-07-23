@@ -88,15 +88,15 @@ export function buildFolderMenu(
   ];
 }
 
-export function buildNotepadMenu(
+export function buildAppMenu(
   name: string,
-  { menuError, openNotepad }: { menuError: MenuError; openNotepad: () => void },
+  { menuError, openApp }: { menuError: MenuError; openApp: () => void },
 ) {
   return [
     {
       label: `Open ${name}`,
       bold: true,
-      onSelect: () => openNotepad(),
+      onSelect: () => openApp(),
     },
     { label: 'Explore', onSelect: menuError('Explore') },
     { separator: true },

@@ -60,8 +60,13 @@ export type NotepadWindowModal = BaseWindowModal & {
   kind: 'notepad';
 };
 
+export type PaintWindowModal = BaseWindowModal & {
+  kind: 'paint';
+};
+
 export type WindowModal =
   | FolderWindowModal
   | ErrorWindowModal
   | DateTimeWindowModal
-  | NotepadWindowModal;
+  | NotepadWindowModal
+  | PaintWindowModal;

@@ -1,4 +1,5 @@
 import { RefObject, useCallback, useEffect, useRef } from 'react';
+import { showDragShield } from './dragShield';
 
 type DragOptions = {
   // Blocks a drag before it starts — a maximized window cannot be moved.
@@ -37,6 +38,9 @@ export function useWindowDrag(
       const startTop = div.offsetTop;
       const startLeft = div.offsetLeft;
 
+      // Keep events flowing while the cursor crosses any iframe (e.g. Paint).
+      const hideShield = showDragShield('move');
+
       const handleMouseMove = (moveEvent: MouseEvent) => {
         const maxLeft = document.documentElement.clientWidth - div.offsetWidth;
         const maxTop = document.documentElement.clientHeight - div.offsetHeight;
@@ -51,6 +55,7 @@ export function useWindowDrag(
       const handleMouseUp = () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        hideShield();
         optionsRef.current.onMoveEnd(div.offsetTop, div.offsetLeft);
       };
 

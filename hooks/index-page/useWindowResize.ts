@@ -1,4 +1,5 @@
 import { RefObject, useCallback, useEffect, useRef } from 'react';
+import { showDragShield } from './dragShield';
 
 // The edges being dragged. Compound directions are corners, so 'nw' moves the
 // north and west edges at once.
@@ -55,6 +56,10 @@ export function useWindowResize(
       const startWidth = div.offsetWidth;
       const startHeight = div.offsetHeight;
 
+      // Keep events flowing while the cursor crosses any iframe (e.g. Paint),
+      // forcing the matching resize cursor for the whole gesture.
+      const hideShield = showDragShield(`${dir}-resize`);
+
       const handleMouseMove = (moveEvent: MouseEvent) => {
         const { minWidth, minHeight } = optionsRef.current;
         const dx = moveEvent.clientX - startX;
@@ -81,6 +86,7 @@ export function useWindowResize(
       const handleMouseUp = () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        hideShield();
         optionsRef.current.onResizeEnd(
           div.offsetWidth,
           div.offsetHeight,
