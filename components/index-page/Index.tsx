@@ -12,6 +12,7 @@ import FolderWindow from './components/window/FolderWindow';
 import { FOLDERS } from './folders';
 import { Folder, WindowModal as WindowModalType } from './indexTypes';
 import StartMenu from './components/start-menu/StartMenu';
+import { AppId } from './components/start-menu/menuData';
 import ShutdownMenu from './components/shutdown-menu/ShutdownMenu';
 import DesktopContextMenu, {
   ContextMenuItem,
@@ -475,6 +476,15 @@ export default function Index() {
     });
   };
 
+  // Maps a Start Menu app id to the window it opens. New in-page apps (CMD, Notepad, etc...)
+  const launchApp = (app: AppId) => {
+    switch (app) {
+      case 'notepad':
+        openNotepad();
+        break;
+    }
+  };
+
   // Placeholder action for the many menu entries that aren't wired to real
   // behavior yet: pops an XP message box, like the Start Menu's placeholders.
   const menuError = (name: string) => () =>
@@ -719,6 +729,7 @@ export default function Index() {
             <StartMenu
               onClose={() => setShowStartMenu(false)}
               onOpenError={openError}
+              onLaunchApp={launchApp}
               ref={startMenuRef}
               setShowShutdownMenu={setShowShutdownMenu}
             />
