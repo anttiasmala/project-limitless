@@ -29,7 +29,8 @@ export default function StartMenu({
   const [subMenus, setSubMenus] = useState<
     {
       name: string;
-      left: number;
+      left?: number;
+      right?: number;
       top?: number;
       bottom?: number;
       growUp: boolean;
@@ -52,12 +53,21 @@ export default function StartMenu({
   ) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     const rect = e.currentTarget.getBoundingClientRect();
+
+    // Here is calculated if flyout windows should be going towards right or left side
+    // e.g. in mobile view (320x420) the flyout windows are going left side, otherwise they go over the edge
+    const ESTIMATED_WIDTH = 180;
+    const spaceRight = window.innerWidth - rect.right;
+    const spaceLeft = rect.left;
+    const opensRight = spaceRight >= ESTIMATED_WIDTH || spaceRight >= spaceLeft;
     setSubMenus((prev) => [
       ...prev.slice(0, level),
       {
         name,
         growUp,
-        left: rect.right,
+        ...(opensRight
+          ? { left: rect.right }
+          : { right: window.innerWidth - rect.left }),
         ...(growUp
           ? { bottom: window.innerHeight - rect.bottom }
           : { top: rect.top }),
@@ -265,6 +275,7 @@ export default function StartMenu({
             top: menu.top,
             bottom: menu.bottom,
             left: menu.left,
+            right: menu.right,
           }}
           className="fixed z-50 flex min-w-40 flex-col border border-l-4 border-[#2a64dd] bg-white shadow-[2px_2px_8px_rgba(0,0,0,0.4)]"
         >
