@@ -2,17 +2,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 
-import { ICONS, notFoundMessage, PATH, SUB_MENUS } from './menuData';
+import { AppId, ICONS, notFoundMessage, PATH, SUB_MENUS } from './menuData';
 
 export default function StartMenu({
   onOpenError,
+  onLaunchApp,
   ref,
   onClose,
   setShowShutdownMenu,
 }: {
-  // Opens a message box. Every entry here is a placeholder, so this is the
-  // only thing the menu can currently do.
+  // Opens a message box. Used by every entry that isn't wired to real behavior.
   onOpenError: (title: string, message: string) => void;
+  // Opens an in-page windowed app (e.g. Notepad) on the desktop.
+  onLaunchApp: (app: AppId) => void;
   ref?: React.Ref<HTMLDivElement>;
   onClose: () => void;
   setShowShutdownMenu: Dispatch<
@@ -297,6 +299,11 @@ export default function StartMenu({
                     // Like the start menu itself, a window that has its own
                     // window opens it on hover and ignores clicks.
                     if (entry.isSubMenu) return;
+                    if (entry.app) {
+                      onLaunchApp(entry.app);
+                      onClose();
+                      return;
+                    }
                     if (entry.href) {
                       window.open(entry.href, '_blank');
                       return;
