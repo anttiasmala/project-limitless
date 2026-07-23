@@ -319,7 +319,7 @@ export default function StartMenu({
                     <span className="size-4 shrink-0" />
                   )}
                   <p
-                    className={`flex items-center text-xs select-none group-hover:text-white ${
+                    className={`relative flex items-center text-xs select-none group-hover:text-white ${
                       isActive ? 'text-white' : 'text-black'
                     }`}
                   >
@@ -328,7 +328,12 @@ export default function StartMenu({
                       <span className="ml-1.5 h-0 w-0 border-y-3 border-l-[3px] border-y-transparent border-l-current" />
                     )}
                     {entry.href && (
-                      <span style={{ fontSize: '0.6rem' }}>↗</span>
+                      <span
+                        style={{ fontSize: '0.6rem' }}
+                        className="absolute -right-3.5 bottom-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-white text-[8px] leading-none text-blue-700 shadow ring-1 ring-blue-400"
+                      >
+                        ↗
+                      </span>
                     )}
                   </p>
                 </button>
