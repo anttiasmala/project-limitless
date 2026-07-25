@@ -273,10 +273,8 @@ export function useWindows() {
   };
 
   // Open a single-instance window, or focus it if it's already open. Only one
-  // copy of each ever exists, so a desktop icon acts as a toggle-to-front
+  // copy of each can exist at the time, so a desktop icon acts as a toggle-to-front
   // rather than adding duplicates. These all open centred on the desktop.
-  // Folders and message boxes are not launched through here: folders cascade
-  // and dedupe per name, message boxes never dedupe at all.
   const openApp = (kind: SingleInstanceKind) => {
     const app = APP_WINDOWS[kind];
     const viewportWidth = document.documentElement.clientWidth;

@@ -47,8 +47,7 @@ export default function Index() {
   const [timeZoneHours, setTimeZoneHours] = useState(
     () => -new Date().getTimezoneOffset() / 60,
   );
-  // The desktop's window stack plus every operation and launcher that touches
-  // it (focus/close/move/resize/minimize/maximize and the open* helpers).
+
   const {
     windowModal,
     setWindowModal,
