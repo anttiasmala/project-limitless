@@ -128,6 +128,20 @@ export default function WindowFrame({
 
         {/* Window controls */}
         <div className="ml-auto flex items-center gap-0.5">
+          {/* Contextual help */}
+          {onHelp && (
+            <button
+              type="button"
+              aria-label="Help"
+              onClick={() => onHelp(modal.uuid)}
+              className={`flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90 ${modal.isFocused ? 'xp-btn-active border-white/80' : 'xp-btn-inactive border-white/50'}`}
+            >
+              <span className="text-[13px] leading-none font-bold text-white [text-shadow:0_1px_0_rgba(0,0,0,0.3)]">
+                ?
+              </span>
+            </button>
+          )}
+
           {/* Minimize */}
           {onMinimize && (
             <button
@@ -149,20 +163,6 @@ export default function WindowFrame({
               onClick={() => onMaximize(modal.uuid)}
             >
               <span className="h-2.5 w-2.75 rounded-[1px] border-2 border-t-[3px] border-white bg-transparent shadow-[0_1px_0_rgba(0,0,0,0.3)]" />
-            </button>
-          )}
-
-          {/* Contextual help */}
-          {onHelp && (
-            <button
-              type="button"
-              aria-label="Help"
-              onClick={() => onHelp(modal.uuid)}
-              className={`flex h-5.25 w-5.25 cursor-pointer items-center justify-center rounded-[3px] border shadow-[inset_0_1px_1px_rgba(255,255,255,0.5)] hover:brightness-110 active:brightness-90 ${modal.isFocused ? 'xp-btn-active border-white/80' : 'xp-btn-inactive border-white/50'}`}
-            >
-              <span className="text-[13px] leading-none font-bold text-white [text-shadow:0_1px_0_rgba(0,0,0,0.3)]">
-                ?
-              </span>
             </button>
           )}
 
