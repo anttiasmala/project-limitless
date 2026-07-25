@@ -10,9 +10,8 @@ import DateTimeWindow from './components/window/DateTimeWindow';
 import ErrorWindow from './components/window/ErrorWindow';
 import FolderWindow from './components/window/FolderWindow';
 import { FOLDERS } from './folders';
-import { Folder, WindowModal as WindowModalType } from './indexTypes';
+import { Folder } from './indexTypes';
 import StartMenu from './components/start-menu/StartMenu';
-import { AppId } from './components/start-menu/menuData';
 import ShutdownMenu from './components/shutdown-menu/ShutdownMenu';
 import DesktopContextMenu, {
   ContextMenuItem,
@@ -23,39 +22,7 @@ import {
   buildFolderMenu,
 } from './components/context-menu/menuItems';
 import Paint from './components/apps/Paint';
-
-// Default window size, matching the previous fixed Tailwind classes
-// (w-165 = 660px, h-125 = 500px).
-const DEFAULT_WIDTH = 660;
-const DEFAULT_HEIGHT = 500;
-// Message boxes are fixed-size and much smaller than an File Explorer window.
-const ERROR_WIDTH = 340;
-const ERROR_HEIGHT = 135;
-// The Date and Time Properties dialog is fixed-size, like in the Control Panel.
-const DATE_TIME_WIDTH = 400;
-const DATE_TIME_HEIGHT = 400;
-// Default size a Notepad window opens at (it is freely resizable afterwards).
-const NOTEPAD_WIDTH = 500;
-const NOTEPAD_HEIGHT = 400;
-// Paint opens larger than Notepad: it's a canvas app that needs room for the
-// toolbox, palette and drawing area (still freely resizable afterwards).
-const PAINT_WIDTH = 720;
-const PAINT_HEIGHT = 540;
-
-// Window kinds that can be maximized/resized. Message boxes and the Date/Time
-// dialog are fixed-size, so they're left out. Add new resizable apps here.
-const MAXIMIZABLE_KINDS: WindowModalType['kind'][] = [
-  'folder',
-  'notepad',
-  'paint',
-];
-
-// Height reserved at the bottom of the screen for the (future) taskbar, so a
-// maximized window stops just above it like in Windows XP.
-const TASKBAR_HEIGHT = 34;
-// Gap kept between a freshly opened window and the screen edges, so it never
-// opens flush against the sides on small (mobile) viewports.
-const WINDOW_MARGIN = 16;
+import { useWindows } from '../../hooks/index-page/useWindows';
 
 export default function Index() {
   const [showShutdownMenu, setShowShutdownMenu] = useState<{
@@ -80,7 +47,24 @@ export default function Index() {
   const [timeZoneHours, setTimeZoneHours] = useState(
     () => -new Date().getTimezoneOffset() / 60,
   );
-  const [windowModal, setWindowModal] = useState<WindowModalType[]>([]);
+  // The desktop's window stack plus every operation and launcher that touches
+  // it (focus/close/move/resize/minimize/maximize and the open* helpers).
+  const {
+    windowModal,
+    setWindowModal,
+    focusWindow,
+    closeWindow,
+    moveWindow,
+    resizeWindow,
+    toggleMinimize,
+    toggleMaximize,
+    openFolder,
+    openError,
+    openDateTime,
+    openNotepad,
+    openPaint,
+    launchApp,
+  } = useWindows();
   // Desktop folders currently highlighted by a click or a marquee drag.
   const [selectedApps, setSelectedApps] = useState<Set<string>>(
     () => new Set(),
@@ -169,91 +153,6 @@ export default function Index() {
     };
   }, [clockOffsetMs]);
 
-  // Bring a window to the front by giving it the highest z-index.
-  const focusWindow = (uuid: string) => {
-    setWindowModal((prev) => {
-      const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
-      const target = prev.find((w) => w.uuid === uuid);
-
-      if (
-        !target ||
-        (target.zIndex === maxZ && target.isOpen && target.isFocused)
-      )
-        return prev;
-      return prev.map((w) => {
-        if (w.isFocused) {
-          w = { ...w, isFocused: false, isOpen: true };
-        }
-        return w.uuid === uuid
-          ? { ...w, zIndex: maxZ + 1, isFocused: true, isOpen: true }
-          : w;
-      });
-    });
-  };
-
-  const closeWindow = (uuid: string) => {
-    setWindowModal((prev) => prev.filter((w) => w.uuid !== uuid));
-  };
-
-  // Persist a window's position after a drag.
-  const moveWindow = (uuid: string, top: number, left: number) => {
-    setWindowModal((prev) =>
-      prev.map((w) => (w.uuid === uuid ? { ...w, top, left } : w)),
-    );
-  };
-
-  const resizeWindow = (uuid: string, width: number, height: number) => {
-    setWindowModal((prev) =>
-      prev.map((w) => (w.uuid === uuid ? { ...w, width, height } : w)),
-    );
-  };
-
-  const toggleMinimize = (uuid: string) => {
-    setWindowModal((prev) => {
-      return prev.map((w) => {
-        return w.uuid === uuid ? { ...w, isOpen: false, isFocused: false } : w;
-      });
-    });
-  };
-
-  // Toggle a window between maximized (filling the viewport above the taskbar)
-  // and its previous position/size.
-  const toggleMaximize = (uuid: string) => {
-    setWindowModal((prev) =>
-      prev.map((w) => {
-        if (w.uuid !== uuid) return w;
-        // Only resizable windows have a maximize control; message boxes and the
-        // Date/Time dialog are fixed-size, so ignore them
-        if (!MAXIMIZABLE_KINDS.includes(w.kind)) return w;
-        if (w.isMaximized && w.restoreRect) {
-          return {
-            ...w,
-            isMaximized: false,
-            top: w.restoreRect.top,
-            left: w.restoreRect.left,
-            width: w.restoreRect.width,
-            height: w.restoreRect.height,
-            restoreRect: undefined,
-          };
-        }
-        return {
-          ...w,
-          isMaximized: true,
-          restoreRect: {
-            top: w.top,
-            left: w.left,
-            width: w.width,
-            height: w.height,
-          },
-          top: 0,
-          left: 0,
-          width: document.documentElement.clientWidth,
-          height: document.documentElement.clientHeight - TASKBAR_HEIGHT,
-        };
-      }),
-    );
-  };
-
   // Handle a folder tap/click: select on the first tap, open on a second tap
   // within DOUBLE_TAP_MS. This replaces the native double-click, which never
   // fires on touch devices, so the same gesture works on desktop and mobile.
@@ -264,290 +163,6 @@ export default function Index() {
       openFolder(folder);
     } else {
       lastTapRef.current = { name: folder.name, time: now };
-    }
-  };
-
-  // Open a folder, or focus it if it is already open.
-  const openFolder = (folder: Folder) => {
-    // Fit the new window to the viewport so it never opens larger than the
-    // screen (e.g. on mobile, where it can't be resized or dragged smaller (maybe adding it later)).
-    // On larger desktop screens this caps out at the default size, so nothing
-    // changes there.
-    const viewportWidth = document.documentElement.clientWidth;
-    const viewportHeight = document.documentElement.clientHeight;
-    const width = Math.min(DEFAULT_WIDTH, viewportWidth - WINDOW_MARGIN * 2);
-    const height = Math.min(
-      DEFAULT_HEIGHT,
-      viewportHeight - TASKBAR_HEIGHT - WINDOW_MARGIN * 2,
-    );
-
-    setWindowModal((prev) => {
-      const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
-      const existing = prev.find(
-        (w) => w.kind === 'folder' && w.modalName === folder.name,
-      );
-      if (existing) {
-        // Focus the already-open window: bring it to the front and move the
-        // focus highlight off whichever window currently has it.
-        return prev.map((w) =>
-          w.uuid === existing.uuid
-            ? { ...w, zIndex: maxZ + 1, isFocused: true, isOpen: true }
-            : w.isFocused
-              ? { ...w, isFocused: false }
-              : w,
-        );
-      }
-      const offset = prev.length * 24;
-
-      // Move from the usual spot, but clamp so the window stays fully
-      // on-screen (above the taskbar) no matter how small the viewport is.
-      const left = Math.max(
-        WINDOW_MARGIN,
-        Math.min(40 + offset, viewportWidth - width - WINDOW_MARGIN),
-      );
-      const top = Math.max(
-        WINDOW_MARGIN,
-        Math.min(
-          96 + offset,
-          viewportHeight - TASKBAR_HEIGHT - height - WINDOW_MARGIN,
-        ),
-      );
-      return [
-        // A new window steals focus, so clear it from the previous one.
-        ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
-        {
-          kind: 'folder',
-          // CHECK THIS, so I don't forget to change nanoid to crypto. Theoratically shouldn't be an issue to use nanoid, but let's go with crypto.randomUUID()
-          // crypto does not work on unsecure (HTTP-connection) so let's use nanoid instead during dev and testing
-          // with nanoid, I can test with my phone the site (it has HTTP-connection)
-          uuid: crypto.randomUUID(),
-          //uuid: nanoid(),
-          isOpen: true,
-          isFocused: true,
-          zIndex: maxZ + 1,
-          top,
-          left,
-          width,
-          height,
-          isMaximized: false,
-          isMinimized: false,
-          modalIcon: '/images/index-page/folder/folder-opened-icon.png',
-          modalName: folder.name,
-          items: folder.items,
-        },
-      ];
-    });
-  };
-
-  // Open an XP message box. Unlike folders these are never deduplicated: two
-  // errors with the same title are two separate dialogs.
-  const openError = (title: string, message: string) => {
-    const viewportWidth = document.documentElement.clientWidth;
-    const viewportHeight = document.documentElement.clientHeight;
-    const width = Math.min(ERROR_WIDTH, viewportWidth - WINDOW_MARGIN * 2);
-    const height = Math.min(
-      ERROR_HEIGHT,
-      viewportHeight - TASKBAR_HEIGHT - WINDOW_MARGIN * 2,
-    );
-
-    // play error sound when error window opens
-    void new Audio('/sounds/index-page/error.wav').play();
-
-    setWindowModal((prev) => {
-      const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
-      // A message box opens centred on the desktop, like in XP.
-      const left = Math.max(
-        WINDOW_MARGIN,
-        Math.round((viewportWidth - width) / 2),
-      );
-      const top = Math.max(
-        WINDOW_MARGIN,
-        Math.round((viewportHeight - TASKBAR_HEIGHT - height) / 2),
-      );
-      return [
-        // A new window steals focus, so clear it from the previous one.
-        ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
-        {
-          kind: 'error',
-          uuid: crypto.randomUUID(),
-          isOpen: true,
-          isFocused: true,
-          zIndex: maxZ + 1,
-          top,
-          left,
-          width,
-          height,
-          isMaximized: false,
-          isMinimized: false,
-          modalName: title,
-          message,
-        },
-      ];
-    });
-  };
-
-  // Open Date and Time Properties, or focus it if the clock was clicked twice.
-  // Only one copy may exist, like the real Control Panel dialog.
-  const openDateTime = () => {
-    const viewportWidth = document.documentElement.clientWidth;
-    const viewportHeight = document.documentElement.clientHeight;
-    const width = Math.min(DATE_TIME_WIDTH, viewportWidth - WINDOW_MARGIN * 2);
-    const height = Math.min(
-      DATE_TIME_HEIGHT,
-      viewportHeight - TASKBAR_HEIGHT - WINDOW_MARGIN * 2,
-    );
-
-    setWindowModal((prev) => {
-      const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
-      const existing = prev.find((w) => w.kind === 'date-time');
-      if (existing) {
-        return prev.map((w) =>
-          w.uuid === existing.uuid
-            ? { ...w, zIndex: maxZ + 1, isFocused: true, isOpen: true }
-            : w.isFocused
-              ? { ...w, isFocused: false }
-              : w,
-        );
-      }
-      const left = Math.max(
-        WINDOW_MARGIN,
-        Math.round((viewportWidth - width) / 2),
-      );
-      const top = Math.max(
-        WINDOW_MARGIN,
-        Math.round((viewportHeight - TASKBAR_HEIGHT - height) / 2),
-      );
-      return [
-        ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
-        {
-          kind: 'date-time',
-          uuid: crypto.randomUUID(),
-          isOpen: true,
-          isFocused: true,
-          zIndex: maxZ + 1,
-          top,
-          left,
-          width,
-          height,
-          isMaximized: false,
-          isMinimized: false,
-          modalName: 'Date and Time Properties',
-        },
-      ];
-    });
-  };
-
-  // Open Notepad, or focus it if it's already open. Only one copy exists, so
-  // the desktop icon acts as a toggle-to-front rather than adding duplicates.
-  const openNotepad = () => {
-    const viewportWidth = document.documentElement.clientWidth;
-    const viewportHeight = document.documentElement.clientHeight;
-    const width = Math.min(NOTEPAD_WIDTH, viewportWidth - WINDOW_MARGIN * 2);
-    const height = Math.min(
-      NOTEPAD_HEIGHT,
-      viewportHeight - TASKBAR_HEIGHT - WINDOW_MARGIN * 2,
-    );
-
-    setWindowModal((prev) => {
-      const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
-      const existing = prev.find((w) => w.kind === 'notepad');
-      if (existing) {
-        return prev.map((w) =>
-          w.uuid === existing.uuid
-            ? { ...w, zIndex: maxZ + 1, isFocused: true, isOpen: true }
-            : w.isFocused
-              ? { ...w, isFocused: false }
-              : w,
-        );
-      }
-      const left = Math.max(
-        WINDOW_MARGIN,
-        Math.round((viewportWidth - width) / 2),
-      );
-      const top = Math.max(
-        WINDOW_MARGIN,
-        Math.round((viewportHeight - TASKBAR_HEIGHT - height) / 2),
-      );
-      return [
-        ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
-        {
-          kind: 'notepad',
-          uuid: crypto.randomUUID(),
-          isOpen: true,
-          isFocused: true,
-          zIndex: maxZ + 1,
-          top,
-          left,
-          width,
-          height,
-          isMaximized: false,
-          isMinimized: false,
-          modalName: 'Untitled - Notepad',
-          modalIcon: '/images/index-page/apps/notepad.png',
-        },
-      ];
-    });
-  };
-
-  const openPaint = () => {
-    const viewportWidth = document.documentElement.clientWidth;
-    const viewportHeight = document.documentElement.clientHeight;
-    const width = Math.min(PAINT_WIDTH, viewportWidth - WINDOW_MARGIN * 2);
-    const height = Math.min(
-      PAINT_HEIGHT,
-      viewportHeight - TASKBAR_HEIGHT - WINDOW_MARGIN * 2,
-    );
-
-    setWindowModal((prev) => {
-      const maxZ = prev.reduce((max, w) => Math.max(max, w.zIndex), 0);
-      const existing = prev.find((w) => w.kind === 'paint');
-      if (existing) {
-        return prev.map((w) =>
-          w.uuid === existing.uuid
-            ? { ...w, zIndex: maxZ + 1, isFocused: true, isOpen: true }
-            : w.isFocused
-              ? { ...w, isFocused: false }
-              : w,
-        );
-      }
-      const left = Math.max(
-        WINDOW_MARGIN,
-        Math.round((viewportWidth - width) / 2),
-      );
-      const top = Math.max(
-        WINDOW_MARGIN,
-        Math.round((viewportHeight - TASKBAR_HEIGHT - height) / 2),
-      );
-      return [
-        ...prev.map((w) => (w.isFocused ? { ...w, isFocused: false } : w)),
-        {
-          kind: 'paint',
-          uuid: crypto.randomUUID(),
-          isOpen: true,
-          isFocused: true,
-          zIndex: maxZ + 1,
-          top,
-          left,
-          width,
-          height,
-          isMaximized: false,
-          isMinimized: false,
-          modalName: 'Paint - https://jspaint.app',
-          modalIcon: '/images/index-page/apps/paint.png',
-        },
-      ];
-    });
-  };
-
-  // Maps a Start Menu app id to the window it opens. New in-page apps (CMD, Notepad, etc...)
-  const launchApp = (app: AppId) => {
-    switch (app) {
-      case 'notepad':
-        openNotepad();
-        break;
-      case 'paint':
-        openPaint();
-        break;
     }
   };
 
