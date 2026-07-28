@@ -64,9 +64,14 @@ export type PaintWindowModal = BaseWindowModal & {
   kind: 'paint';
 };
 
+export type SettingsWindowModal = BaseWindowModal & {
+  kind: 'settings';
+};
+
 export type WindowModal =
   | FolderWindowModal
   | ErrorWindowModal
   | DateTimeWindowModal
   | NotepadWindowModal
-  | PaintWindowModal;
+  | PaintWindowModal
+  | SettingsWindowModal;

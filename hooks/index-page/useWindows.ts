@@ -13,7 +13,7 @@ const DEFAULT_HEIGHT = 500;
 const ERROR_WIDTH = 340;
 const ERROR_HEIGHT = 135;
 // Windows that only ever have one copy open at a time, opened through openApp.
-type SingleInstanceKind = 'date-time' | 'notepad' | 'paint';
+type SingleInstanceKind = 'date-time' | 'notepad' | 'paint' | 'settings';
 
 // Everything that differs between those windows. Adding a new in-page app is
 // one entry here plus its 'kind' in indexTypes (and MAXIMIZABLE_KINDS below if
@@ -43,6 +43,12 @@ const APP_WINDOWS: Record<
     height: 540,
     modalName: 'Paint - https://jspaint.app',
     modalIcon: '/images/index-page/apps/paint.png',
+  },
+  settings: {
+    width: 400,
+    height: 400,
+    modalName: 'Settings',
+    modalIcon: '/images/index-page/start-menu/control-panel.png',
   },
 };
 
@@ -273,10 +279,8 @@ export function useWindows() {
   };
 
   // Open a single-instance window, or focus it if it's already open. Only one
-  // copy of each ever exists, so a desktop icon acts as a toggle-to-front
+  // copy of each can exist at the time, so a desktop icon acts as a toggle-to-front
   // rather than adding duplicates. These all open centred on the desktop.
-  // Folders and message boxes are not launched through here: folders cascade
-  // and dedupe per name, message boxes never dedupe at all.
   const openApp = (kind: SingleInstanceKind) => {
     const app = APP_WINDOWS[kind];
     const viewportWidth = document.documentElement.clientWidth;
@@ -333,6 +337,7 @@ export function useWindows() {
   const openDateTime = () => openApp('date-time');
   const openNotepad = () => openApp('notepad');
   const openPaint = () => openApp('paint');
+  const openSettings = () => openApp('settings');
 
   // Maps a Start Menu app id to the window it opens. Every AppId is a key of
   // APP_WINDOWS, so a new in-page app (CMD, etc...) only needs an entry there.
@@ -352,6 +357,7 @@ export function useWindows() {
     openDateTime,
     openNotepad,
     openPaint,
+    openSettings,
     launchApp,
   };
 }

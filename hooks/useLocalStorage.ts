@@ -1,7 +1,7 @@
 // hooks/useLocalStorage.ts
 
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 // Per-key subscribers so every useLocalStorage instance sharing a key stays in
 // sync within the tab. Without this each call site keeps its own useState and
@@ -29,28 +29,37 @@ function broadcast(key: string, value: unknown) {
 export function useLocalStorage<T>(key: string, fallback: T) {
   const [value, setValue] = useState<T>(fallback);
   const [mounted, setMounted] = useState(false);
+  // The latest value, readable outside of a render
+  const valueRef = useRef<T>(fallback);
+
+  // Every path that changes the value goes through here so the ref can't drift
+  // away from the state
+  const store = useCallback((next: T) => {
+    valueRef.current = next;
+    setValue(next);
+  }, []);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(key);
       if (stored !== null) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setValue(JSON.parse(stored) as T);
+        store(JSON.parse(stored) as T);
       }
     } catch {
       // Ignore errors
     }
     setMounted(true);
-  }, [key]);
+  }, [key, store]);
 
   // Keep this instance in sync with writes from other instances of the same key
   // (in-tab) and with other tabs/windows (via the storage event).
   useEffect(() => {
-    const onLocal = (next: unknown) => setValue(next as T);
+    const onLocal = (next: unknown) => store(next as T);
     const onStorage = (e: StorageEvent) => {
       if (e.key !== key || e.newValue === null) return;
       try {
-        setValue(JSON.parse(e.newValue) as T);
+        store(JSON.parse(e.newValue) as T);
       } catch {
         // Ignore errors
       }
@@ -61,24 +70,25 @@ export function useLocalStorage<T>(key: string, fallback: T) {
       unsubscribe();
       window.removeEventListener('storage', onStorage);
     };
-  }, [key]);
+  }, [key, store]);
 
   function set(next: T | ((prev: T) => T)) {
-    setValue((prev) => {
-      const resolved =
-        typeof next === 'function' ? (next as (prev: T) => T)(prev) : next;
-      try {
-        localStorage.setItem(key, JSON.stringify(resolved));
-      } catch {
-        // Ignore errors
-      }
-      // Notify the other in-tab instances so they re-render immediately. The
-      // `storage` event only fires in *other* tabs, so it can't cover this.
-      // Deferred to a microtask so we don't update other components while this
-      // one is still inside its state updater.
-      queueMicrotask(() => broadcast(key, resolved));
-      return resolved;
-    });
+    const resolved =
+      typeof next === 'function'
+        ? (next as (prev: T) => T)(valueRef.current)
+        : next;
+    // Written here rather than inside a `setValue` updater: React skips pending
+    // updaters for a component that unmounts first, so a caller that saves and
+    // closes its window in the same handler would otherwise lose the write
+    try {
+      localStorage.setItem(key, JSON.stringify(resolved));
+    } catch {
+      // Ignore errors
+    }
+    store(resolved);
+    // Notify the other in-tab instances so they re-render immediately. The
+    // `storage` event only fires in *other* tabs, so it can't cover this
+    broadcast(key, resolved);
   }
 
   return [value, set, mounted] as const;

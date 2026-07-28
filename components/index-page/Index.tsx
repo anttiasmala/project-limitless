@@ -23,6 +23,8 @@ import {
 } from './components/context-menu/menuItems';
 import Paint from './components/apps/Paint';
 import { useWindows } from '../../hooks/index-page/useWindows';
+import Settings from './components/apps/Settings';
+import { useWindowsXPSettings } from '../../hooks/index-page/useWindowsXPSettings';
 
 export default function Index() {
   const [showShutdownMenu, setShowShutdownMenu] = useState<{
@@ -47,8 +49,10 @@ export default function Index() {
   const [timeZoneHours, setTimeZoneHours] = useState(
     () => -new Date().getTimezoneOffset() / 60,
   );
-  // The desktop's window stack plus every operation and launcher that touches
-  // it (focus/close/move/resize/minimize/maximize and the open* helpers).
+
+  // Desktop options from the Settings window
+  const [xpSettings] = useWindowsXPSettings();
+
   const {
     windowModal,
     setWindowModal,
@@ -63,6 +67,7 @@ export default function Index() {
     openDateTime,
     openNotepad,
     openPaint,
+    openSettings,
     launchApp,
   } = useWindows();
   // Desktop folders currently highlighted by a click or a marquee drag.
@@ -184,6 +189,7 @@ export default function Index() {
       }}
       onMouseDown={onMarqueeDown}
       onContextMenu={(e) => {
+        if (!xpSettings.enableCustomContextMenu) return;
         e.preventDefault();
         // Folders and the taskbar stop propagation and handle their own
         // right-click, so anything reaching here is the bare desktop.
@@ -241,6 +247,7 @@ export default function Index() {
               }}
               onClick={(e) => handleFolderActivate(folder, e.timeStamp)}
               onContextMenu={(e) => {
+                if (!xpSettings.enableCustomContextMenu) return;
                 e.preventDefault();
                 // Keep this from bubbling to <main>, which would replace the
                 // folder menu with the desktop menu.
@@ -282,6 +289,7 @@ export default function Index() {
             setSelectedApps(new Set(['Notepad']));
           }}
           onContextMenu={(e) => {
+            if (!xpSettings.enableCustomContextMenu) return;
             e.preventDefault();
             e.stopPropagation();
             setDesktopMenuItems(
@@ -336,6 +344,7 @@ export default function Index() {
             setSelectedApps(new Set(['Paint']));
           }}
           onContextMenu={(e) => {
+            if (!xpSettings.enableCustomContextMenu) return;
             e.preventDefault();
             e.stopPropagation();
             setDesktopMenuItems(
@@ -373,6 +382,61 @@ export default function Index() {
             }`}
           >
             Paint
+          </span>
+        </Button>
+
+        <Button
+          ref={(el) => {
+            // Register alongside the folders so the marquee can highlight
+            // this icon with the same generic selection logic.
+            if (el) appRefs.current.set('Settings', el);
+            else appRefs.current.delete('Settings');
+          }}
+          variant="unstyled"
+          className="flex cursor-default flex-col items-center"
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            setSelectedApps(new Set(['Settings']));
+          }}
+          onContextMenu={(e) => {
+            if (!xpSettings.enableCustomContextMenu) return;
+            e.preventDefault();
+            e.stopPropagation();
+            setDesktopMenuItems(
+              buildAppMenu('Settings', { menuError, openApp: openSettings }),
+            );
+            setRightClickMenu({ x: e.clientX, y: e.clientY });
+          }}
+          onClick={(e) => {
+            // Same manual double-tap as folders, so one gesture opens Settings
+            // on both desktop (double-click) and touch (double-tap).
+            const now = e.timeStamp;
+            const last = lastTapRef.current;
+            if (
+              last &&
+              last.name === 'Settings' &&
+              now - last.time < DOUBLE_TAP_MS
+            ) {
+              lastTapRef.current = null;
+              openSettings();
+            } else {
+              lastTapRef.current = { name: 'Settings', time: now };
+            }
+          }}
+        >
+          <Image
+            alt="Settings icon"
+            src={'/images/index-page/start-menu/control-panel.png'}
+            width={32}
+            height={32}
+            className={selectedApps.has('Settings') ? 'opacity-50' : ''}
+          />
+          <span
+            className={`text-sm ${
+              selectedApps.has('Settings') ? 'bg-[#0b61ff] text-white' : ''
+            }`}
+          >
+            Settings
           </span>
         </Button>
       </div>
@@ -422,7 +486,7 @@ export default function Index() {
             onMove={moveWindow}
             onClose={closeWindow}
           />
-        ) : (
+        ) : modal.kind === 'paint' ? (
           <Paint
             key={modal.uuid}
             modal={modal}
@@ -433,7 +497,16 @@ export default function Index() {
             onMinimize={toggleMinimize}
             onMaximize={toggleMaximize}
           />
-        ),
+        ) : modal.kind === 'settings' ? (
+          <Settings
+            key={modal.uuid}
+            modal={modal}
+            onClose={closeWindow}
+            onFocus={focusWindow}
+            onMove={moveWindow}
+            onMinimize={toggleMinimize}
+          />
+        ) : null,
       )}
 
       {showShutdownMenu.show && (
@@ -449,6 +522,7 @@ export default function Index() {
       <footer
         className="fixed bottom-0 left-0 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]"
         onContextMenu={(e) => {
+          if (!xpSettings.enableCustomContextMenu) return;
           // The taskbar has no menu of its own yet. "Destroy" the right-click so
           // it doesn't fall through to the desktop menu.
           e.preventDefault();

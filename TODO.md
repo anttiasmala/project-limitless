@@ -2,16 +2,12 @@
 
 # TODO:
 
-1. In index-page if possible, perhaps move the "openPaint" and "openNotepad" to other file? Index.tsx is almost 1000 lines long
-
 # Ideas:
 
 ## Windows XP desktop
 
 1. Perhaps more apps, like Notepad, Minesweeper, Solitaire (maybe in XP context?), My Computer, Recycle Bin?
-2. With mobile view, the "All Programs" menues go over the edge. e.g. "All Programs" -> "Games" -> Now the window goes over the edge
-3. Add somekind of "Cookie" popup when user accesses the site first time. Tell in that "Cookie" that the XP desktop is NOT meant to be exactly like real Windows XP
-4. Perhaps add a settings menu where user can enable / disable custom right-click menu? If user for example wants to copy / save icons / images on the site, it would be a lot easier with default right-click menu
+2. Add somekind of "Cookie" popup when user accesses the site first time. Tell in that "Cookie" that the XP desktop is NOT meant to be exactly like real Windows XP?
 
 ## Tic-tac-toe
 
