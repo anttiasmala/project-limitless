@@ -13,8 +13,6 @@ type Props = {
   onMinimize: (uuid: string) => void;
 };
 
-// The checkboxes on offer, grouped the way XP's Control Panel groups related
-// options. A new setting is one entry here plus its key in WindowsXPSettings.
 const GROUPS: {
   title: string;
   options: { key: keyof WindowsXPSettings; label: string; help: string }[];

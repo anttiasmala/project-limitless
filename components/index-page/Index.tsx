@@ -50,8 +50,7 @@ export default function Index() {
     () => -new Date().getTimezoneOffset() / 60,
   );
 
-  // Desktop options from the Settings window. Only the custom right-click menu
-  // is honored here; the Settings window itself owns writing them.
+  // Desktop options from the Settings window
   const [xpSettings] = useWindowsXPSettings();
 
   const {
