@@ -52,7 +52,10 @@ export function usePartyRoom(
 
   const socket = usePartySocket({
     // Check internal IP and put it into .env.local in testing
-    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST ?? 'localhost:1999',
+    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST ?? 'localhost:8787',
+    // PartyServer has no implicit "main" party like PartyKit did - this must
+    // match the kebab-cased Durable Object binding name in wrangler.jsonc.
+    party: 'game',
     room: roomId,
     query: { spectator: isSpectator ? 'true' : undefined },
     onOpen() {
