@@ -1,5 +1,6 @@
 // components/SettingsModal.tsx
 
+import { useDarkTheme } from '@/hooks/useDarkTheme';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Player } from '@/lib/tictactoe/gameLogic';
 import {
@@ -7,7 +8,7 @@ import {
   GameMode,
   WinLossDrawStats,
 } from '@/utils/tictactoe/types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { GamePanel } from './settings/GamePanel';
 import { PlayersPanel } from './settings/PlayersPanel';
 import { StatsPanel } from './settings/StatsPanel';
@@ -73,7 +74,7 @@ export function SettingsModal({
   onResetStats,
 }: SettingsModalProps) {
   const [isAnyModalOpen, setIsAnyModalOpen] = useState(false);
-  const [isDarkTheme, setIsDarkTheme] = useLocalStorage('isDarkTheme', true);
+  const [isDarkTheme, setIsDarkTheme] = useDarkTheme();
   const [playerOne, setPlayerOne] = useLocalStorage('playerOne', {
     name: 'Davy Jones',
     icon: '☠️',
@@ -99,10 +100,6 @@ export function SettingsModal({
         ? 'bg-amber-600 border-amber-500 text-white'
         : 'bg-slate-200 border-slate-300 text-slate-600 hover:bg-slate-300 hover:border-amber-500 dark:bg-red-900 dark:border-red-700 dark:text-yellow-300/60 dark:hover:text-yellow-300 dark:hover:bg-red-800'
     }`;
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkTheme);
-  }, [isDarkTheme]);
 
   const applyVolume = (vol: number) => {
     const clamped = Math.max(0, Math.min(1, vol));
