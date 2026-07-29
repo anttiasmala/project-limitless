@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "pirate-tictactoe-party",
+  "main": "party/index.ts",
+  "compatibility_date": "2026-03-30",
+
+  // `wrangler dev` listens on 127.0.0.1 only by default, unlike PartyKit's dev
+  // server. Binding 0.0.0.0 exposes it on the LAN so other devices (e.g. a
+  // phone) can reach it via this computer's internal IP — the address in
+  // NEXT_PUBLIC_PARTYKIT_HOST. Affects local dev only, never the deployed worker.
+  "dev": {
+    "ip": "0.0.0.0",
+    "port": 8787,
+  },
+
+  // PartyServer maps a URL of the form /parties/:namespace/:name onto these
+  // bindings, where :namespace is the kebab-cased binding name. So:
+  //   Game  -> /parties/game/:roomId   (the client's `party: 'game'` option)
+  //   Lobby -> /parties/lobby/main     (app/api/lobbies/route.ts)
+  "durable_objects": {
+    "bindings": [
+      { "name": "Game", "class_name": "GameRoom" },
+      { "name": "Lobby", "class_name": "LobbyServer" },
+    ],
+  },
+
+  // SQLite-backed Durable Objects are the only kind available on the Workers
+  // free plan, and are what PartyServer's `this.sql` / storage API expect.
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["GameRoom", "LobbyServer"],
+    },
+  ],
+}
