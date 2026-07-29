@@ -55,5 +55,4 @@
 
 1. Sound effects for 10x10 - Maybe different sounds for the larger board
 2. Custom board sizes - 4x4, 5x5, etc. (beyond just 3x3 and 10x10)
-3. Change PartyKit to PartyServer — PartyKit is not updated in a long time
-4. Tournament bracket — 4-player round-robin or knockout using the existing multiplayer rooms
+3. Tournament bracket — 4-player round-robin or knockout using the existing multiplayer rooms
