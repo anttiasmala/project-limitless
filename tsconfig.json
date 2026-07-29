@@ -30,5 +30,7 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  // `party` runs on Cloudflare Workers, not in the browser. It has its own
+  // tsconfig with Workers runtime types instead of the DOM lib
+  "exclude": ["node_modules", "party"]
 }
