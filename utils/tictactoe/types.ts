@@ -9,11 +9,7 @@ export enum PlayerNames {
   '⚓' = 'Capt. Hook',
 }
 
-export type MoveEntry = {
-  turn: number;
-  player: Player;
-  index: number;
-};
+export type { MoveEntry } from '@/lib/tictactoe/gameLogic';
 
 export const CELL_LABELS: Record<number, string> = {
   0: 'Top left',

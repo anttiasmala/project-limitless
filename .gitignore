@@ -41,6 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-#partykit
+# Partykit
 .partykit
 .pirate-tictactoe-party
+# Cloudflare wrangler local state
+.wrangler

@@ -1,8 +1,14 @@
 // party/game.ts
 
-// @backend — PartyKit backend
+// @backend — PartyServer backend
 
-import type * as Party from 'partykit/server';
+import {
+  Server,
+  type Connection,
+  type ConnectionContext,
+  type WSMessage,
+  getServerByName,
+} from 'partyserver';
 import {
   Board as BoardType,
   Player,
@@ -28,6 +34,8 @@ const SERIES_POINT_THRESHOLDS = { bo3: 2, bo5: 3, off: Infinity } as const;
 const BOARD_SIZE = { '3': 3, '5': 5, '10': 10 } as const;
 const MAX_CHAT_LENGTH = 200;
 const MAX_CHAT_HISTORY = 100;
+
+type ConnState = { isSpectator?: boolean };
 
 function createInitialBoard(boardSize: RoomSettings['boardSize']): BoardType {
   const size = BOARD_SIZE[boardSize];
@@ -60,56 +68,59 @@ function makeInitialState(): RoomState {
   };
 }
 
-export default class GameRoom implements Party.Server {
-  state: RoomState;
+export default class GameRoom extends Server<Env> {
+  // Hibernation lets the room drop out of memory while players sit idle
+  // between moves, which is most of a turn-based game's lifetime. Billable
+  // duration doesn't accrue while hibernating. In-memory fields don't survive
+  // it, so `state` is rehydrated from storage in onStart() and the turn timer
+  // uses a Durable Object alarm rather than setTimeout.
+  static options = { hibernate: true };
 
-  constructor(readonly room: Party.Room) {
-    this.state = makeInitialState();
-  }
+  state: RoomState = makeInitialState();
 
-  private timerHandle: ReturnType<typeof setTimeout> | null = null;
-
-  startTurnTimer() {
-    this.clearTurnTimer();
+  async startTurnTimer() {
+    await this.clearTurnTimer();
     if (!this.state.settings.timerEnabled) return;
     const timerMs = this.state.settings.timerDuration * 1000;
     this.state.timerEndsAt = Date.now() + timerMs;
-
-    this.timerHandle = setTimeout(async () => {
-      if (this.state.status !== 'playing') return;
-
-      const loser = this.state.currentPlayer;
-      const opponent = loser === HUMAN ? AI : HUMAN;
-
-      if (this.state.scores[opponent] >= 4) {
-        const { bestOfSeries } = this.state.settings;
-        this.state.bestOfSeriesScores[opponent] += 1;
-        if (
-          bestOfSeries !== 'off' &&
-          this.state.bestOfSeriesScores[opponent] >=
-            SERIES_POINT_THRESHOLDS[bestOfSeries]
-        ) {
-          this.state.seriesWinner = opponent;
-        }
-      }
-
-      this.state.scores[opponent] += 1;
-      this.state.winner = null;
-      this.state.isDraw = false;
-      this.state.timerEndsAt = null;
-      this.state.status = 'finished';
-      this.state.forfeitWinner = opponent;
-
-      await this.saveAndBroadcast({ type: 'state-update', state: this.state });
-    }, timerMs);
+    await this.ctx.storage.setAlarm(this.state.timerEndsAt);
   }
 
-  clearTurnTimer() {
-    if (this.timerHandle) {
-      clearTimeout(this.timerHandle);
-      this.timerHandle = null;
-    }
+  async clearTurnTimer() {
     this.state.timerEndsAt = null;
+    await this.ctx.storage.deleteAlarm();
+  }
+
+  // Fires when the turn timer set in startTurnTimer() expires. Replaces the
+  // old setTimeout callback — an alarm is the only timer that survives the
+  // room being evicted or hibernated.
+  async onAlarm() {
+    if (this.state.status !== 'playing') return;
+    if (this.state.timerEndsAt === null) return;
+
+    const loser = this.state.currentPlayer;
+    const opponent = loser === HUMAN ? AI : HUMAN;
+
+    if (this.state.scores[opponent] >= 4) {
+      const { bestOfSeries } = this.state.settings;
+      this.state.bestOfSeriesScores[opponent] += 1;
+      if (
+        bestOfSeries !== 'off' &&
+        this.state.bestOfSeriesScores[opponent] >=
+          SERIES_POINT_THRESHOLDS[bestOfSeries]
+      ) {
+        this.state.seriesWinner = opponent;
+      }
+    }
+
+    this.state.scores[opponent] += 1;
+    this.state.winner = null;
+    this.state.isDraw = false;
+    this.state.timerEndsAt = null;
+    this.state.status = 'finished';
+    this.state.forfeitWinner = opponent;
+
+    await this.saveAndBroadcast({ type: 'state-update', state: this.state });
   }
 
   resetBoard() {
@@ -130,21 +141,24 @@ export default class GameRoom implements Party.Server {
   }
 
   save() {
-    this.room.storage.put('state', this.state);
+    this.ctx.storage.put('state', this.state);
   }
 
-  broadcast(msg: ServerMessage, exclude?: string[]) {
-    this.room.broadcast(JSON.stringify(msg), exclude);
+  // Named `broadcastMsg` rather than `broadcast` because Server already
+  // defines `broadcast(string | ArrayBuffer, without?)` — this wraps it with
+  // the typed ServerMessage envelope.
+  broadcastMsg(msg: ServerMessage, exclude?: string[]) {
+    this.broadcast(JSON.stringify(msg), exclude);
   }
 
-  sendTo(conn: Party.Connection, msg: ServerMessage) {
+  sendTo(conn: Connection, msg: ServerMessage) {
     conn.send(JSON.stringify(msg));
   }
 
   async saveAndBroadcast(msg: ServerMessage) {
     this.save();
     await this.updateLobby();
-    this.broadcast(msg);
+    this.broadcastMsg(msg);
   }
 
   async updateLobby() {
@@ -153,11 +167,14 @@ export default class GameRoom implements Party.Server {
         (p) => p.connected,
       ).length;
 
-      await this.room.context.parties.lobby.get('main').fetch({
+      const lobby = await getServerByName(this.env.Lobby, 'main');
+      // Durable Object stubs require an absolute URL; the host is ignored, and
+      // only the method/body reach LobbyServer.onRequest().
+      await lobby.fetch('https://lobby.internal/parties/lobby/main', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          roomId: this.room.id,
+          roomId: this.name,
           status: this.state.status,
           connectedCount,
           allowSpectators: this.state.settings.allowSpectators,
@@ -170,18 +187,26 @@ export default class GameRoom implements Party.Server {
   }
 
   async onStart() {
-    const saved = await this.room.storage.get<RoomState>('state');
-    if (saved) {
-      saved.players = {};
-      this.state = saved;
+    const saved = await this.ctx.storage.get<RoomState>('state');
+    if (!saved) return;
+
+    // `players` is keyed by connection id, so it's only meaningful for sockets
+    // that are still attached. On a cold start there are none and this clears
+    // the map (what the PartyKit version did unconditionally); on a wake from
+    // hibernation the sockets are still live, so their players are kept.
+    const liveIds = new Set([...this.getConnections()].map((conn) => conn.id));
+    for (const id of Object.keys(saved.players)) {
+      if (!liveIds.has(id)) delete saved.players[id];
     }
+
+    this.state = saved;
   }
 
   async admitPlayer(
-    conn: Party.Connection,
+    conn: Connection<ConnState>,
     profile?: { name?: string; icon?: string },
   ) {
-    const { isSpectator } = (conn.state as { isSpectator?: boolean }) ?? {};
+    const { isSpectator } = conn.state ?? {};
 
     if (isSpectator) {
       if (this.state.settings.allowSpectators === false) {
@@ -241,11 +266,11 @@ export default class GameRoom implements Party.Server {
     if (!isSpectator) {
       this.save();
       await this.updateLobby();
-      this.broadcast({ type: 'state-update', state: this.state }, [conn.id]);
+      this.broadcastMsg({ type: 'state-update', state: this.state }, [conn.id]);
     }
   }
 
-  async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
+  async onConnect(conn: Connection<ConnState>, ctx: ConnectionContext) {
     try {
       const url = new URL(ctx.request.url);
       const isSpectator = url.searchParams.get('spectator') === 'true';
@@ -271,7 +296,7 @@ export default class GameRoom implements Party.Server {
     }
   }
 
-  async onClose(conn: Party.Connection) {
+  async onClose(conn: Connection) {
     if (!this.state.players[conn.id]) return;
 
     delete this.state.players[conn.id];
@@ -290,6 +315,7 @@ export default class GameRoom implements Party.Server {
 
     if (stillConnected.length === 0) {
       // Both gone — reset fully
+      await this.clearTurnTimer();
       this.state = makeInitialState();
       this.save();
       await this.updateLobby();
@@ -299,13 +325,15 @@ export default class GameRoom implements Party.Server {
 
       // One player left — notify them
       this.state.status = 'waiting';
-      this.clearTurnTimer();
-      this.broadcast({ type: 'opponent-disconnected' });
+      await this.clearTurnTimer();
+      this.broadcastMsg({ type: 'opponent-disconnected' });
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
     }
   }
 
-  async onMessage(message: string, sender: Party.Connection) {
+  async onMessage(sender: Connection, message: WSMessage) {
+    if (typeof message !== 'string') return;
+
     let msg: ClientMessage;
     try {
       msg = JSON.parse(message) as ClientMessage;
@@ -336,7 +364,7 @@ export default class GameRoom implements Party.Server {
       // A reaction is a transient event, not persistent state — broadcast it
       // once and don't store it. Storing + clearing caused two back-to-back
       // state-updates that React could coalesce, dropping the reaction.
-      this.broadcast({
+      this.broadcastMsg({
         type: 'emoji-reaction',
         emoji: msg.emoji,
         senderId: sender.id,
@@ -447,17 +475,17 @@ export default class GameRoom implements Party.Server {
         if (this.state.winStreak[winner] >= 2) {
           this.state.winStreakPlayer = winner;
         }
-        this.clearTurnTimer();
+        await this.clearTurnTimer();
       } else if (draw) {
         this.state.isDraw = true;
         this.state.status = 'finished';
         this.state.winStreak = { ...INITIAL_SCORE };
         this.state.winStreakPlayer = null;
-        this.clearTurnTimer();
+        await this.clearTurnTimer();
       } else {
         this.state.currentPlayer =
           this.state.currentPlayer === HUMAN ? AI : HUMAN;
-        this.startTurnTimer();
+        await this.startTurnTimer();
       }
 
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
@@ -497,7 +525,7 @@ export default class GameRoom implements Party.Server {
         // Reset board but keep scores and players
         this.clearBoard();
 
-        this.startTurnTimer();
+        await this.startTurnTimer();
       }
 
       await this.saveAndBroadcast({ type: 'state-update', state: this.state });
@@ -508,5 +536,3 @@ export default class GameRoom implements Party.Server {
     }
   }
 }
-
-GameRoom satisfies Party.Worker;
