@@ -1,7 +1,7 @@
 // utils/multiplayer/multiplayerTypes.ts
 
 import type { Board as BoardType, Player } from '@/lib/tictactoe/gameLogic';
-import type { MoveEntry } from '../types';
+import type { MoveEntry } from '@/lib/tictactoe/gameLogic';
 
 // Messages carried by the `game-password` channel. Shared between the server
 // (party/game.ts) and the client so the password UI can match on them without
