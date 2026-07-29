@@ -1,5 +1,14 @@
 export type Player = '☠️' | '⚓';
 export type Board = (Player | null)[];
+
+// Lives here rather than in utils/tictactoe/types.ts so the Workers backend can
+// import it without pulling in that file's React/DOM types. Still re-exported
+// from utils/tictactoe/types.ts for the existing frontend imports.
+export type MoveEntry = {
+  turn: number;
+  player: Player;
+  index: number;
+};
 export type Difficulty = 'easy' | 'medium' | 'hard' | 'insane';
 
 export const INITIAL_SCORE: Record<Player, number> = { '☠️': 0, '⚓': 0 };
@@ -125,7 +134,9 @@ function getBestMove(
   // Among the equally-best moves, keep only the highest-priority tier (center >
   // corner > edge), then pick randomly within it to preserve replay variety.
   const topPriority = Math.min(...bestMoves.map((i) => POSITION_PRIORITY[i]));
-  const topMoves = bestMoves.filter((i) => POSITION_PRIORITY[i] === topPriority);
+  const topMoves = bestMoves.filter(
+    (i) => POSITION_PRIORITY[i] === topPriority,
+  );
   return topMoves[Math.floor(Math.random() * topMoves.length)];
 }
 
@@ -242,7 +253,11 @@ function makeWinnerChecker(size: number, winLen: number) {
 // Open-end aware shape score: `count` contiguous pieces with `openEnds` empty
 // neighbors at the ends. Distinguishes open threats (winning shapes) from
 // closed ones. Used by Insane.
-function scoreShapeOpenAware(count: number, openEnds: number, winLen: number): number {
+function scoreShapeOpenAware(
+  count: number,
+  openEnds: number,
+  winLen: number,
+): number {
   if (count >= winLen) return 1_000_000;
   if (openEnds === 0) return 0;
 
@@ -257,7 +272,11 @@ function scoreShapeOpenAware(count: number, openEnds: number, winLen: number): n
 // the AI extends/blocks chains by raw length and misses open-three forks.
 // Used by Hard — strong enough to play solid moves, weak enough to lose to a
 // human who sets up a two-move threat.
-function scoreShapeNaive(count: number, openEnds: number, winLen: number): number {
+function scoreShapeNaive(
+  count: number,
+  openEnds: number,
+  winLen: number,
+): number {
   if (count >= winLen) return 1_000_000;
   if (openEnds === 0) return 0;
   return count * count * count;
@@ -286,33 +305,58 @@ function evaluatePlacement(
     let r = row + dr;
     let c = col + dc;
     while (
-      r >= 0 && r < size && c >= 0 && c < size &&
+      r >= 0 &&
+      r < size &&
+      c >= 0 &&
+      c < size &&
       board[r * size + c] === player
     ) {
       count++;
       r += dr;
       c += dc;
     }
-    if (r >= 0 && r < size && c >= 0 && c < size && board[r * size + c] === null) openEnds++;
+    if (
+      r >= 0 &&
+      r < size &&
+      c >= 0 &&
+      c < size &&
+      board[r * size + c] === null
+    )
+      openEnds++;
 
     r = row - dr;
     c = col - dc;
     while (
-      r >= 0 && r < size && c >= 0 && c < size &&
+      r >= 0 &&
+      r < size &&
+      c >= 0 &&
+      c < size &&
       board[r * size + c] === player
     ) {
       count++;
       r -= dr;
       c -= dc;
     }
-    if (r >= 0 && r < size && c >= 0 && c < size && board[r * size + c] === null) openEnds++;
+    if (
+      r >= 0 &&
+      r < size &&
+      c >= 0 &&
+      c < size &&
+      board[r * size + c] === null
+    )
+      openEnds++;
 
     total += scoreFn(count, openEnds, winLen);
   }
   return total;
 }
 
-function hasNeighbor(board: Board, index: number, size: number, range: number): boolean {
+function hasNeighbor(
+  board: Board,
+  index: number,
+  size: number,
+  range: number,
+): boolean {
   const row = Math.floor(index / size);
   const col = index % size;
   for (let dr = -range; dr <= range; dr++) {
@@ -320,7 +364,14 @@ function hasNeighbor(board: Board, index: number, size: number, range: number): 
       if (dr === 0 && dc === 0) continue;
       const r = row + dr;
       const c = col + dc;
-      if (r >= 0 && r < size && c >= 0 && c < size && board[r * size + c] !== null) return true;
+      if (
+        r >= 0 &&
+        r < size &&
+        c >= 0 &&
+        c < size &&
+        board[r * size + c] !== null
+      )
+        return true;
     }
   }
   return false;
@@ -396,7 +447,16 @@ function getHardMoveN(
   winLen: number,
   checkWinner: (b: Board) => { winner: Player | null; line: number[] | null },
 ): number {
-  return getScoredMoveN(board, ai, human, size, winLen, checkWinner, scoreShapeNaive, 1.0);
+  return getScoredMoveN(
+    board,
+    ai,
+    human,
+    size,
+    winLen,
+    checkWinner,
+    scoreShapeNaive,
+    1.0,
+  );
 }
 
 // Insane: open-end aware scoring, defense weighted slightly higher than
@@ -409,7 +469,16 @@ function getInsaneMoveN(
   winLen: number,
   checkWinner: (b: Board) => { winner: Player | null; line: number[] | null },
 ): number {
-  return getScoredMoveN(board, ai, human, size, winLen, checkWinner, scoreShapeOpenAware, 1.1);
+  return getScoredMoveN(
+    board,
+    ai,
+    human,
+    size,
+    winLen,
+    checkWinner,
+    scoreShapeOpenAware,
+    1.1,
+  );
 }
 
 function getMediumMoveN(
@@ -451,10 +520,30 @@ export function getAIMove5(
 ): number {
   if (difficulty === 'easy') return getRandomMove(board);
   if (difficulty === 'medium')
-    return getMediumMoveN(board, aiPlayer, humanPlayer, SIZE_5, calculateWinner5);
+    return getMediumMoveN(
+      board,
+      aiPlayer,
+      humanPlayer,
+      SIZE_5,
+      calculateWinner5,
+    );
   if (difficulty === 'hard')
-    return getHardMoveN(board, aiPlayer, humanPlayer, SIZE_5, WIN_5, calculateWinner5);
-  return getInsaneMoveN(board, aiPlayer, humanPlayer, SIZE_5, WIN_5, calculateWinner5);
+    return getHardMoveN(
+      board,
+      aiPlayer,
+      humanPlayer,
+      SIZE_5,
+      WIN_5,
+      calculateWinner5,
+    );
+  return getInsaneMoveN(
+    board,
+    aiPlayer,
+    humanPlayer,
+    SIZE_5,
+    WIN_5,
+    calculateWinner5,
+  );
 }
 
 // ─── 10x10 GAME LOGIC (5-in-a-row) ────────────────────────────────────────────
@@ -472,8 +561,28 @@ export function getAIMove10(
 ): number {
   if (difficulty === 'easy') return getRandomMove(board);
   if (difficulty === 'medium')
-    return getMediumMoveN(board, aiPlayer, humanPlayer, SIZE_10, calculateWinner10);
+    return getMediumMoveN(
+      board,
+      aiPlayer,
+      humanPlayer,
+      SIZE_10,
+      calculateWinner10,
+    );
   if (difficulty === 'hard')
-    return getHardMoveN(board, aiPlayer, humanPlayer, SIZE_10, WIN_10, calculateWinner10);
-  return getInsaneMoveN(board, aiPlayer, humanPlayer, SIZE_10, WIN_10, calculateWinner10);
+    return getHardMoveN(
+      board,
+      aiPlayer,
+      humanPlayer,
+      SIZE_10,
+      WIN_10,
+      calculateWinner10,
+    );
+  return getInsaneMoveN(
+    board,
+    aiPlayer,
+    humanPlayer,
+    SIZE_10,
+    WIN_10,
+    calculateWinner10,
+  );
 }
