@@ -1,0 +1,26 @@
+{
+  // The worker code is type-checked separately from the Next.js app: it runs on
+  // workerd, not in a browser, so it needs Cloudflare's runtime globals
+  // (Request, WebSocket, DurableObject, ...) instead of the DOM lib. Mixing the
+  // two in one program produces conflicting definitions of the same globals.
+  //
+  // `worker-configuration.d.ts` is generated — rerun `npm run party:types`
+  // after editing wrangler.jsonc.
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2022"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "types": [],
+    "paths": {
+      "@/*": ["../*"]
+    }
+  },
+  "include": ["**/*.ts"]
+}
