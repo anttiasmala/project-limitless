@@ -168,7 +168,7 @@ export default class GameRoom extends Server<Env> {
       ).length;
 
       const lobby = await getServerByName(this.env.Lobby, 'main');
-      // Durable Object stubs require an absolute URL; the host is ignored, and
+      // Durable Object stubs require an absolute URL - the host is ignored, and
       // only the method/body reach LobbyServer.onRequest().
       await lobby.fetch('https://lobby.internal/parties/lobby/main', {
         method: 'POST',
@@ -192,7 +192,7 @@ export default class GameRoom extends Server<Env> {
 
     // `players` is keyed by connection id, so it's only meaningful for sockets
     // that are still attached. On a cold start there are none and this clears
-    // the map (what the PartyKit version did unconditionally); on a wake from
+    // the map (what the PartyKit version did unconditionally). On a wake from
     // hibernation the sockets are still live, so their players are kept.
     const liveIds = new Set([...this.getConnections()].map((conn) => conn.id));
     for (const id of Object.keys(saved.players)) {
