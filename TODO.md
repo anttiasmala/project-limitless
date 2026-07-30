@@ -2,6 +2,8 @@
 
 # TODO:
 
+1. Check calculator's input's text color
+
 # Ideas:
 
 ## Windows XP desktop
