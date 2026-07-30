@@ -12,6 +12,7 @@ export default function Logo({ wrapperClassName, imageClassName }: Logo) {
       <Image
         src={'/images/logo_with_text.svg'}
         alt="Logo icon"
+        loading="eager"
         height={128}
         width={128}
         className={twMerge('', imageClassName)}
