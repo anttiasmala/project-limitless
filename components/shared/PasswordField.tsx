@@ -1,7 +1,7 @@
-// components/register/PasswordField.tsx
+// components/shared/PasswordField.tsx
 
-import Button from '@/components/shared/Button';
-import Input from '@/components/shared/Input';
+import Button from './Button';
+import Input from './Input';
 import SvgEyeOpen from '@/icons/eye_open';
 import SvgEyeSlash from '@/icons/eye_slash';
 import { ReactNode } from 'react';

@@ -3,7 +3,10 @@
 'use client';
 
 import Button from '@/components/shared/Button';
+import PasswordField from '@/components/shared/PasswordField';
+import TextField from '@/components/shared/TextField';
 import { registerUser } from '@/lib/auth/registerUser';
+import { focusFirstInvalidField } from '@/utils/focusFirstInvalidField';
 import {
   collectRegisterErrors,
   REGISTER_FIELD_ORDER,
@@ -14,9 +17,7 @@ import {
 } from '@/utils/zodSchemas';
 import { useState } from 'react';
 import PasswordChecklist from './PasswordChecklist';
-import PasswordField from './PasswordField';
 import RegisterSuccess from './RegisterSuccess';
-import TextField from './TextField';
 
 const EMPTY_FORM_DATA: RegisterFormData = {
   username: '',
@@ -74,7 +75,7 @@ export default function RegisterForm() {
       const errors = collectRegisterErrors(formData);
       setClientErrors(errors);
       setServerErrors({});
-      focusFirstInvalidField(errors);
+      focusFirstInvalidField(REGISTER_FIELD_ORDER, errors);
       return;
     }
 
@@ -94,7 +95,7 @@ export default function RegisterForm() {
       const fieldErrors = result.fieldErrors ?? {};
       setServerErrors(fieldErrors);
       setFormError(result.formError);
-      focusFirstInvalidField(fieldErrors);
+      focusFirstInvalidField(REGISTER_FIELD_ORDER, fieldErrors);
     } catch (e) {
       console.error(e);
       setFormError('Something went wrong. Please try again.');
@@ -213,15 +214,4 @@ export default function RegisterForm() {
       </div>
     </form>
   );
-}
-
-/**
- * Moves focus to the first field that has a message, in rendering order, so a
- * keyboard user isn't left at the submit button hunting for what went wrong.
- */
-function focusFirstInvalidField(errors: RegisterFieldErrors) {
-  const firstInvalid = REGISTER_FIELD_ORDER.find(
-    (field) => errors[field] !== undefined,
-  );
-  if (firstInvalid) document.getElementById(firstInvalid)?.focus();
 }

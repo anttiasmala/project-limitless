@@ -1,6 +1,6 @@
-// components/register/TextField.tsx
+// components/shared/TextField.tsx
 
-import Input from '@/components/shared/Input';
+import Input from './Input';
 import FieldError from './FieldError';
 import { InputHTMLAttributes } from 'react';
 
