@@ -12,7 +12,7 @@ const usernameSchema = z
     'Username can only contain letters, numbers, _ and -',
   );
 
-const emailSchema = z
+export const emailSchema = z
   .string()
   .trim()
   .min(1, 'Email is mandatory!')
@@ -82,6 +82,49 @@ export function collectRegisterErrors(
   const errors: RegisterFieldErrors = {};
 
   for (const field of REGISTER_FIELD_ORDER) {
+    const message = errorTree.properties?.[field]?.errors[0];
+    if (message) errors[field] = message;
+  }
+
+  return errors;
+}
+
+// Login
+//
+// Deliberately looser than the register schema: the rules an account was
+// created under may not be today's rules, and telling somebody their password
+// is "too short" at the login screen only leaks what is stored. Both fields
+// just have to be filled in - whether they are correct is the server's answer.
+export const loginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, 'Password is mandatory!'),
+});
+
+/** What the form holds while typing - before trimming/lowercasing. */
+export type LoginFormData = z.input<typeof loginSchema>;
+
+/** What a successful parse produces - this is what gets submitted. */
+export type LoginInput = z.output<typeof loginSchema>;
+
+export type LoginFieldName = keyof LoginFormData;
+
+/** Rendering order, also used to focus the first invalid field on submit. */
+export const LOGIN_FIELD_ORDER = [
+  'email',
+  'password',
+] as const satisfies readonly LoginFieldName[];
+
+export type LoginFieldErrors = Partial<Record<LoginFieldName, string>>;
+
+/** The login counterpart of {@link collectRegisterErrors}. */
+export function collectLoginErrors(formData: LoginFormData): LoginFieldErrors {
+  const result = loginSchema.safeParse(formData);
+  if (result.success) return {};
+
+  const errorTree = z.treeifyError(result.error);
+  const errors: LoginFieldErrors = {};
+
+  for (const field of LOGIN_FIELD_ORDER) {
     const message = errorTree.properties?.[field]?.errors[0];
     if (message) errors[field] = message;
   }
