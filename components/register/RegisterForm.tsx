@@ -15,6 +15,7 @@ import {
   type RegisterFieldName,
   type RegisterFormData,
 } from '@/utils/zodSchemas';
+import Link from 'next/link';
 import { useState } from 'react';
 import PasswordChecklist from './PasswordChecklist';
 import RegisterSuccess from './RegisterSuccess';
@@ -212,6 +213,18 @@ export default function RegisterForm() {
           {isSubmitting ? 'Registering…' : 'Register'}
         </Button>
       </div>
+
+      {/* Inside the form rather than the page so it disappears along with the
+          form once the registration succeeds. */}
+      <p className="mt-4 w-full text-center text-sm text-slate-500 dark:text-slate-400">
+        Already have an account?{' '}
+        <Link
+          href="/login"
+          className="font-semibold text-slate-600 underline-offset-4 hover:underline dark:text-slate-300"
+        >
+          Log in
+        </Link>
+      </p>
     </form>
   );
 }
