@@ -5,7 +5,7 @@
 import Button from '@/components/shared/Button';
 import PasswordField from '@/components/shared/PasswordField';
 import TextField from '@/components/shared/TextField';
-import { loginUser } from '@/lib/auth/loginUser';
+import { loginUser } from '@/backend/auth/loginUser';
 import { focusFirstInvalidField } from '@/utils/focusFirstInvalidField';
 import {
   collectLoginErrors,
