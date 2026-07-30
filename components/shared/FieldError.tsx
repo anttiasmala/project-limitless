@@ -1,4 +1,4 @@
-// components/register/FieldError.tsx
+// components/shared/FieldError.tsx
 
 /**
  * The error message under an input

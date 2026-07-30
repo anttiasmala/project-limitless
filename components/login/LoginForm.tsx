@@ -1,42 +1,39 @@
-// components/register/RegisterForm.tsx
+// components/login/LoginForm.tsx
 
 'use client';
 
 import Button from '@/components/shared/Button';
 import PasswordField from '@/components/shared/PasswordField';
 import TextField from '@/components/shared/TextField';
-import { registerUser } from '@/lib/auth/registerUser';
+import { loginUser } from '@/lib/auth/loginUser';
 import { focusFirstInvalidField } from '@/utils/focusFirstInvalidField';
 import {
-  collectRegisterErrors,
-  REGISTER_FIELD_ORDER,
-  registerSchema,
-  type RegisterFieldErrors,
-  type RegisterFieldName,
-  type RegisterFormData,
+  collectLoginErrors,
+  LOGIN_FIELD_ORDER,
+  loginSchema,
+  type LoginFieldErrors,
+  type LoginFieldName,
+  type LoginFormData,
 } from '@/utils/zodSchemas';
 import Link from 'next/link';
 import { useState } from 'react';
-import PasswordChecklist from './PasswordChecklist';
-import RegisterSuccess from './RegisterSuccess';
+import LoginSuccess from './LoginSuccess';
 
-const EMPTY_FORM_DATA: RegisterFormData = {
-  username: '',
+const EMPTY_FORM_DATA: LoginFormData = {
   email: '',
   password: '',
-  confirmPassword: '',
 };
 
 type Status = 'idle' | 'submitting' | 'success';
 
-export default function RegisterForm() {
-  const [formData, setFormData] = useState<RegisterFormData>(EMPTY_FORM_DATA);
+export default function LoginForm() {
+  const [formData, setFormData] = useState<LoginFormData>(EMPTY_FORM_DATA);
 
-  // Errors from the schema and errors reported by registerUser are kept apart
-  // on purpose: re-validating on every keystroke would otherwise wipe out an
-  // "already taken" message the moment an unrelated field is edited.
-  const [clientErrors, setClientErrors] = useState<RegisterFieldErrors>({});
-  const [serverErrors, setServerErrors] = useState<RegisterFieldErrors>({});
+  // Errors from the schema and errors reported by loginUser are kept apart on
+  // purpose: re-validating on every keystroke would otherwise wipe out a
+  // message from the server the moment an unrelated field is edited.
+  const [clientErrors, setClientErrors] = useState<LoginFieldErrors>({});
+  const [serverErrors, setServerErrors] = useState<LoginFieldErrors>({});
   const [formError, setFormError] = useState<string | undefined>(undefined);
 
   // Validation stays silent until the first submit, then runs "live". Nobody
@@ -44,17 +41,17 @@ export default function RegisterForm() {
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const [status, setStatus] = useState<Status>('idle');
-  const [registeredUsername, setRegisteredUsername] = useState('');
+  const [loggedInUsername, setLoggedInUsername] = useState('');
 
   const [isPasswordRevealed, setIsPasswordRevealed] = useState(false);
 
   const isSubmitting = status === 'submitting';
 
-  function errorFor(field: RegisterFieldName) {
+  function errorFor(field: LoginFieldName) {
     return clientErrors[field] ?? serverErrors[field];
   }
 
-  function updateField(field: RegisterFieldName, value: string) {
+  function updateField(field: LoginFieldName, value: string) {
     const nextFormData = { ...formData, [field]: value };
     setFormData(nextFormData);
 
@@ -62,7 +59,7 @@ export default function RegisterForm() {
     setServerErrors((previous) => ({ ...previous, [field]: undefined }));
     setFormError(undefined);
 
-    if (hasSubmitted) setClientErrors(collectRegisterErrors(nextFormData));
+    if (hasSubmitted) setClientErrors(collectLoginErrors(nextFormData));
   }
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
@@ -70,13 +67,13 @@ export default function RegisterForm() {
     setHasSubmitted(true);
     setFormError(undefined);
 
-    const validatedForm = registerSchema.safeParse(formData);
+    const validatedForm = loginSchema.safeParse(formData);
 
     if (!validatedForm.success) {
-      const errors = collectRegisterErrors(formData);
+      const errors = collectLoginErrors(formData);
       setClientErrors(errors);
       setServerErrors({});
-      focusFirstInvalidField(REGISTER_FIELD_ORDER, errors);
+      focusFirstInvalidField(LOGIN_FIELD_ORDER, errors);
       return;
     }
 
@@ -85,10 +82,10 @@ export default function RegisterForm() {
     setStatus('submitting');
 
     try {
-      const result = await registerUser(validatedForm.data);
+      const result = await loginUser(validatedForm.data);
 
       if (result.ok) {
-        setRegisteredUsername(validatedForm.data.username);
+        setLoggedInUsername(result.username);
         setStatus('success');
         return;
       }
@@ -96,7 +93,7 @@ export default function RegisterForm() {
       const fieldErrors = result.fieldErrors ?? {};
       setServerErrors(fieldErrors);
       setFormError(result.formError);
-      focusFirstInvalidField(REGISTER_FIELD_ORDER, fieldErrors);
+      focusFirstInvalidField(LOGIN_FIELD_ORDER, fieldErrors);
     } catch (e) {
       console.error(e);
       setFormError('Something went wrong. Please try again.');
@@ -112,17 +109,12 @@ export default function RegisterForm() {
     setFormError(undefined);
     setHasSubmitted(false);
     setIsPasswordRevealed(false);
-    setRegisteredUsername('');
+    setLoggedInUsername('');
     setStatus('idle');
   }
 
   if (status === 'success') {
-    return (
-      <RegisterSuccess
-        username={registeredUsername}
-        onRegisterAnother={resetForm}
-      />
-    );
+    return <LoginSuccess username={loggedInUsername} onLogOut={resetForm} />;
   }
 
   return (
@@ -133,19 +125,6 @@ export default function RegisterForm() {
       className="flex w-full max-w-xs flex-col items-start"
       onSubmit={(e) => handleSubmit(e)}
     >
-      <TextField
-        id="username"
-        name="username"
-        label="Username"
-        type="text"
-        autoComplete="username"
-        spellCheck="false"
-        maxLength={30}
-        value={formData.username}
-        error={errorFor('username')}
-        onChange={(e) => updateField('username', e.currentTarget.value)}
-      />
-
       <TextField
         id="email"
         name="email"
@@ -162,35 +141,15 @@ export default function RegisterForm() {
       <PasswordField
         id="password"
         label="Password"
-        autoComplete="new-password"
+        // "current-password", unlike register's "new-password", is what tells a
+        // password manager to offer a saved entry instead of generating one.
+        autoComplete="current-password"
         value={formData.password}
         error={errorFor('password')}
         isRevealed={isPasswordRevealed}
         onToggleReveal={() => setIsPasswordRevealed((previous) => !previous)}
         onChange={(value) => updateField('password', value)}
-        describedBy={
-          formData.password.length > 0 ? 'password-rules' : undefined
-        }
-      >
-        {/* Hidden while the field is empty so the form doesn't greet people
-            with a column of red crosses. */}
-        {formData.password.length > 0 && (
-          <PasswordChecklist id="password-rules" password={formData.password} />
-        )}
-      </PasswordField>
-
-      <div className="mt-4 w-full">
-        <PasswordField
-          id="confirmPassword"
-          label="Confirm password"
-          autoComplete="new-password"
-          value={formData.confirmPassword}
-          error={errorFor('confirmPassword')}
-          isRevealed={isPasswordRevealed}
-          onToggleReveal={() => setIsPasswordRevealed((previous) => !previous)}
-          onChange={(value) => updateField('confirmPassword', value)}
-        />
-      </div>
+      />
 
       {formError !== undefined && (
         <p
@@ -210,19 +169,19 @@ export default function RegisterForm() {
           // Announced to screen readers while the request is in submitting
           aria-busy={isSubmitting}
         >
-          {isSubmitting ? 'Registering…' : 'Register'}
+          {isSubmitting ? 'Logging in…' : 'Login'}
         </Button>
       </div>
 
       {/* Inside the form rather than the page so it disappears along with the
-          form once the registration succeeds. */}
+          form once the login succeeds. */}
       <p className="mt-4 w-full text-center text-sm text-slate-500 dark:text-slate-400">
-        Already have an account?{' '}
+        Don&apos;t have an account?{' '}
         <Link
-          href="/login"
+          href="/register"
           className="font-semibold text-slate-600 underline-offset-4 hover:underline dark:text-slate-300"
         >
-          Log in
+          Register
         </Link>
       </p>
     </form>
