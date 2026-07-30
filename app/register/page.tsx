@@ -1,5 +1,6 @@
 // app/register/page.tsx
 
+import Logo from '@/components/Logo';
 import RegisterForm from '@/components/register/RegisterForm';
 import ThemeToggleCorner from '@/components/shared/ThemeToggleCorner';
 import type { Metadata } from 'next';
@@ -28,7 +29,8 @@ export default function Register() {
       </Link>
 
       <div className="relative z-10 flex w-full max-w-xs flex-col items-center gap-8">
-        <header className="text-center">
+        <header className="flex flex-col items-center text-center">
+          <Logo />
           <h1 className="text-2xl font-black tracking-tight text-slate-800 dark:text-slate-100">
             Register a new account
           </h1>
