@@ -16,6 +16,7 @@
   },
   "type": "module",
   "dependencies": {
+    "better-auth": "^1.6.25",
     "canvas-confetti": "^1.9.4",
     "emoji-picker-react": "^4.19.1",
     "html-to-image": "^1.11.13",
