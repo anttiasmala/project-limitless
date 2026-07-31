@@ -10,6 +10,27 @@ npm run dev
 npx partykit dev
 ```
 
+### Setting Environment Variables
+
+1. **Create a `.env` file:** Use `.env.example` as a template.
+2. **Set the DATABASE_URL variable:** Modify this variable to reflect your database user's details. Here's an example format:
+
+   ```
+   DATABASE_URL="postgresql://johndoe:JohnDoeDoesPostgres@localhost:5432/johnDB?schema=public"
+   ```
+
+   - `johnDB` in the DATABASE_URL can be named as desired. Prisma will create a new database if it doesn't exist.
+
+### Running Migrations
+
+Run the migrations to set up the database schema:
+
+```bash
+npx prisma migrate deploy
+```
+
+After this step, your database is ready to go!
+
 ### Error while running SVGR (npm run svgr)
 
 If you get this following error while running `npm run svgr`:
