@@ -10,15 +10,18 @@
     "party:dev": "wrangler dev",
     "party:deploy": "wrangler deploy",
     "party:types": "wrangler types --path party/worker-configuration.d.ts",
+    "migrate": "npm run prisma migrate deploy && prisma generate",
     "check-types": "tsc --noemit && tsc -p party --noEmit",
     "lint": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "lint:fix": "eslint --fix .",
+    "prisma": "dotenv -c .env -- prisma"
   },
   "type": "module",
   "dependencies": {
     "@prisma/client": "^7.9.1",
     "better-auth": "^1.6.25",
     "canvas-confetti": "^1.9.4",
+    "dotenv": "^17.4.2",
     "emoji-picker-react": "^4.19.1",
     "html-to-image": "^1.11.13",
     "nanoid": "^6.0.0",
