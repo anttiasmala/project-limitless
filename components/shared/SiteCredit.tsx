@@ -16,12 +16,6 @@ const HIDDEN_ON: string[] = ['/index-page'];
  * The "Website by Antti Asmala" credit, rendered once in the root layout so every page
  * gets it.
  *
- * This sits in the normal flow as the last child of the body, which is a
- * `min-h-screen` flex column (see app/layout.tsx). Each page's `<main>` is
- * `flex-1` rather than `min-h-screen`, so the two together fill the viewport:
- * the footer rests on the bottom edge on short pages and is pushed below the
- * content on tall ones. Deliberately not `fixed` — that floated it over page
- * content, e.g. the tic-tac-toe board.
  */
 export default function SiteCredit({ className }: { className?: string }) {
   const pathname = usePathname();
@@ -29,9 +23,7 @@ export default function SiteCredit({ className }: { className?: string }) {
   if (HIDDEN_ON.some((route) => pathname === route)) return null;
 
   return (
-    // `relative z-10` keeps the credit above the `fixed inset-0` background
-    // gradients the pages paint, which would otherwise cover it: they are
-    // positioned, so they paint above in-flow content regardless of DOM order.
+    // `relative z-10` keeps the credit above the `fixed inset-0`
     <footer
       className={twMerge(
         'relative z-10 flex w-full shrink-0 flex-wrap justify-between gap-x-4 gap-y-1 px-3 py-2 text-sm text-slate-500 dark:text-slate-400',
