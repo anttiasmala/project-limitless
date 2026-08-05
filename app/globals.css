@@ -7,9 +7,24 @@
 /* This allows dark: work in element's className */
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #0a0a0a;
+      --foreground: #ededed;
+    }
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    /* font-family: 'Pirata One', cursive, sans-serif; */
+  }
 }
 
 @theme inline {
@@ -17,19 +32,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  /* font-family: 'Pirata One', cursive, sans-serif; */
 }
 
 /* Chrome, Edge and Safari repaint an autofilled field with their own background
