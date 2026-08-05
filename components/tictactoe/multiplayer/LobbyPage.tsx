@@ -18,7 +18,7 @@ export default function LobbyPage() {
   });
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
+    <main className="flex flex-1 items-center justify-center p-4">
       <div className="w-full max-w-lg rounded-2xl border-2 border-slate-300 bg-white/80 p-4 sm:p-8 dark:border-amber-800 dark:bg-amber-950/40">
         <div className="mb-2 flex justify-end">
           <Button
