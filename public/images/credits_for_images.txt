@@ -1,1 +1,2 @@
 logo.svg = https://www.magnific.com/free-vector/vector-hand-drawn-anchor-sketch-with-blank-ribbon-nautical-isolated-object-vintage-marine-tattoo-illustration_10703655.htm
+user.svg = https://heroicons.com/
