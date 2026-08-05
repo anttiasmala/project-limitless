@@ -32,6 +32,29 @@ body {
   /* font-family: 'Pirata One', cursive, sans-serif; */
 }
 
+/* Chrome, Edge and Safari repaint an autofilled field with their own background
+   and text color from a UA rule that author styles cannot beat -- not even with
+   !important. So `bg-white dark:bg-slate-900` on an input silently loses the colors on the
+   moment the browser fills it. An inset box-shadow is the one paint that still
+   lands on top, and -webkit-text-fill-color the one that still wins over the
+   text color. Both read the colors from the variant that owns the input
+   (see components/shared/Input.tsx)
+
+   The ring variables are re-listed because box-shadow is also what Tailwind
+   builds focus rings out of -- without them, focusing an autofilled field would
+   lose its focus-visible ring. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  box-shadow:
+    inset 0 0 0 1000px var(--autofill-bg, transparent),
+    var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000);
+  -webkit-text-fill-color: var(--autofill-fg, currentcolor);
+  caret-color: var(--autofill-fg, currentcolor);
+}
+
 /* Windows XP "Luna" title bar + window-control gradients.
    Each has a focused (vivid) and non-focused (desaturated) variant. */
 .xp-titlebar-active {
