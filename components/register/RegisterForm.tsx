@@ -179,7 +179,7 @@ export default function RegisterForm() {
         )}
       </PasswordField>
 
-      <div className="mt-4 w-full">
+      <div className="w-full">
         <PasswordField
           id="confirmPassword"
           label="Confirm password"
