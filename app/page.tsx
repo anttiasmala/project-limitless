@@ -2,6 +2,7 @@
 
 'use client';
 
+import AuthStatus from '@/components/shared/AuthStatus';
 import { ToggleSwitchDarkLightTheme } from '@/components/shared/ToggleSwitch';
 import { useDarkTheme } from '@/hooks/useDarkTheme';
 import Link from 'next/link';
@@ -45,7 +46,10 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-4 py-16 dark:bg-[#0a0a1a]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,#e2e8f0_0%,#f1f5f9_70%)] dark:bg-[radial-gradient(ellipse_at_top,#15152b_0%,#0a0a1a_70%)]" />
-      <div className="absolute top-1 right-1">
+      {/* Both corner controls share one row so the auth links can sit beside
+          the theme switch instead of overlapping it. */}
+      <div className="absolute top-1 right-1 z-20 flex items-center gap-3">
+        <AuthStatus />
         <ToggleSwitchDarkLightTheme
           className="cursor-pointer"
           checked={isDarkTheme}
