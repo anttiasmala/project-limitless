@@ -6,6 +6,8 @@
 
 # Ideas:
 
+1. While using light-theme, the Theme toggle switch does always start from dark theme side and makes the move to "light-side"
+
 ## Windows XP desktop
 
 1. Perhaps more apps, like Notepad, Minesweeper, Solitaire (maybe in XP context?), My Computer, Recycle Bin?
