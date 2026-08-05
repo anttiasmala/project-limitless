@@ -13,13 +13,13 @@ export const metadata: Metadata = {
 
 export default function TicTacToe() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-4 dark:bg-[#0a0a1a]">
+    <main className="relative flex flex-1 flex-col items-center justify-center bg-slate-100 px-4 dark:bg-[#0a0a1a]">
       {/* Opens a shared game's ReplayModal when arriving via a ?replay= link. */}
       <Suspense fallback={null}>
         <SharedReplayLoader />
       </Suspense>
 
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,#bae6fd_0%,#f1f5f9_70%)] dark:bg-[radial-gradient(ellipse_at_top,#1a3a5c_0%,#0a0a1a_70%)]" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,#bae6fd_0%,#f1f5f9_70%)] dark:bg-[radial-gradient(ellipse_at_top,#1a3a5c_0%,#0a0a1a_70%)]" />
 
       {/* Back to the arcade landing page */}
       <Link

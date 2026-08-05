@@ -3,6 +3,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import ThemedToastContainer from '@/components/shared/ThemedToastContainer';
+import SiteCredit from '@/components/shared/SiteCredit';
 
 export const metadata: Metadata = {
   title: {
@@ -35,9 +36,12 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>
+      {/* The column is what puts the credit on the bottom edge: `<main>` is
+          `flex-1` on every page, so it takes the height the footer doesn't. */}
+      <body className="flex min-h-screen flex-col bg-slate-100 dark:bg-[#0a0a1a]">
         {children}
         <ThemedToastContainer />
+        <SiteCredit />
       </body>
     </html>
   );

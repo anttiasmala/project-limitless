@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function CalculatorPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-4 dark:bg-[#0a0a1a]">
+    <main className="relative flex flex-1 flex-col items-center justify-center bg-slate-100 px-4 dark:bg-[#0a0a1a]">
       {/* Back to the arcade landing page */}
       <Link
         href="/"
