@@ -5,7 +5,7 @@
 import Button from '@/components/shared/Button';
 import PasswordField from '@/components/shared/PasswordField';
 import TextField from '@/components/shared/TextField';
-import { loginUser } from '@/backend/auth/loginUser';
+import { loginUser, logOutUser } from '@/lib/auth/loginUser';
 import { focusFirstInvalidField } from '@/utils/focusFirstInvalidField';
 import {
   collectLoginErrors,
@@ -113,8 +113,15 @@ export default function LoginForm() {
     setStatus('idle');
   }
 
+  // The session outlives this component's state, so putting the form back on
+  // screen is only honest once Better Auth has actually cleared the cookie.
+  async function handleLogOut() {
+    await logOutUser();
+    resetForm();
+  }
+
   if (status === 'success') {
-    return <LoginSuccess username={loggedInUsername} onLogOut={resetForm} />;
+    return <LoginSuccess username={loggedInUsername} onLogOut={handleLogOut} />;
   }
 
   return (

@@ -5,7 +5,7 @@
 import Button from '@/components/shared/Button';
 import PasswordField from '@/components/shared/PasswordField';
 import TextField from '@/components/shared/TextField';
-import { registerUser } from '@/backend/auth/registerUser';
+import { registerUser } from '@/lib/auth/registerUser';
 import { focusFirstInvalidField } from '@/utils/focusFirstInvalidField';
 import {
   collectRegisterErrors,

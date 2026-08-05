@@ -4,20 +4,38 @@
 
 import Button from '@/components/shared/Button';
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 /**
- * Shown in place of the form after a successful login. Stands in for the
- * redirect that will happen once there are sessions to redirect into.
+ * Shown after a successful login.
  */
 export default function LoginSuccess({
   username,
   onLogOut,
 }: {
   username: string;
-  onLogOut: () => void;
+  onLogOut: () => void | Promise<void>;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
+
+  // Logging out is a request now, so it can fail.
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logOutError, setLogOutError] = useState<string | undefined>(undefined);
+
+  async function handleLogOut() {
+    setIsLoggingOut(true);
+    setLogOutError(undefined);
+
+    try {
+      await onLogOut();
+    } catch (e) {
+      console.error(e);
+      // Staying on this screen is the truthful outcome: the session is still
+      // alive, so showing the login form again would not make sense.
+      setLogOutError('Could not log out. Please try again.');
+      setIsLoggingOut(false);
+    }
+  }
 
   // The form that had focus is gone, so focus would otherwise fall back to
   // <body> and a keyboard or screen reader user would be left with no idea the
@@ -43,9 +61,24 @@ export default function LoginSuccess({
         You are logged in.
       </p>
 
-      <Button variant="neutral" size="md" onClick={onLogOut}>
-        Log out
+      <Button
+        variant="neutral"
+        size="md"
+        onClick={handleLogOut}
+        disabled={isLoggingOut}
+        aria-busy={isLoggingOut}
+      >
+        {isLoggingOut ? 'Logging out…' : 'Log out'}
       </Button>
+
+      {logOutError !== undefined && (
+        <p
+          role="alert"
+          className="w-full rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300"
+        >
+          {logOutError}
+        </p>
+      )}
 
       <Link
         href="/"

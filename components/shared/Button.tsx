@@ -4,11 +4,7 @@ import { ComponentPropsWithoutRef, Ref } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 export type ButtonVariant =
-  | 'primary'
-  | 'gold'
-  | 'neutral'
-  | 'ghost'
-  | 'unstyled';
+  'primary' | 'gold' | 'neutral' | 'ghost' | 'unstyled';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 type ButtonProps = ComponentPropsWithoutRef<'button'> & {
@@ -37,6 +33,25 @@ const SIZES: Record<ButtonSize, string> = {
   lg: 'px-6 py-3 text-lg',
 };
 
+/**
+ * The button's styling on its own, for the cases where the styling
+ * is used in another element. Like in a <Link>, which needs to remain an <a>
+ * to keep middle-click and "open in new tab" possible.
+ */
+export function buttonClassName({
+  variant = 'primary',
+  size = 'lg',
+  className,
+}: {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  className?: string;
+} = {}) {
+  const sizeClasses = variant === 'unstyled' ? '' : SIZES[size];
+
+  return twMerge(BASE, VARIANTS[variant], sizeClasses, className);
+}
+
 export default function Button({
   variant = 'primary',
   size = 'lg',
@@ -46,14 +61,11 @@ export default function Button({
   ref,
   ...rest
 }: ButtonProps) {
-  const variantClasses = VARIANTS[variant];
-  const sizeClasses = variant === 'unstyled' ? '' : SIZES[size];
-
   return (
     <button
       ref={ref}
       type={type}
-      className={twMerge(BASE, variantClasses, sizeClasses, className)}
+      className={buttonClassName({ variant, size, className })}
       {...rest}
     >
       {children}

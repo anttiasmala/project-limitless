@@ -1,0 +1,85 @@
+// The models below are Better Auth's own schema (generated with
+// `npx @better-auth/cli generate` and reformatted to match this project).
+// Better Auth reads and writes these tables itself, so the field names and the
+// @@map names are not free to rename. Anything of our own belongs in separate
+// models that relate to User.
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+model User {
+    id            String   @id
+    name          String
+    email         String   @unique
+    emailVerified Boolean  @default(false)
+    image         String?
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    // Added by the `username` plugin. Optional in Better Auth's schema because
+    // accounts can also come from providers that have no username. Anything
+    // registered through our own form always sets both.
+    username        String? @unique
+    displayUsername String?
+
+    sessions Session[]
+    accounts Account[]
+
+    @@map("user")
+}
+
+model Session {
+    id        String   @id
+    expiresAt DateTime
+    token     String   @unique
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    ipAddress String?
+    userAgent String?
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@map("session")
+}
+
+// Credentials live here rather than on User: one row per sign-in method. An
+// email and password registration creates a row with providerId "credential"
+// whose `password` holds the hash.
+model Account {
+    id                    String    @id
+    accountId             String
+    providerId            String
+    userId                String
+    user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    accessToken           String?
+    refreshToken          String?
+    idToken               String?
+    accessTokenExpiresAt  DateTime?
+    refreshTokenExpiresAt DateTime?
+    scope                 String?
+    password              String?
+    createdAt             DateTime  @default(now())
+    updatedAt             DateTime  @updatedAt
+
+    @@index([userId])
+    @@map("account")
+}
+
+// Short lived tokens for email verification and password resets.
+model Verification {
+    id         String   @id
+    identifier String
+    value      String
+    expiresAt  DateTime
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    @@index([identifier])
+    @@map("verification")
+}
