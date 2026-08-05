@@ -3,17 +3,21 @@
 'use client';
 
 import Button from '@/components/shared/Button';
+import Panel from '@/components/shared/Panel';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Shown after a successful login.
+ * Shown after a successful login, and to anyone who opens /login while a
+ * session is already running.
  */
 export default function LoginSuccess({
   username,
+  focusOnMount = true,
   onLogOut,
 }: {
   username: string;
+  focusOnMount?: boolean;
   onLogOut: () => void | Promise<void>;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -41,16 +45,11 @@ export default function LoginSuccess({
   // <body> and a keyboard or screen reader user would be left with no idea the
   // submit succeeded. tabIndex={-1} makes the panel a valid focus target.
   useEffect(() => {
-    panelRef.current?.focus();
-  }, []);
+    if (focusOnMount) panelRef.current?.focus();
+  }, [focusOnMount]);
 
   return (
-    <div
-      ref={panelRef}
-      role="status"
-      tabIndex={-1}
-      className="flex w-full max-w-xs flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white/80 p-6 text-center shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/60"
-    >
+    <Panel ref={panelRef} role="status" tabIndex={-1}>
       <span className="text-4xl" aria-hidden>
         🎮
       </span>
@@ -86,6 +85,6 @@ export default function LoginSuccess({
       >
         ← Back to the arcade
       </Link>
-    </div>
+    </Panel>
   );
 }

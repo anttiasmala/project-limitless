@@ -3,6 +3,7 @@
 'use client';
 
 import Button, { buttonClassName } from '@/components/shared/Button';
+import Panel from '@/components/shared/Panel';
 import { useSession } from '@/lib/auth/auth-client';
 import { logOutUser } from '@/lib/auth/loginUser';
 import Link from 'next/link';
@@ -145,28 +146,6 @@ export default function Logout() {
 
       <HomeLink />
     </Panel>
-  );
-}
-
-/**
- * The card every state of this page is drawn on, shared so the page does not
- * jump as it swaps between them.
- */
-function Panel({
-  children,
-  ref,
-  ...rest
-}: React.ComponentPropsWithoutRef<'div'> & {
-  ref?: React.Ref<HTMLDivElement>;
-}) {
-  return (
-    <div
-      ref={ref}
-      className="flex w-full max-w-xs flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white/80 p-6 text-center shadow-sm backdrop-blur focus-visible:outline-none dark:border-slate-800 dark:bg-slate-900/60"
-      {...rest}
-    >
-      {children}
-    </div>
   );
 }
 

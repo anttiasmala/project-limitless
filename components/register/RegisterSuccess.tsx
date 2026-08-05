@@ -3,6 +3,7 @@
 'use client';
 
 import Button from '@/components/shared/Button';
+import Panel from '@/components/shared/Panel';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 
@@ -26,12 +27,7 @@ export default function RegisterSuccess({
   }, []);
 
   return (
-    <div
-      ref={panelRef}
-      role="status"
-      tabIndex={-1}
-      className="flex w-full max-w-xs flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white/80 p-6 text-center shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/60"
-    >
+    <Panel ref={panelRef} role="status" tabIndex={-1}>
       <span className="text-4xl" aria-hidden>
         🎉
       </span>
@@ -52,6 +48,6 @@ export default function RegisterSuccess({
       >
         ← Back to the arcade
       </Link>
-    </div>
+    </Panel>
   );
 }

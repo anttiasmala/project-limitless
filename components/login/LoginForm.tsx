@@ -3,6 +3,7 @@
 'use client';
 
 import Button from '@/components/shared/Button';
+import Panel from '@/components/shared/Panel';
 import PasswordField from '@/components/shared/PasswordField';
 import TextField from '@/components/shared/TextField';
 import { loginUser, logOutUser } from '@/lib/auth/loginUser';
@@ -18,6 +19,7 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 import LoginSuccess from './LoginSuccess';
+import { useSession } from '@/lib/auth/auth-client';
 
 const EMPTY_FORM_DATA: LoginFormData = {
   email: '',
@@ -27,6 +29,8 @@ const EMPTY_FORM_DATA: LoginFormData = {
 type Status = 'idle' | 'submitting' | 'success';
 
 export default function LoginForm() {
+  const { data: session, isPending } = useSession();
+
   const [formData, setFormData] = useState<LoginFormData>(EMPTY_FORM_DATA);
 
   // Errors from the schema and errors reported by loginUser are kept apart on
@@ -46,6 +50,14 @@ export default function LoginForm() {
   const [isPasswordRevealed, setIsPasswordRevealed] = useState(false);
 
   const isSubmitting = status === 'submitting';
+
+  // `username` is nullable in Better Auth's schema, so the greeting falls back
+  // to the display name rather than rendering "Welcome back, null!".
+  const sessionUsername = session
+    ? (session.user.username ?? session.user.name)
+    : '';
+
+  const username = loggedInUsername || sessionUsername;
 
   function errorFor(field: LoginFieldName) {
     return clientErrors[field] ?? serverErrors[field];
@@ -120,8 +132,28 @@ export default function LoginForm() {
     resetForm();
   }
 
-  if (status === 'success') {
-    return <LoginSuccess username={loggedInUsername} onLogOut={handleLogOut} />;
+  // Checked before `isPending`, which goes true again on every background
+  // refetch: a good login should not blink back to a loading card
+  if (status === 'success' || session) {
+    return (
+      <LoginSuccess
+        username={username}
+        focusOnMount={status === 'success'}
+        onLogOut={handleLogOut}
+      />
+    );
+  }
+
+  // The session lives in a cookie the server has to get for, so on first
+  // render neither "signed in" nor "signed out" is known yet.
+  if (isPending) {
+    return (
+      <Panel>
+        <p role="status" className="text-sm text-slate-500 dark:text-slate-400">
+          Checking your session…
+        </p>
+      </Panel>
+    );
   }
 
   return (
