@@ -507,7 +507,7 @@ export default function Calculator() {
         // do NOT use readOnly here: read-only inputs hide the blinking caret
         // in some browsers, and we want the caret visible so the user can
         // place it. The caret is read on demand in addNumber/removeNumber
-        className="mb-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-end text-3xl tabular-nums caret-cyan-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400 focus:outline-none dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-100"
+        className="mb-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-end text-3xl text-black tabular-nums caret-cyan-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-400 focus:outline-none dark:border-slate-700 dark:bg-slate-950/60 dark:text-slate-100"
         value={state.present === null ? '' : formatForDisplay(state.present)}
       />
       <div className="grid grid-cols-4 gap-2">

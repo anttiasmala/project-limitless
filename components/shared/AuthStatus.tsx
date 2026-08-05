@@ -14,7 +14,7 @@ const QUIET_LINK =
  * Who is signed in, and the way in or out. Without this the auth pages exist
  * but nothing points at them, so /login can only be reached by typing the URL.
  *
- * Logging out is left to /logout rather than done here: that page already
+ * Logging out is left to /logout rather than done here, at least for now. Logout-page
  * confirms the intent and reports a sign-out that failed, and a second copy of
  * that in the corner of every page would only be a worse one.
  */
