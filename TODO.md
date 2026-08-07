@@ -3,6 +3,7 @@
 # TODO:
 
 1. Check calculator's input's text color
+2. Add Tanstack queries to requests?
 
 # Ideas:
 
