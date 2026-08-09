@@ -29,6 +29,7 @@ model User {
 
     sessions Session[]
     accounts Account[]
+    feedback Feedback[]
 
     @@map("user")
 }
@@ -82,4 +83,49 @@ model Verification {
 
     @@index([identifier])
     @@map("verification")
+}
+
+enum FeedbackType {
+    BUG
+    IDEA
+    OTHER
+
+    @@map("feedback_type")
+}
+
+enum FeedbackStatus {
+    NEW
+    READ
+    RESOLVED
+
+    @@map("feedback_status")
+}
+
+model Feedback {
+    id      String         @id @default(uuid())
+    message String
+    type    FeedbackType   @default(OTHER)
+    status  FeedbackStatus @default(NEW)
+
+    // Which page the feedback was sent from, filled in by the form rather than
+    // typed by the sender. Nullable so old rows and non-browser clients still fit.
+    pageUrl String?
+
+    // Feedback can be sent without logging in, so both of these are optional.
+    // `email` is only for senders who have no account and still want an answer;
+    // when `userId` is set the address is read through the relation instead.
+    email  String?
+    userId String?
+    // SetNull rather than Cascade: a deleted account should not take its bug
+    // reports with it, and unlinking is what stops the row being personal data.
+    user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+    createdAt DateTime @default(now())
+    // Only meaningful for `status` - the message itself is never edited.
+    updatedAt DateTime @updatedAt
+
+    @@index([userId])
+    // The admin list reads newest first.
+    @@index([createdAt])
+    @@map("feedback")
 }
