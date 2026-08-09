@@ -4,6 +4,7 @@
 
 1. Check calculator's input's text color
 2. Add Tanstack queries to requests?
+3. At least in dark theme in Feedback's Email-input the text color goes black when focused
 
 # Ideas:
 
