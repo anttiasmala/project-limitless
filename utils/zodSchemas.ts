@@ -1,3 +1,8 @@
+// Shared by both front- and backend on purpose: the forms and the API routes parse the same
+// schemas, so the rules cannot drift apart. Nothing here touches Prisma or a
+// secret, so it is safe to bundle for the client. Unlike backend/, which is
+// marked `import server-only` for exactly that reason.
+
 import z from 'zod';
 import { PASSWORD_MAX_LENGTH, PASSWORD_RULES } from './passwordRules';
 
@@ -125,6 +130,113 @@ export function collectLoginErrors(formData: LoginFormData): LoginFieldErrors {
   const errors: LoginFieldErrors = {};
 
   for (const field of LOGIN_FIELD_ORDER) {
+    const message = errorTree.properties?.[field]?.errors[0];
+    if (message) errors[field] = message;
+  }
+
+  return errors;
+}
+
+// Feedback
+//
+// The form is open to visitors who are not logged in, so the message is the
+// only field anybody has to fill in.
+
+export const FEEDBACK_MAX_LENGTH = 2000;
+
+export const feedbackTypeSchema = z.enum(['BUG', 'IDEA', 'OTHER']);
+
+/** The values match the FeedbackType enum in prisma/schema.prisma. */
+export type FeedbackType = z.infer<typeof feedbackTypeSchema>;
+
+/** What the select shows for each value, in the order the options render. */
+export const FEEDBACK_TYPE_LABELS = {
+  BUG: 'Bug',
+  IDEA: 'Idea',
+  OTHER: 'Other',
+} as const satisfies Record<FeedbackType, string>;
+
+const feedbackMessageSchema = z
+  .string()
+  .trim()
+  .min(1, 'Feedback is mandatory!')
+  .max(
+    FEEDBACK_MAX_LENGTH,
+    `Feedback can be at max ${FEEDBACK_MAX_LENGTH} characters long`,
+  );
+
+// An empty email field means "no answer needed", so it is skipped instead of
+// being reported as invalid. Anything actually typed has to be an address.
+const optionalEmailSchema = z.preprocess(
+  (email) =>
+    typeof email === 'string' && email.trim() === '' ? undefined : email,
+  emailSchema.optional(),
+);
+
+/**
+ * Whether a value is a path on this site rather than a URL somewhere else.
+ *
+ * `pageUrl` arrives in the request body, so it is only as trustworthy as
+ * anything else typed by the sender. Storing an absolute URL would let a
+ * crafted request plant a link to another site in the feedback list, and the
+ * leading-slash check alone would still accept the protocol-relative
+ * `//example.com` (and `/\example.com`, which browsers treat the same way).
+ */
+export function isSitePath(value: string): boolean {
+  return /^\/(?![/\\])/.test(value);
+}
+
+const feedbackPageUrlSchema = z
+  .string()
+  .max(256, 'Page URL can be at max 256 characters long')
+  .refine(isSitePath, 'Page URL must be a path of this site');
+
+/** The fields the form itself owns. */
+export const feedbackFormSchema = z.object({
+  message: feedbackMessageSchema,
+  type: feedbackTypeSchema,
+  email: optionalEmailSchema,
+});
+
+/**
+ * What the API accepts: the form's fields, the page the form was opened from
+ * (filled in by the form rather than the sender), and whether a logged-in
+ * sender asked for the message not to be linked to their account.
+ */
+export const feedbackSchema = feedbackFormSchema.extend({
+  pageUrl: feedbackPageUrlSchema.optional(),
+  isAnonymous: z.boolean().optional(),
+});
+
+/** What the form holds while typing - before trimming/lowercasing. */
+export type FeedbackFormData = {
+  message: string;
+  type: FeedbackType;
+  email: string;
+};
+
+export type FeedbackFieldName = keyof FeedbackFormData;
+
+/** Rendering order, also used to focus the first invalid field on submit. */
+export const FEEDBACK_FIELD_ORDER = [
+  'message',
+  'type',
+  'email',
+] as const satisfies readonly FeedbackFieldName[];
+
+export type FeedbackFieldErrors = Partial<Record<FeedbackFieldName, string>>;
+
+/** The feedback version of {@link collectRegisterErrors}. */
+export function collectFeedbackErrors(
+  formData: FeedbackFormData,
+): FeedbackFieldErrors {
+  const result = feedbackFormSchema.safeParse(formData);
+  if (result.success) return {};
+
+  const errorTree = z.treeifyError(result.error);
+  const errors: FeedbackFieldErrors = {};
+
+  for (const field of FEEDBACK_FIELD_ORDER) {
     const message = errorTree.properties?.[field]?.errors[0];
     if (message) errors[field] = message;
   }

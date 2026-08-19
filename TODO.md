@@ -5,6 +5,9 @@
 1. Check calculator's input's text color
 2. Add Tanstack queries to requests?
 3. At least in dark theme in Feedback's Email-input the text color goes black when focused
+4. Check Account and User database tables that they "make sense"
+5. Rate limit POST /api/feedback. Anyone can write a row into the database without logging in, and nothing currently stops a script from doing it in a loop
+6. Nothing reads the feedback table yet: an admin page (or at least a query) to list feedback and move rows from NEW to READ/RESOLVED
 
 # Ideas:
 

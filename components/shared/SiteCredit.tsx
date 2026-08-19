@@ -3,10 +3,13 @@
 'use client';
 
 import SvgGithub from '@/icons/github';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { twMerge } from 'tailwind-merge';
 
 const REPOSITORY_URL = 'https://github.com/anttiasmala/project-limitless';
+
+const FEEDBACK_ROUTE = '/feedback';
 
 // Routes that own the bottom edge of the screen themselves. The XP index page
 // pins a full-width taskbar there, and the credit would land on top of it.
@@ -21,6 +24,14 @@ export default function SiteCredit({ className }: { className?: string }) {
   const pathname = usePathname();
 
   if (HIDDEN_ON.some((route) => pathname === route)) return null;
+
+  // The page the link was clicked on is what the feedback is about, and the
+  // form has no other way to know it. On the feedback page itself there is
+  // nothing to pass on.
+  const feedbackHref =
+    pathname === FEEDBACK_ROUTE
+      ? FEEDBACK_ROUTE
+      : `${FEEDBACK_ROUTE}?from=${encodeURIComponent(pathname)}`;
 
   return (
     // `relative z-10` keeps the credit above the `fixed inset-0`
@@ -47,14 +58,12 @@ export default function SiteCredit({ className }: { className?: string }) {
         </a>
       </div>
       <div>
-        <a
+        <Link
           className="inline-flex items-center gap-1.5 rounded-md px-1 py-0.5 transition-colors hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:outline-none dark:hover:text-slate-100"
-          href={REPOSITORY_URL}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={feedbackHref}
         >
           Give feedback
-        </a>
+        </Link>
       </div>
     </footer>
   );
