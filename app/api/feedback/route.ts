@@ -10,13 +10,10 @@ import { NextRequest } from 'next/server';
 /**
  * Takes one feedback message from anybody, logged in or not.
  *
- * Who sent it is decided by the session cookie and nothing else. An email in
- * the body is only ever kept as a reply address for senders without an
- * account: looking an account up by that address would let anyone file
- * feedback under somebody else's name just by typing their email.
- *
- * `isAnonymous` is the one thing the body may say about the sender, because it
- * can only ever drop attribution, never claim somebody else's.
+ * Who sent it is decided by the session cookie. An email in
+ * the body is only kept as a reply address for senders without an
+ * account. Looking an account by the email address would let anyone send
+ * a feedback under somebody else's name just by typing their email.
  */
 export async function POST(req: NextRequest) {
   let body: unknown;
