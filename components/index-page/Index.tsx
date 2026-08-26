@@ -25,6 +25,8 @@ import Paint from './components/apps/Paint';
 import { useWindows } from '../../hooks/index-page/useWindows';
 import Settings from './components/apps/Settings';
 import { useWindowsXPSettings } from '../../hooks/index-page/useWindowsXPSettings';
+import CommandPrompt from './components/apps/CommandPrompt';
+import DesktopAppIcon from './components/DesktopAppIcon';
 
 export default function Index() {
   const [showShutdownMenu, setShowShutdownMenu] = useState<{
@@ -68,6 +70,7 @@ export default function Index() {
     openNotepad,
     openPaint,
     openSettings,
+    openCmd,
     launchApp,
   } = useWindows();
   // Desktop folders currently highlighted by a click or a marquee drag.
@@ -158,23 +161,53 @@ export default function Index() {
     };
   }, [clockOffsetMs]);
 
-  // Handle a folder tap/click: select on the first tap, open on a second tap
-  // within DOUBLE_TAP_MS. This replaces the native double-click, which never
-  // fires on touch devices, so the same gesture works on desktop and mobile.
-  const handleFolderActivate = (folder: Folder, now: number) => {
+  // Handle a desktop icon tap/click: select on the first tap, open on a second
+  // tap within DOUBLE_TAP_MS. This replaces the native double-click, which
+  // never fires on touch devices, so the same gesture works on desktop and
+  // mobile. Every icon shares one lastTapRef, so tapping two different icons
+  // in quick succession selects rather than opens.
+  const handleActivate = (name: string, now: number, open: () => void) => {
     const last = lastTapRef.current;
-    if (last && last.name === folder.name && now - last.time < DOUBLE_TAP_MS) {
+    if (last && last.name === name && now - last.time < DOUBLE_TAP_MS) {
       lastTapRef.current = null;
-      openFolder(folder);
+      open();
     } else {
-      lastTapRef.current = { name: folder.name, time: now };
+      lastTapRef.current = { name, time: now };
     }
   };
+
+  const handleFolderActivate = (folder: Folder, now: number) =>
+    handleActivate(folder.name, now, () => openFolder(folder));
 
   // Placeholder action for the many menu entries that aren't wired to real
   // behavior yet: pops an XP message box, like the Start Menu's placeholders.
   const menuError = (name: string) => () =>
     openError(name, `'${name}' is not available.`);
+
+  // The app shortcuts on the desktop, below the folders. Adding an app here
+  // is all it takes to give it an icon, a right-click menu and a double-tap.
+  const DESKTOP_APPS = [
+    {
+      name: 'Notepad',
+      icon: '/images/index-page/apps/notepad.png',
+      open: openNotepad,
+    },
+    {
+      name: 'Paint',
+      icon: '/images/index-page/apps/paint.png',
+      open: openPaint,
+    },
+    {
+      name: 'Settings',
+      icon: '/images/index-page/start-menu/control-panel.png',
+      open: openSettings,
+    },
+    {
+      name: 'CMD',
+      icon: '/images/index-page/apps/command-prompt.png',
+      open: openCmd,
+    },
+  ];
 
   return (
     <main
@@ -275,170 +308,33 @@ export default function Index() {
             </Button>
           );
         })}
-        <Button
-          ref={(el) => {
-            // Register alongside the folders so the marquee can highlight
-            // this icon with the same generic selection logic.
-            if (el) appRefs.current.set('Notepad', el);
-            else appRefs.current.delete('Notepad');
-          }}
-          variant="unstyled"
-          className="flex cursor-default flex-col items-center"
-          onMouseDown={(e) => {
-            e.stopPropagation();
-            setSelectedApps(new Set(['Notepad']));
-          }}
-          onContextMenu={(e) => {
-            if (!xpSettings.enableCustomContextMenu) return;
-            e.preventDefault();
-            e.stopPropagation();
-            setDesktopMenuItems(
-              buildAppMenu('Notepad', { menuError, openApp: openNotepad }),
-            );
-            setRightClickMenu({ x: e.clientX, y: e.clientY });
-          }}
-          onClick={(e) => {
-            // Same manual double-tap as folders, so one gesture opens Notepad
-            // on both desktop (double-click) and touch (double-tap).
-            const now = e.timeStamp;
-            const last = lastTapRef.current;
-            if (
-              last &&
-              last.name === 'Notepad' &&
-              now - last.time < DOUBLE_TAP_MS
-            ) {
-              lastTapRef.current = null;
-              openNotepad();
-            } else {
-              lastTapRef.current = { name: 'Notepad', time: now };
-            }
-          }}
-        >
-          <Image
-            alt="Notepad icon"
-            src={'/images/index-page/apps/notepad.png'}
-            width={32}
-            height={32}
-            className={selectedApps.has('Notepad') ? 'opacity-50' : ''}
+        {DESKTOP_APPS.map((app) => (
+          <DesktopAppIcon
+            key={app.name}
+            name={app.name}
+            icon={app.icon}
+            isSelected={selectedApps.has(app.name)}
+            ref={(el) => {
+              // Register alongside the folders so the marquee can highlight
+              // these icons with the same generic selection logic.
+              if (el) appRefs.current.set(app.name, el);
+              else appRefs.current.delete(app.name);
+            }}
+            onSelect={() => setSelectedApps(new Set([app.name]))}
+            onActivate={(now) => handleActivate(app.name, now, app.open)}
+            onContextMenu={(e) => {
+              if (!xpSettings.enableCustomContextMenu) return;
+              e.preventDefault();
+              // Keep this from bubbling to <main>, which would replace the
+              // app menu with the desktop menu.
+              e.stopPropagation();
+              setDesktopMenuItems(
+                buildAppMenu(app.name, { menuError, openApp: app.open }),
+              );
+              setRightClickMenu({ x: e.clientX, y: e.clientY });
+            }}
           />
-          <span
-            className={`text-sm ${
-              selectedApps.has('Notepad') ? 'bg-[#0b61ff] text-white' : ''
-            }`}
-          >
-            Notepad
-          </span>
-        </Button>
-
-        <Button
-          ref={(el) => {
-            // Register alongside the folders so the marquee can highlight
-            // this icon with the same generic selection logic.
-            if (el) appRefs.current.set('Paint', el);
-            else appRefs.current.delete('Paint');
-          }}
-          variant="unstyled"
-          className="flex cursor-default flex-col items-center"
-          onMouseDown={(e) => {
-            e.stopPropagation();
-            setSelectedApps(new Set(['Paint']));
-          }}
-          onContextMenu={(e) => {
-            if (!xpSettings.enableCustomContextMenu) return;
-            e.preventDefault();
-            e.stopPropagation();
-            setDesktopMenuItems(
-              buildAppMenu('Paint', { menuError, openApp: openPaint }),
-            );
-            setRightClickMenu({ x: e.clientX, y: e.clientY });
-          }}
-          onClick={(e) => {
-            // Same manual double-tap as folders, so one gesture opens Paint
-            // on both desktop (double-click) and touch (double-tap).
-            const now = e.timeStamp;
-            const last = lastTapRef.current;
-            if (
-              last &&
-              last.name === 'Paint' &&
-              now - last.time < DOUBLE_TAP_MS
-            ) {
-              lastTapRef.current = null;
-              openPaint();
-            } else {
-              lastTapRef.current = { name: 'Paint', time: now };
-            }
-          }}
-        >
-          <Image
-            alt="Paint icon"
-            src={'/images/index-page/apps/paint.png'}
-            width={32}
-            height={32}
-            className={selectedApps.has('Paint') ? 'opacity-50' : ''}
-          />
-          <span
-            className={`text-sm ${
-              selectedApps.has('Paint') ? 'bg-[#0b61ff] text-white' : ''
-            }`}
-          >
-            Paint
-          </span>
-        </Button>
-
-        <Button
-          ref={(el) => {
-            // Register alongside the folders so the marquee can highlight
-            // this icon with the same generic selection logic.
-            if (el) appRefs.current.set('Settings', el);
-            else appRefs.current.delete('Settings');
-          }}
-          variant="unstyled"
-          className="flex cursor-default flex-col items-center"
-          onMouseDown={(e) => {
-            e.stopPropagation();
-            setSelectedApps(new Set(['Settings']));
-          }}
-          onContextMenu={(e) => {
-            if (!xpSettings.enableCustomContextMenu) return;
-            e.preventDefault();
-            e.stopPropagation();
-            setDesktopMenuItems(
-              buildAppMenu('Settings', { menuError, openApp: openSettings }),
-            );
-            setRightClickMenu({ x: e.clientX, y: e.clientY });
-          }}
-          onClick={(e) => {
-            // Same manual double-tap as folders, so one gesture opens Settings
-            // on both desktop (double-click) and touch (double-tap).
-            const now = e.timeStamp;
-            const last = lastTapRef.current;
-            if (
-              last &&
-              last.name === 'Settings' &&
-              now - last.time < DOUBLE_TAP_MS
-            ) {
-              lastTapRef.current = null;
-              openSettings();
-            } else {
-              lastTapRef.current = { name: 'Settings', time: now };
-            }
-          }}
-        >
-          <Image
-            alt="Settings icon"
-            src={'/images/index-page/start-menu/control-panel.png'}
-            width={32}
-            height={32}
-            className={selectedApps.has('Settings') ? 'opacity-50' : ''}
-          />
-          <span
-            className={`text-sm ${
-              selectedApps.has('Settings') ? 'bg-[#0b61ff] text-white' : ''
-            }`}
-          >
-            Settings
-          </span>
-        </Button>
+        ))}
       </div>
 
       {windowModal.map((modal) =>
@@ -505,6 +401,17 @@ export default function Index() {
             onFocus={focusWindow}
             onMove={moveWindow}
             onMinimize={toggleMinimize}
+          />
+        ) : modal.kind === 'cmd' ? (
+          <CommandPrompt
+            key={modal.uuid}
+            modal={modal}
+            onClose={closeWindow}
+            onFocus={focusWindow}
+            onMove={moveWindow}
+            onResize={resizeWindow}
+            onMinimize={toggleMinimize}
+            onMaximize={toggleMaximize}
           />
         ) : null,
       )}
