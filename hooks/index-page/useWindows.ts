@@ -13,7 +13,8 @@ const DEFAULT_HEIGHT = 500;
 const ERROR_WIDTH = 340;
 const ERROR_HEIGHT = 135;
 // Windows that only ever have one copy open at a time, opened through openApp.
-type SingleInstanceKind = 'date-time' | 'notepad' | 'paint' | 'settings';
+type SingleInstanceKind =
+  'date-time' | 'notepad' | 'paint' | 'settings' | 'cmd';
 
 // Everything that differs between those windows. Adding a new in-page app is
 // one entry here plus its 'kind' in indexTypes (and MAXIMIZABLE_KINDS below if
@@ -50,6 +51,13 @@ const APP_WINDOWS: Record<
     modalName: 'Settings',
     modalIcon: '/images/index-page/start-menu/control-panel.png',
   },
+  cmd: {
+    width: 400,
+    height: 400,
+    modalName: 'Command Prompt',
+    modalIcon:
+      '/images/index-page/start-menu/all-programs/accessories/command-prompt.png',
+  },
 };
 
 // Window kinds that can be maximized/resized. Message boxes and the Date/Time
@@ -58,6 +66,7 @@ const MAXIMIZABLE_KINDS: WindowModalType['kind'][] = [
   'folder',
   'notepad',
   'paint',
+  'cmd',
 ];
 
 // Height reserved at the bottom of the screen for the (future) taskbar, so a
@@ -338,6 +347,7 @@ export function useWindows() {
   const openNotepad = () => openApp('notepad');
   const openPaint = () => openApp('paint');
   const openSettings = () => openApp('settings');
+  const openCmd = () => openApp('cmd');
 
   // Maps a Start Menu app id to the window it opens. Every AppId is a key of
   // APP_WINDOWS, so a new in-page app (CMD, etc...) only needs an entry there.
@@ -358,6 +368,7 @@ export function useWindows() {
     openNotepad,
     openPaint,
     openSettings,
+    openCmd,
     launchApp,
   };
 }
