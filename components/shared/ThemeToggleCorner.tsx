@@ -16,12 +16,13 @@ export default function ThemeToggleCorner({
 }: {
   className?: string;
 }) {
-  const [isDarkTheme, setIsDarkTheme] = useDarkTheme();
+  const [isDarkTheme, setIsDarkTheme, mounted] = useDarkTheme();
 
   return (
     <div className={twMerge('absolute top-1 right-1 z-20', className)}>
       <ToggleSwitchDarkLightTheme
         className="cursor-pointer"
+        preHydration={!mounted}
         checked={isDarkTheme}
         onChange={(e) => setIsDarkTheme(e.currentTarget.checked)}
       />
