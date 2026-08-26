@@ -10,7 +10,7 @@
 
 # Ideas:
 
-1. While using light-theme, the Theme toggle switch does always start from dark theme side and makes the move to "light-side"
+1. Add Theme toggle switch to "/calculator"?
 
 ## Windows XP desktop
 
