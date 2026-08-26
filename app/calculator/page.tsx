@@ -3,6 +3,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Calculator from '@/components/calculator/Calculator';
+import ThemeToggleCorner from '@/components/shared/ThemeToggleCorner';
 
 export const metadata: Metadata = {
   title: 'Calculator',
@@ -12,6 +13,8 @@ export const metadata: Metadata = {
 export default function CalculatorPage() {
   return (
     <main className="relative flex flex-1 flex-col items-center justify-center bg-slate-100 px-4 dark:bg-[#0a0a1a]">
+      <ThemeToggleCorner />
+
       {/* Back to the arcade landing page */}
       <Link
         href="/"
