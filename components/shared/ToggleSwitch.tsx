@@ -76,10 +76,22 @@ export default function ToggleSwitch({
 // All credits: https://uiverse.io/andrew-demchenk0/honest-stingray-90
 export function ToggleSwitchDarkLightTheme({
   className,
+  preHydration,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement>) {
+}: InputHTMLAttributes<HTMLInputElement> & {
+  /** This is set while the stored theme is still unknown.
+   * The knob then follows the `dark` class on `html` element rather than
+   * `checked`, so it starts on the right side instead of sliding there. */
+  preHydration?: boolean;
+}) {
   return (
-    <label className={twMerge(styles.switch, className)}>
+    <label
+      className={twMerge(
+        styles.switch,
+        preHydration && styles.preHydration,
+        className,
+      )}
+    >
       <span className={styles.sun}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <g fill="#ffd43b">

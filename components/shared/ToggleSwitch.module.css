@@ -107,3 +107,35 @@
 .input:checked + .slider:before {
   transform: translateX(20px);
 }
+
+/* Until localStorage has been read the checkbox still holds the fallback (dark),
+   so `.input:checked` can't be trusted and a light-theme user would see the knob
+   slide across on every page load. The pre-paint script in app/layout.tsx has
+   already put `dark` on <html> by this point, so take the position from that
+   instead: the switch is then right on the very first paint, and when React
+   catches up the computed style is unchanged, so nothing animates.
+
+   Disabling the transition alone is not enough. React drops this class in the
+   same commit that corrects `checked`, and a transition re-enabled in the same
+   frame as the change still runs.
+   */
+.preHydration .slider,
+.preHydration .slider:before {
+  transition: none;
+}
+
+:global(html:not(.dark)) .preHydration .slider {
+  background-color: #73c0fc;
+}
+
+:global(html:not(.dark)) .preHydration .slider:before {
+  transform: none;
+}
+
+:global(html.dark) .preHydration .slider {
+  background-color: #183153;
+}
+
+:global(html.dark) .preHydration .slider:before {
+  transform: translateX(20px);
+}

@@ -41,7 +41,7 @@ const apps: {
 ];
 
 export default function Home() {
-  const [isDarkTheme, setIsDarkTheme] = useDarkTheme();
+  const [isDarkTheme, setIsDarkTheme, mounted] = useDarkTheme();
 
   return (
     <main className="relative flex flex-1 flex-col items-center justify-center bg-slate-100 px-4 py-16 dark:bg-[#0a0a1a]">
@@ -52,6 +52,7 @@ export default function Home() {
         <AuthStatus />
         <ToggleSwitchDarkLightTheme
           className="cursor-pointer"
+          preHydration={!mounted}
           checked={isDarkTheme}
           onChange={(e) => setIsDarkTheme(e.currentTarget.checked)}
         />

@@ -16,8 +16,9 @@ export function useDarkTheme() {
   );
 
   useEffect(() => {
+    if (!mounted) return;
     document.documentElement.classList.toggle('dark', isDarkTheme);
-  }, [isDarkTheme]);
+  }, [isDarkTheme, mounted]);
 
   return [isDarkTheme, setIsDarkTheme, mounted] as const;
 }
