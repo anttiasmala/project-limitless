@@ -25,6 +25,11 @@ const GROUPS: {
         label: 'Use the Windows XP right-click menu',
         help: "Turn this off to get your browser's own menu, which makes saving or copying the icons and wallpaper easier.",
       },
+      {
+        key: 'enableHomeButton',
+        label: 'Show the "← Home" button',
+        help: 'The button sits in the top left corner of the desktop. Turn it off if it gets in the way of a maximized window.',
+      },
     ],
   },
 ];
