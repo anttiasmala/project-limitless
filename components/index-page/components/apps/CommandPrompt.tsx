@@ -17,6 +17,7 @@ const COMMANDS = [
   { name: 'help', help: 'Shows all possible commands' },
   { name: 'commands', help: 'Shows all possible commands' },
   { name: 'clear', help: 'Clears the command prompt' },
+  { name: 'echo', help: 'Prints text to the console' },
 ] as const;
 
 type CommandName = (typeof COMMANDS)[number]['name'];
@@ -37,7 +38,8 @@ type HistoryEntry = {
 };
 
 const runCommand = (input: string): HistoryEntry => {
-  const command = input.trim().toLowerCase();
+  const [name = '', ...args] = input.trim().split(/\s+/);
+  const command = name.toLowerCase();
 
   // Enter on an empty line just moves on, like a real prompt.
   if (command === '') return { input, output: [], isError: false };
@@ -56,6 +58,15 @@ const runCommand = (input: string): HistoryEntry => {
     return {
       input,
       output: COMMANDS.map(({ name, help }) => `${name} - ${help}`),
+      isError: false,
+    };
+  }
+
+  // Bare 'echo' prints nothing, so it reads as a blank line in the log.
+  if (command === 'echo') {
+    return {
+      input,
+      output: args.length ? [args.join(' ')] : [],
       isError: false,
     };
   }
