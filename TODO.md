@@ -1,16 +1,12 @@
 # Currently Implementing:
 
-1. in Windows XP desktop add a possiblity to hide the "<- Home" button. For example with CMD maximized it hides some text under it
-
 # TODO:
 
-1. in Windows XP desktop in mobile view the CMD is not visible
-2. in Windows XP desktop add a Home entry to the Start menu. With the "← Home" button hidden from Settings there is currently no in-app way back to "/": the Start menu links open in new tabs and Turn Off / Log Off only raise error windows
-3. Add Tanstack queries to requests?
-4. At least in dark theme in Feedback's Email-input the text color goes black when focused
-5. Check Account and User database tables that they "make sense"
-6. Rate limit POST /api/feedback. Anyone can write a row into the database without logging in, and nothing currently stops a script from doing it in a loop
-7. Nothing reads the feedback table yet: an admin page (or at least a query) to list feedback and move rows from NEW to READ/RESOLVED
+1. Add Tanstack queries to requests?
+2. At least in dark theme in Feedback's Email-input the text color goes black when focused
+3. Check Account and User database tables that they "make sense"
+4. Rate limit POST /api/feedback. Anyone can write a row into the database without logging in, and nothing currently stops a script from doing it in a loop
+5. Nothing reads the feedback table yet: an admin page (or at least a query) to list feedback and move rows from NEW to READ/RESOLVED
 
 # Ideas:
 

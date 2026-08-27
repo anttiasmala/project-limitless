@@ -262,7 +262,13 @@ export default function Index() {
         </Link>
       )}
 
-      <div className="absolute top-20 left-10 flex flex-col gap-3">
+      {/* Desktop icons. Windows XP fills a column top-to-bottom and starts a
+          new column once it runs out of room above the taskbar, so this
+          container is capped at the space between its own top offset (top-20)
+          and the taskbar (35px tall, plus a little breathing room) and wraps.
+          Without the cap the last icons fall behind / below the taskbar on
+          short screens: at 320x420 the column ran to 452px and CMD was gone. */}
+      <div className="absolute top-20 left-10 flex max-h-[calc(100dvh-7.5rem)] flex-col flex-wrap content-start gap-x-6 gap-y-3">
         {FOLDERS.map((folder) => {
           const isSelected = selectedApps.has(folder.name);
           return (
