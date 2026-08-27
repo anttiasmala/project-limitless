@@ -426,8 +426,13 @@ export default function Index() {
         />
       )}
 
+      {/* The taskbar is always on top, like in Windows XP: windows get an
+          incrementing zIndex from useWindows, so the taskbar (and the Start
+          Menu inside it) has to sit above all of them. `fixed` makes this a
+          stacking context, so every z-index inside it is relative to this one,
+          and it stays below the z-9999 shutdown overlay. */}
       <footer
-        className="fixed bottom-0 left-0 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]"
+        className="fixed bottom-0 left-0 z-9998 w-full border-t border-t-[#0831d9] bg-[linear-gradient(to_bottom,#1f6dd6_0%,#3f8df5_3%,#2a64dd_6%,#235dd9_10%,#225ad4_55%,#1c4fc4_90%,#1c4fc4_95%,#3068dd_100%)]"
         onContextMenu={(e) => {
           if (!xpSettings.enableCustomContextMenu) return;
           // The taskbar has no menu of its own yet. "Destroy" the right-click so
