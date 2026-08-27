@@ -118,6 +118,20 @@ export default function StartMenu({
       <div className="flex min-h-0 flex-1 bg-white">
         <div className="flex flex-[1.2] flex-col justify-between border-r border-[#aec9ed] bg-white text-black">
           <div className="w-full">
+            {/* Back to the arcade landing page. Unlike the links below it this
+                navigates in the same tab (so no ↗ badge): it is the only way
+                out of the desktop when the "← Home" button is turned off in
+                Settings. */}
+            <Link
+              href={'/'}
+              onClick={onClose}
+              className="relative mt-1 mr-1 ml-1 flex cursor-pointer items-center hover:bg-[#2f71cd] hover:text-white"
+            >
+              <span className="flex h-8 w-8 items-center justify-center">
+                <span className="text-2xl leading-none">🏠</span>
+              </span>
+              <p className="ml-1 text-xs">Home</p>
+            </Link>
             <button
               onClick={() => {
                 onOpenError(
