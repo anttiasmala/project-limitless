@@ -101,7 +101,7 @@ export default function StartMenu({
   return (
     <div
       ref={ref}
-      className="absolute bottom-8 flex h-86 w-80 flex-col overflow-hidden rounded-md border border-[#2a64dd] shadow-[2px_2px_8px_rgba(0,0,0,0.4)] sm:h-125 sm:w-100"
+      className="absolute bottom-8 z-10 flex h-86 w-80 flex-col overflow-hidden rounded-md border border-[#2a64dd] shadow-[2px_2px_8px_rgba(0,0,0,0.4)] sm:h-125 sm:w-100"
     >
       <div className="relative h-16 shrink-0 rounded-t-md border-b-2 border-b-[#e78e33] bg-[linear-gradient(to_bottom,#4d9bf5_0%,#3f8df5_18%,#2f6fd8_55%,#2a64dd_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]">
         <div className="absolute top-2 left-2 flex items-center">
