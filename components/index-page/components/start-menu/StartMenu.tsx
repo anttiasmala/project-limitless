@@ -234,6 +234,11 @@ export default function StartMenu({
                     // Submenu parents (e.g. My Recent Documents) reveal their
                     // flyout on hover and do nothing on click, like Windows XP.
                     if (isSubMenu) return;
+                    if (icon.app) {
+                      onLaunchApp(icon.app);
+                      onClose();
+                      return;
+                    }
                     onOpenError(icon.text, notFoundMessage(icon.text));
                     onClose();
                   }}

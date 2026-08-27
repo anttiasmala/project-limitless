@@ -6,11 +6,17 @@ export const FOLDER_ICON = '/images/index-page/folder/folder-and-calendar.png';
 export const notFoundMessage = (name: string) =>
   `Application '${name}' does not exist.`;
 
+// Id of an in-page windowed app the desktop knows how to open
+export type AppId = 'notepad' | 'paint' | 'cmd' | 'settings';
+
 export const ICONS: {
   text: string;
   icon: string;
   isSubMenu?: boolean;
   isSeparator?: boolean;
+  // Same as SubMenuEntry.app: opens an in-page windowed app instead of the
+  // "does not exist" message box.
+  app?: AppId;
 }[] = [
   {
     text: 'My Documents',
@@ -42,6 +48,7 @@ export const ICONS: {
   {
     text: 'Control Panel',
     icon: `${PATH}/control-panel.png`,
+    app: 'settings',
   },
   {
     text: 'Default Programs',
@@ -69,9 +76,6 @@ export const ICONS: {
     icon: `${PATH}/run.png`,
   },
 ];
-
-// Id of an in-page windowed app the desktop knows how to open
-export type AppId = 'notepad' | 'paint' | 'cmd';
 
 export type SubMenuEntry = {
   text: string;
