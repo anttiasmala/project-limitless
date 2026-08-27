@@ -68,10 +68,15 @@ export type SettingsWindowModal = BaseWindowModal & {
   kind: 'settings';
 };
 
+export type CmdWindowModal = BaseWindowModal & {
+  kind: 'cmd';
+};
+
 export type WindowModal =
   | FolderWindowModal
   | ErrorWindowModal
   | DateTimeWindowModal
   | NotepadWindowModal
   | PaintWindowModal
-  | SettingsWindowModal;
+  | SettingsWindowModal
+  | CmdWindowModal;

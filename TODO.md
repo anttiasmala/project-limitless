@@ -2,15 +2,15 @@
 
 # TODO:
 
-1. Add Tanstack queries to requests?
-2. At least in dark theme in Feedback's Email-input the text color goes black when focused
-3. Check Account and User database tables that they "make sense"
-4. Rate limit POST /api/feedback. Anyone can write a row into the database without logging in, and nothing currently stops a script from doing it in a loop
-5. Nothing reads the feedback table yet: an admin page (or at least a query) to list feedback and move rows from NEW to READ/RESOLVED
+1. in Windows XP desktop Start Menu is not the most top element. E.g. notepad goes over the Start Menu instead of under of the Start Menu
+2. in Windows XP desktop add a possiblity to hide the "<- Home" button. For example with CMD maximized it hides some text under it
+3. Add Tanstack queries to requests?
+4. At least in dark theme in Feedback's Email-input the text color goes black when focused
+5. Check Account and User database tables that they "make sense"
+6. Rate limit POST /api/feedback. Anyone can write a row into the database without logging in, and nothing currently stops a script from doing it in a loop
+7. Nothing reads the feedback table yet: an admin page (or at least a query) to list feedback and move rows from NEW to READ/RESOLVED
 
 # Ideas:
-
-1. Add Theme toggle switch to "/calculator"?
 
 ## Windows XP desktop
 
