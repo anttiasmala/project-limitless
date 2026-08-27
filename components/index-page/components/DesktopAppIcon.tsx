@@ -3,12 +3,12 @@ import { MouseEvent, Ref } from 'react';
 import Button from '../../shared/Button';
 
 type Props = {
-  // Label under the icon. Doubles as the key the desktop tracks selection and
-  // double-taps with, so it has to be unique among the desktop icons.
+  // Label under the icon. the desktop tracks selection and
+  // double-taps with the name, so it has to be unique among the desktop icons.
   name: string;
   icon: string;
   isSelected: boolean;
-  // Registers the button with the desktop, so the marquee can hit-test it.
+  // Registers the button with the desktop, so the marquee can select it.
   ref?: Ref<HTMLButtonElement>;
   onSelect: () => void;
   // Called on every click/tap with the event timestamp. The desktop decides
@@ -17,8 +17,8 @@ type Props = {
   onContextMenu: (e: MouseEvent<HTMLButtonElement>) => void;
 };
 
-// One app shortcut on the desktop (Notepad, Paint, ...). Folder icons are
-// still rendered by Index itself; only the app shortcuts share this.
+// One app shortcut on the desktop (Notepad, Paint, CMD...). Folder icons are
+// still rendered by Index in Index.tsx itself. Only the app shortcuts use this.
 export default function DesktopAppIcon({
   name,
   icon,
@@ -34,7 +34,7 @@ export default function DesktopAppIcon({
       variant="unstyled"
       className="flex cursor-default flex-col items-center"
       onMouseDown={(e) => {
-        // Select just this icon; stop the press from starting a marquee /
+        // Select just this icon. Stop the press from starting a marquee /
         // clearing the selection on the desktop.
         e.stopPropagation();
         onSelect();

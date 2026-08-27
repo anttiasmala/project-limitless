@@ -12,9 +12,7 @@ type Props = {
   onMaximize: (uuid: string) => void;
 };
 
-// Every command the prompt knows, with the text `help` prints for it. This is
-// the single source of truth: adding a command here lists it in `help`, and
-// `CommandName` below picks up the new name automatically.
+// Every command the prompt knows, with the command `help` or `commands` prints them
 const COMMANDS = [
   { name: 'help', help: 'Shows all possible commands' },
   { name: 'commands', help: 'Shows all possible commands' },
