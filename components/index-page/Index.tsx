@@ -253,12 +253,14 @@ export default function Index() {
       )}
 
       {/* Back to the arcade landing page */}
-      <Link
-        href="/"
-        className="absolute top-4 left-4 z-20 rounded-lg border border-slate-300 bg-white/70 px-3 py-1.5 text-sm font-semibold text-slate-600 backdrop-blur transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300 dark:hover:text-white"
-      >
-        ← Home
-      </Link>
+      {xpSettings.enableHomeButton && (
+        <Link
+          href="/"
+          className="absolute top-4 left-4 z-20 rounded-lg border border-slate-300 bg-white/70 px-3 py-1.5 text-sm font-semibold text-slate-600 backdrop-blur transition-colors hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300 dark:hover:text-white"
+        >
+          ← Home
+        </Link>
+      )}
 
       <div className="absolute top-20 left-10 flex flex-col gap-3">
         {FOLDERS.map((folder) => {
