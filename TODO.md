@@ -1,12 +1,10 @@
 # Currently Implementing:
 
+1. Rate limit POST /api/feedback. Anyone can write a row into the database without logging in, and nothing currently stops a script from doing it in a loop
+
 # TODO:
 
-1. Add Tanstack queries to requests?
-2. At least in dark theme in Feedback's Email-input the text color goes black when focused
-3. Check Account and User database tables that they "make sense"
-4. Rate limit POST /api/feedback. Anyone can write a row into the database without logging in, and nothing currently stops a script from doing it in a loop
-5. Nothing reads the feedback table yet: an admin page (or at least a query) to list feedback and move rows from NEW to READ/RESOLVED
+1. Nothing reads the feedback table yet: an admin page (or at least a query) to list feedback and move rows from NEW to READ/RESOLVED
 
 # Ideas:
 
@@ -62,3 +60,4 @@
 1. Sound effects for 10x10 - Maybe different sounds for the larger board
 2. Custom board sizes - 4x4, 5x5, etc. (beyond just 3x3 and 10x10)
 3. Tournament bracket — 4-player round-robin or knockout using the existing multiplayer rooms
+4. Add Tanstack queries to requests?
