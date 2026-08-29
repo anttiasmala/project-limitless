@@ -3,9 +3,27 @@
 import 'server-only';
 
 import { auth } from '@/backend/auth/auth';
+import {
+  checkRateLimit,
+  describeRetryAfter,
+  type RateLimitWindow,
+} from '@/backend/rateLimit';
 import prisma from '@/prisma';
 import { feedbackSchema } from '@/utils/zodSchemas';
 import { NextRequest } from 'next/server';
+
+/**
+ * How many times one sender may send a feedback. The endpoint needs no login, so without this
+ * a script could fill the table in a loop.
+ *
+ * Two windows, shortest first: the burst one stops the loop straight away, and
+ * the daily one stops the slower drip that would stay under it. Both are set
+ * well above what somebody reporting a handful of bugs in one sitting sends.
+ */
+const FEEDBACK_RATE_LIMITS: readonly RateLimitWindow[] = [
+  { name: 'burst', limit: 3, windowSeconds: 10 * 60 },
+  { name: 'daily', limit: 15, windowSeconds: 24 * 60 * 60 },
+];
 
 /**
  * Takes one feedback message from anybody, logged in or not.
@@ -16,6 +34,28 @@ import { NextRequest } from 'next/server';
  * a feedback under somebody else's name just by typing their email.
  */
 export async function POST(req: NextRequest) {
+  // Ratelimit is checked before the body is even read
+
+  const rateLimit = await checkRateLimit(
+    'feedback',
+    req.headers,
+    FEEDBACK_RATE_LIMITS,
+  );
+
+  if (!rateLimit.allowed) {
+    const retryAfter = describeRetryAfter(rateLimit.retryAfterSeconds);
+
+    return new Response(
+      `Too many feedback messages have been sent. Please try again in ${retryAfter}.`,
+      {
+        status: 429,
+        // The form shows the text above, but a client that reads headers
+        // instead is told the same thing in the way it expects.
+        headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) },
+      },
+    );
+  }
+
   let body: unknown;
 
   try {
