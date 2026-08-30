@@ -112,8 +112,8 @@ model Feedback {
     pageUrl String?
 
     // Feedback can be sent without logging in, so both of these are optional.
-    // `email` is only for senders who have no account and still want an answer;
-    // when `userId` is set the address is read through the relation instead.
+    // `email` is only for senders who have no account and still want an answer.
+    // When `userId` is set the address is read through the relation instead.
     email  String?
     userId String?
     // SetNull rather than Cascade: a deleted account should not take its bug
@@ -128,4 +128,20 @@ model Feedback {
     // The admin list reads newest first.
     @@index([createdAt])
     @@map("feedback")
+}
+
+// `key` says both what is being limited and who by (a hashed IP), so the same
+// table serves any other route that needs the same treatment later.
+
+// A row is a fixed window: `count` is how many requests have arrived since it
+// was opened, and `expiresAt` is when it closes and the count starts over.
+model RateLimit {
+    key   String @id
+    count Int    @default(0)
+
+    expiresAt DateTime @db.Timestamptz(3)
+
+    // Closed windows are deleted in bulk now and then, which is a range scan.
+    @@index([expiresAt])
+    @@map("rate_limit")
 }
