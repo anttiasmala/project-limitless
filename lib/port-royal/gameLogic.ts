@@ -12,17 +12,18 @@
  *    the delay elapses, so the engine stays synchronous and testable.
  */
 
+import allCards from '@/utils/port-royal/cards';
 import {
   Action,
+  DEFAULT_PERSON_PROFILE,
   DeckCard,
   GameState,
   GOVERNOR,
   HarbourCard,
   JESTER,
   MADEMOISELLE,
-  PERSONS,
+  PERSON_PROFILES,
   Player,
-  SHIP_NAMES,
   SHIPS,
   ShipCard,
   TARGET_VP,
@@ -31,13 +32,8 @@ import {
   ToastTone,
 } from '@/utils/port-royal/types';
 
-/** Sword / coin yields for the four ships printed in each colour. */
-const SHIP_VALUES: ReadonlyArray<readonly [number, number]> = [
-  [1, 2],
-  [2, 3],
-  [3, 4],
-  [2, 2],
-];
+/** Ship type name -> the `SHIPS` slot that draws its flag. */
+const SHIP_INDEX = new Map(SHIPS.map((s, i) => [s.name, i]));
 
 function shuffled<T>(cards: T[]): T[] {
   const d = cards.slice();
@@ -49,7 +45,16 @@ function shuffled<T>(cards: T[]): T[] {
 }
 
 /**
- * 20 ships (4 per colour), 20 persons (2 of each) and 2 tax events.
+ * The printed deck, straight out of `cards.ts`: 60 characters, 50 ships (ten of
+ * each type) and 4 tax events — 114 cards.
+ *
+ * The five research cards are left out. They score expedition symbols, and the
+ * engine has no expedition phase yet, so a flipped one would be a card the
+ * harbour could neither price nor take.
+ *
+ * Ids are minted here rather than taken from the card data: `drawInto` rebuilds
+ * the deck when it runs dry, and a hand of coins is nothing but ids, so they
+ * have to stay unique across rebuilds.
  *
  * `shuffle` is off for the very first deck so the server and the client render
  * the same markup; the board dispatches `SHUFFLE` once it has mounted. Nothing
@@ -62,26 +67,45 @@ export function buildDeck(
   const d: DeckCard[] = [];
   let seq = startId;
 
-  SHIPS.forEach((_, i) => {
-    SHIP_VALUES.forEach(([swords, coins], j) => {
+  allCards.forEach((card) => {
+    const name = card.name ?? '';
+
+    if (card.type === 'ship') {
+      const colorIdx = SHIP_INDEX.get(name);
+      if (colorIdx === undefined) return;
+
       d.push({
         id: ++seq,
         kind: 'ship',
-        colorIdx: i,
-        name: SHIP_NAMES[(i + j) % SHIP_NAMES.length],
-        swords,
-        coins,
+        colorIdx,
+        name,
+        swords: card.shipWeapons ?? 0,
+        coins: card.shipCoins ?? 0,
       });
-    });
-  });
+      return;
+    }
 
-  PERSONS.forEach((p) => {
-    d.push({ ...p, id: ++seq, kind: 'person' });
-    d.push({ ...p, id: ++seq, kind: 'person' });
-  });
+    if (card.type === 'character') {
+      const profile = PERSON_PROFILES[name] ?? DEFAULT_PERSON_PROFILE;
 
-  d.push({ id: ++seq, kind: 'tax', name: 'Tax Increase' });
-  d.push({ id: ++seq, kind: 'tax', name: 'Tax Increase' });
+      d.push({
+        id: ++seq,
+        kind: 'person',
+        name,
+        role: profile.role,
+        text: profile.text,
+        // A sword ability is printed once per sword — the Pirate carries two.
+        swords: (card.abilities ?? []).filter((a) => a === 'swords').length,
+        vp: card.victoryPoints ?? 0,
+        price: card.characterCost ?? 0,
+      });
+      return;
+    }
+
+    if (card.type === 'tax') {
+      d.push({ id: ++seq, kind: 'tax', name: 'Tax Increase' });
+    }
+  });
 
   return { deck: shuffle ? shuffled(d) : d, nextId: seq };
 }

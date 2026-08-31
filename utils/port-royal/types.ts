@@ -1,9 +1,11 @@
 /**
  * Shapes and static card data for the Port Royal hotseat board.
  *
- * Ported from the `Port Royal Prototype.dc.html` design hand-off. The numbers
- * here (prices, sword counts, coin yields, the deck's composition) are the
- * prototype's balance and are reproduced exactly.
+ * Ported from the `Port Royal Prototype.dc.html` design hand-off. The board's
+ * look is the prototype's; the deck itself is the printed one, held in
+ * `cards.ts` and turned into `DeckCard`s by `buildDeck`. What lives here is
+ * only what that raw data does not carry: how a ship type is drawn, and how a
+ * character reads on the table.
  */
 
 export const TARGET_VP = 12;
@@ -21,57 +23,48 @@ export const PLAYER_NAMES = DEFAULT_NAMES.slice(0, 3);
 /** How the seats are filled. Only `hotseat` is playable so far. */
 export type GameMode = 'hotseat' | 'ai' | 'online';
 
-/** A duplicate colour in the harbour ends discovery — so colour IS identity. */
+/** A second ship of a type in the harbour ends discovery — so type IS identity. */
 export type ShipColour = {
+  /** Matches the `name` of every `type: 'ship'` entry in `cards.ts`. */
   name: string;
   color: string;
-  /** Flag silhouette, so the colours stay distinguishable without relying on hue. */
+  /** Flag silhouette, so the types stay distinguishable without relying on hue. */
   clip: string;
   shape: string;
 };
 
+/** The five printed ship types, in the order `colorIdx` indexes them. */
 export const SHIPS: ShipColour[] = [
   {
-    name: 'Green',
+    name: 'Skiff',
     color: '#3F6B4A',
     shape: 'Swallowtail',
     clip: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 26% 50%)',
   },
   {
-    name: 'Blue',
+    name: 'Flute',
     color: '#2C5A7A',
     shape: 'Pennant',
     clip: 'polygon(0 0, 100% 50%, 0 100%)',
   },
   {
-    name: 'Red',
+    name: 'Frigate',
     color: '#8E3B2F',
     shape: 'Square',
     clip: 'polygon(4% 4%, 96% 4%, 96% 96%, 4% 96%)',
   },
   {
-    name: 'Yellow',
+    name: 'Galleon',
     color: '#B8862F',
     shape: 'Triangle',
     clip: 'polygon(0 0, 100% 0, 50% 100%)',
   },
   {
-    name: 'Black',
+    name: 'Pinance',
     color: '#1F2A33',
     shape: 'Forked',
     clip: 'polygon(0 0, 100% 0, 62% 50%, 100% 100%, 0 100%)',
   },
-];
-
-export const SHIP_NAMES = [
-  'Caravel',
-  'Frigate',
-  'Galleon',
-  'Fluyt',
-  'Pinnace',
-  'Sloop',
-  'Brigantine',
-  'Barque',
 ];
 
 export type PersonRole = 'fighter' | 'trader' | 'rule';
@@ -85,88 +78,70 @@ export type PersonTemplate = {
   text: string;
 };
 
-export const PERSONS: PersonTemplate[] = [
-  {
-    name: 'Sailor',
+/** How a hired character reads on the table, once the deck data is in hand. */
+export type PersonProfile = { role: PersonRole; text: string };
+
+/**
+ * Keyed by the character `name` in `cards.ts`. Points, price and swords come
+ * from the card data itself; the tableau column a character sorts into and the
+ * line the detail overlay prints do not, so they live here.
+ *
+ * Only the Jester, the Governor and the Mademoiselle are wired into the
+ * engine — the rest are points, swords and expedition symbols for now, and
+ * their text describes the printed card rather than an implemented effect.
+ */
+export const PERSON_PROFILES: Record<string, PersonProfile> = {
+  Sailor: {
     role: 'fighter',
-    swords: 1,
-    vp: 0,
-    price: 3,
     text: 'One sword toward every ship requirement.',
   },
-  {
-    name: 'Pirate',
+  Pirate: {
     role: 'fighter',
-    swords: 2,
-    vp: 1,
-    price: 4,
-    text: "Two swords, and one influence point at sea's end.",
+    text: "Two swords, and influence at sea's end.",
   },
-  {
-    name: 'Marine',
-    role: 'fighter',
-    swords: 2,
-    vp: 0,
-    price: 3,
-    text: 'Two swords. Cheap muscle for repelling ships.',
-  },
-  {
-    name: 'Trader — Spice',
-    role: 'trader',
-    swords: 0,
-    vp: 1,
-    price: 6,
-    text: 'Supplies one spice symbol toward expeditions.',
-  },
-  {
-    name: 'Trader — Fabric',
-    role: 'trader',
-    swords: 0,
-    vp: 1,
-    price: 6,
-    text: 'Supplies one fabric symbol toward expeditions.',
-  },
-  {
-    name: 'Trader — Wood',
-    role: 'trader',
-    swords: 0,
-    vp: 1,
-    price: 5,
-    text: 'Supplies one wood symbol toward expeditions.',
-  },
-  {
-    name: 'Jester',
+  Admiral: {
     role: 'rule',
-    swords: 0,
-    vp: 1,
-    price: 5,
+    text: 'An extra coin whenever discovery ends with five or more cards displayed.',
+  },
+  Trader: {
+    role: 'trader',
+    text: 'An extra coin whenever you bring in a ship of their trade.',
+  },
+  'Jack of all Trades': {
+    role: 'trader',
+    text: 'Supplies a house, an anchor and a cross toward expeditions.',
+  },
+  Captain: {
+    role: 'trader',
+    text: 'Supplies one anchor toward expeditions.',
+  },
+  Priest: {
+    role: 'trader',
+    text: 'Supplies one cross toward expeditions.',
+  },
+  Settler: {
+    role: 'trader',
+    text: 'Supplies one house toward expeditions.',
+  },
+  Jester: {
+    role: 'rule',
     text: 'One extra card may be flipped before a duplicate ship busts the phase.',
   },
-  {
-    name: 'Governor',
+  Governor: {
     role: 'rule',
-    swords: 0,
-    vp: 2,
-    price: 8,
     text: 'Draw a coin card whenever you hire or trade.',
   },
-  {
-    name: 'Mademoiselle',
+  Mademoiselle: {
     role: 'rule',
-    swords: 0,
-    vp: 1,
-    price: 7,
     text: 'Every card costs you one coin less.',
   },
-  {
-    name: 'Captain',
-    role: 'fighter',
-    swords: 3,
-    vp: 1,
-    price: 6,
-    text: 'Three swords. The largest ships come within reach.',
-  },
-];
+};
+
+/** For a character `cards.ts` gains before this table catches up. */
+export const DEFAULT_PERSON_PROFILE: PersonProfile = {
+  role: 'rule',
+  text: 'No effect beyond the points printed on the card.',
+};
 
 /** Named card effects are matched by name, the way the prototype does it. */
 export const JESTER = 'Jester';
