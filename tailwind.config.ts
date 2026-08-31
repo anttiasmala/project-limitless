@@ -23,6 +23,34 @@ const config: Config = {
         text: '#BC9288',
         primaryText: '#404040',
         textWhite: '#FFFFFF',
+        // Port Royal (/port-royal) — a self-contained parchment-and-ink palette
+        // lifted from the `Port Royal Prototype.dc.html` design hand-off. It is
+        // deliberately independent of the rosa/green site theme and has no dark
+        // counterpart: the board commits to one aesthetic and ignores `.dark`.
+        portRoyal: {
+          ground: '#EFE3C8', // board / parchment ground
+          parchment: '#E2D2AF', // recessed panel fills
+          vellum: '#F5EBD6', // modal + drawer surfaces
+          card: '#FFFCF4', // card faces
+          ink: '#1F2A33', // primary text, dark chrome
+          slate: '#4A5560', // secondary text
+          steel: '#3C4B57', // dividers on dark chrome
+          brass: '#B8862F', // primary accent
+          brassLight: '#C9963A', // accent text on dark chrome
+          brassDeep: '#6B4D18', // glyphs on brass chips
+          wood: '#8C6A43', // rules, borders, small caps labels
+          teal: '#1B4B4F', // secondary accent (influence)
+          tealDeep: '#123437',
+          crimson: '#8E3B2F', // bust / loss / tax
+          crimsonDeep: '#6D2C23',
+          sand: '#D9C79C', // handover subtitle
+          blush: '#F0D9CF', // bust body copy
+        },
+      },
+      fontFamily: {
+        spectral: ['var(--font-spectral)', 'Georgia', 'serif'],
+        archivo: ['var(--font-archivo)', 'system-ui', 'sans-serif'],
+        'archivo-narrow': ['var(--font-archivo-narrow)', 'sans-serif'],
       },
       keyframes: {
         rainbowBackGroundColor: {
