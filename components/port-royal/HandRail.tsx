@@ -34,7 +34,7 @@ export default function HandRail({ seat }: { seat: Player }) {
   ];
 
   return (
-    <div className="flex w-[372px] flex-none flex-col gap-2">
+    <div className="flex w-93 flex-none flex-col gap-2">
       <div className="flex items-center gap-2.5">
         <span className="font-archivo text-portRoyal-teal text-[11px] font-bold tracking-[0.2em] uppercase">
           {seat.name} — hand
@@ -45,16 +45,16 @@ export default function HandRail({ seat }: { seat: Player }) {
         </span>
       </div>
 
-      <div className="flex min-h-[96px] items-end">
+      <div className="flex min-h-24 items-end">
         {seat.hand.length === 0 ? (
-          <div className="border-portRoyal-wood/60 font-spectral text-portRoyal-slate grid h-[88px] w-full place-items-center border border-dashed text-[13px] italic">
+          <div className="border-portRoyal-wood/60 font-spectral text-portRoyal-slate grid h-22 w-full place-items-center border border-dashed text-[13px] italic">
             No coins in hand — ships are the only affordable haul.
           </div>
         ) : (
           seat.hand.slice(0, MAX_SHOWN).map((coin, i) => (
             <div
               key={coin.id}
-              className="border-portRoyal-wood bg-portRoyal-brass/14 grid h-[92px] w-[62px] place-items-center border shadow-[0_4px_10px_rgba(31,42,51,0.14)]"
+              className="border-portRoyal-wood bg-portRoyal-brass/14 grid h-23 w-15.5 place-items-center border shadow-[0_4px_10px_rgba(31,42,51,0.14)]"
               style={{
                 marginLeft: i === 0 ? 0 : -30,
                 transform: `rotate(${((i % 3) - 1) * 1.5}deg)`,
