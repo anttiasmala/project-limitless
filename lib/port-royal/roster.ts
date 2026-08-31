@@ -1,5 +1,3 @@
-// lib/port-royal/roster.ts
-
 /**
  * Turns whatever the landing page — or a hand-edited URL — supplies into a
  * roster the board can trust.
@@ -30,7 +28,7 @@ export const SEAT_OPTIONS = Array.from(
 );
 
 /**
- * A roster of a legal size, with no blank names and no duplicates: the handover
+ * An array names, with no blank names and no duplicates: the handover
  * curtain announces the next player by name, so two identical names would leave
  * it ambiguous who is meant to pick the device up.
  */
