@@ -27,7 +27,7 @@ import {
 type Mode = {
   id: GameMode;
   title: string;
-  blurb: string;
+  description: string;
   /** Borrows a ship colour's flag, so each tile is identifiable by shape too. */
   colorIdx: number;
   ready: boolean;
@@ -37,7 +37,7 @@ const MODES: Mode[] = [
   {
     id: 'hotseat',
     title: 'Hotseat',
-    blurb:
+    description:
       'Two to five captains around one device, passed on behind a curtain so nobody sees another hand.',
     colorIdx: 0,
     ready: true,
@@ -45,7 +45,7 @@ const MODES: Mode[] = [
   {
     id: 'ai',
     title: 'Versus the Crown',
-    blurb:
+    description:
       'Take the harbour on alone, against captains (AI) the crown appoints. Not yet chartered.',
     colorIdx: 3,
     ready: false,
@@ -53,7 +53,7 @@ const MODES: Mode[] = [
   {
     id: 'online',
     title: 'Multiplayer',
-    blurb:
+    description:
       'Separate devices, one harbour, joined by a room code. Not yet chartered.',
     colorIdx: 1,
     ready: false,
@@ -146,7 +146,7 @@ export default function PortRoyalLand() {
                   </div>
 
                   <p className="text-portRoyal-slate text-[13px] leading-[1.55]">
-                    {m.blurb}
+                    {m.description}
                   </p>
 
                   {!m.ready && (
