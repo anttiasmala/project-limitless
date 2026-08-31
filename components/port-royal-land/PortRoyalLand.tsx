@@ -103,9 +103,6 @@ export default function PortRoyalLand() {
           <div className="font-spectral text-[19px] font-semibold tracking-[0.04em]">
             Port Royal
           </div>
-          <div className="font-archivo-narrow text-portRoyal-wood text-[10px] tracking-[0.2em] uppercase">
-            target {TARGET_VP} pts
-          </div>
         </div>
       </header>
 
@@ -205,7 +202,9 @@ export default function PortRoyalLand() {
                         value={names[i]}
                         onChange={(e) =>
                           setNames((prev) =>
-                            prev.map((n, j) => (j === i ? e.target.value : n)),
+                            prev.map((_name, _index) =>
+                              _index === i ? e.target.value : _name,
+                            ),
                           )
                         }
                         maxLength={NAME_MAX}
@@ -220,7 +219,7 @@ export default function PortRoyalLand() {
                   <button
                     type="button"
                     onClick={setSail}
-                    className="bg-portRoyal-brass text-portRoyal-ink border-portRoyal-wood min-h-13 cursor-pointer border px-8.5 py-4 text-[13px] font-semibold tracking-[0.14em] uppercase"
+                    className="bg-portRoyal-brass text-portRoyal-ink border-portRoyal-wood min-h-13 cursor-pointer border px-8.5 py-4 text-[13px] font-semibold tracking-[0.14em] uppercase hover:bg-[#946c28]"
                   >
                     Set sail
                   </button>
@@ -247,7 +246,7 @@ export default function PortRoyalLand() {
                 <button
                   type="button"
                   onClick={() => setMode('hotseat')}
-                  className="border-portRoyal-wood text-portRoyal-ink min-h-11 w-fit cursor-pointer border px-5 py-2.5 text-[12px] font-semibold tracking-[0.14em] uppercase"
+                  className="hover:bg-portRoyal-brass border-portRoyal-wood text-portRoyal-ink min-h-11 w-fit cursor-pointer border px-5 py-2.5 text-[12px] font-semibold tracking-[0.14em] uppercase"
                 >
                   Back to hotseat
                 </button>
