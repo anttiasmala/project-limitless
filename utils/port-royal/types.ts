@@ -148,6 +148,15 @@ export const JESTER = 'Jester';
 export const GOVERNOR = 'Governor';
 export const MADEMOISELLE = 'Mademoiselle';
 
+/** Where the `imageName` of a card in `cards.ts` resolves to under `public/`. */
+export const CARD_ART_DIR = '/images/port-royal';
+
+/** The printed card art is 204×315, so every face draws at the same ratio. */
+export const CARD_ART_W = 204;
+export const CARD_ART_H = 315;
+
+export const cardArt = (image: string) => `${CARD_ART_DIR}/${image}`;
+
 export type ShipCard = {
   id: number;
   kind: 'ship';
@@ -155,11 +164,20 @@ export type ShipCard = {
   name: string;
   swords: number;
   coins: number;
+  /** File name of the printed card, straight from `cards.ts`. */
+  image: string;
 };
 
-export type PersonCard = PersonTemplate & { id: number; kind: 'person' };
+export type PersonCard = PersonTemplate & {
+  id: number;
+  kind: 'person';
+  image: string;
+};
 
-/** Awarded by the tax event, so it has no price and never sits in the deck. */
+/**
+ * Awarded by the tax event, so it has no price, never sits in the deck, and —
+ * being unprinted — has no card art either.
+ */
 export type BonusCard = {
   id: number;
   kind: 'bonus';
@@ -170,7 +188,12 @@ export type BonusCard = {
   text: string;
 };
 
-export type TaxCard = { id: number; kind: 'tax'; name: string };
+export type TaxCard = {
+  id: number;
+  kind: 'tax';
+  name: string;
+  image: string;
+};
 
 /** What the draw pile holds. `BonusCard` is awarded, never drawn. */
 export type DeckCard = ShipCard | PersonCard | TaxCard;
@@ -221,6 +244,7 @@ export type GameState = {
   players: Player[];
   deck: DeckCard[];
   discard: number;
+  discardPile: [];
   active: number;
   taker: number | null;
   phase: Phase;
