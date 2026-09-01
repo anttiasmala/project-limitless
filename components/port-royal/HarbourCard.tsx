@@ -1,7 +1,11 @@
+import Image from 'next/image';
 import Flag from './Flag';
 import StatChip from './StatChip';
 import { HATCH_PANEL, HATCH_SUBJECT, SUBJECT } from './shapes';
 import {
+  CARD_ART_H,
+  CARD_ART_W,
+  cardArt,
   HarbourCard as HarbourCardType,
   SHIPS,
 } from '@/utils/port-royal/types';
@@ -65,23 +69,34 @@ export default function HarbourCard({
         )}
       </div>
 
-      {/* Artwork placeholder: hatched panel with a silhouette knocked out of it. */}
       <div
-        className={`border-portRoyal-wood/70 bg-portRoyal-parchment/50 relative grid h-26 place-items-center overflow-hidden border ${
+        className={`border-portRoyal-wood/70 bg-portRoyal-parchment/50 relative flex min-h-26 flex-1 items-center justify-center overflow-hidden border ${
           muted ? 'opacity-45' : 'opacity-100'
         }`}
         style={{ backgroundImage: HATCH_PANEL }}
       >
-        <div
-          className="h-[56%] w-[54%] border border-[rgba(31,42,51,0.4)]"
-          style={{
-            backgroundImage: HATCH_SUBJECT,
-            clipPath: ship ? SUBJECT.SHIP : SUBJECT.FIGURE,
-          }}
-        />
-        <div className="font-archivo-narrow text-portRoyal-wood absolute right-1 bottom-0.75 left-1 text-center text-[9px] tracking-[0.12em] uppercase">
-          {ship ? 'ship silhouette' : 'figure study'}
-        </div>
+        {card.image ? (
+          <Image
+            src={cardArt(card.image)}
+            alt={card.name}
+            width={CARD_ART_W}
+            height={CARD_ART_H}
+            className="h-full w-auto object-contain"
+          />
+        ) : (
+          <>
+            <div
+              className="h-[56%] w-[54%] border border-[rgba(31,42,51,0.4)]"
+              style={{
+                backgroundImage: HATCH_SUBJECT,
+                clipPath: ship ? SUBJECT.SHIP : SUBJECT.FIGURE,
+              }}
+            />
+            <div className="font-archivo-narrow text-portRoyal-wood absolute right-1 bottom-0.75 left-1 text-center text-[9px] tracking-[0.12em] uppercase">
+              {ship ? 'ship silhouette' : 'figure study'}
+            </div>
+          </>
+        )}
       </div>
 
       <div

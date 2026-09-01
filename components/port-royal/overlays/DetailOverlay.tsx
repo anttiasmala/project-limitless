@@ -1,5 +1,12 @@
+import Image from 'next/image';
 import { HATCH_PANEL_SOFT } from '../shapes';
-import { Card, SHIPS } from '@/utils/port-royal/types';
+import {
+  CARD_ART_H,
+  CARD_ART_W,
+  Card,
+  cardArt,
+  SHIPS,
+} from '@/utils/port-royal/types';
 
 type Stat = { value: number; label: string; className: string };
 
@@ -83,12 +90,21 @@ export default function DetailOverlay({
         </div>
 
         <div
-          className="border-portRoyal-wood/70 bg-portRoyal-parchment/50 font-archivo-narrow text-portRoyal-wood grid h-37.5 place-items-center border text-[10px] tracking-[0.16em] uppercase"
+          className="border-portRoyal-wood/70 bg-portRoyal-parchment/50 font-archivo-narrow text-portRoyal-wood grid place-items-center border py-4 text-[10px] tracking-[0.16em] uppercase"
           style={{ backgroundImage: HATCH_PANEL_SOFT }}
         >
-          {card.kind === 'ship'
-            ? 'illustration — ship under sail'
-            : 'illustration — figure study'}
+          {/* The Crown favour is awarded rather than printed, so it has no art. */}
+          {card.kind !== 'bonus' && card.image ? (
+            <Image
+              src={cardArt(card.image)}
+              alt={card.name}
+              width={CARD_ART_W}
+              height={CARD_ART_H}
+              className="h-78.75 w-auto object-contain"
+            />
+          ) : (
+            <span className="py-14">illustration — figure study</span>
+          )}
         </div>
 
         <div className="font-spectral text-[16px] leading-normal">

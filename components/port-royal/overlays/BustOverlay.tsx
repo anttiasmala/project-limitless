@@ -1,5 +1,12 @@
+import Image from 'next/image';
 import Flag from '../Flag';
-import { ShipCard, SHIPS } from '@/utils/port-royal/types';
+import {
+  CARD_ART_H,
+  CARD_ART_W,
+  cardArt,
+  ShipCard,
+  SHIPS,
+} from '@/utils/port-royal/types';
 
 /**
  * Shown when a second ship of a colour already in the harbour is flipped: the
@@ -32,7 +39,17 @@ export default function BustOverlay({
               key={ship.id}
               className="bg-portRoyal-ground/95 border-portRoyal-crimson flex w-37.5 flex-col items-center gap-2 border p-2.5"
             >
-              <Flag colorIdx={ship.colorIdx} className="h-7.5 w-11" />
+              {ship.image ? (
+                <Image
+                  src={cardArt(ship.image)}
+                  alt={ship.name}
+                  width={CARD_ART_W}
+                  height={CARD_ART_H}
+                  className="h-42.5 w-auto object-contain"
+                />
+              ) : (
+                <Flag colorIdx={ship.colorIdx} className="h-7.5 w-11" />
+              )}
               <div className="font-spectral text-[15px] font-semibold">
                 {ship.name}
               </div>
