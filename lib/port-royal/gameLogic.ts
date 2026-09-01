@@ -1,15 +1,5 @@
 /**
  * The Port Royal game engine.
- *
- * A straight port of the logic class in the `Port Royal Prototype.dc.html`
- * hand-off, reshaped into a pure reducer. Two things had to change on the way:
- *
- *  - The prototype raised toasts by calling `say()` in the middle of a
- *    computation. Here a toast is just a field the reducer writes, and the view
- *    owns the dismiss timer.
- *  - The prototype chained turns with `setTimeout(this.endTurn, 400)`. Here the
- *    reducer records the intent in `scheduled` and the view dispatches it when
- *    the delay elapses, so the engine stays synchronous and testable.
  */
 
 import allCards from '@/utils/port-royal/cards';
@@ -81,6 +71,7 @@ export function buildDeck(
         name,
         swords: card.shipWeapons ?? 0,
         coins: card.shipCoins ?? 0,
+        image: card.imageName ?? '',
       });
       return;
     }
@@ -98,12 +89,18 @@ export function buildDeck(
         swords: (card.abilities ?? []).filter((a) => a === 'swords').length,
         vp: card.victoryPoints ?? 0,
         price: card.characterCost ?? 0,
+        image: card.imageName ?? '',
       });
       return;
     }
 
     if (card.type === 'tax') {
-      d.push({ id: ++seq, kind: 'tax', name: 'Tax Increase' });
+      d.push({
+        id: ++seq,
+        kind: 'tax',
+        name: 'Tax Increase',
+        image: card.imageName ?? '',
+      });
     }
   });
 
@@ -123,6 +120,7 @@ export function freshState(names: string[], shuffle = true): GameState {
     players,
     deck: rest,
     discard: 0,
+    discardPile: [],
     active: 0,
     taker: null,
     phase: 'handover',
