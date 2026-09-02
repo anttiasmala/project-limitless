@@ -38,7 +38,7 @@ function InspectButton({
         e.stopPropagation();
         onInspect();
       }}
-      className={`border-portRoyal-wood/80 bg-portRoyal-card/90 font-spectral text-portRoyal-teal hover:border-portRoyal-teal grid h-6.5 w-6.5 flex-none place-items-center rounded-full border text-[12px] ${className ?? ''}`}
+      className={`border-portRoyal-wood/80 bg-portRoyal-card/90 font-spectral text-portRoyal-teal hover:border-portRoyal-teal grid h-6.5 w-6.5 flex-none place-items-center rounded-full border text-[12px] hover:border-2 ${className ?? ''}`}
     >
       i
     </button>
