@@ -66,18 +66,21 @@ export default function SettingsOverlay({
             </div>
           </div>
         ))}
-        <div className="flex">
-          <label className="mr-3">Alternative card display:</label>
-          <ToggleSwitch
-            size="sm"
-            onChange={(e) =>
-              setSettings((prev) => ({
-                ...prev,
-                alternativeTheme: e.currentTarget.checked,
-              }))
-            }
-            checked={settings.alternativeTheme}
-          />
+        <div>
+          <label className="flex cursor-pointer select-none">
+            Alternative card display:
+            <ToggleSwitch
+              className="ml-3"
+              size="sm"
+              onChange={(e) =>
+                setSettings((prev) => ({
+                  ...prev,
+                  alternativeTheme: e.currentTarget.checked,
+                }))
+              }
+              checked={settings.alternativeTheme}
+            />
+          </label>
         </div>
 
         <button
@@ -90,7 +93,7 @@ export default function SettingsOverlay({
         <button
           type="button"
           onClick={onClose}
-          className="font-archivo-narrow text-portRoyal-slate border-portRoyal-wood/70 min-h-11 cursor-pointer border bg-transparent p-3 text-[11px] tracking-[0.16em] uppercase"
+          className="hover:bg-portRoyal-brass font-archivo-narrow text-portRoyal-slate border-portRoyal-wood/70 min-h-11 cursor-pointer border bg-transparent p-3 text-[11px] tracking-[0.16em] uppercase"
         >
           Close
         </button>
