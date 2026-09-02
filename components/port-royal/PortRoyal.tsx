@@ -15,8 +15,14 @@ import HandoverOverlay from './overlays/HandoverOverlay';
 import SettingsOverlay from './overlays/SettingsOverlay';
 import TaxOverlay from './overlays/TaxOverlay';
 import { BOARD_NOISE, BOARD_VIGNETTE } from './shapes';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { freshState, reducer, seatOf } from '@/lib/port-royal/gameLogic';
-import { PLAYER_NAMES, TARGET_VP } from '@/utils/port-royal/types';
+import {
+  DEFAULT_SETTINGS,
+  PLAYER_NAMES,
+  SETTINGS_KEY,
+  TARGET_VP,
+} from '@/utils/port-royal/types';
 
 const TOAST_MS = 2600;
 
@@ -49,6 +55,9 @@ export default function PortRoyal({
   useEffect(() => {
     dispatch({ type: 'SHUFFLE' });
   }, []);
+
+  // Loads Port Royal settings from LocalStorage
+  const [settings] = useLocalStorage(SETTINGS_KEY, DEFAULT_SETTINGS);
 
   // A replacement toast is a new object, which restarts this timer — the way
   // the prototype cleared and re-armed its timeout on every `say()`.
@@ -123,6 +132,7 @@ export default function PortRoyal({
             buying={buying}
             discovering={state.phase === 'discovery'}
             selected={state.selected}
+            alternative={settings.alternativeTheme}
             onPick={(card) => dispatch({ type: 'PICK', card })}
             onInspect={(card) => dispatch({ type: 'INSPECT', card })}
           />
