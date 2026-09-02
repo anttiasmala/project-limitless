@@ -1,3 +1,6 @@
+import ToggleSwitch from '@/components/shared/ToggleSwitch';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+
 /* The design specifies these three switches as a fixed display: it gives them
    labels and resting positions but no behaviour, and the systems they would
    drive (audio, reduced motion, open hands) do not exist yet. They are drawn
@@ -20,6 +23,10 @@ export default function SettingsOverlay({
   onClose: () => void;
   onRestart: () => void;
 }) {
+  const [settings, setSettings] = useLocalStorage('portRoyalSettings', {
+    alternativeTheme: false,
+  });
+
   return (
     <div
       onClick={onClose}
@@ -57,6 +64,19 @@ export default function SettingsOverlay({
             </div>
           </div>
         ))}
+        <div className="flex">
+          <label className="mr-3">Alternative card disaplay:</label>
+          <ToggleSwitch
+            size="sm"
+            onChange={(e) =>
+              setSettings((prev) => ({
+                ...prev,
+                alternativeTheme: e.currentTarget.checked,
+              }))
+            }
+            checked={settings.alternativeTheme}
+          />
+        </div>
 
         <button
           type="button"
