@@ -29,7 +29,7 @@ const TOAST_MS = 2600;
 /** The one line of rules text the left rail shows, chosen by phase. */
 const HINTS: Record<string, string> = {
   discovery:
-    'A second ship of a colour already in the harbour ends the phase and the haul is lost.',
+    'A second ship of a colour already in the harbour ends the phase and the drawn cards are lost.',
   others: "Payment goes to the active player's hand, not the crown.",
 };
 
