@@ -151,6 +151,21 @@ export const MADEMOISELLE = 'Mademoiselle';
 /** Where the `imageName` of a card in `cards.ts` resolves to under `public/`. */
 export const CARD_ART_DIR = '/images/port-royal';
 
+/** Player preferences, kept in `localStorage` rather than in game state. */
+export const SETTINGS_KEY = 'portRoyalSettings';
+
+export type Settings = {
+  /**
+   * **Off** — the default, draws a drawn card as the printed (whole card) card.
+   *
+   * **On** — swaps in the composed face: the art inset in a panel, with the name,
+   * flag, stat chips and price set around it.
+   */
+  alternativeTheme: boolean;
+};
+
+export const DEFAULT_SETTINGS: Settings = { alternativeTheme: false };
+
 /** The printed card art is 204×315, so every face draws at the same ratio. */
 export const CARD_ART_W = 204;
 export const CARD_ART_H = 315;
