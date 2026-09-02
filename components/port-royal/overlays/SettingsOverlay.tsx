@@ -1,5 +1,6 @@
 import ToggleSwitch from '@/components/shared/ToggleSwitch';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { DEFAULT_SETTINGS, SETTINGS_KEY } from '@/utils/port-royal/types';
 
 /* The design specifies these three switches as a fixed display: it gives them
    labels and resting positions but no behaviour, and the systems they would
@@ -23,9 +24,10 @@ export default function SettingsOverlay({
   onClose: () => void;
   onRestart: () => void;
 }) {
-  const [settings, setSettings] = useLocalStorage('portRoyalSettings', {
-    alternativeTheme: false,
-  });
+  const [settings, setSettings] = useLocalStorage(
+    SETTINGS_KEY,
+    DEFAULT_SETTINGS,
+  );
 
   return (
     <div
@@ -65,7 +67,7 @@ export default function SettingsOverlay({
           </div>
         ))}
         <div className="flex">
-          <label className="mr-3">Alternative card disaplay:</label>
+          <label className="mr-3">Alternative card display:</label>
           <ToggleSwitch
             size="sm"
             onChange={(e) =>
