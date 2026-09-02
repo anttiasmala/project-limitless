@@ -19,6 +19,7 @@ export default function Harbour({
   buying,
   discovering,
   selected,
+  alternative,
   onPick,
   onInspect,
 }: {
@@ -27,6 +28,8 @@ export default function Harbour({
   buying: boolean;
   discovering: boolean;
   selected: number | null;
+  /** Draw the alternative face rather than the "whole" card. */
+  alternative: boolean;
   onPick: (card: HarbourCardType) => void;
   onInspect: (card: HarbourCardType) => void;
 }) {
@@ -86,6 +89,7 @@ export default function Harbour({
               buying={buying}
               affordable={buying ? affordable(card, seat) : true}
               selected={selected === card.id}
+              alternative={alternative}
               onPick={() => onPick(card)}
               onInspect={() => onInspect(card)}
             />
