@@ -10,23 +10,7 @@ import {
   SHIPS,
 } from '@/utils/port-royal/types';
 
-/**
- * One card face in the harbour display.
- *
- * Three states drive nearly every colour on it: whether the seat is currently
- * buying, whether they can afford this card, and whether it is selected. When
- * buying is off (during discovery) nothing is dimmed — the cards are just
- * evidence of how far the luck has been pushed.
- */
-export default function HarbourCard({
-  card,
-  price,
-  buying,
-  affordable,
-  selected,
-  onPick,
-  onInspect,
-}: {
+type FaceProps = {
   card: HarbourCardType;
   price: number;
   buying: boolean;
@@ -34,7 +18,101 @@ export default function HarbourCard({
   selected: boolean;
   onPick: () => void;
   onInspect: () => void;
+};
+
+/** The card itself is the pick target, so inspecting must not select it. */
+function InspectButton({
+  card,
+  onInspect,
+  className,
+}: {
+  card: HarbourCardType;
+  onInspect: () => void;
+  className?: string;
 }) {
+  return (
+    <button
+      type="button"
+      aria-label={`Inspect ${card.name}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        onInspect();
+      }}
+      className={`border-portRoyal-wood/80 bg-portRoyal-card/90 font-spectral text-portRoyal-teal hover:border-portRoyal-teal grid h-6.5 w-6.5 flex-none place-items-center rounded-full border text-[12px] ${className ?? ''}`}
+    >
+      i
+    </button>
+  );
+}
+
+/**
+ * Whole card instead of 'custom' card
+ *
+ * This is used when "Alternative card display" is **OFF**
+ */
+function PrintedFace({
+  card,
+  price,
+  buying,
+  affordable,
+  selected,
+  onPick,
+  onInspect,
+}: FaceProps) {
+  const ship = card.kind === 'ship' ? SHIPS[card.colorIdx] : null;
+
+  return (
+    <div
+      onClick={onPick}
+      className={`relative h-71.5 w-44.5 flex-none overflow-hidden shadow-[0_6px_14px_rgba(31,42,51,0.16)] outline-offset-[3px] transition-transform duration-120 ease-out hover:shadow-[0_12px_22px_rgba(31,42,51,0.22)] ${
+        buying ? 'cursor-pointer' : 'cursor-default'
+      } ${
+        selected ? 'outline-portRoyal-teal -translate-y-1.5 outline-[3px]' : ''
+      } ${buying && !affordable ? 'opacity-55' : 'opacity-100'}`}
+    >
+      <Image
+        src={cardArt(card.image)}
+        alt={card.name}
+        width={CARD_ART_W}
+        height={CARD_ART_H}
+        className="h-full w-full object-contain"
+      />
+
+      {buying && (
+        <span
+          className={`absolute bottom-2 left-2 border px-2 py-0.75 text-[13px] font-bold tabular-nums ${
+            affordable
+              ? 'border-portRoyal-brass bg-portRoyal-brass/90 text-portRoyal-ink'
+              : 'border-portRoyal-crimson bg-portRoyal-crimson text-portRoyal-ground'
+          }`}
+        >
+          {ship ? `${card.swords}✦` : `${price}¤`}
+        </span>
+      )}
+
+      <InspectButton
+        card={card}
+        onInspect={onInspect}
+        className="absolute right-2 bottom-2"
+      />
+    </div>
+  );
+}
+
+/**
+ * Custom card layout instead of "whole" card
+ *
+ * This is used when "Alternative card display" is **ON**
+ */
+function ComposedFace({
+  card,
+  price,
+  buying,
+  affordable,
+  selected,
+  onPick,
+  onInspect,
+}: FaceProps) {
   const ship = card.kind === 'ship' ? SHIPS[card.colorIdx] : null;
   const muted = buying && !affordable;
 
@@ -141,19 +219,20 @@ export default function HarbourCard({
         >
           {ship ? `${card.swords}✦` : `${price}¤`}
         </span>
-        <button
-          type="button"
-          aria-label={`Inspect ${card.name}`}
-          onClick={(e) => {
-            // The card itself is the pick target; inspecting must not select it.
-            e.stopPropagation();
-            onInspect();
-          }}
-          className="border-portRoyal-wood/80 bg-portRoyal-card/90 font-spectral text-portRoyal-teal hover:border-portRoyal-teal grid h-6.5 w-6.5 flex-none place-items-center rounded-full border text-[12px]"
-        >
-          i
-        </button>
+        <InspectButton card={card} onInspect={onInspect} />
       </div>
     </div>
+  );
+}
+
+/** This determines if "Alternative" card layout should be used or not */
+export default function HarbourCard({
+  alternative,
+  ...face
+}: FaceProps & { alternative: boolean }) {
+  return alternative || !face.card.image ? (
+    <ComposedFace {...face} />
+  ) : (
+    <PrintedFace {...face} />
   );
 }
