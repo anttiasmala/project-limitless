@@ -1,5 +1,12 @@
-import { swordsOf, vpOf } from '@/lib/port-royal/gameLogic';
-import { Phase, Player } from '@/utils/port-royal/types';
+import {
+  anchorOf,
+  crossOf,
+  houseOf,
+  swordsOf,
+  vpOf,
+} from '@/lib/port-royal/gameLogic';
+import { CARD_ART_DIR, Phase, Player } from '@/utils/port-royal/types';
+import Image from 'next/image';
 
 /**
  * The scoreboard along the top bar: one card per player, showing influence,
@@ -18,7 +25,7 @@ export default function PlayerStrip({
   phase: Phase;
 }) {
   return (
-    <div className="gap-2.5overflow-x-auto flex min-w-0 flex-1">
+    <div className="flex min-w-0 flex-1 gap-2.5 overflow-x-auto">
       {players.map((p, i) => {
         const isActive = i === active;
         const isTaking = phase === 'others' && i === taker;
@@ -62,25 +69,72 @@ export default function PlayerStrip({
               </span>
             </div>
 
-            <div className="flex items-baseline gap-3 tabular-nums">
-              <span className="text-portRoyal-ground text-[20px] font-bold">
-                {vpOf(p)}
-                <span className="font-archivo-narrow text-portRoyal-wood ml-1 text-[9px] tracking-[0.14em] uppercase">
-                  pts
-                </span>
-              </span>
-              <span className="text-portRoyal-brassLight text-[14px] font-semibold">
-                {p.hand.length}
-                <span className="font-archivo-narrow ml-0.75 text-[9px] tracking-[0.14em] uppercase">
-                  coins
-                </span>
-              </span>
-              <span className="text-portRoyal-ground text-[14px] font-semibold">
-                {swordsOf(p)}
-                <span className="font-archivo-narrow ml-0.75 text-[9px] tracking-[0.14em] uppercase">
-                  sw
-                </span>
-              </span>
+            <div className="flex flex-col items-baseline tabular-nums">
+              <div className="flex items-baseline gap-3 tabular-nums">
+                <div className="text-portRoyal-ground flex items-center text-[20px] font-bold">
+                  <Image
+                    src={`${CARD_ART_DIR}/realVictoryPoints.png`}
+                    alt="Victory Points icon"
+                    width={32}
+                    height={32}
+                    className="h-4 w-4"
+                  />
+                  <span className="ml-1">{vpOf(p)}</span>
+                </div>
+                <div className="text-portRoyal-brassLight flex items-center text-[20px] font-semibold">
+                  <Image
+                    src={`${CARD_ART_DIR}/realCoins.png`}
+                    alt="Coins icon"
+                    width={32}
+                    height={32}
+                    className="h-4 w-4"
+                  />
+                  <span className="ml-1">{p.hand.length}</span>
+                </div>
+                <div className="text-portRoyal-ground flex items-center text-[20px] font-semibold">
+                  <Image
+                    src={`${CARD_ART_DIR}/realSwords.png`}
+                    alt="Swords icon"
+                    width={32}
+                    height={32}
+                    className="h-4 w-4"
+                  />
+                  <span className="ml-1">{swordsOf(p)}</span>
+                </div>
+              </div>
+
+              <div className="flex items-baseline gap-3 tabular-nums">
+                <div className="text-portRoyal-ground flex items-center text-[20px] font-semibold">
+                  <Image
+                    src={`${CARD_ART_DIR}/realHouse.png`}
+                    alt="Houses icon"
+                    width={32}
+                    height={32}
+                    className="h-4 w-4"
+                  />
+                  <span className="ml-1">{houseOf(p)}</span>
+                </div>
+                <div className="text-portRoyal-ground flex items-center text-[20px] font-semibold">
+                  <Image
+                    src={`${CARD_ART_DIR}/realCross.png`}
+                    alt="Crosses icon"
+                    width={32}
+                    height={32}
+                    className="h-4 w-4"
+                  />
+                  <span className="ml-1">{crossOf(p)}</span>
+                </div>
+                <div className="text-portRoyal-ground flex items-center text-[20px] font-semibold">
+                  <Image
+                    src={`${CARD_ART_DIR}/realAnchor.png`}
+                    alt="Anchors icon"
+                    width={32}
+                    height={32}
+                    className="h-4 w-4"
+                  />
+                  <span className="ml-1">{anchorOf(p)}</span>
+                </div>
+              </div>
             </div>
           </div>
         );
