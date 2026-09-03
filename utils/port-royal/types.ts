@@ -69,11 +69,22 @@ export const SHIPS: ShipColour[] = [
 
 export type PersonRole = 'fighter' | 'trader' | 'rule';
 
+/** The three expedition symbols a research card can ask for. */
+export type ExpeditionSymbol = 'house' | 'cross' | 'anchor';
+
+/**
+ * The symbol a character supplies. The Jack of all Trades prints all three at
+ * once, so it gets a value of its own rather than one of them.
+ */
+export type ExpeditionItem = ExpeditionSymbol | 'jackOfAllTrades' | 'none';
+
 export type PersonTemplate = {
   name: string;
   role: PersonRole;
   swords: number;
+  /** vp = Victory points */
   vp: number;
+  expeditionItem: ExpeditionItem;
   price: number;
   text: string;
 };
