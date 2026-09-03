@@ -7,6 +7,7 @@ import {
   Action,
   DEFAULT_PERSON_PROFILE,
   DeckCard,
+  ExpeditionSymbol,
   GameState,
   GOVERNOR,
   HarbourCard,
@@ -88,6 +89,15 @@ export function buildDeck(
         // A sword ability is printed once per sword — the Pirate carries two.
         swords: (card.abilities ?? []).filter((a) => a === 'swords').length,
         vp: card.victoryPoints ?? 0,
+        expeditionItem: (card.abilities ?? []).map((a) => {
+          if (card.name?.toLowerCase() === 'jack of all trades') {
+            return 'jackOfAllTrades';
+          }
+          if (a === 'house' || a === 'cross' || a === 'anchor') {
+            return a;
+          }
+          return 'none';
+        })[0],
         price: card.characterCost ?? 0,
         image: card.imageName ?? '',
       });
@@ -146,6 +156,23 @@ export const swordsOf = (p: Player) =>
 
 export const vpOf = (p: Player) =>
   p.tableau.reduce((a, c) => a + (c.vp || 0), 0);
+
+/**
+ * How many of one expedition symbol (e.g. house) the player has hired.
+ *
+ * A character prints at most one of each, so this counts cards: the Jack of all
+ * Trades will add to every symbol,
+ */
+const symbolsOf = (p: Player, symbol: ExpeditionSymbol) =>
+  p.tableau.filter(
+    (c) =>
+      c.kind === 'person' &&
+      (c.expeditionItem === symbol || c.expeditionItem === 'jackOfAllTrades'),
+  ).length;
+
+export const houseOf = (p: Player) => symbolsOf(p, 'house');
+export const crossOf = (p: Player) => symbolsOf(p, 'cross');
+export const anchorOf = (p: Player) => symbolsOf(p, 'anchor');
 
 /** The Mademoiselle knocks a coin off everything, but never below one. */
 export const discountOf = (p: Player) =>
