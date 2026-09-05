@@ -181,11 +181,31 @@ export const discountOf = (p: Player) =>
 export const priceOf = (card: HarbourCard, p: Player) =>
   card.kind === 'person' ? Math.max(1, card.price - discountOf(p)) : 0;
 
-/** Ships are paid for in swords you already own; persons in coins from hand. */
+/**
+ * Ships cost nothing to take. Persons are paid in coins from hand.
+ */
 export const affordable = (card: HarbourCard, p: Player) =>
-  card.kind === 'ship'
-    ? swordsOf(p) >= card.swords
-    : p.hand.length >= priceOf(card, p);
+  card.kind === 'ship' ? true : p.hand.length >= priceOf(card, p);
+
+/**
+ * Pick amount (takesLeft) the ACTIVE player has earned
+ * Pick amount can be increased by having multiple different coloured ships in the harbour
+ *
+ * **0-3 different coloured ships = 1 pick**
+ *
+ * **4 different coloured ships = 2 picks**
+ *
+ * **5 different coloured ships = 3 picks**
+ */
+export const takesFor = (harbour: HarbourCard[]) => {
+  const colours = new Set(
+    harbour
+      .filter((c): c is ShipCard => c.kind === 'ship')
+      .map((c) => c.colorIdx),
+  ).size;
+
+  return colours >= 5 ? 3 : colours >= 4 ? 2 : 1;
+};
 
 /** Whoever the board is currently showing — the buyer during the others phase. */
 export const seatOf = (s: GameState) =>
@@ -454,16 +474,17 @@ export function reducer(s: GameState, action: Action): GameState {
     case 'FLIP':
       return flip(s);
 
-    case 'STOP': {
-      // A bigger haul earns more picks before the others get their turn.
-      const n = s.harbour.length;
+    case 'STOP':
+      // More different coloured ships in the harbour earns more picks before the others get a turn.
+      // 0-3 different coloured ships = 1
+      // 4 different coloured ships = 2
+      // 5 different coloured ships = 3
       return {
         ...s,
         phase: 'trade',
-        takesLeft: n >= 6 ? 3 : n >= 5 ? 2 : 1,
+        takesLeft: takesFor(s.harbour),
         selected: null,
       };
-    }
 
     case 'ACK_BUST':
       return withToast(
