@@ -371,7 +371,7 @@ function take(s: GameState): GameState {
   if (card.kind === 'ship') {
     const r = drawInto(deck, card.coins, discard, nextId);
     deck = r.deck;
-    discard = r.discard + 1; // the plundered ship goes to the discard pile
+    discard = r.discard + 1; // the taken ship goes to the discard pile
     nextId = r.nextId;
     reshuffled = r.reshuffled;
     players[buyerIdx].hand = players[buyerIdx].hand.concat(r.taken);
