@@ -33,7 +33,11 @@ export default function Sidebar({
           Discard
         </div>
         <div className="border-portRoyal-wood/70 bg-portRoyal-parchment/40 font-archivo-narrow text-portRoyal-slate grid h-38 w-27 place-items-center border border-dashed text-center text-[10px] tracking-[0.16em] uppercase">
-          {discard ? `${discard} cards` : 'empty'}
+          {discard === 0
+            ? 'empty'
+            : discard === 1
+              ? `${discard} card`
+              : `${discard} cards`}
         </div>
       </div>
 
