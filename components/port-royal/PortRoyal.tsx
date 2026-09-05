@@ -16,7 +16,12 @@ import SettingsOverlay from './overlays/SettingsOverlay';
 import TaxOverlay from './overlays/TaxOverlay';
 import { BOARD_NOISE, BOARD_VIGNETTE } from './shapes';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { freshState, reducer, seatOf } from '@/lib/port-royal/gameLogic';
+import {
+  freshState,
+  reducer,
+  seatOf,
+  taxFor,
+} from '@/lib/port-royal/gameLogic';
 import {
   DEFAULT_SETTINGS,
   PLAYER_NAMES,
@@ -30,7 +35,8 @@ const TOAST_MS = 2600;
 const HINTS: Record<string, string> = {
   discovery:
     'A second ship of a colour already in the harbour ends the phase and the drawn cards are lost.',
-  others: "Payment goes to the active player's hand, not the crown.",
+  others:
+    "Buying out of turn owes the active player a coin out of hand for a hire. On ships coin is payed off the top of a ship's coin amount.",
 };
 
 const DEFAULT_HINT =
@@ -130,6 +136,7 @@ export default function PortRoyal({
             harbour={state.harbour}
             seat={seat}
             buying={buying}
+            tax={taxFor(state.phase)}
             discovering={state.phase === 'discovery'}
             selected={state.selected}
             alternative={settings.alternativeTheme}
