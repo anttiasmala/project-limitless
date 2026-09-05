@@ -182,10 +182,22 @@ export const priceOf = (card: HarbourCard, p: Player) =>
   card.kind === 'person' ? Math.max(1, card.price - discountOf(p)) : 0;
 
 /**
- * Ships cost nothing to take. Persons are paid in coins from hand.
+ * Buying on someone else's turn costs one coin more, and that coin goes to the
+ * active player rather than to the discard pile.
+ *
+ * A hire pays it out of hand. A ship pays it off the top of the coin amount it brings
+ * in, so a 0 coin player can still take a ship.
  */
-export const affordable = (card: HarbourCard, p: Player) =>
-  card.kind === 'ship' ? true : p.hand.length >= priceOf(card, p);
+export const taxFor = (phase: GameState['phase']) =>
+  phase === 'others' ? 1 : 0;
+
+/**
+ * Ships cost nothing to take, not even when picking other player's active turn. The "payment coin" comes out
+ * of ship's coin amount. Persons are paid in coins from hand, plus that coin when
+ * buying out of own turn.
+ */
+export const affordable = (card: HarbourCard, p: Player, tax = 0) =>
+  card.kind === 'ship' ? true : p.hand.length >= priceOf(card, p) + tax;
 
 /**
  * Pick amount (takesLeft) the ACTIVE player has earned
@@ -388,32 +400,53 @@ function take(s: GameState): GameState {
   let toast: Toast;
   let reshuffled = false;
 
+  // Buying out of own turn pays the active player a coin, on
+  // top of whatever the card itself costs.
+  const tax = taxFor(s.phase);
+  const activeName = s.players[s.active].name;
+
   if (card.kind === 'ship') {
     const r = drawInto(deck, card.coins, discard, nextId);
     deck = r.deck;
     discard = r.discard + 1; // the taken ship goes to the discard pile
     nextId = r.nextId;
     reshuffled = r.reshuffled;
-    players[buyerIdx].hand = players[buyerIdx].hand.concat(r.taken);
+
+    // The fee is taken off the coin amount rather than the hand, so an empty-handed
+    // player can still pick a ship in. A one-coin ship just gives the coin to the active player.
+    const skimmed = Math.min(tax, r.taken.length);
+    players[s.active].hand = players[s.active].hand.concat(
+      r.taken.slice(0, skimmed),
+    );
+    players[buyerIdx].hand = players[buyerIdx].hand.concat(
+      r.taken.slice(skimmed),
+    );
+
     toast = {
-      text: `${buyer.name} brings in the ${card.name} — ${card.coins} coins aboard.`,
+      text: skimmed
+        ? `${buyer.name} brings in the ${card.name} — ${
+            r.taken.length - skimmed
+          } coins aboard, ${skimmed} to ${activeName}.`
+        : `${buyer.name} brings in the ${card.name} — ${card.coins} coins aboard.`,
       tone: 'gain',
     };
   } else {
-    const cost = priceOf(card, buyer);
-    const paid = players[buyerIdx].hand.splice(0, cost);
-
-    // Buying out of turn pays the active player rather than the crown.
-    if (!isActive) {
-      players[s.active].hand = players[s.active].hand.concat(paid);
-    } else {
-      discard += cost;
+    // The hire itself is always paid to the discard pile, whoever is buying. Only the
+    // out-of-turn coin goes to the active player, and it comes out of hand.
+    if (tax) {
+      players[s.active].hand = players[s.active].hand.concat(
+        players[buyerIdx].hand.splice(0, tax),
+      );
     }
+
+    const cost = priceOf(card, buyer);
+    players[buyerIdx].hand.splice(0, cost);
+    discard += cost;
 
     players[buyerIdx].tableau.push(card);
     toast = {
-      text: `${buyer.name} hires ${card.name} for ${cost}${
-        isActive ? ' coins.' : ` coins, paid to ${s.players[s.active].name}.`
+      text: `${buyer.name} hires ${card.name} for ${cost} coins.${
+        tax ? ` One coin to ${activeName}.` : ''
       }`,
       tone: 'gain',
     };
@@ -529,11 +562,13 @@ export function reducer(s: GameState, action: Action): GameState {
       const buyer =
         s.phase === 'trade' ? s.players[s.active] : s.players[s.taker!];
 
-      if (!affordable(action.card, buyer)) {
+      const tax = taxFor(s.phase);
+
+      if (!affordable(action.card, buyer, tax)) {
         return withToast(
           s,
-          action.card.kind === 'ship'
-            ? 'Not enough swords to bring her in.'
+          tax
+            ? `Not enough coins — ${s.players[s.active].name} takes one on top of the price.`
             : 'Not enough coins in hand.',
           'loss',
         );
