@@ -69,7 +69,7 @@ export const SHIPS: ShipColour[] = [
 
 export type PersonRole = 'fighter' | 'trader' | 'rule';
 
-/** The three expedition symbols a research card can ask for. */
+/** The three expedition symbols an expedition card can ask for. */
 export type ExpeditionSymbol = 'house' | 'cross' | 'anchor';
 
 /**

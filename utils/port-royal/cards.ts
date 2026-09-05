@@ -1,7 +1,7 @@
 // Total of 119 cards
 // Character cards: 60
 // Ship cards: 50
-// Research cards: 5
+// Expedition cards: 5
 // Tax cards: 4
 
 type AllCards = {
@@ -16,7 +16,7 @@ type AllCards = {
   shipWeapons?: number;
   shipCoins?: number;
   taxMode?: 'LowestPoints' | 'MostSwords';
-  researchMode?: string[];
+  expeditionMode?: string[];
   coinsAmount?: number;
 };
 
@@ -1105,53 +1105,53 @@ const allCards: AllCards[] = [
   },
   {
     id: 115,
-    type: 'research',
-    name: 'Research',
+    type: 'expedition',
+    name: 'Expedition',
     displayImage: false,
-    researchMode: ['anchor', 'anchor'],
+    expeditionMode: ['anchor', 'anchor'],
     coinsAmount: 2,
     victoryPoints: 4,
-    imageName: 'research_1.png',
+    imageName: 'expedition_1.png',
   },
   {
     id: 116,
-    type: 'research',
-    name: 'Research',
+    type: 'expedition',
+    name: 'Expedition',
     displayImage: false,
-    researchMode: ['cross', 'cross'],
+    expeditionMode: ['cross', 'cross'],
     coinsAmount: 2,
     victoryPoints: 4,
-    imageName: 'research_2.png',
+    imageName: 'expedition_2.png',
   },
   {
     id: 117,
-    type: 'research',
-    name: 'Research',
+    type: 'expedition',
+    name: 'Expedition',
     displayImage: false,
-    researchMode: ['house', 'house'],
+    expeditionMode: ['house', 'house'],
     coinsAmount: 2,
     victoryPoints: 4,
-    imageName: 'research_3.png',
+    imageName: 'expedition_3.png',
   },
   {
     id: 118,
-    type: 'research',
-    name: 'Research',
+    type: 'expedition',
+    name: 'Expedition',
     displayImage: false,
-    researchMode: ['anchor', 'anchor', 'house'],
+    expeditionMode: ['anchor', 'anchor', 'house'],
     coinsAmount: 3,
     victoryPoints: 6,
-    imageName: 'research_4.png',
+    imageName: 'expedition_4.png',
   },
   {
     id: 119,
-    type: 'research',
-    name: 'Research',
+    type: 'expedition',
+    name: 'Expedition',
     displayImage: false,
-    researchMode: ['cross', 'cross', 'house'],
+    expeditionMode: ['cross', 'cross', 'house'],
     coinsAmount: 3,
     victoryPoints: 6,
-    imageName: 'research_5.png',
+    imageName: 'expedition_5.png',
   },
 ];
 

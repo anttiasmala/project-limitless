@@ -39,7 +39,7 @@ function shuffled<T>(cards: T[]): T[] {
  * The printed deck, straight out of `cards.ts`: 60 characters, 50 ships (ten of
  * each type) and 4 tax events — 114 cards.
  *
- * The five research cards are left out. They score expedition symbols, and the
+ * The five expedition cards are left out. They score expedition symbols, and the
  * engine has no expedition phase yet, so a flipped one would be a card the
  * harbour could neither price nor take.
  *
