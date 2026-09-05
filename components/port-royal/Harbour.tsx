@@ -17,6 +17,7 @@ export default function Harbour({
   harbour,
   seat,
   buying,
+  tax,
   discovering,
   selected,
   alternative,
@@ -26,6 +27,8 @@ export default function Harbour({
   harbour: HarbourCardType[];
   seat: Player;
   buying: boolean;
+  /** The coin payed to the active player when the seat is buying out of their turn. */
+  tax: number;
   discovering: boolean;
   selected: number | null;
   /** Draw the alternative face rather than the "whole" card. */
@@ -87,7 +90,7 @@ export default function Harbour({
               card={card}
               price={priceOf(card, seat)}
               buying={buying}
-              affordable={buying ? affordable(card, seat) : true}
+              affordable={buying ? affordable(card, seat, tax) : true}
               selected={selected === card.id}
               alternative={alternative}
               onPick={() => onPick(card)}
