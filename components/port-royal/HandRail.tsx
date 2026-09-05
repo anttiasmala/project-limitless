@@ -48,7 +48,7 @@ export default function HandRail({ seat }: { seat: Player }) {
       <div className="flex min-h-24 items-end">
         {seat.hand.length === 0 ? (
           <div className="border-portRoyal-wood/60 font-spectral text-portRoyal-slate grid h-22 w-full place-items-center border border-dashed text-[13px] italic">
-            No coins in hand — ships are the only affordable haul.
+            No coins in hand - a ship is all you can take.
           </div>
         ) : (
           seat.hand.slice(0, MAX_SHOWN).map((coin, i) => (
