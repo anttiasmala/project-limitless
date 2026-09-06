@@ -5,6 +5,7 @@ import {
   CARD_ART_W,
   Card,
   cardArt,
+  describeRequirement,
   SHIPS,
 } from '@/utils/port-royal/types';
 
@@ -34,6 +35,12 @@ function statsFor(card: Card): Stat[] {
       { value: card.vp, label: 'influence', className: VP },
     ];
   }
+  if (card.kind === 'expedition') {
+    return [
+      { value: card.vp, label: 'victory points', className: VP },
+      { value: card.coins, label: 'coins', className: COIN },
+    ];
+  }
   return [];
 }
 
@@ -42,14 +49,22 @@ function bandFor(card: Card): string {
     const ship = SHIPS[card.colorIdx];
     return `Ship · ${ship.name} · ${ship.shape} flag`;
   }
-  return card.kind === 'tax' ? 'Event · immediate' : `Person · ${card.role}`;
+  if (card.kind === 'tax') return 'Event · immediate';
+  if (card.kind === 'expedition') return 'Expedition · posted until claimed';
+  return `Person · ${card.role}`;
 }
 
 function textFor(card: Card): string {
   if (card.kind === 'ship') {
     return `Requires ${card.swords} swords to bring in. Yields ${card.coins} coin cards, and is discarded once plundered.`;
   }
-  return card.kind === 'tax' ? '' : card.text;
+  if (card.kind === 'tax') return '';
+  if (card.kind === 'expedition') {
+    return `Stays posted above the harbour until a player hands in characters supplying ${describeRequirement(
+      card.requires,
+    )}.`;
+  }
+  return card.text;
 }
 
 /** The full card, for when the harbour's condensed face is not enough. */
