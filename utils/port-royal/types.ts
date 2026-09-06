@@ -78,6 +78,39 @@ export type ExpeditionSymbol = 'house' | 'cross' | 'anchor';
  */
 export type ExpeditionItem = ExpeditionSymbol | 'jackOfAllTrades' | 'none';
 
+/** How each expedition symbol is drawn where the art is too small to read. */
+export const EXPEDITION_SYMBOLS: Record<
+  ExpeditionSymbol,
+  { glyph: string; label: string }
+> = {
+  house: { glyph: '⌂', label: 'house' },
+  cross: { glyph: '✚', label: 'cross' },
+  anchor: { glyph: '⚓', label: 'anchor' },
+};
+
+const COUNT_WORDS = ['no', 'one', 'two', 'three', 'four', 'five'];
+
+/**
+ * What symbols an expedition asks for. This describes it as a text. Like: Two anchors and one house
+ * This text will be used in a toast
+ */
+export function describeRequirement(requires: ExpeditionSymbol[]): string {
+  const parts = (['house', 'cross', 'anchor'] as ExpeditionSymbol[])
+    .map((symbol) => {
+      const number = requires.filter((r) => r === symbol).length;
+      if (!number) return null;
+      const { label } = EXPEDITION_SYMBOLS[symbol];
+      return `${COUNT_WORDS[number] ?? number} ${number === 1 ? label : label === 'cross' ? `${label}es` : `${label}s`}`;
+    })
+    .filter((part): part is string => part !== null);
+
+  if (!parts.length) return 'nothing';
+
+  return parts.length > 1
+    ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`
+    : parts[0];
+}
+
 export type PersonTemplate = {
   name: string;
   role: PersonRole;
@@ -221,16 +254,37 @@ export type TaxCard = {
   image: string;
 };
 
-/** What the draw pile holds. `BonusCard` is awarded, never drawn. */
-export type DeckCard = ShipCard | PersonCard | TaxCard;
+/**
+ * Set aside above the harbour when flipped rather than joining the display, and
+ * left there across turns. An expedition is not bought, it is claimed later by
+ * discarding characters that carry the symbols it asks for.
+ *
+ */
+export type ExpeditionCard = {
+  id: number;
+  kind: 'expedition';
+  name: string;
+  /** The symbols that have to be handed in to claim it. */
+  requires: ExpeditionSymbol[];
+  /** Coins paid out on claiming, on top of the influence. */
+  coins: number;
+  vp: number;
+  image: string;
+};
 
-/** What can actually be laid out in the harbour — tax resolves on the flip. */
+/** What the draw pile holds. `BonusCard` is awarded, never drawn. */
+export type DeckCard = ShipCard | PersonCard | TaxCard | ExpeditionCard;
+
+/**
+ * What can actually be set to display row out in the harbour. Tax resolves on the flip, and
+ * an expedition is set aside in its own row.
+ */
 export type HarbourCard = ShipCard | PersonCard;
 
 export type TableauCard = PersonCard | BonusCard;
 
 /** Anything the detail overlay can be opened on. */
-export type Card = ShipCard | PersonCard | BonusCard | TaxCard;
+export type Card = ShipCard | PersonCard | BonusCard | TaxCard | ExpeditionCard;
 
 /** Coin cards are face-down to everyone but their holder, so only the id matters. */
 export type Coin = { id: number };
@@ -275,6 +329,8 @@ export type GameState = {
   taker: number | null;
   phase: Phase;
   harbour: HarbourCard[];
+  /** Flipped expeditions, waiting to be claimed. Outlives the turn. */
+  expeditions: ExpeditionCard[];
   selected: number | null;
   takesLeft: number;
   bustPair: [ShipCard, ShipCard] | null;
