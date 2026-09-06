@@ -7,6 +7,7 @@ import {
   Action,
   DEFAULT_PERSON_PROFILE,
   DeckCard,
+  describeRequirement,
   ExpeditionSymbol,
   GameState,
   GOVERNOR,
@@ -37,11 +38,7 @@ function shuffled<T>(cards: T[]): T[] {
 
 /**
  * The printed deck, straight out of `cards.ts`: 60 characters, 50 ships (ten of
- * each type) and 4 tax events — 114 cards.
- *
- * The five expedition cards are left out. They score expedition symbols, and the
- * engine has no expedition phase yet, so a flipped one would be a card the
- * harbour could neither price nor take.
+ * each type), 4 tax events and 5 expeditions — 119 cards, the full deck.
  *
  * Ids are minted here rather than taken from the card data: `drawInto` rebuilds
  * the deck when it runs dry, and a hand of coins is nothing but ids, so they
@@ -111,6 +108,22 @@ export function buildDeck(
         name: 'Tax Increase',
         image: card.imageName ?? '',
       });
+      return;
+    }
+
+    if (card.type === 'expedition') {
+      d.push({
+        id: ++seq,
+        kind: 'expedition',
+        name,
+        requires: (card.expeditionMode ?? []).filter(
+          (s): s is ExpeditionSymbol =>
+            s === 'house' || s === 'cross' || s === 'anchor',
+        ),
+        coins: card.coinsAmount ?? 0,
+        vp: card.victoryPoints ?? 0,
+        image: card.imageName ?? '',
+      });
     }
   });
 
@@ -135,6 +148,7 @@ export function freshState(names: string[], shuffle = true): GameState {
     taker: null,
     phase: 'handover',
     harbour: [],
+    expeditions: [],
     selected: null,
     takesLeft: 1,
     bustPair: null,
@@ -331,6 +345,27 @@ function flip(s: GameState): GameState {
       tax: rows,
       phase: 'tax',
     };
+  }
+
+  /*
+   * An expedition is set aside above the harbour rather than put into display row. Expeditions
+   * are never bought, it survives the end of the turn, and it takes no part in
+   * the duplicate-ship check. Discovery carries on as if nothing was flipped.
+   */
+  if (card.kind === 'expedition') {
+    return withToast(
+      {
+        ...s,
+        deck,
+        nextId,
+        discard,
+        expeditions: s.expeditions.concat(card),
+      },
+      `An expedition is posted — ${card.vp} points for ${describeRequirement(
+        card.requires,
+      )}.`,
+      'info',
+    );
   }
 
   // A second ship of a colour already in the harbour ends the phase.
