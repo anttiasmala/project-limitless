@@ -2,6 +2,7 @@
 
 import { useEffect, useReducer } from 'react';
 import ActionBar from './ActionBar';
+import Expeditions from './Expeditions';
 import HandRail from './HandRail';
 import Harbour from './Harbour';
 import PlayerStrip from './PlayerStrip';
@@ -132,6 +133,11 @@ export default function PortRoyal({
         />
 
         <div className="flex min-w-0 flex-1 flex-col">
+          <Expeditions
+            expeditions={state.expeditions}
+            onInspect={(card) => dispatch({ type: 'INSPECT', card })}
+          />
+
           <Harbour
             harbour={state.harbour}
             seat={seat}
