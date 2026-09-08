@@ -16,8 +16,7 @@ const SWORD = 'border-portRoyal-slate bg-portRoyal-slate/8 text-portRoyal-ink';
 const VP = 'border-portRoyal-teal bg-portRoyal-teal/8 text-portRoyal-teal';
 
 /**
- * A zero reads as an absence on the printed card — no sword, no point symbol —
- * so a chip is only worth its space once the value is actually there.
+ * Zero values are filtered out. Like Swords on Admiral-card. Admiral card has 0 Swords, so filter it out
  */
 function statsFor(card: Card): Stat[] {
   return printedStats(card).filter((s) => s.value > 0);
