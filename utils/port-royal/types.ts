@@ -10,6 +10,9 @@
 
 export const TARGET_VP = 12;
 
+/** A hand this size or larger is halved by the tax event. */
+export const TAX_THRESHOLD = 12;
+
 /** The engine is seat-count agnostic; these are the table sizes we offer. */
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 5;
@@ -247,10 +250,17 @@ export type BonusCard = {
   text: string;
 };
 
+/**
+ * Which the Tax card pays the coin to. Two of the four Tax cards pay the
+ * most swords, the other two pay whoever is furthest behind on points.
+ */
+export type TaxMode = 'mostSwords' | 'lowestPoints';
+
 export type TaxCard = {
   id: number;
   kind: 'tax';
   name: string;
+  mode: TaxMode;
   image: string;
 };
 
@@ -308,6 +318,9 @@ export type Phase =
 
 export type TaxRow = { name: string; pays: number; gains: number };
 
+/** The flipped Tax card together with pays / gains numbers */
+export type TaxEvent = { card: TaxCard; rows: TaxRow[] };
+
 export type ToastTone = 'gain' | 'loss' | 'info';
 
 /* Toast and Scheduled are compared by object identity: the reducer mints a new
@@ -341,7 +354,7 @@ export type GameState = {
    */
   repelShip: ShipCard | null;
   bustPair: [ShipCard, ShipCard] | null;
-  tax: TaxRow[] | null;
+  tax: TaxEvent | null;
   detail: Card | null;
   toast: Toast | null;
   settings: boolean;
