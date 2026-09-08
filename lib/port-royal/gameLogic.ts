@@ -12,7 +12,6 @@ import {
   GameState,
   GOVERNOR,
   HarbourCard,
-  JESTER,
   MADEMOISELLE,
   PERSON_PROFILES,
   Player,
@@ -137,6 +136,22 @@ export function freshState(names: string[], shuffle = true): GameState {
     name,
     hand: rest.splice(0, 3).map((c) => ({ id: c.id })),
     tableau: [],
+    /*
+    tableau: [
+      {
+        id: 38,
+        kind: 'person',
+        name: 'Sailor',
+        role: 'fighter',
+        text: 'One sword toward ship repel requirement.',
+        swords: 10,
+        vp: 1,
+        expeditionItem: 'none',
+        price: 3,
+        image: 'sailor_1.png',
+      },
+    ],
+    */
   }));
 
   return {
@@ -151,6 +166,7 @@ export function freshState(names: string[], shuffle = true): GameState {
     expeditions: [],
     selected: null,
     takesLeft: 1,
+    repelShip: null,
     bustPair: null,
     tax: null,
     detail: null,
@@ -167,6 +183,14 @@ export function freshState(names: string[], shuffle = true): GameState {
 
 export const swordsOf = (p: Player) =>
   p.tableau.reduce((a, c) => a + (c.swords || 0), 0);
+
+/**
+ * Whether a player can repel a ship away. Swords are never spent, so the whole
+ * tableau counts against every ship. Including the ones having 100 swords, which
+ * is impossible to get in purpose
+ */
+export const canRepelWith = (p: Player, ship: ShipCard) =>
+  swordsOf(p) >= ship.swords;
 
 export const vpOf = (p: Player) =>
   p.tableau.reduce((a, c) => a + (c.vp || 0), 0);
@@ -368,52 +392,63 @@ function flip(s: GameState): GameState {
     );
   }
 
-  // A second ship of a colour already in the harbour ends the phase.
+  const drawn: GameState = { ...s, deck, nextId, discard, toast: note };
+
+  /*
+   * A ship the active player can repel. The
+   * choice is put to the player before the ship reaches the harbour, so
+   * declining leaves exactly the state an unrepellable ship would have.
+   */
   if (card.kind === 'ship') {
-    const clash = s.harbour.find(
-      (c): c is ShipCard => c.kind === 'ship' && c.colorIdx === card.colorIdx,
-    );
-
-    if (clash) {
-      const grace =
-        s.players[s.active].tableau.some((c) => c.name === JESTER) &&
-        s.flipsBeyond === 0;
-
-      if (grace) {
-        return withToast(
-          {
-            ...s,
-            deck,
-            nextId,
-            discard,
-            harbour: s.harbour.concat(card),
-            flipsBeyond: 1,
-          },
-          'Jester absorbs the duplicate — one more flip is safe.',
-          'info',
-        );
-      }
-
-      return {
-        ...s,
-        deck,
-        nextId,
-        discard,
-        toast: note,
-        bustPair: [clash, card],
-        phase: 'bust',
-      };
+    if (canRepelWith(s.players[s.active], card)) {
+      return { ...drawn, repelShip: card, phase: 'repel' };
     }
+
+    return settleShip(drawn, card);
   }
 
-  return {
-    ...s,
-    deck,
-    nextId,
-    discard,
-    toast: note,
-    harbour: s.harbour.concat(card),
-  };
+  return { ...drawn, harbour: s.harbour.concat(card) };
+}
+
+/**
+ * Puts a ship into harbour or ends the discovery if its colour is already in the harbour.
+ * Both the flip and a declined repel come through here.
+ */
+function settleShip(s: GameState, card: ShipCard): GameState {
+  const clash = s.harbour.find(
+    (c): c is ShipCard => c.kind === 'ship' && c.colorIdx === card.colorIdx,
+  );
+
+  if (clash) {
+    return { ...s, bustPair: [clash, card], phase: 'bust' };
+  }
+
+  return { ...s, harbour: s.harbour.concat(card) };
+}
+
+/** A repelled ship never gets to harbour, it goes straight to the discard pile. */
+function repel(s: GameState): GameState {
+  const card = s.repelShip;
+  if (!card) return s;
+
+  return withToast(
+    {
+      ...s,
+      repelShip: null,
+      discard: s.discard + 1,
+      phase: 'discovery',
+    },
+    `${s.players[s.active].name} repels the ${card.name}. Discovery carries on.`,
+    'gain',
+  );
+}
+
+/** Waved through: the ship berths as though the repel had never been offered. */
+function declineRepel(s: GameState): GameState {
+  const card = s.repelShip;
+  if (!card) return s;
+
+  return settleShip({ ...s, repelShip: null, phase: 'discovery' }, card);
 }
 
 function take(s: GameState): GameState {
@@ -614,6 +649,12 @@ export function reducer(s: GameState, action: Action): GameState {
         selected: s.selected === action.card.id ? null : action.card.id,
       };
     }
+
+    case 'REPEL':
+      return repel(s);
+
+    case 'DECLINE_REPEL':
+      return declineRepel(s);
 
     case 'TAKE':
       return take(s);
