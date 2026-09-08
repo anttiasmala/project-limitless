@@ -3,6 +3,7 @@ import {
   CARD_ART_H,
   CARD_ART_W,
   TAX_THRESHOLD,
+  TaxCard,
   TaxEvent,
   TaxRow,
   cardArt,
@@ -36,9 +37,12 @@ function reasonFor(row: TaxRow, rewarded: string): string {
  */
 export default function TaxOverlay({
   event,
+  onInspect,
   onAcknowledge,
 }: {
   event: TaxEvent;
+  /** Opens the Tax card at full size, the same way a harbour card is inspected. */
+  onInspect: (card: TaxCard) => void;
   onAcknowledge: () => void;
 }) {
   const { card, rows } = event;
@@ -47,15 +51,22 @@ export default function TaxOverlay({
   return (
     <div className="bg-portRoyal-ink/90 absolute inset-0 grid place-items-center">
       <div className="bg-portRoyal-ground border-portRoyal-crimson flex w-180 gap-7 border px-8.5 py-7.5 shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
-        <div className="bg-portRoyal-card border-portRoyal-wood/60 flex w-37.5 flex-none flex-col items-center gap-2 border p-2.5">
+        <div className="bg-portRoyal-card border-portRoyal-wood/60 flex w-52.5 flex-none flex-col items-center gap-2 border p-2.5">
           {card.image && (
-            <Image
-              src={cardArt(card.image)}
-              alt={card.name}
-              width={CARD_ART_W}
-              height={CARD_ART_H}
-              className="h-42.5 w-auto object-contain"
-            />
+            <button
+              type="button"
+              onClick={() => onInspect(card)}
+              aria-label={`Inspect the ${card.name} card`}
+              className="cursor-pointer border-0 bg-transparent p-0 hover:brightness-[1.08]"
+            >
+              <Image
+                src={cardArt(card.image)}
+                alt={card.name}
+                width={CARD_ART_W}
+                height={CARD_ART_H}
+                className="h-60 w-auto object-contain"
+              />
+            </button>
           )}
           <div className="font-spectral text-[15px] font-semibold">
             {card.name}
