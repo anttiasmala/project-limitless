@@ -202,6 +202,7 @@ export default function PortRoyal({
       {state.phase === 'tax' && state.tax && (
         <TaxOverlay
           event={state.tax}
+          onInspect={(card) => dispatch({ type: 'INSPECT', card })}
           onAcknowledge={() => dispatch({ type: 'ACK_TAX' })}
         />
       )}
