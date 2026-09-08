@@ -21,6 +21,7 @@ import {
   freshState,
   reducer,
   seatOf,
+  swordsOf,
   taxFor,
 } from '@/lib/port-royal/gameLogic';
 import {
@@ -29,6 +30,7 @@ import {
   SETTINGS_KEY,
   TARGET_VP,
 } from '@/utils/port-royal/types';
+import RepelOverlay from './overlays/RepelOverlay';
 
 const TOAST_MS = 2600;
 
@@ -168,6 +170,20 @@ export default function PortRoyal({
       />
 
       {state.toast && <Toast toast={state.toast} />}
+
+      {state.phase === 'repel' && state.repelShip && (
+        <RepelOverlay
+          ship={state.repelShip}
+          swords={swordsOf(state.players[state.active])}
+          playerName={state.players[state.active].name}
+          clashes={state.harbour.some(
+            (c) =>
+              c.kind === 'ship' && c.colorIdx === state.repelShip!.colorIdx,
+          )}
+          onRepel={() => dispatch({ type: 'REPEL' })}
+          onDecline={() => dispatch({ type: 'DECLINE_REPEL' })}
+        />
+      )}
 
       {state.phase === 'handover' && (
         <HandoverOverlay
