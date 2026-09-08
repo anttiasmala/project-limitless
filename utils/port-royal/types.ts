@@ -302,6 +302,7 @@ export type Phase =
   | 'others' // the other players buy, paying the active one
   | 'bust' // duplicate ship colour
   | 'tax' // tax event resolution
+  | 'repel' // repel the ship drawn
   | 'gap' // brief settle after a bust, before the turn ends
   | 'end';
 
@@ -333,6 +334,12 @@ export type GameState = {
   expeditions: ExpeditionCard[];
   selected: number | null;
   takesLeft: number;
+  /**
+   * The freshly flipped ship the active player is being offered a repel on (if enough swords).
+   * It is held aside rather than put in the harbour, so declining puts it
+   * exactly as an unrepellable ship would - bust check included.
+   */
+  repelShip: ShipCard | null;
   bustPair: [ShipCard, ShipCard] | null;
   tax: TaxRow[] | null;
   detail: Card | null;
@@ -363,4 +370,6 @@ export type Action =
   | { type: 'TOGGLE_SETTINGS' }
   | { type: 'CLEAR_TOAST' }
   | { type: 'SHUFFLE' }
-  | { type: 'RESTART' };
+  | { type: 'RESTART' }
+  | { type: 'REPEL' }
+  | { type: 'DECLINE_REPEL' };
