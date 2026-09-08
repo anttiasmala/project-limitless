@@ -7,6 +7,7 @@ import {
   cardArt,
   describeRequirement,
   SHIPS,
+  TAX_THRESHOLD,
 } from '@/utils/port-royal/types';
 
 type Stat = { value: number; label: string; className: string };
@@ -65,7 +66,11 @@ function textFor(card: Card): string {
   if (card.kind === 'ship') {
     return `Requires ${card.swords} swords to repel. Gives ${card.coins} coins, and is discarded once taken.`;
   }
-  if (card.kind === 'tax') return '';
+  if (card.kind === 'tax') {
+    return `Resolves the moment it is flipped. Every player holding ${TAX_THRESHOLD} or more coins pays half of them to the Tax, and the players with the ${
+      card.mode === 'mostSwords' ? 'most swords' : 'fewest victory points'
+    } each take one coin.`;
+  }
   if (card.kind === 'expedition') {
     return `Stays posted above the harbour until a player hands in characters supplying ${describeRequirement(
       card.requires,
