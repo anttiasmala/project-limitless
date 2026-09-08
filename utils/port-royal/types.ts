@@ -137,23 +137,23 @@ export type PersonProfile = { role: PersonRole; text: string };
 export const PERSON_PROFILES: Record<string, PersonProfile> = {
   Sailor: {
     role: 'fighter',
-    text: 'One sword toward every ship requirement.',
+    text: 'One sword toward ship repel requirement.',
   },
   Pirate: {
     role: 'fighter',
-    text: "Two swords, and influence at sea's end.",
+    text: 'Two swords toward ship repel requirement.',
   },
   Admiral: {
     role: 'rule',
-    text: 'An extra coin whenever discovery ends with five or more cards displayed.',
+    text: 'Whenever it is your time to take cards, get two coins if there are five or more cards in the display.',
   },
   Trader: {
     role: 'trader',
-    text: 'An extra coin whenever you bring in a ship of their trade.',
+    text: 'Get an extra coin whenever you take a Ship of their appropriate Ship color.',
   },
   'Jack of all Trades': {
     role: 'trader',
-    text: 'Supplies a house, an anchor and a cross toward expeditions.',
+    text: 'Supplies one of expedition symbol (a house, an anchor or a cross) toward expeditions.',
   },
   Captain: {
     role: 'trader',
@@ -169,15 +169,15 @@ export const PERSON_PROFILES: Record<string, PersonProfile> = {
   },
   Jester: {
     role: 'rule',
-    text: 'One extra card may be flipped before a duplicate ship busts the phase.',
+    text: 'If you are currently not the active player and it is your turn to take cards. Get one coin if there are 0 cards in the display',
   },
   Governor: {
     role: 'rule',
-    text: 'Draw a coin card whenever you hire or trade.',
+    text: 'Whenever it is your time to take cards, you can take 1 more card from the display. If you are not the active player, you have to pay the active player 1 coin for each card taken.',
   },
   Mademoiselle: {
     role: 'rule',
-    text: 'Every card costs you one coin less.',
+    text: 'Every card costs you one coin less. The cost cannot be discounted to less than 0.',
   },
 };
 
