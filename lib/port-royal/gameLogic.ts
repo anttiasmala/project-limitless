@@ -18,6 +18,8 @@ import {
   SHIPS,
   ShipCard,
   TARGET_VP,
+  TAX_THRESHOLD,
+  TaxMode,
   TaxRow,
   Toast,
   ToastTone,
@@ -105,6 +107,7 @@ export function buildDeck(
         id: ++seq,
         kind: 'tax',
         name: 'Tax Increase',
+        mode: card.taxMode === 'MostSwords' ? 'mostSwords' : 'lowestPoints',
         image: card.imageName ?? '',
       });
       return;
@@ -194,6 +197,26 @@ export const canRepelWith = (p: Player, ship: ShipCard) =>
 
 export const vpOf = (p: Player) =>
   p.tableau.reduce((a, c) => a + (c.vp || 0), 0);
+
+/**
+ * Paying and being rewarded are worked out separately. The hand is halved in the
+ * payer's favour - thirteen coins: pays six and keeps seven. And the reward is
+ * added afterwards, on top of what was kept.
+ *
+ * Everyone tied on the rewarded stat is paid. E.g. "Most Swords" Tax card: a table where nobody has a
+ * sword yet is a tie, so all of the players are rewarded.
+ */
+export function taxRows(players: Player[], mode: TaxMode): TaxRow[] {
+  const values = players.map(mode === 'mostSwords' ? swordsOf : vpOf);
+  const best =
+    mode === 'mostSwords' ? Math.max(...values) : Math.min(...values);
+
+  return players.map((p, i) => ({
+    name: p.name,
+    pays: p.hand.length >= TAX_THRESHOLD ? Math.floor(p.hand.length / 2) : 0,
+    gains: values[i] === best ? 1 : 0,
+  }));
+}
 
 /**
  * How many of one expedition symbol (e.g. house) the player has hired.
@@ -355,18 +378,13 @@ function flip(s: GameState): GameState {
   const card = deck.shift()!;
 
   if (card.kind === 'tax') {
-    const rows: TaxRow[] = s.players.map((p) => ({
-      name: p.name,
-      pays: p.hand.length >= 12 ? Math.floor(p.hand.length / 2) : 0,
-      gains: swordsOf(p) >= 3 ? 1 : 0,
-    }));
     return {
       ...s,
       deck,
       nextId,
       toast: note,
       discard: discard + 1,
-      tax: rows,
+      tax: { card, rows: taxRows(s.players, card.mode) },
       phase: 'tax',
     };
   }
@@ -605,26 +623,41 @@ export function reducer(s: GameState, action: Action): GameState {
       );
 
     case 'ACK_TAX': {
+      const { rows } = s.tax!;
+      let deck = s.deck.slice();
       let nextId = s.nextId;
+      let reshuffled = false;
+
+      // The coins are halved before any reward is handed out, so a
+      // payer who is also rewarded ends up one coin above what they kept.
+      let discard = s.discard + rows.reduce((a, r) => a + r.pays, 0);
+
       const players = s.players.map((p, i) => {
-        const row = s.tax![i];
-        return {
-          ...p,
-          hand: row.pays ? p.hand.slice(row.pays) : p.hand,
-          tableau: row.gains
-            ? p.tableau.concat({
-                id: ++nextId,
-                kind: 'bonus',
-                name: 'Crown favour',
-                vp: 1,
-                swords: 0,
-                role: 'rule',
-                text: 'Awarded for holding the most swords when taxes rose.',
-              })
-            : p.tableau,
-        };
+        const row = rows[i];
+        const hand = p.hand.slice(row.pays);
+
+        if (row.gains) {
+          const r = drawInto(deck, row.gains, discard, nextId);
+          deck = r.deck;
+          discard = r.discard;
+          nextId = r.nextId;
+          reshuffled = reshuffled || r.reshuffled;
+          hand.push(...r.taken);
+        }
+
+        return { ...p, hand };
       });
-      return { ...s, players, nextId, tax: null, phase: 'discovery' };
+
+      return {
+        ...s,
+        players,
+        deck,
+        discard,
+        nextId,
+        tax: null,
+        phase: 'discovery',
+        toast: reshuffled ? { text: RESHUFFLE_NOTE, tone: 'info' } : s.toast,
+      };
     }
 
     case 'PICK': {
