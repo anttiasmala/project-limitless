@@ -15,7 +15,15 @@ const COIN = 'border-portRoyal-brass bg-portRoyal-brass/12 text-portRoyal-ink';
 const SWORD = 'border-portRoyal-slate bg-portRoyal-slate/8 text-portRoyal-ink';
 const VP = 'border-portRoyal-teal bg-portRoyal-teal/8 text-portRoyal-teal';
 
+/**
+ * A zero reads as an absence on the printed card — no sword, no point symbol —
+ * so a chip is only worth its space once the value is actually there.
+ */
 function statsFor(card: Card): Stat[] {
+  return printedStats(card).filter((s) => s.value > 0);
+}
+
+function printedStats(card: Card): Stat[] {
   if (card.kind === 'ship') {
     return [
       { value: card.swords, label: 'swords needed', className: SWORD },
@@ -26,19 +34,19 @@ function statsFor(card: Card): Stat[] {
     return [
       { value: card.price, label: 'cost', className: COIN },
       { value: card.swords, label: 'swords', className: SWORD },
-      { value: card.vp, label: 'influence', className: VP },
+      { value: card.vp, label: 'victory points', className: VP },
     ];
   }
   if (card.kind === 'bonus') {
     return [
       { value: card.swords, label: 'swords', className: SWORD },
-      { value: card.vp, label: 'influence', className: VP },
+      { value: card.vp, label: 'victory points', className: VP },
     ];
   }
   if (card.kind === 'expedition') {
     return [
-      { value: card.vp, label: 'victory points', className: VP },
       { value: card.coins, label: 'coins', className: COIN },
+      { value: card.vp, label: 'victory points', className: VP },
     ];
   }
   return [];
@@ -56,7 +64,7 @@ function bandFor(card: Card): string {
 
 function textFor(card: Card): string {
   if (card.kind === 'ship') {
-    return `Requires ${card.swords} swords to bring in. Yields ${card.coins} coin cards, and is discarded once plundered.`;
+    return `Requires ${card.swords} swords to repel. Gives ${card.coins} coins, and is discarded once taken.`;
   }
   if (card.kind === 'tax') return '';
   if (card.kind === 'expedition') {
@@ -75,6 +83,8 @@ export default function DetailOverlay({
   card: Card;
   onClose: () => void;
 }) {
+  const stats = statsFor(card);
+
   return (
     <div
       onClick={onClose}
@@ -126,21 +136,23 @@ export default function DetailOverlay({
           {textFor(card)}
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {statsFor(card).map((s) => (
-            <div
-              key={s.label}
-              className={`flex items-center gap-1.5 border px-2.5 py-1.5 ${s.className}`}
-            >
-              <span className="text-[15px] font-bold tabular-nums">
-                {s.value}
-              </span>
-              <span className="font-archivo-narrow text-portRoyal-slate text-[10px] tracking-[0.12em] uppercase">
-                {s.label}
-              </span>
-            </div>
-          ))}
-        </div>
+        {stats.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {stats.map((s) => (
+              <div
+                key={s.label}
+                className={`flex items-center gap-1.5 border px-2.5 py-1.5 ${s.className}`}
+              >
+                <span className="text-[15px] font-bold tabular-nums">
+                  {s.value}
+                </span>
+                <span className="font-archivo-narrow text-portRoyal-slate text-[10px] tracking-[0.12em] uppercase">
+                  {s.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
