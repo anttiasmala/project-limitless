@@ -5,6 +5,7 @@
 import allCards from '@/utils/port-royal/cards';
 import {
   Action,
+  Coin,
   DEFAULT_PERSON_PROFILE,
   DeckCard,
   describeRequirement,
@@ -44,20 +45,15 @@ function shuffled<T>(cards: T[]): T[] {
  * The printed deck, straight out of `cards.ts`: 60 characters, 50 ships (ten of
  * each type), 4 tax events and 5 expeditions — 119 cards, the full deck.
  *
- * Ids are minted here rather than taken from the card data: `drawInto` rebuilds
- * the deck when it runs dry, and a hand of coins is nothing but ids, so they
- * have to stay unique across rebuilds.
+ * The deck is built exactly once a game.
  *
  * `shuffle` is off for the very first deck so the server and the client render
  * the same markup; the board dispatches `SHUFFLE` once it has mounted. Nothing
  * about the opening screen depends on the order, so the swap is invisible.
  */
-export function buildDeck(
-  startId: number,
-  shuffle = true,
-): { deck: DeckCard[]; nextId: number } {
+export function buildDeck(shuffle = true): DeckCard[] {
   const d: DeckCard[] = [];
-  let seq = startId;
+  let seq = 0;
 
   allCards.forEach((card) => {
     const name = card.name ?? '';
@@ -126,15 +122,15 @@ export function buildDeck(
     }
   });
 
-  return { deck: shuffle ? shuffled(d) : d, nextId: seq };
+  return shuffle ? shuffled(d) : d;
 }
 
 export function freshState(names: string[], shuffle = true): GameState {
-  const { deck, nextId } = buildDeck(0, shuffle);
-  const rest = deck.slice();
+  const rest = buildDeck(shuffle);
   const players: Player[] = names.map((name) => ({
     name,
-    hand: rest.splice(0, 3).map((c) => ({ id: c.id })),
+    // Three cards off the top of deck pile, held face-down as coins.
+    hand: rest.splice(0, 3),
     tableau: [],
     /*
     tableau: [
@@ -157,7 +153,6 @@ export function freshState(names: string[], shuffle = true): GameState {
   return {
     players,
     deck: rest,
-    discard: 0,
     discardPile: [],
     active: 0,
     taker: null,
@@ -174,7 +169,6 @@ export function freshState(names: string[], shuffle = true): GameState {
     settings: false,
     winner: null,
     flipsBeyond: 0,
-    nextId,
     scheduled: null,
   };
 }
@@ -317,33 +311,29 @@ const withToast = (
 function drawInto(
   deck: DeckCard[],
   n: number,
-  discard: number,
-  nextId: number,
+  discardPile: DeckCard[],
 ): {
   deck: DeckCard[];
-  taken: { id: number }[];
-  discard: number;
-  nextId: number;
+  taken: Coin[];
+  discardPile: DeckCard[];
   reshuffled: boolean;
 } {
-  const taken: { id: number }[] = [];
+  const taken: Coin[] = [];
   let d = deck.slice();
-  let dis = discard;
-  let id = nextId;
+  let pile = discardPile;
   let reshuffled = false;
 
   for (let i = 0; i < n; i++) {
     if (!d.length) {
-      const rebuilt = buildDeck(id);
-      d = rebuilt.deck;
-      id = rebuilt.nextId;
-      dis = 0;
+      if (!pile.length) break;
+      d = shuffled(pile);
+      pile = [];
       reshuffled = true;
     }
-    taken.push({ id: d.shift()!.id });
+    taken.push(d.shift()!);
   }
 
-  return { deck: d, taken, discard: dis, nextId: id, reshuffled };
+  return { deck: d, taken, discardPile: pile, reshuffled };
 }
 
 const RESHUFFLE_NOTE = 'Discard pile reshuffled into the draw pile.';
@@ -351,7 +341,8 @@ const RESHUFFLE_NOTE = 'Discard pile reshuffled into the draw pile.';
 /** Ends the turn, or the game if anyone has reached the target. */
 function endTurn(s: GameState): GameState {
   const winner = s.players.findIndex((p) => vpOf(p) >= TARGET_VP);
-  const discard = s.discard + s.harbour.length;
+  // Whatever nobody bought is swept off the harbour into discardPile.
+  const discardPile = s.discardPile.concat(s.harbour);
 
   if (winner >= 0) {
     return {
@@ -359,7 +350,7 @@ function endTurn(s: GameState): GameState {
       phase: 'end',
       winner,
       harbour: [],
-      discard,
+      discardPile,
       scheduled: null,
     };
   }
@@ -367,7 +358,7 @@ function endTurn(s: GameState): GameState {
   return {
     ...s,
     harbour: [],
-    discard,
+    discardPile,
     active: (s.active + 1) % s.players.length,
     taker: null,
     selected: null,
@@ -379,15 +370,21 @@ function endTurn(s: GameState): GameState {
 
 function flip(s: GameState): GameState {
   let deck = s.deck.slice();
-  let discard = s.discard;
-  let nextId = s.nextId;
+  let discardPile = s.discardPile;
   let note: GameState['toast'] = s.toast;
 
   if (!deck.length) {
-    const rebuilt = buildDeck(nextId);
-    deck = rebuilt.deck;
-    nextId = rebuilt.nextId;
-    discard = 0;
+    // CHECK THIS
+    // Every card still in play is in a hand or a tableau. So there is nothing
+    // left to flip, so discovery just stalls rather than crashing on an
+    // empty deck. Later probably add "draw" game or something. Right now it just stops
+
+    // Tested this and I got stuck with one Skiff-ship left and it gave 0 coins, because draw deck and discardPile were empty
+    // Probably a draw game is a good solution at this point. Or either just leave as it is currently
+    if (!discardPile.length) return s;
+
+    deck = shuffled(discardPile);
+    discardPile = [];
     note = { text: RESHUFFLE_NOTE, tone: 'info' };
   }
 
@@ -397,9 +394,9 @@ function flip(s: GameState): GameState {
     return {
       ...s,
       deck,
-      nextId,
       toast: note,
-      discard: discard + 1,
+      // The tax card is resolved on the flip. It never gets to "Harbour display"
+      discardPile: discardPile.concat(card),
       tax: { card, rows: taxRows(s.players, card.mode) },
       phase: 'tax',
     };
@@ -415,8 +412,7 @@ function flip(s: GameState): GameState {
       {
         ...s,
         deck,
-        nextId,
-        discard,
+        discardPile,
         expeditions: s.expeditions.concat(card),
       },
       `An expedition is posted — ${card.vp} points for ${describeRequirement(
@@ -426,7 +422,7 @@ function flip(s: GameState): GameState {
     );
   }
 
-  const drawn: GameState = { ...s, deck, nextId, discard, toast: note };
+  const drawn: GameState = { ...s, deck, discardPile, toast: note };
 
   /*
    * A ship the active player can repel. The
@@ -469,7 +465,7 @@ function repel(s: GameState): GameState {
     {
       ...s,
       repelShip: null,
-      discard: s.discard + 1,
+      discardPile: s.discardPile.concat(card),
       phase: 'discovery',
     },
     `${s.players[s.active].name} repels the ${card.name}. Discovery carries on.`,
@@ -499,8 +495,7 @@ function take(s: GameState): GameState {
   }));
 
   let deck = s.deck.slice();
-  let discard = s.discard;
-  let nextId = s.nextId;
+  let discardPile = s.discardPile;
   let toast: Toast;
   let reshuffled = false;
 
@@ -512,10 +507,12 @@ function take(s: GameState): GameState {
   if (card.kind === 'ship') {
     // A Trader of the ship's color pays the buyer an extra coin
     const bonus = extraCoinsFor(buyer, card);
-    const r = drawInto(deck, card.coins + bonus, discard, nextId);
+    const r = drawInto(deck, card.coins + bonus, discardPile);
     deck = r.deck;
-    discard = r.discard + 1; // the taken ship goes to the discard pile
-    nextId = r.nextId;
+
+    // The ship brings its coins in, so it lands on the pile the
+    // draw was made from. It is never in the same shuffle as the coins it paid.
+    discardPile = r.discardPile.concat(card);
     reshuffled = r.reshuffled;
 
     // The fee is taken off the coin amount rather than the hand, so an empty-handed
@@ -550,8 +547,8 @@ function take(s: GameState): GameState {
     }
 
     const cost = priceOf(card, buyer);
-    players[buyerIdx].hand.splice(0, cost);
-    discard += cost;
+    // The coins paid of a card are turning to cards again the moment they leave the hand.
+    discardPile = discardPile.concat(players[buyerIdx].hand.splice(0, cost));
 
     players[buyerIdx].tableau.push(card);
     toast = {
@@ -562,10 +559,10 @@ function take(s: GameState): GameState {
     };
 
     if (players[buyerIdx].tableau.some((c) => c.name === GOVERNOR)) {
-      const r = drawInto(deck, 1, discard, nextId);
+      // CHECK THIS, add Governor logic
+      const r = drawInto(deck, 1, discardPile);
       deck = r.deck;
-      discard = r.discard;
-      nextId = r.nextId;
+      discardPile = r.discardPile;
       reshuffled = reshuffled || r.reshuffled;
       players[buyerIdx].hand = players[buyerIdx].hand.concat(r.taken);
     }
@@ -578,8 +575,7 @@ function take(s: GameState): GameState {
     ...s,
     players,
     deck,
-    discard,
-    nextId,
+    discardPile,
     harbour,
     selected: null,
     takesLeft,
@@ -635,8 +631,12 @@ export function reducer(s: GameState, action: Action): GameState {
           ...s,
           harbour: [],
           bustPair: null,
-          // The haul plus both clashing ships.
-          discard: s.discard + s.harbour.length + 2,
+          // All the drawn cards (harbour display), plus the duplicate ship that ended it. The ship it
+          // clashed with is already in the harbour, so sweeping the harbour carries it along.
+          discardPile: s.discardPile.concat(
+            s.harbour,
+            s.bustPair ? [s.bustPair[1]] : [],
+          ),
           phase: 'gap',
           scheduled: { kind: 'END_TURN', delay: 400 },
         },
@@ -647,22 +647,23 @@ export function reducer(s: GameState, action: Action): GameState {
     case 'ACK_TAX': {
       const { rows } = s.tax!;
       let deck = s.deck.slice();
-      let nextId = s.nextId;
       let reshuffled = false;
 
-      // The coins are halved before any reward is handed out, so a
-      // payer who is also rewarded ends up one coin above what they kept.
-      let discard = s.discard + rows.reduce((a, r) => a + r.pays, 0);
+      // Everyone's payment hits the discardPile before any reward is given, so a
+      // payer who is also rewarded can be handed back a coin they just paid.
+      // And the rotation of discardPile / deck stays in motion
+      let discardPile = s.discardPile.concat(
+        ...s.players.map((p, i) => p.hand.slice(0, rows[i].pays)),
+      );
 
       const players = s.players.map((p, i) => {
         const row = rows[i];
         const hand = p.hand.slice(row.pays);
 
         if (row.gains) {
-          const r = drawInto(deck, row.gains, discard, nextId);
+          const r = drawInto(deck, row.gains, discardPile);
           deck = r.deck;
-          discard = r.discard;
-          nextId = r.nextId;
+          discardPile = r.discardPile;
           reshuffled = reshuffled || r.reshuffled;
           hand.push(...r.taken);
         }
@@ -674,8 +675,7 @@ export function reducer(s: GameState, action: Action): GameState {
         ...s,
         players,
         deck,
-        discard,
-        nextId,
+        discardPile,
         tax: null,
         phase: 'discovery',
         toast: reshuffled ? { text: RESHUFFLE_NOTE, tone: 'info' } : s.toast,
