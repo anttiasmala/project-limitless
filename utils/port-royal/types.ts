@@ -359,8 +359,10 @@ export type TableauCard = PersonCard | BonusCard;
 /** Anything the detail overlay can be opened on. */
 export type Card = ShipCard | PersonCard | BonusCard | TaxCard | ExpeditionCard;
 
-/** Coin cards are face-down to everyone but their holder, so only the id matters. */
-export type Coin = { id: number };
+/**
+ * A coin is a deck card turned face-down
+ */
+export type Coin = DeckCard;
 
 export type Player = {
   name: string;
@@ -400,8 +402,11 @@ export type Scheduled = { kind: ScheduledKind; delay: number };
 export type GameState = {
   players: Player[];
   deck: DeckCard[];
-  discard: number;
-  discardPile: [];
+  /**
+   * Every card that has left the play: coins spent, ships taken or repelled, the
+   * cards lost to a bust, resolved tax cards. The deck is rebuilt from here when it runs dry
+   */
+  discardPile: DeckCard[];
   active: number;
   taker: number | null;
   phase: Phase;
@@ -424,8 +429,6 @@ export type GameState = {
   winner: number | null;
   /** Spends the Jester's one-off reprieve, so it can't absorb two duplicates. */
   flipsBeyond: number;
-  /** Monotonic id source, kept in state so ids survive a restart cleanly. */
-  nextId: number;
   scheduled: Scheduled | null;
 };
 
