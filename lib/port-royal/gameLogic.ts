@@ -8,7 +8,10 @@ import {
   DEFAULT_PERSON_PROFILE,
   DeckCard,
   describeRequirement,
+  expeditionItemOf,
   ExpeditionSymbol,
+  extraCoinAbility,
+  fillPersonText,
   GameState,
   GOVERNOR,
   HarbourCard,
@@ -77,25 +80,19 @@ export function buildDeck(
 
     if (card.type === 'character') {
       const profile = PERSON_PROFILES[name] ?? DEFAULT_PERSON_PROFILE;
+      const abilities = card.abilities ?? [];
 
       d.push({
         id: ++seq,
         kind: 'person',
         name,
         role: profile.role,
-        text: profile.text,
+        text: fillPersonText(profile.text, abilities),
+        abilities,
         // A sword ability is printed once per sword — the Pirate carries two.
-        swords: (card.abilities ?? []).filter((a) => a === 'swords').length,
+        swords: abilities.filter((a) => a === 'swords').length,
         vp: card.victoryPoints ?? 0,
-        expeditionItem: (card.abilities ?? []).map((a) => {
-          if (card.name?.toLowerCase() === 'jack of all trades') {
-            return 'jackOfAllTrades';
-          }
-          if (a === 'house' || a === 'cross' || a === 'anchor') {
-            return a;
-          }
-          return 'none';
-        })[0],
+        expeditionItem: expeditionItemOf(abilities),
         price: card.characterCost ?? 0,
         image: card.imageName ?? '',
       });
@@ -234,6 +231,25 @@ const symbolsOf = (p: Player, symbol: ExpeditionSymbol) =>
 export const houseOf = (p: Player) => symbolsOf(p, 'house');
 export const crossOf = (p: Player) => symbolsOf(p, 'cross');
 export const anchorOf = (p: Player) => symbolsOf(p, 'anchor');
+
+/**
+ * How many extra coins the buyer's Traders pay out on a ship of this type.
+ *
+ * Each Trader has one ship type they pay one coin extra for it. Two Traders of
+ * the same colour pay two extra coins — the abilities are counted, not the cards.
+ */
+export const extraCoinsFor = (p: Player, ship: ShipCard) => {
+  const ability = extraCoinAbility(ship.name);
+
+  return p.tableau.reduce(
+    (a, c) =>
+      a +
+      (c.kind === 'person'
+        ? c.abilities.filter((x) => x === ability).length
+        : 0),
+    0,
+  );
+};
 
 /** Each Mademoiselle lowers the final price by one coin when buying a person. The price never drops below one. */
 export const discountOf = (p: Player) =>
@@ -494,7 +510,9 @@ function take(s: GameState): GameState {
   const activeName = s.players[s.active].name;
 
   if (card.kind === 'ship') {
-    const r = drawInto(deck, card.coins, discard, nextId);
+    // A Trader of the ship's color pays the buyer an extra coin
+    const bonus = extraCoinsFor(buyer, card);
+    const r = drawInto(deck, card.coins + bonus, discard, nextId);
     deck = r.deck;
     discard = r.discard + 1; // the taken ship goes to the discard pile
     nextId = r.nextId;
@@ -510,12 +528,16 @@ function take(s: GameState): GameState {
       r.taken.slice(skimmed),
     );
 
+    const traded = bonus
+      ? ` ${bonus} of them from ${bonus > 1 ? 'Traders' : 'a Trader'}.`
+      : '';
+
     toast = {
       text: skimmed
         ? `${buyer.name} brings in the ${card.name} — ${
             r.taken.length - skimmed
-          } coins aboard, ${skimmed} to ${activeName}.`
-        : `${buyer.name} brings in the ${card.name} — ${card.coins} coins aboard.`,
+          } coins aboard, ${skimmed} to ${activeName}.${traded}`
+        : `${buyer.name} brings in the ${card.name} — ${r.taken.length} coins aboard.${traded}`,
       tone: 'gain',
     };
   } else {
