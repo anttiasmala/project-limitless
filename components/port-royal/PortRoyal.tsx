@@ -130,7 +130,7 @@ export default function PortRoyal({
       <div className="relative flex min-h-0 flex-1">
         <Sidebar
           deckCount={state.deck.length}
-          discard={state.discard}
+          discard={state.discardPile.length}
           hint={HINTS[state.phase] ?? DEFAULT_HINT}
         />
 
