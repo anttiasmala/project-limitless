@@ -235,9 +235,9 @@ export const houseOf = (p: Player) => symbolsOf(p, 'house');
 export const crossOf = (p: Player) => symbolsOf(p, 'cross');
 export const anchorOf = (p: Player) => symbolsOf(p, 'anchor');
 
-/** The Mademoiselle knocks a coin off everything, but never below one. */
+/** Each Mademoiselle lowers the final price by one coin when buying a person. The price never drops below one. */
 export const discountOf = (p: Player) =>
-  p.tableau.some((c) => c.name === MADEMOISELLE) ? 1 : 0;
+  p.tableau.filter((c) => c.name === MADEMOISELLE).length;
 
 export const priceOf = (card: HarbourCard, p: Player) =>
   card.kind === 'person' ? Math.max(1, card.price - discountOf(p)) : 0;
