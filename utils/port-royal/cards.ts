@@ -4,6 +4,8 @@
 // Expedition cards: 5
 // Tax cards: 4
 
+import { Ability } from '@/utils/port-royal/types';
+
 type AllCards = {
   id?: number;
   type?: string;
@@ -12,7 +14,7 @@ type AllCards = {
   victoryPoints?: number;
   characterCost?: number;
   imageName?: string;
-  abilities?: string[];
+  abilities?: Ability[];
   shipWeapons?: number;
   shipCoins?: number;
   taxMode?: 'LowestPoints' | 'MostSwords';
