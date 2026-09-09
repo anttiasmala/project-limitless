@@ -114,10 +114,72 @@ export function describeRequirement(requires: ExpeditionSymbol[]): string {
     : parts[0];
 }
 
+/**
+ * What a character card actually does, named the way `cards.ts` names it.
+ *
+ * An ability is printed once per instance, so the list carries duplicates: the
+ * Pirate is `['swords', 'swords']`, and the Jack of all Trades prints all three
+ * expedition symbols at once.
+ */
+export type Ability =
+  | 'swords'
+  | 'fiveCards'
+  | 'oneCheaper'
+  | 'boardEmpty'
+  | 'extraCard'
+  | 'extraCoin_skiff'
+  | 'extraCoin_flute'
+  | 'extraCoin_frigate'
+  | 'extraCoin_galleon'
+  | 'extraCoin_pinance'
+  | 'house'
+  | 'anchor'
+  | 'cross';
+
+/**
+ * The ability a Trader of a given ship type pays out an extra coin on.
+ */
+export const extraCoinAbility = (shipName: string) =>
+  `extraCoin_${shipName.toLowerCase()}` as Ability;
+
+const EXTRA_COIN_SHIPS = new Map(
+  SHIPS.map((s) => [extraCoinAbility(s.name), s.name]),
+);
+
+/** The ship type an `extraCoin_*` ability names, or `undefined` for any other. */
+export const shipForAbility = (ability: Ability) =>
+  EXTRA_COIN_SHIPS.get(ability);
+
+/**
+ * Replaces the `{ship}` text with a correct ship text. Every Trader shares one profile, but each names its own ship.
+ */
+export function fillPersonText(text: string, abilities: Ability[]): string {
+  if (!text.includes('{ship}')) return text;
+
+  const ship = abilities.map(shipForAbility).find(Boolean);
+
+  return text.replace('{ship}', ship ?? 'ship of their colour');
+}
+
+const isExpeditionSymbol = (a: Ability): a is ExpeditionSymbol =>
+  a in EXPEDITION_SYMBOLS;
+
+/**
+ * The expedition symbol a character supplies. Carrying more than one means
+ * carrying all three, which is the Jack of all Trades.
+ */
+export function expeditionItemOf(abilities: Ability[]): ExpeditionItem {
+  const symbols = abilities.filter(isExpeditionSymbol);
+
+  return symbols.length > 1 ? 'jackOfAllTrades' : (symbols[0] ?? 'none');
+}
+
 export type PersonTemplate = {
   name: string;
   role: PersonRole;
   swords: number;
+  /** Straight from `cards.ts`. */
+  abilities: Ability[];
   /** vp = Victory points */
   vp: number;
   expeditionItem: ExpeditionItem;
@@ -152,7 +214,8 @@ export const PERSON_PROFILES: Record<string, PersonProfile> = {
   },
   Trader: {
     role: 'trader',
-    text: 'Get an extra coin whenever you take a Ship of their appropriate Ship color.',
+    /* `{ship}` is filled in per card by `fillPersonText` — each Trader names its own (e.g. Skiff). */
+    text: 'Get an extra coin whenever you take a {ship}.',
   },
   'Jack of all Trades': {
     role: 'trader',
