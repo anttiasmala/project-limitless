@@ -37,7 +37,7 @@ function question(
     case 'trade':
       return `Take ${plural(takesLeft, 'card')} from the harbour.`;
     case 'others':
-      return `${seat.name}, take one card - a coin to ${active.name}, plus its cost?`;
+      return `${seat.name}, take ${plural(takesLeft, 'card')} - a coin to ${active.name}, plus its cost?`;
     case 'bust':
       return 'Two ships of one colour.';
     default:
