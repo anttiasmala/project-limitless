@@ -257,6 +257,7 @@ export const DEFAULT_PERSON_PROFILE: PersonProfile = {
 export const JESTER = 'Jester';
 export const GOVERNOR = 'Governor';
 export const MADEMOISELLE = 'Mademoiselle';
+export const ADMIRAL = 'Admiral';
 
 /** Where the `imageName` of a card in `cards.ts` resolves to under `public/`. */
 export const CARD_ART_DIR = '/images/port-royal';
