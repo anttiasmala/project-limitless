@@ -28,6 +28,7 @@ import {
   Toast,
   ToastTone,
   ADMIRAL,
+  JESTER,
 } from '@/utils/port-royal/types';
 
 /** Ship type name -> the `SHIPS` slot that draws its flag. */
@@ -280,6 +281,14 @@ export const admiralsOf = (p: Player) =>
   p.tableau.filter((c) => c.name === ADMIRAL).length;
 
 /**
+ * Every Jester a player has, gives 1 coin when in their turn to pick cards the "Harbour Display" is empty.
+ *
+ * If the active player has busted out (2 same coloured ship cards drawn), the players who have a Jester card(s) will get their coins
+ */
+export const jestersOf = (p: Player) =>
+  p.tableau.filter((c) => c.name === JESTER).length;
+
+/**
  * The ACTIVE player's picks grow with the different coloured ships in the harbour:
  *
  * **0-3 different coloured ships = 1 pick**
@@ -393,6 +402,80 @@ function payAdmirals(s: GameState, buyerIdx: number): GameState {
         } on a harbour of ${s.harbour.length}.`,
     r.reshuffled ? 'info' : 'gain',
   );
+}
+
+/** What single Jester card is worth when it pays out. */
+const JESTER_COINS = 1;
+
+/** How long the Jester's payout toast will last before turn is handed over. */
+const JESTER_BEAT = 2500;
+
+/** How long a bust toast lasts when there are no Jesters. */
+const BUST_BEAT = 400;
+
+const coins = (n: number) => `${n} coin${n === 1 ? '' : 's'}`;
+
+/**
+ * Lists the players from `from` onwards in turn order, and stops before the
+ * active player. When the harbour is empty, these are the players who never
+ * get their pick.
+ *
+ * With 4 players and player 0 active, `from = 2` gives [2, 3]. The list wraps
+ * around from the last player back to the first, and stops at player 0.
+ *
+ * The list is empty when `from` is the active player, because then everyone
+ * has already had their pick.
+ */
+function seatsFrom(s: GameState, from: number): number[] {
+  const seats: number[] = [];
+  for (let i = from; i !== s.active; i = (i + 1) % s.players.length) {
+    seats.push(i);
+  }
+  return seats;
+}
+
+/**
+ * Pays the Jesters of every player in `seats`: one coin for each Jester they
+ * have. These are the players who never got their pick.
+ *
+ * The players are paid one after another, in turn order. This matters when the
+ * deck runs out in the middle of the payout: the reshuffle then happens at the
+ * same moment it would have if the players had taken their picks normally, one
+ * by one.
+ */
+function payJesters(
+  s: GameState,
+  seats: number[],
+): { next: GameState; list: string | null; reshuffled: boolean } {
+  const players = s.players.slice();
+  const paid: string[] = [];
+  let deck = s.deck;
+  let discardPile = s.discardPile;
+  let reshuffled = false;
+
+  for (const i of seats) {
+    const jesters = jestersOf(players[i]);
+    if (!jesters) continue;
+
+    const r = drawInto(deck, jesters * JESTER_COINS, discardPile);
+    deck = r.deck;
+    discardPile = r.discardPile;
+    reshuffled = reshuffled || r.reshuffled;
+
+    // Deck and discard pile both dry: the ability simply pays nothing.
+    if (!r.taken.length) continue;
+
+    players[i] = { ...players[i], hand: players[i].hand.concat(r.taken) };
+    paid.push(`${players[i].name} ${coins(r.taken.length)}`);
+  }
+
+  if (!paid.length) return { next: s, list: null, reshuffled };
+
+  return {
+    next: { ...s, players, deck, discardPile },
+    list: `the Jesters pay: ${paid.join(', ')}`,
+    reshuffled,
+  };
 }
 
 /** Ends the turn, or the game if anyone has reached the target. */
@@ -648,14 +731,45 @@ function take(s: GameState): GameState {
   return next;
 }
 
+/**
+ * The harbour is empty, but some players have not had their pick yet. Each of
+ * them would have been asked to take a card and found none, so their Jesters
+ * pay out. The turn then ends without opening a single one of those seats.
+ *
+ * The toast is shown during a short `gap` phase before the turn ends. Without
+ * it the payout would never be read: `endTurn` puts the handover curtain over
+ * the board, and that hides the toast too.
+ */
+function skipRemaining(s: GameState, from: number): GameState {
+  const { next, list, reshuffled } = payJesters(s, seatsFrom(s, from));
+  if (!list) return endTurn(s);
+
+  return withToast(
+    {
+      ...next,
+      selected: null,
+      phase: 'gap',
+      scheduled: { kind: 'END_TURN', delay: JESTER_BEAT },
+    },
+    `No cards left in the harbour — ${list}.${
+      reshuffled ? ` ${RESHUFFLE_NOTE}` : ''
+    }`,
+    'gain',
+  );
+}
+
+/** This is run when the active player has done their trading */
 function toOthers(s: GameState): GameState {
-  if (!s.harbour.length) return endTurn(s);
-  return openSeat(s, (s.active + 1) % s.players.length);
+  const first = (s.active + 1) % s.players.length;
+  if (!s.harbour.length) return skipRemaining(s, first);
+  return openSeat(s, first);
 }
 
 function nextTaker(s: GameState): GameState {
   const next = (s.taker! + 1) % s.players.length;
-  if (next === s.active || !s.harbour.length) return endTurn(s);
+  // Back round to the active player: everyone has had their pick offered.
+  if (next === s.active) return endTurn(s);
+  if (!s.harbour.length) return skipRemaining(s, next);
   return openSeat(s, next);
 }
 
@@ -697,24 +811,44 @@ export function reducer(s: GameState, action: Action): GameState {
         s.active,
       );
 
-    case 'ACK_BUST':
+    case 'ACK_BUST': {
+      const swept: GameState = {
+        ...s,
+        harbour: [],
+        bustPair: null,
+        // All the drawn cards (harbour display), plus the duplicate ship that ended the drawing phase. The ship it
+        // clashed with is already in the harbour, so sweeping the harbour carries it along.
+        discardPile: s.discardPile.concat(
+          s.harbour,
+          s.bustPair ? [s.bustPair[1]] : [],
+        ),
+      };
+
+      // Trade & hire phase is skipped altogether, so every other player's Jester pays
+      // out just as it would have when their empty-handed seat came round. The
+      // sweep happens first: the lost cards are on the pile a dry deck draws from.
+      const { next, list, reshuffled } = payJesters(
+        swept,
+        seatsFrom(s, (s.active + 1) % s.players.length),
+      );
+
       return withToast(
         {
-          ...s,
-          harbour: [],
-          bustPair: null,
-          // All the drawn cards (harbour display), plus the duplicate ship that ended it. The ship it
-          // clashed with is already in the harbour, so sweeping the harbour carries it along.
-          discardPile: s.discardPile.concat(
-            s.harbour,
-            s.bustPair ? [s.bustPair[1]] : [],
-          ),
+          ...next,
           phase: 'gap',
-          scheduled: { kind: 'END_TURN', delay: 400 },
+          scheduled: {
+            kind: 'END_TURN',
+            delay: list ? JESTER_BEAT : BUST_BEAT,
+          },
         },
-        'The haul is lost. No trade this turn.',
+        list
+          ? `The haul is lost. No trade this turn — ${list}.${
+              reshuffled ? ` ${RESHUFFLE_NOTE}` : ''
+            }`
+          : 'The haul is lost. No trade this turn.',
         'loss',
       );
+    }
 
     case 'ACK_TAX': {
       const { rows } = s.tax!;
