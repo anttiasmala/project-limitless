@@ -27,6 +27,7 @@ import {
   TaxRow,
   Toast,
   ToastTone,
+  ADMIRAL,
 } from '@/utils/port-royal/types';
 
 /** Ship type name -> the `SHIPS` slot that draws its flag. */
@@ -274,6 +275,10 @@ export const affordable = (card: HarbourCard, p: Player, tax = 0) =>
 export const governorsOf = (p: Player) =>
   p.tableau.filter((c) => c.name === GOVERNOR).length;
 
+/** Every Admiral a player has, gives +2 coins when in "Harbour Display" is 5 or more cards during their buy phase */
+export const admiralsOf = (p: Player) =>
+  p.tableau.filter((c) => c.name === ADMIRAL).length;
+
 /**
  * The ACTIVE player's picks grow with the different coloured ships in the harbour:
  *
@@ -348,6 +353,47 @@ function drawInto(
 }
 
 const RESHUFFLE_NOTE = 'Discard pile reshuffled into the draw pile.';
+
+/** A harbour this size or larger pays every Admiral out. */
+const ADMIRAL_THRESHOLD = 5;
+
+/** What one Admiral is worth when it pays out. */
+const ADMIRAL_COINS = 2;
+
+/**
+ * The Admiral's payout, taken the moment a player's time to take cards begins.
+ * So it is taking to whoever is buying, not only to the active player.
+ *
+ * Every Admiral pays, so two of them are four coins and so on.
+ */
+function payAdmirals(s: GameState, buyerIdx: number): GameState {
+  const admirals = admiralsOf(s.players[buyerIdx]);
+  if (!admirals || s.harbour.length < ADMIRAL_THRESHOLD) return s;
+
+  const r = drawInto(s.deck, admirals * ADMIRAL_COINS, s.discardPile);
+  const paid: GameState = { ...s, deck: r.deck, discardPile: r.discardPile };
+
+  // Nothing left to draw: deck and discard pile are both dry, so the ability
+  // simply pays nothing rather than the turn stalling on it.
+  if (!r.taken.length) return paid;
+
+  const buyer = s.players[buyerIdx];
+
+  return withToast(
+    {
+      ...paid,
+      players: s.players.map((p, i) =>
+        i === buyerIdx ? { ...p, hand: p.hand.concat(r.taken) } : p,
+      ),
+    },
+    r.reshuffled
+      ? RESHUFFLE_NOTE
+      : `${buyer.name} takes ${r.taken.length} coins — ${
+          admirals > 1 ? `${admirals} Admirals` : 'the Admiral'
+        } on a harbour of ${s.harbour.length}.`,
+    r.reshuffled ? 'info' : 'gain',
+  );
+}
 
 /** Ends the turn, or the game if anyone has reached the target. */
 function endTurn(s: GameState): GameState {
@@ -623,7 +669,10 @@ function openSeat(s: GameState, taker: number): GameState {
     scheduled: null,
   };
 
-  return { ...seated, takesLeft: takesFor(seated.harbour, seated) };
+  return payAdmirals(
+    { ...seated, takesLeft: takesFor(seated.harbour, seated) },
+    taker,
+  );
 }
 
 export function reducer(s: GameState, action: Action): GameState {
@@ -631,17 +680,22 @@ export function reducer(s: GameState, action: Action): GameState {
     case 'FLIP':
       return flip(s);
 
+    // More different coloured ships in the harbour earns more picks before the others get a turn.
+    // 0-3 different coloured ships = 1
+    // 4 different coloured ships = 2
+    // 5 different coloured ships = 3
+    //
+    // Stopping opens the active player's buy phase, so their Admirals pay out here.
     case 'STOP':
-      // More different coloured ships in the harbour earns more picks before the others get a turn.
-      // 0-3 different coloured ships = 1
-      // 4 different coloured ships = 2
-      // 5 different coloured ships = 3
-      return {
-        ...s,
-        phase: 'trade',
-        takesLeft: takesFor(s.harbour, s),
-        selected: null,
-      };
+      return payAdmirals(
+        {
+          ...s,
+          phase: 'trade',
+          takesLeft: takesFor(s.harbour, s),
+          selected: null,
+        },
+        s.active,
+      );
 
     case 'ACK_BUST':
       return withToast(
