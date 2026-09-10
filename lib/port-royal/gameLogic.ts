@@ -270,24 +270,35 @@ export const taxFor = (phase: GameState['phase']) =>
 export const affordable = (card: HarbourCard, p: Player, tax = 0) =>
   card.kind === 'ship' ? true : p.hand.length >= priceOf(card, p) + tax;
 
+/** Every Governor a player has bought is one more card they may take on their pick. */
+export const governorsOf = (p: Player) =>
+  p.tableau.filter((c) => c.name === GOVERNOR).length;
+
 /**
- * Pick amount (takesLeft) the ACTIVE player has earned
- * Pick amount can be increased by having multiple different coloured ships in the harbour
+ * The ACTIVE player's picks grow with the different coloured ships in the harbour:
  *
  * **0-3 different coloured ships = 1 pick**
  *
  * **4 different coloured ships = 2 picks**
  *
  * **5 different coloured ships = 3 picks**
+ *
+ * Everyone else gets one pick their out-of-turn buy phase. Then add one
+ * pick per Governor they own.
  */
-export const takesFor = (harbour: HarbourCard[]) => {
+export const takesFor = (harbour: HarbourCard[], s: GameState) => {
+  const buyerIdx = s.phase === 'others' ? s.taker! : s.active;
+
   const colours = new Set(
     harbour
       .filter((c): c is ShipCard => c.kind === 'ship')
       .map((c) => c.colorIdx),
   ).size;
 
-  return colours >= 5 ? 3 : colours >= 4 ? 2 : 1;
+  const coloursExtraCardAmount =
+    s.phase === 'others' ? 1 : colours >= 5 ? 3 : colours >= 4 ? 2 : 1;
+
+  return coloursExtraCardAmount + governorsOf(s.players[buyerIdx]);
 };
 
 /** Whoever the board is currently showing — the buyer during the others phase. */
@@ -559,7 +570,6 @@ function take(s: GameState): GameState {
     };
 
     if (players[buyerIdx].tableau.some((c) => c.name === GOVERNOR)) {
-      // CHECK THIS, add Governor logic
       const r = drawInto(deck, 1, discardPile);
       deck = r.deck;
       discardPile = r.discardPile;
@@ -569,7 +579,9 @@ function take(s: GameState): GameState {
   }
 
   const harbour = s.harbour.filter((c) => c.id !== card.id);
-  const takesLeft = isActive ? s.takesLeft - 1 : 0;
+  const takesLeft = s.takesLeft - 1;
+  // Picks that are left when harbour is empty are simply lost, they don't carry into next round
+  const done = takesLeft <= 0 || !harbour.length;
 
   const next: GameState = {
     ...s,
@@ -580,12 +592,11 @@ function take(s: GameState): GameState {
     selected: null,
     takesLeft,
     toast: reshuffled ? { text: RESHUFFLE_NOTE, tone: 'info' } : toast,
-    scheduled:
-      isActive && takesLeft <= 0
+    scheduled: !done
+      ? null
+      : isActive
         ? { kind: 'TO_OTHERS', delay: 500 }
-        : !isActive
-          ? { kind: 'NEXT_TAKER', delay: 500 }
-          : null,
+        : { kind: 'NEXT_TAKER', delay: 500 },
   };
 
   return next;
@@ -593,19 +604,26 @@ function take(s: GameState): GameState {
 
 function toOthers(s: GameState): GameState {
   if (!s.harbour.length) return endTurn(s);
-  return {
-    ...s,
-    phase: 'others',
-    taker: (s.active + 1) % s.players.length,
-    selected: null,
-    scheduled: null,
-  };
+  return openSeat(s, (s.active + 1) % s.players.length);
 }
 
 function nextTaker(s: GameState): GameState {
   const next = (s.taker! + 1) % s.players.length;
   if (next === s.active || !s.harbour.length) return endTurn(s);
-  return { ...s, taker: next, selected: null, scheduled: null };
+  return openSeat(s, next);
+}
+
+/** Sets the next out-of-turn buyer and sets them their picks, Governors included. */
+function openSeat(s: GameState, taker: number): GameState {
+  const seated: GameState = {
+    ...s,
+    phase: 'others',
+    taker,
+    selected: null,
+    scheduled: null,
+  };
+
+  return { ...seated, takesLeft: takesFor(seated.harbour, seated) };
 }
 
 export function reducer(s: GameState, action: Action): GameState {
@@ -621,7 +639,7 @@ export function reducer(s: GameState, action: Action): GameState {
       return {
         ...s,
         phase: 'trade',
-        takesLeft: takesFor(s.harbour),
+        takesLeft: takesFor(s.harbour, s),
         selected: null,
       };
 
