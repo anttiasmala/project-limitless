@@ -81,6 +81,15 @@ export type ExpeditionSymbol = 'house' | 'cross' | 'anchor';
  */
 export type ExpeditionItem = ExpeditionSymbol | 'jackOfAllTrades' | 'none';
 
+/**
+ * **exact**: a card that covers the symbol (Settler, Priest, Captain).
+ *
+ * **wild** — Jack of all Trades is covering the symbol.
+ *
+ * **missing** — There are not Jack of all Trades or symbols covering it.
+ */
+export type SlotFill = 'exact' | 'wild' | 'missing';
+
 /** How each expedition symbol is drawn where the art is too small to read. */
 export const EXPEDITION_SYMBOLS: Record<
   ExpeditionSymbol,
