@@ -18,6 +18,8 @@ import TaxOverlay from './overlays/TaxOverlay';
 import { BOARD_NOISE, BOARD_VIGNETTE } from './shapes';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import {
+  claimCheck,
+  claimingIn,
   freshState,
   reducer,
   seatOf,
@@ -89,6 +91,13 @@ export default function PortRoyal({
   const buying = state.phase === 'trade' || state.phase === 'others';
   const selected = state.harbour.find((c) => c.id === state.selected);
 
+  const detail = state.detail;
+  const posted =
+    detail?.kind === 'expedition'
+      ? state.expeditions.find((e) => e.id === detail.id)
+      : undefined;
+  const claim = posted ? claimCheck(state, posted) : null;
+
   return (
     <div
       className="bg-portRoyal-ground font-archivo text-portRoyal-ink relative flex min-h-0 w-full flex-col overflow-hidden"
@@ -138,6 +147,7 @@ export default function PortRoyal({
           <Expeditions
             expeditions={state.expeditions}
             seat={seat}
+            claiming={claimingIn(state.phase)}
             onInspect={(card) => dispatch({ type: 'INSPECT', card })}
           />
 
@@ -211,6 +221,16 @@ export default function PortRoyal({
       {state.detail && (
         <DetailOverlay
           card={state.detail}
+          claim={
+            posted && claim
+              ? {
+                  handIn: claim.handIn.map((c) => c.name),
+                  blocked: claim.blocked,
+                  onClaim: () =>
+                    dispatch({ type: 'CLAIM_EXPEDITION', id: posted.id }),
+                }
+              : undefined
+          }
           onClose={() => dispatch({ type: 'CLOSE_DETAIL' })}
         />
       )}
