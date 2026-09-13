@@ -1,5 +1,12 @@
 import { RoleChip } from './StatChip';
-import { PersonRole, Player, TableauCard } from '@/utils/port-royal/types';
+import {
+  BonusCard,
+  ExpeditionCard,
+  PersonCard,
+  PersonRole,
+  Player,
+  TableauCard,
+} from '@/utils/port-royal/types';
 
 const GROUPS: { role: PersonRole; title: string }[] = [
   { role: 'fighter', title: 'Fighters — swords' },
@@ -19,6 +26,10 @@ export default function Tableau({
   seat: Player;
   onInspect: (card: TableauCard) => void;
 }) {
+  const claimed = seat.tableau.filter(
+    (c): c is ExpeditionCard => c.kind === 'expedition',
+  );
+
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-2">
       <div className="flex items-center gap-2.5">
@@ -30,7 +41,10 @@ export default function Tableau({
 
       <div className="flex gap-4 overflow-x-auto pb-1">
         {GROUPS.map(({ role, title }) => {
-          const items = seat.tableau.filter((c) => c.role === role);
+          const items = seat.tableau.filter(
+            (c): c is PersonCard | BonusCard =>
+              c.kind !== 'expedition' && c.role === role,
+          );
 
           return (
             <div key={role} className="flex min-w-37.5 flex-col gap-1.5">
@@ -66,6 +80,30 @@ export default function Tableau({
             </div>
           );
         })}
+
+        {claimed.length > 0 && (
+          <div className="flex min-w-37.5 flex-col gap-1.5">
+            <div className="font-archivo-narrow text-portRoyal-wood text-[9px] tracking-[0.16em] uppercase">
+              Expeditions — claimed
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {claimed.map((card) => (
+                <div
+                  key={card.id}
+                  onClick={() => onInspect(card)}
+                  className="bg-portRoyal-card/75 border-portRoyal-teal hover:border-portRoyal-tealDeep flex h-11 cursor-pointer items-center gap-1.75 border pr-2.5 pl-1.75"
+                >
+                  <span className="font-spectral text-[13px] font-semibold">
+                    {card.name}
+                  </span>
+                  <span className="text-portRoyal-teal text-[12px] font-bold tabular-nums">
+                    {`${card.vp}◆`}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
