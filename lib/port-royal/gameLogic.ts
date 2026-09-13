@@ -9,6 +9,8 @@ import {
   DEFAULT_PERSON_PROFILE,
   DeckCard,
   describeRequirement,
+  ExpeditionCard,
+  ExpeditionItem,
   expeditionItemOf,
   ExpeditionSymbol,
   extraCoinAbility,
@@ -18,6 +20,7 @@ import {
   HarbourCard,
   MADEMOISELLE,
   PERSON_PROFILES,
+  PersonCard,
   Player,
   SHIPS,
   ShipCard,
@@ -179,7 +182,10 @@ export function freshState(names: string[], shuffle = true): GameState {
 /* ---------------------------------------------------------------- selectors */
 
 export const swordsOf = (p: Player) =>
-  p.tableau.reduce((a, c) => a + (c.swords || 0), 0);
+  p.tableau.reduce(
+    (a, c) => a + (c.kind === 'expedition' ? 0 : c.swords || 0),
+    0,
+  );
 
 /**
  * Whether a player can repel a ship away. Swords are never spent, so the whole
@@ -229,8 +235,11 @@ export const jacksOf = (p: Player) =>
     (c) => c.kind === 'person' && c.expeditionItem === 'jackOfAllTrades',
   ).length;
 
+/** One expedition symbol, and the tableau card that would be handed in for it. */
+type Slot = { fill: SlotFill; card: PersonCard | null };
+
 /**
- * Which of an expedition's symbols the player's tableau covers, slot by slot,
+ * Which of an expedition's symbols the player's tableau cards cover, slot by slot,
  * in the order the expedition shows them.
  *
  * Normal cards (e.g. house or cross) are used first, then the Jacks of all Trades fill what is left.
@@ -240,33 +249,34 @@ export const jacksOf = (p: Player) =>
  * It is also the best way to pay for the expedition: every card is worth one
  * point, so giving the normal card away keeps the flexible one for later.
  */
-export function expeditionFill(
-  p: Player,
-  requires: ExpeditionSymbol[],
-): SlotFill[] {
-  const spare: Record<ExpeditionSymbol, number> = {
-    house: houseOf(p),
-    cross: crossOf(p),
-    anchor: anchorOf(p),
+function slotsFor(p: Player, requires: ExpeditionSymbol[]): Slot[] {
+  const unused = p.tableau.filter((c): c is PersonCard => c.kind === 'person');
+
+  const takeOne = (item: ExpeditionItem) => {
+    const i = unused.findIndex((c) => c.expeditionItem === item);
+    return i < 0 ? null : unused.splice(i, 1)[0];
   };
-  let jacks = jacksOf(p);
 
-  const fills: SlotFill[] = requires.map((symbol) => {
-    if (spare[symbol] === 0) return 'missing';
-    spare[symbol] -= 1;
-
-    return 'exact';
+  const slots = requires.map((symbol): Slot => {
+    const card = takeOne(symbol);
+    return { fill: card ? 'exact' : 'missing', card };
   });
 
   /* A second pass, because a Jack can only be handed to a slot once every
      dedicated card has been placed. */
-  return fills.map((fill) => {
-    if (fill !== 'missing' || jacks === 0) return fill;
-    jacks -= 1;
+  return slots.map((slot): Slot => {
+    if (slot.card) return slot;
+    const jack = takeOne('jackOfAllTrades');
 
-    return 'wild';
+    return jack ? { fill: 'wild', card: jack } : slot;
   });
 }
+
+/** How each of an expedition's symbols is covered, for drawing the chips. */
+export const expeditionFill = (
+  p: Player,
+  requires: ExpeditionSymbol[],
+): SlotFill[] => slotsFor(p, requires).map((slot) => slot.fill);
 
 /**
  * Whether the player can claim this expedition with their current tableau.
@@ -366,10 +376,39 @@ export const takesFor = (harbour: HarbourCard[], s: GameState) => {
 };
 
 /** Whoever the board is currently showing — the buyer during the others phase. */
-export const seatOf = (s: GameState) =>
-  s.phase === 'others' && s.taker !== null
-    ? s.players[s.taker]
-    : s.players[s.active];
+const seatIndexOf = (s: GameState) =>
+  s.phase === 'others' && s.taker !== null ? s.taker : s.active;
+
+export const seatOf = (s: GameState) => s.players[seatIndexOf(s)];
+
+/**
+ * A player may claim expeditions any time during their turn, and as many as
+ * they are able to. Buying on someone else's turn counts as their turn too.
+ */
+export const claimingIn = (phase: GameState['phase']) =>
+  phase === 'discovery' || phase === 'trade' || phase === 'others';
+
+export type ClaimCheck = {
+  /** The cards the seated player would hand in, one per symbol. */
+  handIn: PersonCard[];
+  /** Why the expedition cannot be claimed right now, or null when it can. */
+  blocked: string | null;
+};
+
+/** Whether the seated player can claim this expedition now, and what it costs them. */
+export function claimCheck(s: GameState, card: ExpeditionCard): ClaimCheck {
+  const slots = slotsFor(seatOf(s), card.requires);
+  const handIn = slots.flatMap((slot) => (slot.card ? [slot.card] : []));
+  const missing = card.requires.filter((_, i) => !slots[i].card);
+
+  const blocked = !claimingIn(s.phase)
+    ? 'Expeditions can only be claimed during your turn.'
+    : missing.length
+      ? `Missing ${describeRequirement(missing)}.`
+      : null;
+
+  return { handIn, blocked };
+}
 
 /* ------------------------------------------------------------------ reducer */
 
@@ -782,6 +821,52 @@ function take(s: GameState): GameState {
 }
 
 /**
+ * The current player's (not ACTIVE player) hands in the characters the expedition asks for. They go
+ * to the discard pile, the expedition joins the claimer's tableau for its
+ * points, and its coins are drawn off the deck like any other coins.
+ *
+ * The turn does not move on: a player can claim as many as they are able to.
+ */
+function claimExpedition(s: GameState, id: number): GameState {
+  const card = s.expeditions.find((e) => e.id === id);
+  if (!card) return s;
+
+  const { handIn, blocked } = claimCheck(s, card);
+  if (blocked) return withToast(s, blocked, 'loss');
+
+  const claimerIdx = seatIndexOf(s);
+  const spent = new Set(handIn.map((c) => c.id));
+  const r = drawInto(s.deck, card.coins, s.discardPile);
+
+  const players = s.players.map((p, i) =>
+    i === claimerIdx
+      ? {
+          ...p,
+          hand: p.hand.concat(r.taken),
+          tableau: p.tableau.filter((c) => !spent.has(c.id)).concat(card),
+        }
+      : p,
+  );
+
+  return withToast(
+    {
+      ...s,
+      players,
+      deck: r.deck,
+      // Handed in after the draw, so they are never in the same shuffle as
+      // the coins they paid for.
+      discardPile: r.discardPile.concat(handIn),
+      expeditions: s.expeditions.filter((e) => e.id !== id),
+      detail: null,
+    },
+    `${s.players[claimerIdx].name} claims the expedition — ${card.vp} points and ${coins(
+      r.taken.length,
+    )}.${r.reshuffled ? ` ${RESHUFFLE_NOTE}` : ''}`,
+    'gain',
+  );
+}
+
+/**
  * The harbour is empty, but some players have not had their pick yet. Each of
  * them would have been asked to take a card and found none, so their Jesters
  * pay out. The turn then ends without opening a single one of those seats.
@@ -966,6 +1051,9 @@ export function reducer(s: GameState, action: Action): GameState {
 
     case 'DECLINE_REPEL':
       return declineRepel(s);
+
+    case 'CLAIM_EXPEDITION':
+      return claimExpedition(s, action.id);
 
     case 'TAKE':
       return take(s);
