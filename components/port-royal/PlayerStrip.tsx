@@ -2,6 +2,7 @@ import {
   anchorOf,
   crossOf,
   houseOf,
+  jacksOf,
   swordsOf,
   vpOf,
 } from '@/lib/port-royal/gameLogic';
@@ -70,7 +71,7 @@ export default function PlayerStrip({
             </div>
 
             <div className="flex flex-col items-baseline tabular-nums">
-              <div className="flex items-baseline gap-3 tabular-nums">
+              <div className="flex items-center gap-3 tabular-nums">
                 <div className="text-portRoyal-ground flex items-center text-[20px] font-bold">
                   <Image
                     src={`${CARD_ART_DIR}/realVictoryPoints.png`}
@@ -102,8 +103,7 @@ export default function PlayerStrip({
                   <span className="ml-1">{swordsOf(p)}</span>
                 </div>
               </div>
-
-              <div className="flex items-baseline gap-3 tabular-nums">
+              <div className="flex items-center gap-3 tabular-nums">
                 <div className="text-portRoyal-ground flex items-center text-[20px] font-semibold">
                   <Image
                     src={`${CARD_ART_DIR}/realHouse.png`}
@@ -134,6 +134,17 @@ export default function PlayerStrip({
                   />
                   <span className="ml-1">{anchorOf(p)}</span>
                 </div>
+                {jacksOf(p) > 0 && (
+                  <div
+                    title={`${jacksOf(p)} Jack of all Trades — each supplies any one expedition symbol`}
+                    className="font-archivo-narrow text-portRoyal-brassLight flex items-baseline self-center text-[11px] tracking-[0.12em] uppercase"
+                  >
+                    <span className="text-[15px] font-semibold">
+                      +{jacksOf(p)}
+                    </span>
+                    <span className="ml-1">any</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
