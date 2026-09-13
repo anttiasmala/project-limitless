@@ -137,6 +137,7 @@ export default function PortRoyal({
         <div className="flex min-w-0 flex-1 flex-col">
           <Expeditions
             expeditions={state.expeditions}
+            seat={seat}
             onInspect={(card) => dispatch({ type: 'INSPECT', card })}
           />
 
