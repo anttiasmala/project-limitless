@@ -21,6 +21,7 @@ import {
   Player,
   SHIPS,
   ShipCard,
+  SlotFill,
   TARGET_VP,
   TAX_THRESHOLD,
   TaxMode,
@@ -212,21 +213,70 @@ export function taxRows(players: Player[], mode: TaxMode): TaxRow[] {
 }
 
 /**
- * How many of one expedition symbol (e.g. house) the player has hired.
- *
- * A character prints at most one of each, so this counts cards: the Jack of all
- * Trades will add to every symbol,
+ * How many of one expedition symbol (e.g. house) the player has hired on cards.
  */
-const symbolsOf = (p: Player, symbol: ExpeditionSymbol) =>
+const dedicatedOf = (p: Player, symbol: ExpeditionSymbol) =>
+  p.tableau.filter((c) => c.kind === 'person' && c.expeditionItem === symbol)
+    .length;
+
+export const houseOf = (p: Player) => dedicatedOf(p, 'house');
+export const crossOf = (p: Player) => dedicatedOf(p, 'cross');
+export const anchorOf = (p: Player) => dedicatedOf(p, 'anchor');
+
+/** Hired Jacks of all Trades, each of which covers any one symbol. */
+export const jacksOf = (p: Player) =>
   p.tableau.filter(
-    (c) =>
-      c.kind === 'person' &&
-      (c.expeditionItem === symbol || c.expeditionItem === 'jackOfAllTrades'),
+    (c) => c.kind === 'person' && c.expeditionItem === 'jackOfAllTrades',
   ).length;
 
-export const houseOf = (p: Player) => symbolsOf(p, 'house');
-export const crossOf = (p: Player) => symbolsOf(p, 'cross');
-export const anchorOf = (p: Player) => symbolsOf(p, 'anchor');
+/**
+ * Which of an expedition's symbols the player's tableau covers, slot by slot,
+ * in the order the expedition shows them.
+ *
+ * Normal cards (e.g. house or cross) are used first, then the Jacks of all Trades fill what is left.
+ * This order gives the right answer, because a Jack fits any slot: using one on
+ * a slot a normal card could take would only cover fewer slots, never more.
+ *
+ * It is also the best way to pay for the expedition: every card is worth one
+ * point, so giving the normal card away keeps the flexible one for later.
+ */
+export function expeditionFill(
+  p: Player,
+  requires: ExpeditionSymbol[],
+): SlotFill[] {
+  const spare: Record<ExpeditionSymbol, number> = {
+    house: houseOf(p),
+    cross: crossOf(p),
+    anchor: anchorOf(p),
+  };
+  let jacks = jacksOf(p);
+
+  const fills: SlotFill[] = requires.map((symbol) => {
+    if (spare[symbol] === 0) return 'missing';
+    spare[symbol] -= 1;
+
+    return 'exact';
+  });
+
+  /* A second pass, because a Jack can only be handed to a slot once every
+     dedicated card has been placed. */
+  return fills.map((fill) => {
+    if (fill !== 'missing' || jacks === 0) return fill;
+    jacks -= 1;
+
+    return 'wild';
+  });
+}
+
+/**
+ * Whether the player can claim this expedition with their current tableau.
+ *
+ * Each expedition is checked on its own, so one Jack of all Trades can make two
+ * expeditions look claimable. The answer is "can I claim this one now?", not
+ * "can I claim both?".
+ */
+export const canClaim = (p: Player, requires: ExpeditionSymbol[]) =>
+  expeditionFill(p, requires).every((fill) => fill !== 'missing');
 
 /**
  * How many extra coins the buyer's Traders pay out on a ship of this type.
