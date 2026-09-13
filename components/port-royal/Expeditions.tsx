@@ -59,11 +59,14 @@ function SymbolChip({
 export default function Expeditions({
   expeditions,
   seat,
+  claiming,
   onInspect,
 }: {
   expeditions: ExpeditionCard[];
   /** The player the symbols are matched against: whoever is taking cards. */
   seat: Player;
+  /** Whether the phase lets the player to claim Expedition */
+  claiming: boolean;
   onInspect: (card: ExpeditionCard) => void;
 }) {
   if (!expeditions.length) return null;
@@ -84,13 +87,14 @@ export default function Expeditions({
         {expeditions.map((card) => {
           const fills = expeditionFill(seat, card.requires);
           const claimable = canClaim(seat, card.requires);
+          const ready = claimable && claiming;
 
           return (
             <button
               key={card.id}
               type="button"
               onClick={() => onInspect(card)}
-              aria-label={`Inspect ${card.name}${claimable ? ', claimable now' : ''}`}
+              aria-label={`Inspect ${card.name}${ready ? ', claimable now' : ''}`}
               className={`bg-portRoyal-card/85 hover:border-portRoyal-teal flex cursor-pointer items-center gap-2.5 border px-2.5 py-1.75 text-left ${
                 claimable
                   ? 'border-portRoyal-teal shadow-[2px_2px_0_rgba(27,75,79,0.28)]'
@@ -123,6 +127,12 @@ export default function Expeditions({
                   coins
                 </span>
               </div>
+
+              {ready && (
+                <span className="bg-portRoyal-teal text-portRoyal-card font-archivo-narrow px-1.5 py-0.75 text-[9px] font-bold tracking-[0.14em] uppercase">
+                  claim ready
+                </span>
+              )}
             </button>
           );
         })}
