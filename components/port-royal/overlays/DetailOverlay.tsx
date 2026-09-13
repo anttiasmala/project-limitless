@@ -79,12 +79,22 @@ function textFor(card: Card): string {
   return card.text;
 }
 
+export type ClaimOffer = {
+  /** Names of the cards that would be handed in. E.g. [house, house, cross] */
+  handIn: string[];
+  /** Why claiming is not possible right now, or null when it is. */
+  blocked: string | null;
+  onClaim: () => void;
+};
+
 /** The full card, for when the harbour's condensed face is not enough. */
 export default function DetailOverlay({
   card,
+  claim,
   onClose,
 }: {
   card: Card;
+  claim?: ClaimOffer;
   onClose: () => void;
 }) {
   const stats = statsFor(card);
@@ -155,6 +165,31 @@ export default function DetailOverlay({
                 </span>
               </div>
             ))}
+          </div>
+        )}
+
+        {claim && (
+          <div className="border-portRoyal-wood/50 flex items-center gap-4 border-t pt-3.5">
+            <div
+              className={`font-archivo-narrow min-w-0 flex-1 text-[11px] leading-relaxed tracking-[0.08em] uppercase ${
+                claim.blocked
+                  ? 'text-portRoyal-crimson'
+                  : 'text-portRoyal-slate'
+              }`}
+            >
+              {!claim.blocked ? `You hand in: ` : ''}
+              <span className="text-xs font-bold">
+                {claim.blocked ?? `${claim.handIn.join(', ')}`}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={claim.onClaim}
+              disabled={claim.blocked !== null}
+              className="bg-portRoyal-teal text-portRoyal-ground border-portRoyal-tealDeep min-h-11.5 flex-none border px-6.5 py-3.5 text-[13px] font-semibold tracking-[0.14em] uppercase enabled:cursor-pointer enabled:hover:brightness-[1.08] disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              Claim expedition
+            </button>
           </div>
         )}
       </div>
