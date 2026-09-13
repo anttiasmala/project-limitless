@@ -364,7 +364,8 @@ export type DeckCard = ShipCard | PersonCard | TaxCard | ExpeditionCard;
  */
 export type HarbourCard = ShipCard | PersonCard;
 
-export type TableauCard = PersonCard | BonusCard;
+/** A claimed expedition sits in the claimer's tableau, so its points count. */
+export type TableauCard = PersonCard | BonusCard | ExpeditionCard;
 
 /** Anything the detail overlay can be opened on. */
 export type Card = ShipCard | PersonCard | BonusCard | TaxCard | ExpeditionCard;
@@ -461,4 +462,5 @@ export type Action =
   | { type: 'SHUFFLE' }
   | { type: 'RESTART' }
   | { type: 'REPEL' }
-  | { type: 'DECLINE_REPEL' };
+  | { type: 'DECLINE_REPEL' }
+  | { type: 'CLAIM_EXPEDITION'; id: number };
