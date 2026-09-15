@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import Flag from './Flag';
 import HarbourCard from './HarbourCard';
 import { DASHED_RULE } from './shapes';
@@ -40,6 +41,21 @@ export default function Harbour({
     harbour.filter((c) => c.kind === 'ship').map((c) => c.colorIdx),
   );
 
+  // Scroll to the end when a card is flipped. Buying a card does not break the scroll to the end "flow"
+  const scroller = useRef<HTMLDivElement>(null);
+  const prevCount = useRef(harbour.length);
+  useEffect(() => {
+    const el = scroller.current;
+    if (el && harbour.length > prevCount.current) {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+      el.scrollTo({
+        left: el.scrollWidth,
+        behavior: reduce.matches ? 'auto' : 'smooth',
+      });
+    }
+    prevCount.current = harbour.length;
+  }, [harbour.length]);
+
   return (
     <div className="flex min-h-0 flex-col gap-2.5 px-6 pt-4 pb-3">
       <div className="flex items-center gap-3.5">
@@ -71,7 +87,10 @@ export default function Harbour({
         </div>
       </div>
 
-      <div className="border-portRoyal-wood/55 bg-portRoyal-parchment/35 min-h-79 overflow-x-auto overflow-y-hidden border p-3.5">
+      <div
+        ref={scroller}
+        className="border-portRoyal-wood/55 bg-portRoyal-parchment/35 min-h-79 overflow-x-auto overflow-y-hidden border p-3.5"
+      >
         {harbour.length === 0 && (
           <div className="grid h-71.5 place-items-center text-center">
             <div className="flex flex-col items-center gap-1.5">
