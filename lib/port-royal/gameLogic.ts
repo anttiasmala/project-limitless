@@ -146,6 +146,7 @@ export function freshState(names: string[], shuffle = true): GameState {
         name: 'Sailor',
         role: 'fighter',
         text: 'One sword toward ship repel requirement.',
+        abilities: [],
         swords: 10,
         vp: 1,
         expeditionItem: 'none',
