@@ -1,8 +1,8 @@
 /**
- * The hotseat board, opened with the roster the landing page chose.
+ * This includes the hotseat gamemode
  *
  * The seats live in the query rather than in client state so the URL is the
- * whole game setup: refreshing keeps the table, and a link opens the same one.
+ * whole game setup: refreshing the site restarts the game, but keeps the players data, etc
  */
 
 import type { Metadata } from 'next';
@@ -18,15 +18,15 @@ export const metadata: Metadata = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ seat?: string | string[] }>;
+  searchParams: Promise<{ seat?: string | string[]; bot?: string | string[] }>;
 }) {
-  const { seat } = await searchParams;
+  const { seat, bot } = await searchParams;
 
   return (
     <main
       className={`flex min-h-0 flex-1 ${spectral.variable} ${archivo.variable} ${archivoNarrow.variable}`}
     >
-      <PortRoyal names={rosterFromQuery(seat)} />
+      <PortRoyal seats={rosterFromQuery(seat, bot)} />
     </main>
   );
 }
