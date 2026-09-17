@@ -1,5 +1,3 @@
-// components/port-royal-land/PortRoyalLand.tsx
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -85,7 +83,7 @@ export default function PortRoyalLand() {
 
   function setSail() {
     const roster = normaliseRoster(names.slice(0, seats));
-    router.push(`/port-royal-land/local?${rosterQuery(roster)}`);
+    router.push(`/port-royal/local?${rosterQuery(roster)}`);
   }
 
   return (

@@ -13,11 +13,7 @@ const FEEDBACK_ROUTE = '/feedback';
 
 // Routes that own the bottom edge of the screen themselves. The XP index page
 // pins a full-width taskbar there, and the credit would land on top of it.
-const HIDDEN_ON: string[] = [
-  '/index-page',
-  '/port-royal',
-  '/port-royal-land/local',
-];
+const HIDDEN_ON: string[] = ['/index-page', '/port-royal', '/port-royal/local'];
 
 /**
  * The "Website by Antti Asmala" credit, rendered once in the root layout so every page

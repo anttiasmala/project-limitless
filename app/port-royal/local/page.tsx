@@ -1,5 +1,3 @@
-// app/port-royal-land/local/page.tsx
-
 /**
  * The hotseat board, opened with the roster the landing page chose.
  *
