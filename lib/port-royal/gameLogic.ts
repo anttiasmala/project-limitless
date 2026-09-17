@@ -22,6 +22,7 @@ import {
   PERSON_PROFILES,
   PersonCard,
   Player,
+  Seat,
   SHIPS,
   ShipCard,
   SlotFill,
@@ -131,10 +132,11 @@ export function buildDeck(shuffle = true): DeckCard[] {
   return shuffle ? shuffled(d) : d;
 }
 
-export function freshState(names: string[], shuffle = true): GameState {
+export function freshState(seats: Seat[], shuffle = true): GameState {
   const rest = buildDeck(shuffle);
-  const players: Player[] = names.map((name) => ({
+  const players: Player[] = seats.map(({ name, kind }) => ({
     name,
+    kind,
     // Three cards off the top of deck pile, held face-down as coins.
     hand: rest.splice(0, 3),
     tableau: [],
@@ -381,6 +383,16 @@ const seatIndexOf = (s: GameState) =>
   s.phase === 'others' && s.taker !== null ? s.taker : s.active;
 
 export const seatOf = (s: GameState) => s.players[seatIndexOf(s)];
+
+/**
+ * The table as it was chosen in the landing page. A re-deal rebuilds the players from
+ * this, so a restart keeps both the names and which seats the computer holds.
+ */
+export const seatsOf = (s: GameState): Seat[] =>
+  s.players.map(({ name, kind }) => ({ name, kind }));
+
+/** Whether the player given as an argument is a Bot or not*/
+export const isBot = (p: Player) => p.kind === 'ai';
 
 /**
  * A player may claim expeditions any time during their turn, and as many as
@@ -1087,12 +1099,12 @@ export function reducer(s: GameState, action: Action): GameState {
     // Swaps the deterministic opening deck for a shuffled one once the board is
     // on the client. The handover curtain is up, so nothing visible changes.
     case 'SHUFFLE':
-      return freshState(s.players.map((p) => p.name));
+      return freshState(seatsOf(s));
 
     // Keeps the table that was chosen on the landing page — a restart re-deals,
     // it does not send everyone back to the default roster.
     case 'RESTART':
-      return freshState(s.players.map((p) => p.name));
+      return freshState(seatsOf(s));
 
     default:
       return s;
