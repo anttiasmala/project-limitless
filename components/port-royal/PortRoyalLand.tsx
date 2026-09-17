@@ -35,16 +35,14 @@ const MODES: Mode[] = [
   {
     id: 'hotseat',
     title: 'Hotseat',
-    description:
-      'Two to five captains around one device, passed on behind a curtain so nobody sees another hand.',
+    description: 'Two to five players around one device.',
     colorIdx: 0,
     ready: true,
   },
   {
     id: 'ai',
-    title: 'Versus the Crown',
-    description:
-      'Take the harbour on alone, against captains (AI) the crown appoints. Not yet chartered.',
+    title: 'Versus the AI',
+    description: 'Take the game against computer (AI). Not implemented yet.',
     colorIdx: 3,
     ready: false,
   },
@@ -52,7 +50,7 @@ const MODES: Mode[] = [
     id: 'online',
     title: 'Multiplayer',
     description:
-      'Separate devices, one harbour, joined by a room code. Not yet chartered.',
+      'Multiplayer. Play against other players online. Not implemented yet.',
     colorIdx: 1,
     ready: false,
   },
