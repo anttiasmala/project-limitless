@@ -1,7 +1,7 @@
 // app/port-royal-land/page.tsx
 
 import type { Metadata } from 'next';
-import { archivo, archivoNarrow, spectral } from '@/app/port-royal-land/fonts';
+import { archivo, archivoNarrow, spectral } from '@/app/port-royal/fonts';
 import PortRoyalLand from '@/components/port-royal-land/PortRoyalLand';
 
 export const metadata: Metadata = {
