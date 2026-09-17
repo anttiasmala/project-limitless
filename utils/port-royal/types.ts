@@ -23,8 +23,18 @@ export const DEFAULT_NAMES = ['Anne', 'Bart', 'Coen', 'Dirk', 'Elsa'];
 /** The roster the board falls back to when nobody has chosen one. */
 export const PLAYER_NAMES = DEFAULT_NAMES.slice(0, 3);
 
-/** How the seats are filled. Only `hotseat` is playable so far. */
-export type GameMode = 'hotseat' | 'ai' | 'online';
+/** Current gamemodes. Only `hotseat` is playable right now. */
+export type GameMode = 'hotseat' | 'online';
+
+/**
+ * A human or computer seat. Playing against the computer is not a mode of its
+ * own: it is a table where some of the chairs are `ai`, which is why any mix
+ * of the two. E.g. one human against four bots, or four humans and one bot, etc
+ */
+export type SeatKind = 'human' | 'ai';
+
+/** One chair at the table, as the landing page chose it. */
+export type Seat = { name: string; kind: SeatKind };
 
 /** A second ship of a type in the harbour ends discovery — so type IS identity. */
 export type ShipColour = {
@@ -377,6 +387,8 @@ export type Coin = DeckCard;
 
 export type Player = {
   name: string;
+  /** Whether the board waits for a real-player here, or the bot plays its turn. */
+  kind: SeatKind;
   hand: Coin[];
   tableau: TableauCard[];
 };
