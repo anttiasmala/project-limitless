@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import PortRoyal from '@/components/port-royal/PortRoyal';
-import { archivo, archivoNarrow, spectral } from './fonts';
+import { archivo, archivoNarrow, spectral } from '../port-royal-land/fonts';
 
 export const metadata: Metadata = {
   title: 'Port Royal',

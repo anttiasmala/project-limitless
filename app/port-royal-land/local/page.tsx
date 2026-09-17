@@ -8,7 +8,7 @@
  */
 
 import type { Metadata } from 'next';
-import { archivo, archivoNarrow, spectral } from '@/app/port-royal/fonts';
+import { archivo, archivoNarrow, spectral } from '@/app/port-royal-land/fonts';
 import PortRoyal from '@/components/port-royal/PortRoyal';
 import { rosterFromQuery } from '@/lib/port-royal/roster';
 
