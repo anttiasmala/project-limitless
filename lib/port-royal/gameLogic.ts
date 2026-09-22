@@ -391,7 +391,7 @@ export const seatOf = (s: GameState) => s.players[seatIndexOf(s)];
 export const seatsOf = (s: GameState): Seat[] =>
   s.players.map(({ name, kind }) => ({ name, kind }));
 
-/** Whether the player given as an argument is a Bot or not*/
+/** Whether the Player given as an argument is a Bot or not*/
 export const isBot = (p: Player) => p.kind === 'ai';
 
 /**
