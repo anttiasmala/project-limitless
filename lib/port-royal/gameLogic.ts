@@ -380,7 +380,7 @@ export const takesFor = (harbour: HarbourCard[], s: GameState) => {
 };
 
 /** Whoever the board is currently showing — the buyer during the others phase. */
-const seatIndexOf = (s: GameState) =>
+export const seatIndexOf = (s: GameState) =>
   s.phase === 'others' && s.taker !== null ? s.taker : s.active;
 
 export const seatOf = (s: GameState) => s.players[seatIndexOf(s)];
