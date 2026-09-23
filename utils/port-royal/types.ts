@@ -33,8 +33,21 @@ export type GameMode = 'hotseat' | 'online';
  */
 export type SeatKind = 'human' | 'ai';
 
+/** How well a computer seat plays. A human seat carries the difficulty, but ignores it. */
+export type Difficulty = 'easy' | 'normal' | 'hard';
+
+/** Every difficulty level the landing page offers, in the order it shows them. */
+export const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard'];
+
+/** The level a seat starts on, and the one an unreadable URL falls back to. */
+export const DEFAULT_DIFFICULTY: Difficulty = 'normal';
+
 /** One chair at the table, as the landing page chose it. */
-export type Seat = { name: string; kind: SeatKind };
+export type Seat = {
+  name: string;
+  kind: SeatKind;
+  difficulty: Difficulty;
+};
 
 /** A second ship of a type in the harbour ends discovery — so type IS identity. */
 export type ShipColour = {
@@ -389,6 +402,8 @@ export type Player = {
   name: string;
   /** Whether the board waits for a real-player here, or the bot plays its turn. */
   kind: SeatKind;
+  /** How sharply the bot plays this seat */
+  difficulty: Difficulty;
   hand: Coin[];
   tableau: TableauCard[];
 };
