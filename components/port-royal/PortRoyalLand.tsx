@@ -16,7 +16,10 @@ import {
   rosterQuery,
 } from '@/lib/port-royal/roster';
 import {
+  DEFAULT_DIFFICULTY,
   DEFAULT_NAMES,
+  DIFFICULTIES,
+  Difficulty,
   GameMode,
   MAX_PLAYERS,
   SeatKind,
@@ -56,6 +59,12 @@ const KIND_LABEL: Record<SeatKind, string> = {
   ai: 'Computer',
 };
 
+const DIFFICULTY_LABEL: Record<Difficulty, string> = {
+  easy: 'Easy',
+  normal: 'Normal',
+  hard: 'Hard',
+};
+
 /** Small caps label, as used on the board's panels. */
 function Label({ children }: { children: React.ReactNode }) {
   return (
@@ -80,13 +89,20 @@ export default function PortRoyalLand() {
   const [kinds, setKinds] = useState<SeatKind[]>(() =>
     Array<SeatKind>(MAX_PLAYERS).fill('human'),
   );
+  // Kept for every seat, human ones included, for the same reason: a chair that
+  // goes back to human and later to computer again remembers its level.
+  const [difficulties, setDifficulties] = useState<Difficulty[]>(() =>
+    Array<Difficulty>(MAX_PLAYERS).fill(DEFAULT_DIFFICULTY),
+  );
 
   const chosen = MODES.find((m) => m.id === mode)!;
 
   // A real-player has to play. `normaliseRoster` forces this too.
   const allComputers = kinds.slice(0, seats).every((k) => k === 'ai');
 
-  function sailWith(table: { name: string; kind: SeatKind }[]) {
+  function sailWith(
+    table: { name: string; kind: SeatKind; difficulty: Difficulty }[],
+  ) {
     router.push(`/port-royal/local?${rosterQuery(normaliseRoster(table))}`);
   }
 
@@ -95,20 +111,22 @@ export default function PortRoyalLand() {
       Array.from({ length: seats }, (_, i) => ({
         name: names[i],
         kind: kinds[i],
+        difficulty: difficulties[i],
       })),
     );
   }
 
   /**
-   * "Play vs the computer". This starts a game immediately with 1 human and 1 bot (AI)
+   * "Play vs the computer". This starts a game immediately with 1 human and 1 bot (AI).
+   * The bot plays at whatever level seat 2 is set to, so the quick button and the
+   * seat cards never disagree.
    */
   function playComputer() {
     sailWith([
-      { name: names[0], kind: 'human' },
-      { name: names[1], kind: 'ai' },
+      { name: names[0], kind: 'human', difficulty: difficulties[0] },
+      { name: names[1], kind: 'ai', difficulty: difficulties[1] },
     ]);
   }
-
   return (
     <div
       className="bg-portRoyal-ground font-archivo text-portRoyal-ink relative flex min-h-0 w-full flex-col overflow-hidden"
@@ -264,6 +282,40 @@ export default function PortRoyalLand() {
                           </button>
                         ))}
                       </div>
+
+                      {/* How hard this computer plays. Only a computer seat has
+                          one, so the row appears when "Computer" is chosen. It
+                          is drawn lighter and shorter than the row above, so the
+                          eye reads it as a setting of that choice. */}
+                      {kinds[i] === 'ai' && (
+                        <div
+                          role="group"
+                          aria-label={`How well the computer plays seat ${i + 1}`}
+                          className="mt-0.5 flex gap-1.5"
+                        >
+                          {DIFFICULTIES.map((d) => (
+                            <button
+                              key={d}
+                              type="button"
+                              aria-pressed={difficulties[i] === d}
+                              onClick={() =>
+                                setDifficulties((prev) =>
+                                  prev.map((_difficulty, _index) =>
+                                    _index === i ? d : _difficulty,
+                                  ),
+                                )
+                              }
+                              className={`min-h-10 flex-1 cursor-pointer border px-1 text-[10px] font-semibold tracking-[0.16em] uppercase transition-colors ${
+                                difficulties[i] === d
+                                  ? 'border-portRoyal-wood bg-portRoyal-wood/20 text-portRoyal-ink'
+                                  : 'border-portRoyal-wood/30 bg-portRoyal-card/60 text-portRoyal-slate hover:border-portRoyal-wood'
+                              }`}
+                            >
+                              {DIFFICULTY_LABEL[d]}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
