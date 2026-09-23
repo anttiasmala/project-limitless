@@ -437,6 +437,13 @@ export type ScheduledKind = 'TO_OTHERS' | 'NEXT_TAKER' | 'END_TURN';
 
 export type Scheduled = { kind: ScheduledKind; delay: number };
 
+/**
+ * - `target`: a player reached TARGET_VP at the end of a turn.
+ * - `deckDry`: a flip found no cards in the draw pile or the discard pile.
+ *   Every card is in a hand or a tableau, so the game cannot go on.
+ */
+export type EndReason = 'target' | 'deckDry';
+
 export type GameState = {
   players: Player[];
   deck: DeckCard[];
@@ -464,7 +471,13 @@ export type GameState = {
   detail: Card | null;
   toast: Toast | null;
   settings: boolean;
-  winner: number | null;
+  /**
+   * The seats that won, filled in when the game ends. More than one seat means
+   * a shared victory: the same points and the same number of coins.
+   */
+  winners: number[];
+  /** Why the game ended. Null while the game is still being played. */
+  endReason: EndReason | null;
   /** Spends the Jester's one-off reprieve, so it can't absorb two duplicates. */
   flipsBeyond: number;
   scheduled: Scheduled | null;
