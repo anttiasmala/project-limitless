@@ -91,7 +91,7 @@ export default function EndOverlay({
             onClick={onRestart}
             className="text-portRoyal-teal border-portRoyal-teal min-h-12 cursor-pointer border bg-transparent px-7.5 py-3.75 text-[13px] font-semibold tracking-[0.14em] uppercase"
           >
-            New setup
+            New game
           </button>
         </div>
       </div>
