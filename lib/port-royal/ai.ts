@@ -34,6 +34,7 @@ import {
   expeditionFill,
   extraCoinsFor,
   governorsOf,
+  nothingToDraw,
   priceOf,
   seatIndexOf,
   seatOf,
@@ -472,8 +473,9 @@ function discover(s: GameState): Action {
 
   if (!s.harbour.length) return FLIP;
 
-  // There is nothing left to draw, so flipping would do nothing at all.
-  if (!s.deck.length && !s.discardPile.length) return STOP;
+  // There is nothing left to draw, so flipping would end the game. Trade the
+  // harbour first; the next player's flip ends the game.
+  if (nothingToDraw(s)) return STOP;
   if (s.harbour.length >= MAX_HARBOUR) return STOP;
 
   const p = s.players[s.active];
