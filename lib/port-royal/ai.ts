@@ -19,6 +19,11 @@
  * The bot only uses information a human player at the table could also have:
  * which cards have not been seen yet. It never looks at the order of the draw
  * pile, and never at another player's hand.
+ *
+ * **Difficulty**: "hard" is the full strategy above. "normal" and "easy" use
+ * the same calculation, but make the mistakes a human player makes: they
+ * misjudge card values, care too little about abilities, flip too long or stop
+ * too early, and sometimes do not notice an expedition they could claim.
  */
 
 import {
@@ -30,6 +35,7 @@ import {
   extraCoinsFor,
   governorsOf,
   priceOf,
+  seatIndexOf,
   seatOf,
   swordsOf,
   takesFor,
@@ -39,6 +45,8 @@ import {
 import {
   Action,
   ADMIRAL,
+  DeckCard,
+  Difficulty,
   ExpeditionSymbol,
   GameState,
   GOVERNOR,
@@ -69,6 +77,80 @@ const BEAT: Partial<Record<Phase, number>> = {
 };
 
 const DEFAULT_BEAT = 800;
+
+/* ------------------------------------------------------------------ difficulty */
+
+/** The mistakes a difficulty level makes. "hard" makes none of them. */
+type Profile = {
+  /**
+   * How many coins a card's value can be wrong, up or down. The bot then
+   * buys the card it *thinks* is best, which is not always the best one.
+   */
+  misjudge: number;
+  /**
+   * How much of an ability's real value the bot sees (swords, extra coins,
+   * special characters, expedition symbols). Points are always seen in full:
+   * a new player understands points, but not what a Mademoiselle is worth.
+   */
+  abilitySense: number;
+  /**
+   * How wrong the push-your-luck guess can be, as a range for the multiplier on
+   * the harbour the bot already has. Below 1 the bot is greedy and flips on,
+   * above 1 it is careful and stops too early.
+   */
+  nerve: [low: number, high: number];
+  /** The chance that the bot notices an expedition it can claim. */
+  notice: number;
+};
+
+const PROFILES: Record<Difficulty, Profile> = {
+  // For a first game: it buys almost at random, rarely claims an expedition,
+  // and often busts or stops far too early.
+  veryEasy: { misjudge: 4, abilitySense: 0.1, nerve: [0.4, 1.6], notice: 0.1 },
+  easy: { misjudge: 2, abilitySense: 0.4, nerve: [0.6, 1.3], notice: 0.35 },
+  normal: { misjudge: 0.7, abilitySense: 0.8, nerve: [0.85, 1.1], notice: 0.8 },
+  hard: { misjudge: 0, abilitySense: 1, nerve: [1, 1], notice: 1 },
+};
+
+const profileOf = (p: Player) => PROFILES[p.difficulty];
+
+/**
+ * A number between 0 and 1 that looks random, but is always the same for the
+ * same moment of the game.
+ *
+ * `Math.random` would not work here: the board asks the bot for its move again
+ * after every change of the state, also when only a toast closes. Taking a card
+ * is two steps (PICK, then TAKE), so with real random numbers the bot could
+ * pick one card and then want another one, again and again. The moment is
+ * described by the seat and the sizes of the piles, which do not change
+ * between the two steps, but do change after every flip and every take.
+ */
+function roll(s: GameState, ...keys: number[]): number {
+  const moment = [
+    seatIndexOf(s),
+    s.active,
+    s.deck.length,
+    s.discardPile.length,
+    s.harbour.length,
+    ...s.players.map((p) => p.tableau.length),
+    ...keys,
+  ];
+
+  // A small integer hash (like MurmurHash3's final mixing steps).
+  let h = 0x9e3779b9;
+  for (const k of moment) {
+    h = Math.imul(h ^ k, 0x85ebca6b);
+    h ^= h >>> 13;
+  }
+  h = Math.imul(h ^ (h >>> 16), 0xc2b2ae35);
+  h ^= h >>> 16;
+  return (h >>> 0) / 2 ** 32;
+}
+
+/** Different decisions use different keys, so their rolls do not repeat each other. */
+const MISJUDGE_KEY = 1;
+const NERVE_KEY = 2;
+const NOTICE_KEY = 3;
 
 export type BotTurn = { action: Action; delay: number };
 
@@ -224,28 +306,32 @@ function personWorth(s: GameState, p: Player, card: PersonCard): number {
   // value near the end of the game. Points do not.
   const early = 1 - progress(s);
 
-  let worth = card.vp * vpWorth(s);
+  let points = card.vp * vpWorth(s);
 
-  if (vpOf(p) + card.vp >= TARGET_VP) worth += 100;
+  if (vpOf(p) + card.vp >= TARGET_VP) points += 100;
+
+  let ability = 0;
 
   for (let i = 0; i < card.swords; i++) {
-    worth += swordWorth(swordsOf(p) + i) * (0.4 + 0.6 * early);
+    ability += swordWorth(swordsOf(p) + i) * (0.4 + 0.6 * early);
   }
 
   const traded = card.abilities.filter((a) =>
     a.startsWith('extraCoin_'),
   ).length;
-  worth += traded * 2.2 * early;
+  ability += traded * 2.2 * early;
 
-  if (card.name === GOVERNOR) worth += 9 * early;
-  if (card.name === MADEMOISELLE) worth += 3.5 * early;
-  if (card.name === ADMIRAL) worth += 2.5 * early;
-  if (card.name === JESTER) worth += 1.2 * early;
+  if (card.name === GOVERNOR) ability += 9 * early;
+  if (card.name === MADEMOISELLE) ability += 3.5 * early;
+  if (card.name === ADMIRAL) ability += 2.5 * early;
+  if (card.name === JESTER) ability += 1.2 * early;
 
   // A Governor on the table gives a coin for every hire, also for this card.
-  if (card.name === GOVERNOR || governorsOf(p)) worth += 1;
+  if (card.name === GOVERNOR || governorsOf(p)) ability += 1;
 
-  return worth + symbolWorth(s, p, card);
+  ability += symbolWorth(s, p, card);
+
+  return points + ability * profileOf(p).abilitySense;
 }
 
 /**
@@ -270,10 +356,26 @@ function takeWorth(s: GameState, p: Player, card: HarbourCard): number | null {
   return personWorth(s, p, card) - coinsSpent(hand, cost) - fee * FEE_PENALTY;
 }
 
+/**
+ * The value the buyer *thinks* the card has: the real value, plus or minus a
+ * mistake of up to `misjudge` coins. A "hard" bot sees the real value.
+ */
+function judgedWorth(
+  s: GameState,
+  p: Player,
+  card: HarbourCard,
+): number | null {
+  const worth = takeWorth(s, p, card);
+  const { misjudge } = profileOf(p);
+  if (worth === null || !misjudge) return worth;
+
+  return worth + (roll(s, MISJUDGE_KEY, card.id) * 2 - 1) * misjudge;
+}
+
 /** The harbour cards, best first, with the value this buyer gives them. */
 function ranked(s: GameState, p: Player) {
   return s.harbour
-    .map((card) => ({ card, worth: takeWorth(s, p, card) }))
+    .map((card) => ({ card, worth: judgedWorth(s, p, card) }))
     .filter((o): o is { card: HarbourCard; worth: number } => o.worth !== null)
     .sort((a, b) => b.worth - a.worth);
 }
@@ -285,6 +387,11 @@ function claim(s: GameState): Action | null {
   if (!claimingIn(s.phase)) return null;
 
   const p = seatOf(s);
+
+  // A weaker bot sometimes does not see the claim. The roll changes after
+  // every flip and take, so it gets a new chance to see it later.
+  if (roll(s, NOTICE_KEY) >= profileOf(p).notice) return null;
+
   let best: { id: number; gain: number } | null = null;
 
   for (const e of s.expeditions) {
@@ -389,32 +496,43 @@ function discover(s: GameState): Action {
       ? coinsSpent(p.hand.length, Math.floor(p.hand.length / 2))
       : 0);
 
-  const unseen = [
-    ...s.deck,
-    ...s.discardPile,
-    ...s.players.flatMap((x) => x.hand),
-  ];
+  // When the draw pile is empty, the next card comes from the discard pile
+  // after it is shuffled, so only those cards can come up. Everybody can see
+  // that the draw pile is empty.
+  const unseen = s.deck.length
+    ? [...s.deck, ...s.discardPile, ...s.players.flatMap((x) => x.hand)]
+    : s.discardPile;
 
-  let pushed = 0;
-  for (const card of unseen) {
+  const outcome = (card: DeckCard): number => {
     switch (card.kind) {
       case 'ship':
-        pushed += !clashes(s, card)
+        return !clashes(s, card)
           ? haul([...s.harbour, card], [...berthed, worthOf(card)])
           : swords >= card.swords
             ? kept // repelled: the flip is used up, but the haul stays the same
             : 0; // bust
-        break;
       case 'person':
-        pushed += haul([...s.harbour, card], [...berthed, worthOf(card)]);
-        break;
+        return haul([...s.harbour, card], [...berthed, worthOf(card)]);
       case 'tax':
-        pushed += taxed;
-        break;
+        return taxed;
       default:
-        pushed += kept; // an expedition is put on the table, the haul stays the same
+        return kept; // an expedition is put on the table, the haul stays the same
     }
-  }
+  };
 
-  return pushed / unseen.length > kept ? FLIP : STOP;
+  const outcomes = unseen.map(outcome);
+
+  // No card can make the harbour better, so there is nothing to win. Without
+  // this a greedy bot could repel the same ship forever: when the discard pile
+  // is only that ship, it is shuffled back and flipped again.
+  if (!outcomes.some((o) => o > kept)) return STOP;
+
+  const pushed = outcomes.reduce((a, o) => a + o, 0);
+
+  // A weaker bot guesses the risk wrong: its nerve moves the line where it
+  // stops. For a "hard" bot the nerve is always exactly 1.
+  const [low, high] = profileOf(p).nerve;
+  const nerve = low + roll(s, NERVE_KEY) * (high - low);
+
+  return pushed / unseen.length > kept * nerve ? FLIP : STOP;
 }
