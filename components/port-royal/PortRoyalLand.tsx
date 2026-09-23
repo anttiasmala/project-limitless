@@ -60,6 +60,7 @@ const KIND_LABEL: Record<SeatKind, string> = {
 };
 
 const DIFFICULTY_LABEL: Record<Difficulty, string> = {
+  veryEasy: 'Very easy',
   easy: 'Easy',
   normal: 'Normal',
   hard: 'Hard',
