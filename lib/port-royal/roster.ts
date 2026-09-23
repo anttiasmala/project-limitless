@@ -9,7 +9,10 @@
  */
 
 import {
+  DEFAULT_DIFFICULTY,
   DEFAULT_NAMES,
+  DIFFICULTIES,
+  Difficulty,
   MAX_PLAYERS,
   MIN_PLAYERS,
   PLAYER_NAMES,
@@ -32,7 +35,13 @@ export const SEAT_OPTIONS = Array.from(
 export const DEFAULT_ROSTER: Seat[] = PLAYER_NAMES.map((name) => ({
   name,
   kind: 'human',
+  difficulty: DEFAULT_DIFFICULTY,
 }));
+
+/** Returns a difficulty level if it is in DIFFICULTIES, otherwise anything than a difficulty level returns "normal". */
+function asDifficulty(raw: string | undefined): Difficulty {
+  return DIFFICULTIES.find((d) => d === raw) ?? DEFAULT_DIFFICULTY;
+}
 
 /**
  * A table with no blank names, no duplicates, and at least one human in it.
@@ -56,7 +65,11 @@ export function normaliseRoster(raw: readonly Partial<Seat>[]): Seat[] {
     for (let n = 2; taken.has(name); n++) name = `${base} ${n}`;
     taken.add(name);
 
-    return { name, kind: raw[i]?.kind === 'ai' ? 'ai' : 'human' };
+    return {
+      name,
+      kind: raw[i]?.kind === 'ai' ? 'ai' : 'human',
+      difficulty: asDifficulty(raw[i]?.difficulty),
+    };
   });
 
   // a real-player has to be playing: an all-computer table has nobody to hand the
@@ -70,15 +83,17 @@ export function normaliseRoster(raw: readonly Partial<Seat>[]): Seat[] {
 /**
  * Packs a table into the query string the board route reads back.
  *
- * The computer seats are marked as &bot=1 rather than as a marker inside the
- * name like (AI)Bart, because names are free text.
+ * The computer seats are marked as &bot=1:normal rather than as a marker inside
+ * the name like (AI)Bart, because names are free text. The level rides along in
+ * the same parameter so a seat and its difficulty can never drift apart.
+ * Older `&bot=1` with no difficulty level, it fallbacks as "normal".
  */
 export function rosterQuery(seats: readonly Seat[]): string {
   const params = new URLSearchParams();
 
   seats.forEach((s) => params.append('seat', s.name));
   seats.forEach((s, i) => {
-    if (s.kind === 'ai') params.append('bot', String(i));
+    if (s.kind === 'ai') params.append('bot', `${i}:${s.difficulty}`);
   });
 
   return params.toString();
@@ -94,16 +109,19 @@ export function rosterFromQuery(
   seat: string | string[] | undefined,
   bot: string | string[] | undefined,
 ): Seat[] {
-  const bots = new Set(
-    asArray(bot)
-      .map(Number)
-      .filter((n) => Number.isInteger(n)),
-  );
+  // Each entry looks like "1:hard", or just "1" on a hand-written URL.
+  const bots = new Map<number, Difficulty>();
+  asArray(bot).forEach((entry) => {
+    const [index, level] = entry.split(':');
+    const i = Number(index);
+    if (Number.isInteger(i)) bots.set(i, asDifficulty(level));
+  });
 
   return normaliseRoster(
     asArray(seat).map((name, i) => ({
       name,
       kind: bots.has(i) ? ('ai' as const) : ('human' as const),
+      difficulty: bots.get(i) ?? DEFAULT_DIFFICULTY,
     })),
   );
 }
