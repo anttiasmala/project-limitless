@@ -134,9 +134,10 @@ export function buildDeck(shuffle = true): DeckCard[] {
 
 export function freshState(seats: Seat[], shuffle = true): GameState {
   const rest = buildDeck(shuffle);
-  const players: Player[] = seats.map(({ name, kind }) => ({
+  const players: Player[] = seats.map(({ name, kind, difficulty }) => ({
     name,
     kind,
+    difficulty,
     // Three cards off the top of deck pile, held face-down as coins.
     hand: rest.splice(0, 3),
     tableau: [],
@@ -386,10 +387,11 @@ export const seatOf = (s: GameState) => s.players[seatIndexOf(s)];
 
 /**
  * The table as it was chosen in the landing page. A re-deal rebuilds the players from
- * this, so a restart keeps both the names and which seats the computer holds.
+ * this, so a restart keeps the names, which seats the computer holds, and how
+ * hard those computers play.
  */
 export const seatsOf = (s: GameState): Seat[] =>
-  s.players.map(({ name, kind }) => ({ name, kind }));
+  s.players.map(({ name, kind, difficulty }) => ({ name, kind, difficulty }));
 
 /** Whether the Player given as an argument is a Bot or not*/
 export const isBot = (p: Player) => p.kind === 'ai';
