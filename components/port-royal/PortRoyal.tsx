@@ -255,10 +255,11 @@ export default function PortRoyal({
         />
       )}
 
-      {state.phase === 'end' && state.winner !== null && (
+      {state.phase === 'end' && state.endReason && (
         <EndOverlay
           players={state.players}
-          winner={state.winner}
+          winners={state.winners}
+          endReason={state.endReason}
           onRestart={() => dispatch({ type: 'RESTART' })}
         />
       )}
