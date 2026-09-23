@@ -34,10 +34,10 @@ export type GameMode = 'hotseat' | 'online';
 export type SeatKind = 'human' | 'ai';
 
 /** How well a computer seat plays. A human seat carries the difficulty, but ignores it. */
-export type Difficulty = 'easy' | 'normal' | 'hard';
+export type Difficulty = 'veryEasy' | 'easy' | 'normal' | 'hard';
 
 /** Every difficulty level the landing page offers, in the order it shows them. */
-export const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'hard'];
+export const DIFFICULTIES: Difficulty[] = ['veryEasy', 'easy', 'normal', 'hard'];
 
 /** The level a seat starts on, and the one an unreadable URL falls back to. */
 export const DEFAULT_DIFFICULTY: Difficulty = 'normal';
