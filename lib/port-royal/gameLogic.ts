@@ -8,6 +8,7 @@ import {
   Coin,
   DEFAULT_PERSON_PROFILE,
   DeckCard,
+  EndReason,
   describeRequirement,
   ExpeditionCard,
   ExpeditionItem,
@@ -22,6 +23,7 @@ import {
   PERSON_PROFILES,
   PersonCard,
   Player,
+  Seat,
   SHIPS,
   ShipCard,
   SlotFill,
@@ -131,10 +133,12 @@ export function buildDeck(shuffle = true): DeckCard[] {
   return shuffle ? shuffled(d) : d;
 }
 
-export function freshState(names: string[], shuffle = true): GameState {
+export function freshState(seats: Seat[], shuffle = true): GameState {
   const rest = buildDeck(shuffle);
-  const players: Player[] = names.map((name) => ({
+  const players: Player[] = seats.map(({ name, kind, difficulty }) => ({
     name,
+    kind,
+    difficulty,
     // Three cards off the top of deck pile, held face-down as coins.
     hand: rest.splice(0, 3),
     tableau: [],
@@ -174,7 +178,8 @@ export function freshState(names: string[], shuffle = true): GameState {
     detail: null,
     toast: null,
     settings: false,
-    winner: null,
+    winners: [],
+    endReason: null,
     flipsBeyond: 0,
     scheduled: null,
   };
@@ -377,10 +382,21 @@ export const takesFor = (harbour: HarbourCard[], s: GameState) => {
 };
 
 /** Whoever the board is currently showing — the buyer during the others phase. */
-const seatIndexOf = (s: GameState) =>
+export const seatIndexOf = (s: GameState) =>
   s.phase === 'others' && s.taker !== null ? s.taker : s.active;
 
 export const seatOf = (s: GameState) => s.players[seatIndexOf(s)];
+
+/**
+ * The table as it was chosen in the landing page. A re-deal rebuilds the players from
+ * this, so a restart keeps the names, which seats the computer holds, and how
+ * hard those computers play.
+ */
+export const seatsOf = (s: GameState): Seat[] =>
+  s.players.map(({ name, kind, difficulty }) => ({ name, kind, difficulty }));
+
+/** Whether the Player given as an argument is a Bot or not*/
+export const isBot = (p: Player) => p.kind === 'ai';
 
 /**
  * A player may claim expeditions any time during their turn, and as many as
@@ -568,22 +584,44 @@ function payJesters(
   };
 }
 
+/**
+ * The seats that win when the game ends: the most victory points, and when
+ * points are tied, the most coins (the tie-break of the printed rules). When
+ * coins are tied too, all of those seats share the victory.
+ */
+export function winnersOf(players: Player[]): number[] {
+  const topVp = Math.max(...players.map(vpOf));
+  const byVp = players
+    .map((p, i) => ({ i, coins: p.hand.length, vp: vpOf(p) }))
+    .filter((x) => x.vp === topVp);
+
+  const topCoins = Math.max(...byVp.map((x) => x.coins));
+  return byVp.filter((x) => x.coins === topCoins).map((x) => x.i);
+}
+
+/** Whether the next flip has no card to take, not even after a reshuffle. */
+export const nothingToDraw = (s: GameState) =>
+  !s.deck.length && !s.discardPile.length;
+
+function endGame(s: GameState, endReason: EndReason): GameState {
+  return {
+    ...s,
+    phase: 'end',
+    winners: winnersOf(s.players),
+    endReason,
+    // Whatever nobody bought is swept off the harbour into discardPile.
+    harbour: [],
+    discardPile: s.discardPile.concat(s.harbour),
+    scheduled: null,
+  };
+}
+
 /** Ends the turn, or the game if anyone has reached the target. */
 function endTurn(s: GameState): GameState {
-  const winner = s.players.findIndex((p) => vpOf(p) >= TARGET_VP);
+  if (s.players.some((p) => vpOf(p) >= TARGET_VP)) return endGame(s, 'target');
+
   // Whatever nobody bought is swept off the harbour into discardPile.
   const discardPile = s.discardPile.concat(s.harbour);
-
-  if (winner >= 0) {
-    return {
-      ...s,
-      phase: 'end',
-      winner,
-      harbour: [],
-      discardPile,
-      scheduled: null,
-    };
-  }
 
   return {
     ...s,
@@ -604,14 +642,10 @@ function flip(s: GameState): GameState {
   let note: GameState['toast'] = s.toast;
 
   if (!deck.length) {
-    // CHECK THIS
-    // Every card still in play is in a hand or a tableau. So there is nothing
-    // left to flip, so discovery just stalls rather than crashing on an
-    // empty deck. Later probably add "draw" game or something. Right now it just stops
-
-    // Tested this and I got stuck with one Skiff-ship left and it gave 0 coins, because draw deck and discardPile were empty
-    // Probably a draw game is a good solution at this point. Or either just leave as it is currently
-    if (!discardPile.length) return s;
+    // Every card still in play is in a hand or a tableau, so nothing can be
+    // flipped ever again. The game ends here, and the best table wins (see
+    // `winnersOf`). The action bar warns the player before this flip.
+    if (!discardPile.length) return endGame(s, 'deckDry');
 
     deck = shuffled(discardPile);
     discardPile = [];
@@ -1087,12 +1121,12 @@ export function reducer(s: GameState, action: Action): GameState {
     // Swaps the deterministic opening deck for a shuffled one once the board is
     // on the client. The handover curtain is up, so nothing visible changes.
     case 'SHUFFLE':
-      return freshState(s.players.map((p) => p.name));
+      return freshState(seatsOf(s));
 
     // Keeps the table that was chosen on the landing page — a restart re-deals,
     // it does not send everyone back to the default roster.
     case 'RESTART':
-      return freshState(s.players.map((p) => p.name));
+      return freshState(seatsOf(s));
 
     default:
       return s;

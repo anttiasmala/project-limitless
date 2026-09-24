@@ -23,8 +23,31 @@ export const DEFAULT_NAMES = ['Anne', 'Bart', 'Coen', 'Dirk', 'Elsa'];
 /** The roster the board falls back to when nobody has chosen one. */
 export const PLAYER_NAMES = DEFAULT_NAMES.slice(0, 3);
 
-/** How the seats are filled. Only `hotseat` is playable so far. */
-export type GameMode = 'hotseat' | 'ai' | 'online';
+/** Current gamemodes. Only `hotseat` is playable right now. */
+export type GameMode = 'hotseat' | 'online';
+
+/**
+ * A human or computer seat. Playing against the computer is not a mode of its
+ * own: it is a table where some of the chairs are `ai`, which is why any mix
+ * of the two. E.g. one human against four bots, or four humans and one bot, etc
+ */
+export type SeatKind = 'human' | 'ai';
+
+/** How well a computer seat plays. A human seat carries the difficulty, but ignores it. */
+export type Difficulty = 'veryEasy' | 'easy' | 'normal' | 'hard';
+
+/** Every difficulty level the landing page offers, in the order it shows them. */
+export const DIFFICULTIES: Difficulty[] = ['veryEasy', 'easy', 'normal', 'hard'];
+
+/** The level a seat starts on, and the one an unreadable URL falls back to. */
+export const DEFAULT_DIFFICULTY: Difficulty = 'normal';
+
+/** One chair at the table, as the landing page chose it. */
+export type Seat = {
+  name: string;
+  kind: SeatKind;
+  difficulty: Difficulty;
+};
 
 /** A second ship of a type in the harbour ends discovery — so type IS identity. */
 export type ShipColour = {
@@ -377,6 +400,10 @@ export type Coin = DeckCard;
 
 export type Player = {
   name: string;
+  /** Whether the board waits for a real-player here, or the bot plays its turn. */
+  kind: SeatKind;
+  /** How sharply the bot plays this seat */
+  difficulty: Difficulty;
   hand: Coin[];
   tableau: TableauCard[];
 };
@@ -410,6 +437,13 @@ export type ScheduledKind = 'TO_OTHERS' | 'NEXT_TAKER' | 'END_TURN';
 
 export type Scheduled = { kind: ScheduledKind; delay: number };
 
+/**
+ * - `target`: a player reached TARGET_VP at the end of a turn.
+ * - `deckDry`: a flip found no cards in the draw pile or the discard pile.
+ *   Every card is in a hand or a tableau, so the game cannot go on.
+ */
+export type EndReason = 'target' | 'deckDry';
+
 export type GameState = {
   players: Player[];
   deck: DeckCard[];
@@ -437,7 +471,13 @@ export type GameState = {
   detail: Card | null;
   toast: Toast | null;
   settings: boolean;
-  winner: number | null;
+  /**
+   * The seats that won, filled in when the game ends. More than one seat means
+   * a shared victory: the same points and the same number of coins.
+   */
+  winners: number[];
+  /** Why the game ended. Null while the game is still being played. */
+  endReason: EndReason | null;
   /** Spends the Jester's one-off reprieve, so it can't absorb two duplicates. */
   flipsBeyond: number;
   scheduled: Scheduled | null;

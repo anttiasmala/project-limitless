@@ -1,3 +1,4 @@
+import { nothingToDraw } from '@/lib/port-royal/gameLogic';
 import {
   Action,
   GameState,
@@ -28,9 +29,16 @@ function question(
   takesLeft: number,
   seat: Player,
   active: Player,
+  dry: boolean,
 ): string {
   switch (phase) {
     case 'discovery':
+      // The next flip ends the game, so the player has to know it before clicking.
+      if (dry) {
+        return harbourSize
+          ? `No cards are left. Bank ${plural(harbourSize, 'card')}, or flip to end the game?`
+          : 'No cards are left. Flipping ends the game.';
+      }
       return harbourSize
         ? `Push your luck, or bank ${plural(harbourSize, 'card')}?`
         : 'Begin the discovery — flip the first card.';
@@ -50,11 +58,12 @@ function actionsFor(
   harbourSize: number,
   selected: HarbourCard | undefined,
   activeName: string,
+  dry: boolean,
 ): BarAction[] {
   if (phase === 'discovery') {
     return [
       {
-        label: 'Flip another card',
+        label: dry ? 'Flip — end the game' : 'Flip another card',
         action: { type: 'FLIP' },
         primary: true,
         disabled: false,
@@ -126,11 +135,13 @@ export default function ActionBar({
   dispatch: (action: Action) => void;
 }) {
   const active = state.players[state.active];
+  const dry = nothingToDraw(state);
   const actions = actionsFor(
     state.phase,
     state.harbour.length,
     selected,
     active.name,
+    dry,
   );
 
   return (
@@ -155,6 +166,7 @@ export default function ActionBar({
           state.takesLeft,
           seat,
           active,
+          dry,
         )}
       </div>
 

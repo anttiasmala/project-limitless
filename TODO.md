@@ -4,7 +4,9 @@
 
 # TODO:
 
-1. Nothing reads the feedback table yet: an admin page (or at least a query) to list feedback and move rows from NEW to READ/RESOLVED
+1. Currently a player can draw cards in Bot's turn in Port Royal
+2. Add a check that if game runs out of cards (too many cards as coins in players coin deck) end the game as draw. Running out of cards in drawing pile is possible
+3. Nothing reads the feedback table yet: an admin page (or at least a query) to list feedback and move rows from NEW to READ/RESOLVED
 
 # Ideas:
 

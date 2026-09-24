@@ -10,15 +10,19 @@ import {
 } from '@/components/port-royal/shapes';
 import {
   NAME_MAX,
-  DEFAULT_SEATS,
+  DEFAULT_SEAT_COUNT,
   SEAT_OPTIONS,
   normaliseRoster,
   rosterQuery,
 } from '@/lib/port-royal/roster';
 import {
+  DEFAULT_DIFFICULTY,
   DEFAULT_NAMES,
+  DIFFICULTIES,
+  Difficulty,
   GameMode,
   MAX_PLAYERS,
+  SeatKind,
   TARGET_VP,
 } from '@/utils/port-royal/types';
 
@@ -35,16 +39,10 @@ const MODES: Mode[] = [
   {
     id: 'hotseat',
     title: 'Hotseat',
-    description: 'Two to five players around one device.',
+    description:
+      'Two to five seats around one device — people, computers, or a mix of both.',
     colorIdx: 0,
     ready: true,
-  },
-  {
-    id: 'ai',
-    title: 'Versus the AI',
-    description: 'Take the game against computer (AI). Not implemented yet.',
-    colorIdx: 3,
-    ready: false,
   },
   {
     id: 'online',
@@ -55,6 +53,18 @@ const MODES: Mode[] = [
     ready: false,
   },
 ];
+
+const KIND_LABEL: Record<SeatKind, string> = {
+  human: 'Human',
+  ai: 'Computer',
+};
+
+const DIFFICULTY_LABEL: Record<Difficulty, string> = {
+  veryEasy: 'Very easy',
+  easy: 'Easy',
+  normal: 'Normal',
+  hard: 'Hard',
+};
 
 /** Small caps label, as used on the board's panels. */
 function Label({ children }: { children: React.ReactNode }) {
@@ -69,21 +79,55 @@ export default function PortRoyalLand() {
   const router = useRouter();
 
   const [mode, setMode] = useState<GameMode>('hotseat');
-  const [seats, setSeats] = useState(DEFAULT_SEATS);
+  const [seats, setSeats] = useState(DEFAULT_SEAT_COUNT);
 
-  // Every seat is kept, not just the visible ones, so shrinking the table and
-  // growing it again does not throw away a name somebody typed.
+  // Every seat is kept, not just the visible ones, so making the table smaller and
+  // growing it again does not forget names somebody had typed, or forget that
+  // the fifth chair was set to a computer.
   const [names, setNames] = useState<string[]>(() =>
     Array<string>(MAX_PLAYERS).fill(''),
+  );
+  const [kinds, setKinds] = useState<SeatKind[]>(() =>
+    Array<SeatKind>(MAX_PLAYERS).fill('human'),
+  );
+  // Kept for every seat, human ones included, for the same reason: a chair that
+  // goes back to human and later to computer again remembers its level.
+  const [difficulties, setDifficulties] = useState<Difficulty[]>(() =>
+    Array<Difficulty>(MAX_PLAYERS).fill(DEFAULT_DIFFICULTY),
   );
 
   const chosen = MODES.find((m) => m.id === mode)!;
 
-  function setSail() {
-    const roster = normaliseRoster(names.slice(0, seats));
-    router.push(`/port-royal/local?${rosterQuery(roster)}`);
+  // A real-player has to play. `normaliseRoster` forces this too.
+  const allComputers = kinds.slice(0, seats).every((k) => k === 'ai');
+
+  function sailWith(
+    table: { name: string; kind: SeatKind; difficulty: Difficulty }[],
+  ) {
+    router.push(`/port-royal/local?${rosterQuery(normaliseRoster(table))}`);
   }
 
+  function setSail() {
+    sailWith(
+      Array.from({ length: seats }, (_, i) => ({
+        name: names[i],
+        kind: kinds[i],
+        difficulty: difficulties[i],
+      })),
+    );
+  }
+
+  /**
+   * "Play vs the computer". This starts a game immediately with 1 human and 1 bot (AI).
+   * The bot plays at whatever level seat 2 is set to, so the quick button and the
+   * seat cards never disagree.
+   */
+  function playComputer() {
+    sailWith([
+      { name: names[0], kind: 'human', difficulty: difficulties[0] },
+      { name: names[1], kind: 'ai', difficulty: difficulties[1] },
+    ]);
+  }
   return (
     <div
       className="bg-portRoyal-ground font-archivo text-portRoyal-ink relative flex min-h-0 w-full flex-col overflow-hidden"
@@ -117,7 +161,7 @@ export default function PortRoyalLand() {
           <div
             role="radiogroup"
             aria-label="Game mode"
-            className="grid gap-4 md:grid-cols-3"
+            className="grid gap-4 md:grid-cols-2"
           >
             {MODES.map((m) => {
               const active = mode === m.id;
@@ -190,24 +234,90 @@ export default function PortRoyalLand() {
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {Array.from({ length: seats }, (_, i) => (
-                    <label key={i} className="flex flex-col gap-1.5">
-                      <span className="font-archivo-narrow text-portRoyal-wood text-[10px] tracking-[0.2em] uppercase">
-                        Seat {i + 1}
-                      </span>
-                      <input
-                        value={names[i]}
-                        onChange={(e) =>
-                          setNames((prev) =>
-                            prev.map((_name, _index) =>
-                              _index === i ? e.target.value : _name,
-                            ),
-                          )
-                        }
-                        maxLength={NAME_MAX}
-                        placeholder={DEFAULT_NAMES[i]}
-                        className="border-portRoyal-wood/40 bg-portRoyal-card text-portRoyal-ink placeholder:text-portRoyal-slate/55 focus:border-portRoyal-brass min-h-11 border px-3 py-2 text-[14px] outline-none"
-                      />
-                    </label>
+                    <div key={i} className="flex flex-col gap-1.5">
+                      <label className="flex flex-col gap-1.5">
+                        <span className="font-archivo-narrow text-portRoyal-wood text-[10px] tracking-[0.2em] uppercase">
+                          Seat {i + 1}
+                        </span>
+                        <input
+                          value={names[i]}
+                          onChange={(e) =>
+                            setNames((prev) =>
+                              prev.map((_name, _index) =>
+                                _index === i ? e.target.value : _name,
+                              ),
+                            )
+                          }
+                          maxLength={NAME_MAX}
+                          placeholder={DEFAULT_NAMES[i]}
+                          className="border-portRoyal-wood/40 bg-portRoyal-card text-portRoyal-ink placeholder:text-portRoyal-slate/55 focus:border-portRoyal-brass min-h-11 border px-3 py-2 text-[14px] outline-none"
+                        />
+                      </label>
+
+                      {/* Human or Computer. Buttons sit outside the
+                          label so tapping one does not focus the name box. */}
+                      <div
+                        role="group"
+                        aria-label={`Who plays seat ${i + 1}`}
+                        className="flex gap-1.5"
+                      >
+                        {(['human', 'ai'] as const).map((k) => (
+                          <button
+                            key={k}
+                            type="button"
+                            aria-pressed={kinds[i] === k}
+                            onClick={() =>
+                              setKinds((prev) =>
+                                prev.map((_kind, _index) =>
+                                  _index === i ? k : _kind,
+                                ),
+                              )
+                            }
+                            className={`min-h-11 flex-1 cursor-pointer border px-2 text-[11px] font-semibold tracking-widest uppercase transition-colors ${
+                              kinds[i] === k
+                                ? 'border-portRoyal-wood bg-portRoyal-brass text-portRoyal-ink'
+                                : 'border-portRoyal-wood/40 bg-portRoyal-card text-portRoyal-slate hover:border-portRoyal-wood'
+                            }`}
+                          >
+                            {KIND_LABEL[k]}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* How hard this computer plays. Only a computer seat has
+                          one, so the row appears when "Computer" is chosen. It
+                          is drawn lighter and shorter than the row above, so the
+                          eye reads it as a setting of that choice. */}
+                      {kinds[i] === 'ai' && (
+                        <div
+                          role="group"
+                          aria-label={`How well the computer plays seat ${i + 1}`}
+                          className="mt-0.5 flex gap-1.5"
+                        >
+                          {DIFFICULTIES.map((d) => (
+                            <button
+                              key={d}
+                              type="button"
+                              aria-pressed={difficulties[i] === d}
+                              onClick={() =>
+                                setDifficulties((prev) =>
+                                  prev.map((_difficulty, _index) =>
+                                    _index === i ? d : _difficulty,
+                                  ),
+                                )
+                              }
+                              className={`min-h-10 flex-1 cursor-pointer border px-1 text-[10px] font-semibold tracking-[0.16em] uppercase transition-colors ${
+                                difficulties[i] === d
+                                  ? 'border-portRoyal-wood bg-portRoyal-wood/20 text-portRoyal-ink'
+                                  : 'border-portRoyal-wood/30 bg-portRoyal-card/60 text-portRoyal-slate hover:border-portRoyal-wood'
+                              }`}
+                            >
+                              {DIFFICULTY_LABEL[d]}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
 
@@ -215,12 +325,28 @@ export default function PortRoyalLand() {
                   <button
                     type="button"
                     onClick={setSail}
-                    className="bg-portRoyal-brass text-portRoyal-ink border-portRoyal-wood min-h-13 cursor-pointer border px-8.5 py-4 text-[13px] font-semibold tracking-[0.14em] uppercase hover:bg-[#946c28]"
+                    disabled={allComputers}
+                    className={`bg-portRoyal-brass text-portRoyal-ink border-portRoyal-wood min-h-13 border px-8.5 py-4 text-[13px] font-semibold tracking-[0.14em] uppercase ${
+                      allComputers
+                        ? 'cursor-not-allowed opacity-45'
+                        : 'cursor-pointer hover:bg-[#946c28]'
+                    }`}
                   >
                     Set sail
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={playComputer}
+                    className="hover:bg-portRoyal-brass border-portRoyal-wood text-portRoyal-ink min-h-13 cursor-pointer border px-6 py-4 text-[13px] font-semibold tracking-[0.14em] uppercase"
+                  >
+                    Play VS the computer
+                  </button>
+
                   <p className="text-portRoyal-slate text-[12px]">
-                    Blank seats sail under the name shown in the box.
+                    {allComputers
+                      ? 'Leave at least one seat to a human — somebody has to play.'
+                      : 'Blank seats sail under the name shown in the box.'}
                   </p>
                 </div>
               </>

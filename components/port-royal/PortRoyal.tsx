@@ -17,18 +17,21 @@ import SettingsOverlay from './overlays/SettingsOverlay';
 import TaxOverlay from './overlays/TaxOverlay';
 import { BOARD_NOISE, BOARD_VIGNETTE } from './shapes';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { botTurn } from '@/lib/port-royal/ai';
 import {
   claimCheck,
   claimingIn,
   freshState,
+  isBot,
   reducer,
   seatOf,
   swordsOf,
   taxFor,
 } from '@/lib/port-royal/gameLogic';
+import { DEFAULT_ROSTER } from '@/lib/port-royal/roster';
 import {
   DEFAULT_SETTINGS,
-  PLAYER_NAMES,
+  Seat,
   SETTINGS_KEY,
   TARGET_VP,
 } from '@/utils/port-royal/types';
@@ -48,19 +51,18 @@ const DEFAULT_HINT =
   'Coin cards are worth one coin each and stay hidden from other players.';
 
 /**
- * @param names One seat per name. The landing page passes the roster chosen
- *   there; the default keeps a bare `/port-royal` working as it always did.
+ * @param seats One "seat" per entry: human or computer.
  */
 export default function PortRoyal({
-  names = PLAYER_NAMES,
+  seats = DEFAULT_ROSTER,
 }: {
-  names?: string[];
+  seats?: Seat[];
 }) {
   // The first deck is dealt unshuffled so the server and the client agree on
   // the markup; SHUFFLE swaps in a real one as soon as we are on the client.
   // The handover curtain is up at that point, so nothing visible changes.
-  const [state, dispatch] = useReducer(reducer, names, (seats) =>
-    freshState(seats, false),
+  const [state, dispatch] = useReducer(reducer, seats, (table) =>
+    freshState(table, false),
   );
 
   useEffect(() => {
@@ -86,6 +88,15 @@ export default function PortRoyal({
     const timer = setTimeout(() => dispatch({ type: next.kind }), next.delay);
     return () => clearTimeout(timer);
   }, [state.scheduled]);
+
+  // Checks if current turn is Bot's turn. Adds an timeout for the move so real-players can follow easier what the bot does
+  // Returns null if the board is waiting a real-player
+  useEffect(() => {
+    const turn = botTurn(state);
+    if (!turn) return;
+    const timer = setTimeout(() => dispatch(turn.action), turn.delay);
+    return () => clearTimeout(timer);
+  }, [state]);
 
   const seat = seatOf(state);
   const buying = state.phase === 'trade' || state.phase === 'others';
@@ -196,7 +207,9 @@ export default function PortRoyal({
         />
       )}
 
-      {state.phase === 'handover' && (
+      {/* A computer seat has no device to be handed, so the whose turn is only
+          shown when it is real-player's turn. */}
+      {state.phase === 'handover' && !isBot(state.players[state.active]) && (
         <HandoverOverlay
           nextName={state.players[state.active].name}
           onBegin={() => dispatch({ type: 'BEGIN_TURN' })}
@@ -242,10 +255,11 @@ export default function PortRoyal({
         />
       )}
 
-      {state.phase === 'end' && state.winner !== null && (
+      {state.phase === 'end' && state.endReason && (
         <EndOverlay
           players={state.players}
-          winner={state.winner}
+          winners={state.winners}
+          endReason={state.endReason}
           onRestart={() => dispatch({ type: 'RESTART' })}
         />
       )}

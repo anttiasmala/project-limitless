@@ -59,6 +59,14 @@ export default function PlayerStrip({
               <span className="font-spectral text-portRoyal-ground truncate text-[15px] font-semibold">
                 {p.name}
               </span>
+              {p.kind === 'ai' && (
+                <span
+                  title="This seat is played by the computer"
+                  className="font-archivo-narrow border-portRoyal-steel text-portRoyal-slate flex-none border px-1 text-[8px] leading-normal tracking-[0.16em] uppercase"
+                >
+                  cpu
+                </span>
+              )}
               <span
                 className={`font-archivo-narrow ml-auto flex-none text-[9px] tracking-[0.16em] uppercase ${
                   isActive
