@@ -23,6 +23,7 @@ import {
   PERSON_PROFILES,
   PersonCard,
   Player,
+  Rules,
   Seat,
   SHIPS,
   ShipCard,
@@ -140,7 +141,11 @@ export function buildDeck(playerCount: number, shuffle = true): DeckCard[] {
   return shuffle ? shuffled(d) : d;
 }
 
-export function freshState(seats: Seat[], shuffle = true): GameState {
+export function freshState(
+  seats: Seat[],
+  rules: Rules,
+  shuffle = true,
+): GameState {
   const rest = buildDeck(seats.length, shuffle);
   const players: Player[] = seats.map(({ name, kind, difficulty }) => ({
     name,
@@ -170,6 +175,7 @@ export function freshState(seats: Seat[], shuffle = true): GameState {
 
   return {
     players,
+    rules,
     deck: rest,
     discardPile: [],
     active: 0,
@@ -210,6 +216,33 @@ export const canRepelWith = (p: Player, ship: ShipCard) =>
 
 export const vpOf = (p: Player) =>
   p.tableau.reduce((a, c) => a + (c.vp || 0), 0);
+
+/** Whether the player has claimed at least one expedition. */
+export const hasExpedition = (p: Player) =>
+  p.tableau.some((c) => c.kind === 'expedition');
+
+/**
+ * Whether any expedition can still be claimed in this game. An unclaimed
+ * expedition is posted on the table, or in the draw pile, or in the discard
+ * pile, or held face-down as a coin in some player's hand. A claimed one sits
+ * in a tableau and never comes back.
+ */
+export const expeditionsRemain = (s: GameState) =>
+  [s.expeditions, s.deck, s.discardPile, ...s.players.map((p) => p.hand)].some(
+    (cards) => cards.some((c) => c.kind === 'expedition'),
+  );
+
+/**
+ * Whether the `expeditionToWin` rule still stops this player from winning.
+ * The rule is dropped for everyone once every expedition has been claimed,
+ * so nobody is left without a way to win.
+ */
+export const needsExpedition = (s: GameState, p: Player) =>
+  s.rules.expeditionToWin && !hasExpedition(p) && expeditionsRemain(s);
+
+/** Whether the player meets everything the rules ask for to win the game. */
+export const reachedTarget = (s: GameState, p: Player) =>
+  vpOf(p) >= TARGET_VP && !needsExpedition(s, p);
 
 /**
  * Paying and being rewarded are worked out separately. The hand is halved in the
@@ -595,12 +628,19 @@ function payJesters(
  * The seats that win when the game ends: the most victory points, and when
  * points are tied, the most coins (the tie-break of the printed rules). When
  * coins are tied too, all of those seats share the victory.
+ *
+ * When the game ends on the target, only the players who reached it can win.
+ * This matters with the `expeditionToWin` rule: a player with more points but
+ * no expedition loses to a player with fewer points and an expedition. When the
+ * deck runs dry, nobody has to reach the target, so every player can win.
  */
-export function winnersOf(players: Player[]): number[] {
-  const topVp = Math.max(...players.map(vpOf));
-  const byVp = players
-    .map((p, i) => ({ i, coins: p.hand.length, vp: vpOf(p) }))
-    .filter((x) => x.vp === topVp);
+export function winnersOf(s: GameState, endReason: EndReason): number[] {
+  const candidates = s.players
+    .map((p, i) => ({ p, i, coins: p.hand.length, vp: vpOf(p) }))
+    .filter(({ p }) => endReason !== 'target' || reachedTarget(s, p));
+
+  const topVp = Math.max(...candidates.map((x) => x.vp));
+  const byVp = candidates.filter((x) => x.vp === topVp);
 
   const topCoins = Math.max(...byVp.map((x) => x.coins));
   return byVp.filter((x) => x.coins === topCoins).map((x) => x.i);
@@ -614,7 +654,7 @@ function endGame(s: GameState, endReason: EndReason): GameState {
   return {
     ...s,
     phase: 'end',
-    winners: winnersOf(s.players),
+    winners: winnersOf(s, endReason),
     endReason,
     // Whatever nobody bought is swept off the harbour into discardPile.
     harbour: [],
@@ -625,7 +665,7 @@ function endGame(s: GameState, endReason: EndReason): GameState {
 
 /** Ends the turn, or the game if anyone has reached the target. */
 function endTurn(s: GameState): GameState {
-  if (s.players.some((p) => vpOf(p) >= TARGET_VP)) return endGame(s, 'target');
+  if (s.players.some((p) => reachedTarget(s, p))) return endGame(s, 'target');
 
   // Whatever nobody bought is swept off the harbour into discardPile.
   const discardPile = s.discardPile.concat(s.harbour);
@@ -1128,12 +1168,12 @@ export function reducer(s: GameState, action: Action): GameState {
     // Swaps the deterministic opening deck for a shuffled one once the board is
     // on the client. The handover curtain is up, so nothing visible changes.
     case 'SHUFFLE':
-      return freshState(seatsOf(s));
+      return freshState(seatsOf(s), s.rules);
 
-    // Keeps the table that was chosen on the landing page — a restart re-deals,
-    // it does not send everyone back to the default roster.
+    // Keeps the table and the rules that were chosen on the landing page — a
+    // restart re-deals, it does not send everyone back to the default roster.
     case 'RESTART':
-      return freshState(seatsOf(s));
+      return freshState(seatsOf(s), s.rules);
 
     default:
       return s;
