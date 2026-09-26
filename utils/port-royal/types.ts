@@ -37,7 +37,12 @@ export type SeatKind = 'human' | 'ai';
 export type Difficulty = 'veryEasy' | 'easy' | 'normal' | 'hard';
 
 /** Every difficulty level the landing page offers, in the order it shows them. */
-export const DIFFICULTIES: Difficulty[] = ['veryEasy', 'easy', 'normal', 'hard'];
+export const DIFFICULTIES: Difficulty[] = [
+  'veryEasy',
+  'easy',
+  'normal',
+  'hard',
+];
 
 /** The level a seat starts on, and the one an unreadable URL falls back to. */
 export const DEFAULT_DIFFICULTY: Difficulty = 'normal';
@@ -309,6 +314,24 @@ export type Settings = {
 
 export const DEFAULT_SETTINGS: Settings = { alternativeTheme: false };
 
+/**
+ * Game rules chosen on the landing page. Unlike `Settings`, they change how the
+ * game is played, so they live in the game state and travel in the URL. A
+ * restart keeps them.
+ */
+export type Rules = {
+  /**
+   * **Off** — the default. Reaching TARGET_VP is enough to end the game.
+   *
+   * **On** — a player also needs at least one claimed expedition. When every
+   * expedition has been claimed, this need is dropped for everyone, so a
+   * player can never be locked out of winning.
+   */
+  expeditionToWin: boolean;
+};
+
+export const DEFAULT_RULES: Rules = { expeditionToWin: false };
+
 /** The printed card art is 204×315, so every face draws at the same ratio. */
 export const CARD_ART_W = 204;
 export const CARD_ART_H = 315;
@@ -438,7 +461,8 @@ export type ScheduledKind = 'TO_OTHERS' | 'NEXT_TAKER' | 'END_TURN';
 export type Scheduled = { kind: ScheduledKind; delay: number };
 
 /**
- * - `target`: a player reached TARGET_VP at the end of a turn.
+ * - `target`: a player reached TARGET_VP at the end of a turn (and, with the
+ *   `expeditionToWin` rule, has claimed an expedition).
  * - `deckDry`: a flip found no cards in the draw pile or the discard pile.
  *   Every card is in a hand or a tableau, so the game cannot go on.
  */
@@ -446,6 +470,8 @@ export type EndReason = 'target' | 'deckDry';
 
 export type GameState = {
   players: Player[];
+  /** The rules this game was started with. They do not change during the game. */
+  rules: Rules;
   deck: DeckCard[];
   /**
    * Every card that has left the play: coins spent, ships taken or repelled, the
