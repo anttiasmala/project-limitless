@@ -15,6 +15,9 @@
  *   everything, against what one more card (and maybe one more take) adds.
  * - **Expeditions** are claimed when they give more points than the characters
  *   the bot has to give away for them.
+ * - **Expedition rule**: when an expedition is needed to win, the first one is
+ *   worth much more, and so are the characters that help to claim it. The bot
+ *   also knows that reaching the points alone does not win the game.
  *
  * The bot only uses information a human player at the table could also have:
  * which cards have not been seen yet. It never looks at the order of the draw
@@ -34,6 +37,7 @@ import {
   expeditionFill,
   extraCoinsFor,
   governorsOf,
+  needsExpedition,
   nothingToDraw,
   priceOf,
   seatIndexOf,
@@ -273,6 +277,18 @@ const FEE_PENALTY = 0.3;
  */
 const SPECULATIVE_SYMBOL = 0.4;
 
+/**
+ * With the `expeditionToWin` rule, the first expedition opens the way to the
+ * win. How much more it is worth grows with the player's own points: early in
+ * the game it is a small extra, but at the target it is the only thing
+ * missing. Counted in coins, at the target.
+ */
+const UNLOCK_WORTH = 12;
+
+/** What claiming the first expedition is worth on top of its own payoff. */
+const unlockWorth = (s: GameState, p: Player) =>
+  needsExpedition(s, p) ? UNLOCK_WORTH * Math.min(1, vpOf(p) / TARGET_VP) : 0;
+
 const missingFor = (p: Player, requires: ExpeditionSymbol[]) =>
   expeditionFill(p, requires).filter((f) => f === 'missing').length;
 
@@ -286,7 +302,11 @@ function symbolWorth(s: GameState, p: Player, card: PersonCard): number {
 
   const jack = card.expeditionItem === 'jackOfAllTrades';
   const withCard: Player = { ...p, tableau: p.tableau.concat(card) };
-  let best = SPECULATIVE_SYMBOL * (jack ? 2 : 1);
+  const unlock = unlockWorth(s, p);
+
+  // An expedition that is not on the table yet can still come. With the
+  // expedition rule, the bot needs one, so a symbol is worth more.
+  let best = (SPECULATIVE_SYMBOL + unlock / 4) * (jack ? 2 : 1);
 
   for (const e of s.expeditions) {
     const before = missingFor(p, e.requires);
@@ -294,7 +314,7 @@ function symbolWorth(s: GameState, p: Player, card: PersonCard): number {
     if (closed <= 0) continue;
 
     // The characters that are handed in take their own points away with them.
-    const payoff = (e.vp - e.requires.length) * vpWorth(s) + e.coins;
+    const payoff = (e.vp - e.requires.length) * vpWorth(s) + e.coins + unlock;
     best = Math.max(best, (payoff * closed) / e.requires.length);
   }
 
@@ -309,7 +329,8 @@ function personWorth(s: GameState, p: Player, card: PersonCard): number {
 
   let points = card.vp * vpWorth(s);
 
-  if (vpOf(p) + card.vp >= TARGET_VP) points += 100;
+  // Reaching the target wins, unless the bot still needs an expedition.
+  if (vpOf(p) + card.vp >= TARGET_VP && !needsExpedition(s, p)) points += 100;
 
   let ability = 0;
 
@@ -395,13 +416,18 @@ function claim(s: GameState): Action | null {
 
   let best: { id: number; gain: number } | null = null;
 
+  // With the expedition rule, the first expedition is worth more than its
+  // points. Counted in points here, like the rest of `gain`.
+  const unlock = unlockWorth(s, p) / vpWorth(s);
+
   for (const e of s.expeditions) {
     const { handIn, blocked } = claimCheck(s, e);
     if (blocked) continue;
 
+    // After the claim the player has an expedition, so the points alone decide.
     const lost = handIn.reduce((a, c) => a + c.vp, 0);
     const wins = vpOf(p) - lost + e.vp >= TARGET_VP;
-    const gain = e.vp - lost + (wins ? 100 : 0);
+    const gain = e.vp - lost + unlock + (wins ? 100 : 0);
 
     if (gain > 0 && (!best || gain > best.gain)) best = { id: e.id, gain };
   }
