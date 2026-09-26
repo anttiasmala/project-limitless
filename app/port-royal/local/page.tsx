@@ -8,7 +8,7 @@
 import type { Metadata } from 'next';
 import { archivo, archivoNarrow, spectral } from '@/app/port-royal/fonts';
 import PortRoyal from '@/components/port-royal/PortRoyal';
-import { rosterFromQuery } from '@/lib/port-royal/roster';
+import { rosterFromQuery, rulesFromQuery } from '@/lib/port-royal/roster';
 
 export const metadata: Metadata = {
   title: 'Port Royal · Hotseat',
@@ -18,15 +18,22 @@ export const metadata: Metadata = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ seat?: string | string[]; bot?: string | string[] }>;
+  searchParams: Promise<{
+    seat?: string | string[];
+    bot?: string | string[];
+    expedition?: string | string[];
+  }>;
 }) {
-  const { seat, bot } = await searchParams;
+  const { seat, bot, expedition } = await searchParams;
 
   return (
     <main
       className={`flex min-h-0 flex-1 ${spectral.variable} ${archivo.variable} ${archivoNarrow.variable}`}
     >
-      <PortRoyal seats={rosterFromQuery(seat, bot)} />
+      <PortRoyal
+        seats={rosterFromQuery(seat, bot)}
+        rules={rulesFromQuery(expedition)}
+      />
     </main>
   );
 }
