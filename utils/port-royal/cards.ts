@@ -1,7 +1,7 @@
-// Total of 119 cards
+// Total of 120 cards
 // Character cards: 60
 // Ship cards: 50
-// Expedition cards: 5
+// Expedition cards: 6 (one of them is used only in a 5 player game)
 // Tax cards: 4
 
 import { Ability } from '@/utils/port-royal/types';
@@ -20,6 +20,8 @@ type AllCards = {
   taxMode?: 'LowestPoints' | 'MostSwords';
   expeditionMode?: string[];
   coinsAmount?: number;
+  /** The card is put in the deck only when the game has at least this many players. */
+  minPlayers?: number;
 };
 
 const allCards: AllCards[] = [
@@ -1154,6 +1156,17 @@ const allCards: AllCards[] = [
     coinsAmount: 3,
     victoryPoints: 6,
     imageName: 'expedition_5.png',
+  },
+  {
+    id: 120,
+    type: 'expedition',
+    name: 'Expedition',
+    displayImage: false,
+    expeditionMode: ['anchor', 'cross', 'house'],
+    coinsAmount: 3,
+    victoryPoints: 5,
+    imageName: 'expedition_6.png',
+    minPlayers: 5,
   },
 ];
 
