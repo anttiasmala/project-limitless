@@ -1,6 +1,7 @@
 import {
   anchorOf,
   crossOf,
+  hasExpedition,
   houseOf,
   jacksOf,
   swordsOf,
@@ -10,20 +11,62 @@ import { CARD_ART_DIR, Phase, Player } from '@/utils/port-royal/types';
 import Image from 'next/image';
 
 /**
+ * The small tag that shows where a player stands on the `expeditionToWin` rule.
+ * "Waived" means every expedition has been claimed, so the player can win
+ * without one.
+ */
+function ExpeditionTag({ done, waived }: { done: boolean; waived: boolean }) {
+  const [label, title, colour] = done
+    ? [
+        'exp ✓',
+        'Has claimed an expedition — can win on points',
+        'text-portRoyal-brassLight border-portRoyal-brass',
+      ]
+    : waived
+      ? [
+          'exp waived',
+          'Every expedition has been claimed, so no expedition is needed to win',
+          'text-portRoyal-slate border-portRoyal-steel',
+        ]
+      : [
+          'exp needed',
+          'Needs to claim an expedition before they can win',
+          'text-portRoyal-slate border-portRoyal-steel',
+        ];
+
+  return (
+    <span
+      title={title}
+      className={`font-archivo-narrow mt-1 flex-none self-start border px-1 text-[9px] leading-normal tracking-[0.14em] uppercase ${colour}`}
+    >
+      {label}
+    </span>
+  );
+}
+
+/**
  * The scoreboard along the top bar: one card per player, showing influence,
  * coins in hand and swords. Coin counts are public — only the coin cards
  * themselves are hidden — so this stays visible through every phase.
+ *
+ * @param expeditionRule Whether the `expeditionToWin` rule is on. Only then the
+ * expedition tag is shown.
+ * @param expeditionsRemain Whether any expedition can still be claimed.
  */
 export default function PlayerStrip({
   players,
   active,
   taker,
   phase,
+  expeditionRule,
+  expeditionsRemain,
 }: {
   players: Player[];
   active: number;
   taker: number | null;
   phase: Phase;
+  expeditionRule: boolean;
+  expeditionsRemain: boolean;
 }) {
   return (
     <div className="flex min-w-0 flex-1 gap-2.5 overflow-x-auto">
@@ -154,6 +197,13 @@ export default function PlayerStrip({
                   </div>
                 )}
               </div>
+              {/* A row of its own, so the tag never pushes the icons around. */}
+              {expeditionRule && (
+                <ExpeditionTag
+                  done={hasExpedition(p)}
+                  waived={!expeditionsRemain}
+                />
+              )}
             </div>
           </div>
         );
