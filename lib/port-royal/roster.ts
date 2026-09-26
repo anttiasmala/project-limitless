@@ -16,6 +16,7 @@ import {
   MAX_PLAYERS,
   MIN_PLAYERS,
   PLAYER_NAMES,
+  Rules,
   Seat,
 } from '@/utils/port-royal/types';
 
@@ -87,8 +88,11 @@ export function normaliseRoster(raw: readonly Partial<Seat>[]): Seat[] {
  * the name like (AI)Bart, because names are free text. The level rides along in
  * the same parameter so a seat and its difficulty can never drift apart.
  * Older `&bot=1` with no difficulty level, it fallbacks as "normal".
+ *
+ * The rules ride along too. A rule that is on is written as `&expedition=1`, a
+ * rule that is off is left out, so the plain URL means the plain rules.
  */
-export function rosterQuery(seats: readonly Seat[]): string {
+export function rosterQuery(seats: readonly Seat[], rules: Rules): string {
   const params = new URLSearchParams();
 
   seats.forEach((s) => params.append('seat', s.name));
@@ -96,7 +100,16 @@ export function rosterQuery(seats: readonly Seat[]): string {
     if (s.kind === 'ai') params.append('bot', `${i}:${s.difficulty}`);
   });
 
+  if (rules.expeditionToWin) params.set('expedition', '1');
+
   return params.toString();
+}
+
+/** Unpacks the rule parameters. Anything other than `1` means the rule is off. */
+export function rulesFromQuery(
+  expedition: string | string[] | undefined,
+): Rules {
+  return { expeditionToWin: asArray(expedition).includes('1') };
 }
 
 /** Converts `param` into an array. */
