@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Flag from '@/components/port-royal/Flag';
+import ToggleSwitch from '@/components/shared/ToggleSwitch';
 import {
   BOARD_NOISE,
   BOARD_VIGNETTE,
@@ -18,10 +19,12 @@ import {
 import {
   DEFAULT_DIFFICULTY,
   DEFAULT_NAMES,
+  DEFAULT_RULES,
   DIFFICULTIES,
   Difficulty,
   GameMode,
   MAX_PLAYERS,
+  Rules,
   SeatKind,
   TARGET_VP,
 } from '@/utils/port-royal/types';
@@ -96,6 +99,8 @@ export default function PortRoyalLand() {
     Array<Difficulty>(MAX_PLAYERS).fill(DEFAULT_DIFFICULTY),
   );
 
+  const [rules, setRules] = useState<Rules>(DEFAULT_RULES);
+
   const chosen = MODES.find((m) => m.id === mode)!;
 
   // A real-player has to play. `normaliseRoster` forces this too.
@@ -104,7 +109,9 @@ export default function PortRoyalLand() {
   function sailWith(
     table: { name: string; kind: SeatKind; difficulty: Difficulty }[],
   ) {
-    router.push(`/port-royal/local?${rosterQuery(normaliseRoster(table))}`);
+    router.push(
+      `/port-royal/local?${rosterQuery(normaliseRoster(table), rules)}`,
+    );
   }
 
   function setSail() {
@@ -154,7 +161,9 @@ export default function PortRoyalLand() {
             </h1>
             <p className="text-portRoyal-slate max-w-2xl text-[14px] leading-[1.6]">
               Push your luck in the harbour, hire the crew you can afford, and
-              be first to {TARGET_VP} victory points.
+              be first to {TARGET_VP} victory points
+              {rules.expeditionToWin && ' with at least one expedition claimed'}
+              .
             </p>
           </div>
 
@@ -320,6 +329,37 @@ export default function PortRoyalLand() {
                     </div>
                   ))}
                 </div>
+
+                <div className="flex items-center gap-3">
+                  <Label>Rules</Label>
+                  <div
+                    className="h-px flex-1"
+                    style={{ background: DASHED_RULE }}
+                  />
+                </div>
+
+                <label className="flex cursor-pointer items-center justify-between gap-4 select-none">
+                  <span className="flex flex-col gap-0.5">
+                    <span className="font-spectral text-[16px]">
+                      Expedition required to win
+                    </span>
+                    <span className="text-portRoyal-slate text-[12px] leading-normal">
+                      {TARGET_VP} victory points are not enough, a player also
+                      needs one claimed expedition. When every expedition has
+                      been claimed, points alone are enough again.
+                    </span>
+                  </span>
+                  <ToggleSwitch
+                    className="flex-none"
+                    checked={rules.expeditionToWin}
+                    onChange={(e) =>
+                      setRules((prev) => ({
+                        ...prev,
+                        expeditionToWin: e.target.checked,
+                      }))
+                    }
+                  />
+                </label>
 
                 <div className="flex flex-wrap items-center gap-4">
                   <button
