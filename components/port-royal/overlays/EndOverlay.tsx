@@ -1,5 +1,5 @@
 import { vpOf } from '@/lib/port-royal/gameLogic';
-import { EndReason, Player } from '@/utils/port-royal/types';
+import { EndReason, Player, TARGET_VP } from '@/utils/port-royal/types';
 
 /** "Anne", "Anne & Bart", "Anne, Bart & Cecil" */
 function joinNames(names: string[]): string {
@@ -10,20 +10,33 @@ function joinNames(names: string[]): string {
 /**
  * Final standings. The breakdown lists who each player hired and what they were
  * worth, so the winning line is auditable rather than just asserted.
+ *
+ * @param qualified For each player, whether they met everything the rules ask
+ * for to win (the points, and an expedition when that rule is on).
+ * @param expeditionRule Whether the `expeditionToWin` rule was on.
  */
 export default function EndOverlay({
   players,
   winners,
   endReason,
+  qualified,
+  expeditionRule,
   onRestart,
 }: {
   players: Player[];
   winners: number[];
   endReason: EndReason;
+  qualified: boolean[];
+  expeditionRule: boolean;
   onRestart: () => void;
 }) {
   const names = joinNames(winners.map((i) => players[i]?.name));
   const dry = endReason === 'deckDry';
+
+  // A player who has the points but could not win because of the expedition
+  // rule. Without a note it would look like the wrong player won.
+  const missedExpedition = (p: Player, i: number) =>
+    !dry && vpOf(p) >= TARGET_VP && !qualified[i];
 
   return (
     <div className="absolute inset-0 grid place-items-center bg-[rgba(22,35,43,0.95)]">
@@ -46,6 +59,13 @@ export default function EndOverlay({
               Victory points are tied, the player with the most coins wins.
             </span>
           )}
+          {!dry && expeditionRule && (
+            <span className="text-portRoyal-slate text-[14px]">
+              Only a player with {TARGET_VP}{' '}
+              <span className="font-extrabold">Victory points</span> and a
+              claimed expedition could win, until every expedition was claimed.
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -58,8 +78,15 @@ export default function EndOverlay({
                   : 'border-portRoyal-wood/50 bg-transparent'
               }`}
             >
-              <span className="font-spectral w-32.5 text-[17px] font-semibold">
-                {p.name}
+              <span className="flex w-32.5 flex-col">
+                <span className="font-spectral text-[17px] font-semibold">
+                  {p.name}
+                </span>
+                {missedExpedition(p, i) && (
+                  <span className="font-archivo-narrow text-portRoyal-crimson text-[10px] tracking-[0.14em] uppercase">
+                    no expedition
+                  </span>
+                )}
               </span>
               <span className="font-archivo-narrow text-portRoyal-slate flex-1 text-[11px] tracking-widest uppercase">
                 {p.tableau.length
