@@ -21,8 +21,10 @@ import { botTurn } from '@/lib/port-royal/ai';
 import {
   claimCheck,
   claimingIn,
+  expeditionsRemain,
   freshState,
   isBot,
+  reachedTarget,
   reducer,
   seatOf,
   swordsOf,
@@ -30,7 +32,9 @@ import {
 } from '@/lib/port-royal/gameLogic';
 import { DEFAULT_ROSTER } from '@/lib/port-royal/roster';
 import {
+  DEFAULT_RULES,
   DEFAULT_SETTINGS,
+  Rules,
   Seat,
   SETTINGS_KEY,
   TARGET_VP,
@@ -52,17 +56,20 @@ const DEFAULT_HINT =
 
 /**
  * @param seats One "seat" per entry: human or computer.
+ * @param rules The rules chosen on the landing page.
  */
 export default function PortRoyal({
   seats = DEFAULT_ROSTER,
+  rules = DEFAULT_RULES,
 }: {
   seats?: Seat[];
+  rules?: Rules;
 }) {
   // The first deck is dealt unshuffled so the server and the client agree on
   // the markup; SHUFFLE swaps in a real one as soon as we are on the client.
   // The handover curtain is up at that point, so nothing visible changes.
-  const [state, dispatch] = useReducer(reducer, seats, (table) =>
-    freshState(table, false),
+  const [state, dispatch] = useReducer(reducer, { seats, rules }, (setup) =>
+    freshState(setup.seats, setup.rules, false),
   );
 
   useEffect(() => {
@@ -126,6 +133,7 @@ export default function PortRoyal({
           </div>
           <div className="font-archivo-narrow text-portRoyal-wood text-[10px] tracking-[0.2em] uppercase">
             hotseat · target {TARGET_VP} pts
+            {state.rules.expeditionToWin && ' + expedition'}
           </div>
         </div>
 
@@ -136,6 +144,8 @@ export default function PortRoyal({
           active={state.active}
           taker={state.taker}
           phase={state.phase}
+          expeditionRule={state.rules.expeditionToWin}
+          expeditionsRemain={expeditionsRemain(state)}
         />
 
         <button
@@ -260,6 +270,8 @@ export default function PortRoyal({
           players={state.players}
           winners={state.winners}
           endReason={state.endReason}
+          qualified={state.players.map((p) => reachedTarget(state, p))}
+          expeditionRule={state.rules.expeditionToWin}
           onRestart={() => dispatch({ type: 'RESTART' })}
         />
       )}
