@@ -51,7 +51,11 @@ function shuffled<T>(cards: T[]): T[] {
 
 /**
  * The printed deck, straight out of `cards.ts`: 60 characters, 50 ships (ten of
- * each type), 4 tax events and 5 expeditions — 119 cards, the full deck.
+ * each type), 4 tax events and 6 expeditions — 120 cards, the full deck.
+ *
+ * Some cards are used only with enough players (`minPlayers` in `cards.ts`).
+ * E.g. the sixth expedition is in the deck only in a 5 player game, so with
+ * fewer players the deck has 119 cards.
  *
  * The deck is built exactly once a game.
  *
@@ -59,11 +63,14 @@ function shuffled<T>(cards: T[]): T[] {
  * the same markup; the board dispatches `SHUFFLE` once it has mounted. Nothing
  * about the opening screen depends on the order, so the swap is invisible.
  */
-export function buildDeck(shuffle = true): DeckCard[] {
+export function buildDeck(playerCount: number, shuffle = true): DeckCard[] {
   const d: DeckCard[] = [];
   let seq = 0;
 
   allCards.forEach((card) => {
+    // Leave out the cards that need more players than this game has.
+    if (card.minPlayers !== undefined && playerCount < card.minPlayers) return;
+
     const name = card.name ?? '';
 
     if (card.type === 'ship') {
@@ -134,7 +141,7 @@ export function buildDeck(shuffle = true): DeckCard[] {
 }
 
 export function freshState(seats: Seat[], shuffle = true): GameState {
-  const rest = buildDeck(shuffle);
+  const rest = buildDeck(seats.length, shuffle);
   const players: Player[] = seats.map(({ name, kind, difficulty }) => ({
     name,
     kind,
