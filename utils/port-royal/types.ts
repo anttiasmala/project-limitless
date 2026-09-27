@@ -461,8 +461,8 @@ export type ScheduledKind = 'TO_OTHERS' | 'NEXT_TAKER' | 'END_TURN';
 export type Scheduled = { kind: ScheduledKind; delay: number };
 
 /**
- * - `target`: a player reached TARGET_VP at the end of a turn (and, with the
- *   `expeditionToWin` rule, has claimed an expedition).
+ * - `target`: a player reached TARGET_VP (and, with the `expeditionToWin`
+ *   rule, has claimed an expedition), and the round was played to its end.
  * - `deckDry`: a flip found no cards in the draw pile or the discard pile.
  *   Every card is in a hand or a tableau, so the game cannot go on.
  */
