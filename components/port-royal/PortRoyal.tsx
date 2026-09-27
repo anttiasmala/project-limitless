@@ -22,6 +22,7 @@ import {
   claimCheck,
   claimingIn,
   expeditionsRemain,
+  finalRound,
   freshState,
   isBot,
   reachedTarget,
@@ -135,6 +136,11 @@ export default function PortRoyal({
             hotseat · target {TARGET_VP} pts
             {state.rules.expeditionToWin && ' + expedition'}
           </div>
+          {finalRound(state) && state.phase !== 'end' && (
+            <div className="font-archivo-narrow text-portRoyal-brass text-[10px] tracking-[0.2em] uppercase">
+              final round
+            </div>
+          )}
         </div>
 
         <div className="bg-portRoyal-steel w-px" />
@@ -222,6 +228,7 @@ export default function PortRoyal({
       {state.phase === 'handover' && !isBot(state.players[state.active]) && (
         <HandoverOverlay
           nextName={state.players[state.active].name}
+          finalRound={finalRound(state)}
           onBegin={() => dispatch({ type: 'BEGIN_TURN' })}
         />
       )}
