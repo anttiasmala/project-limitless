@@ -9,6 +9,7 @@ import {
   SHIPS,
   TAX_THRESHOLD,
 } from '@/utils/port-royal/types';
+import { useKeyPress } from '@/hooks/useKeyPress';
 
 type Stat = { value: number; label: string; className: string };
 
@@ -98,6 +99,8 @@ export default function DetailOverlay({
   onClose: () => void;
 }) {
   const stats = statsFor(card);
+
+  useKeyPress('Escape', onClose);
 
   return (
     <div
