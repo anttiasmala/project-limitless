@@ -7,9 +7,12 @@
  */
 export default function HandoverOverlay({
   nextName,
+  finalRound,
   onBegin,
 }: {
   nextName: string;
+  /** Somebody has reached the target, so this round is the last one. */
+  finalRound: boolean;
   onBegin: () => void;
 }) {
   return (
@@ -22,15 +25,16 @@ export default function HandoverOverlay({
           <div className="h-11.5 w-11.5 rotate-45 border border-[rgba(184,134,47,0.7)]" />
         </div>
         <div className="font-archivo-narrow text-portRoyal-wood text-[11px] tracking-[0.3em] uppercase">
-          Coin cards are hidden information
+          Let&apos;s Port Royal!
         </div>
         <div className="font-spectral text-portRoyal-ground text-[44px] font-semibold">
           Pass the device to {nextName}
         </div>
-        <div className="font-spectral text-portRoyal-sand text-[17px] italic">
-          Everyone else, look away. {nextName}&apos;s coins become visible on
-          tap.
-        </div>
+        {finalRound && (
+          <div className="font-archivo-narrow text-portRoyal-brass text-[13px] tracking-[0.2em] uppercase">
+            Final round, the target has been reached
+          </div>
+        )}
         <button
           type="button"
           className="bg-portRoyal-brass text-portRoyal-ink border-portRoyal-wood mt-2 min-h-13 cursor-pointer border px-8.5 py-4 text-[13px] font-semibold tracking-[0.14em] uppercase"
