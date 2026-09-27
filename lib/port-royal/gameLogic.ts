@@ -245,6 +245,17 @@ export const reachedTarget = (s: GameState, p: Player) =>
   vpOf(p) >= TARGET_VP && !needsExpedition(s, p);
 
 /**
+ * Whether this is the last round. When somebody reaches the target, the round
+ * is played to its end, so every player gets the same number of turns. The
+ * first player (seat 0) always starts, so the round ends with the last seat.
+ */
+export const finalRound = (s: GameState) =>
+  s.players.some((p) => reachedTarget(s, p));
+
+/** Whether the active player is the last one in the round. */
+const lastInRound = (s: GameState) => s.active === s.players.length - 1;
+
+/**
  * Paying and being rewarded are worked out separately. The hand is halved in the
  * payer's favour - thirteen coins: pays six and keeps seven. And the reward is
  * added afterwards, on top of what was kept.
@@ -663,9 +674,14 @@ function endGame(s: GameState, endReason: EndReason): GameState {
   };
 }
 
-/** Ends the turn, or the game if anyone has reached the target. */
+/**
+ * Ends the turn. At the end of the round, the game also ends if anyone has
+ * reached the target. E.g. with 4 players, when player 1 reaches it, players
+ * 2, 3 and 4 still get their turn. When player 4 reaches it, the game ends at
+ * once, because player 4 is the last in the round.
+ */
 function endTurn(s: GameState): GameState {
-  if (s.players.some((p) => reachedTarget(s, p))) return endGame(s, 'target');
+  if (lastInRound(s) && finalRound(s)) return endGame(s, 'target');
 
   // Whatever nobody bought is swept off the harbour into discardPile.
   const discardPile = s.discardPile.concat(s.harbour);
@@ -692,7 +708,10 @@ function flip(s: GameState): GameState {
     // Every card still in play is in a hand or a tableau, so nothing can be
     // flipped ever again. The game ends here, and the best table wins (see
     // `winnersOf`). The action bar warns the player before this flip.
-    if (!discardPile.length) return endGame(s, 'deckDry');
+    // In the final round somebody has already reached the target, so the
+    // game ends the same way as it would at the end of the round.
+    if (!discardPile.length)
+      return endGame(s, finalRound(s) ? 'target' : 'deckDry');
 
     deck = shuffled(discardPile);
     discardPile = [];
