@@ -1,4 +1,5 @@
-import ToggleSwitch from '@/components/shared/ToggleSwitch';
+import { ReactNode } from 'react';
+import SettingSwitch from '@/components/port-royal/SettingSwitch';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { DEFAULT_SETTINGS, SETTINGS_KEY } from '@/utils/port-royal/types';
 
@@ -15,6 +16,30 @@ const ROWS = [
     on: false,
   },
 ];
+
+/** One settings line: title and small caption on the left, switch on the
+ * right. The whole row is a <label>, so a click on the text also toggles. */
+function SettingRow({
+  label,
+  note,
+  children,
+}: {
+  label: string;
+  note: string;
+  children: ReactNode;
+}) {
+  return (
+    <label className="border-portRoyal-wood/40 flex cursor-pointer items-center justify-between gap-3 border-b py-3 select-none has-disabled:cursor-default">
+      <span className="flex flex-col gap-0.5">
+        <span className="font-spectral text-[16px]">{label}</span>
+        <span className="font-archivo-narrow text-portRoyal-slate text-[10px] tracking-[0.12em] uppercase">
+          {note}
+        </span>
+      </span>
+      {children}
+    </label>
+  );
+}
 
 /** Right-hand drawer, dismissed by the backdrop or either button. */
 export default function SettingsOverlay({
@@ -41,47 +66,26 @@ export default function SettingsOverlay({
         <div className="font-spectral text-[26px] font-semibold">Settings</div>
 
         {ROWS.map((row) => (
-          <div
-            key={row.label}
-            className="border-portRoyal-wood/40 flex items-center justify-between gap-3 border-b py-3"
-          >
-            <div className="flex flex-col gap-0.5">
-              <span className="font-spectral text-[16px]">{row.label}</span>
-              <span className="font-archivo-narrow text-portRoyal-slate text-[10px] tracking-[0.12em] uppercase">
-                {row.note}
-              </span>
-            </div>
-            <div
-              className={`border-portRoyal-wood flex h-7 w-13 flex-none items-center border p-0.5 ${
-                row.on
-                  ? 'bg-portRoyal-brass/30 justify-end'
-                  : 'bg-portRoyal-parchment/60 justify-start'
-              }`}
-            >
-              <div
-                className={`h-5.5 w-5.5 ${
-                  row.on ? 'bg-portRoyal-brass' : 'bg-portRoyal-wood'
-                }`}
-              />
-            </div>
-          </div>
+          <SettingRow key={row.label} label={row.label} note={row.note}>
+            {/* Disabled, so keyboard users do not land on a switch that does
+                nothing. It still looks the same as a working one. */}
+            <SettingSwitch checked={row.on} disabled readOnly />
+          </SettingRow>
         ))}
-        <div>
-          <label className="flex cursor-pointer select-none">
-            Alternative card display:
-            <ToggleSwitch
-              className="ml-3"
-              size="sm"
-              onChange={(e) =>
-                setSettings((prev) => ({
-                  ...prev,
-                  alternativeTheme: e.currentTarget.checked,
-                }))
-              }
-              checked={settings.alternativeTheme}
-            />
-          </label>
-        </div>
+        <SettingRow
+          label="Alternative card display"
+          note="Compact faces, not whole cards"
+        >
+          <SettingSwitch
+            checked={settings.alternativeTheme}
+            onChange={(e) =>
+              setSettings((prev) => ({
+                ...prev,
+                alternativeTheme: e.currentTarget.checked,
+              }))
+            }
+          />
+        </SettingRow>
 
         <button
           type="button"

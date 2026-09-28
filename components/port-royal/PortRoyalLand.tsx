@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Flag from '@/components/port-royal/Flag';
-import ToggleSwitch from '@/components/shared/ToggleSwitch';
 import {
   BOARD_NOISE,
   BOARD_VIGNETTE,
@@ -28,6 +27,7 @@ import {
   SeatKind,
   TARGET_VP,
 } from '@/utils/port-royal/types';
+import SettingSwitch from '@/components/port-royal/SettingSwitch';
 
 type Mode = {
   id: GameMode;
@@ -349,8 +349,7 @@ export default function PortRoyalLand() {
                       been claimed, points alone are enough again.
                     </span>
                   </span>
-                  <ToggleSwitch
-                    className="flex-none"
+                  <SettingSwitch
                     checked={rules.expeditionToWin}
                     onChange={(e) =>
                       setRules((prev) => ({
