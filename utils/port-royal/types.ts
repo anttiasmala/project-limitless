@@ -131,16 +131,16 @@ export type ExpeditionItem = ExpeditionSymbol | 'jackOfAllTrades' | 'none';
 export type SlotFill = 'exact' | 'wild' | 'missing';
 
 /**
- * How each expedition symbol is drawn where the art is too small to read.
+ * How each expedition symbol is named and drawn outside the card art.
  * `icon` is the file name of the symbol image under `CARD_ART_DIR`.
  */
 export const EXPEDITION_SYMBOLS: Record<
   ExpeditionSymbol,
-  { glyph: string; label: string; icon: string }
+  { label: string; icon: string }
 > = {
-  house: { glyph: '⌂', label: 'house', icon: 'realHouse.png' },
-  cross: { glyph: '✚', label: 'cross', icon: 'realCross.png' },
-  anchor: { glyph: '⚓', label: 'anchor', icon: 'realAnchor.png' },
+  house: { label: 'house', icon: 'realHouse.png' },
+  cross: { label: 'cross', icon: 'realCross.png' },
+  anchor: { label: 'anchor', icon: 'realAnchor.png' },
 };
 
 const COUNT_WORDS = ['no', 'one', 'two', 'three', 'four', 'five'];
