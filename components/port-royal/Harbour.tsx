@@ -32,6 +32,7 @@ export default function Harbour({
   smoothScroll,
   revealing,
   flipMs,
+  pickable,
   onPick,
   onInspect,
 }: {
@@ -50,6 +51,8 @@ export default function Harbour({
   revealing: DeckCard | null;
   /** How long the revealed card turns over. 0 = it is shown instantly */
   flipMs: number;
+  /** A real player may pick a card. False while a bot is deciding. */
+  pickable: boolean;
   onPick: (card: HarbourCardType) => void;
   onInspect: (card: HarbourCardType) => void;
 }) {
@@ -140,6 +143,7 @@ export default function Harbour({
                 affordable={buying ? affordable(card, seat, tax) : true}
                 selected={selected === card.id}
                 alternative={alternative}
+                pickable={pickable}
                 onPick={() => onPick(card)}
                 onInspect={() => onInspect(card)}
               />
@@ -156,6 +160,7 @@ export default function Harbour({
                   affordable
                   selected={false}
                   alternative={alternative}
+                  pickable={false}
                   onPick={() => {}}
                   onInspect={() => onInspect(visitor)}
                 />
