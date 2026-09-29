@@ -34,6 +34,7 @@ import {
 } from '@/lib/port-royal/gameLogic';
 import { DEFAULT_ROSTER } from '@/lib/port-royal/roster';
 import {
+  Action,
   DEFAULT_RULES,
   Flipped,
   Rules,
@@ -71,6 +72,20 @@ const HINTS: Record<string, string> = {
 
 const DEFAULT_HINT =
   'Coin cards are worth one coin each and stay hidden from other players.';
+
+/**
+ * What a real player may still do while the game waits for a bot. These only
+ * look at the game, control the app, or close a notice that a person has read.
+ * Every other action is a decision, and only the bot makes its own decisions.
+ */
+const ALLOWED_ON_BOT_TURN = new Set<Action['type']>([
+  'INSPECT',
+  'CLOSE_DETAIL',
+  'TOGGLE_SETTINGS',
+  'RESTART',
+  'ACK_BUST',
+  'ACK_TAX',
+]);
 
 /**
  * @param seats One "seat" per entry: human or computer.
@@ -153,6 +168,16 @@ export default function PortRoyal({
   }, [state, revealing]);
 
   const seat = seatOf(state);
+  // The game waits for a bot's decision, so the real players only watch.
+  const botDeciding = isBot(seat) && state.phase !== 'end';
+
+  // Every click on the board goes through here. The bot effect above uses
+  // `dispatch` directly, so it is not stopped by this check.
+  const playerDispatch = (action: Action) => {
+    if (botDeciding && !ALLOWED_ON_BOT_TURN.has(action.type)) return;
+    dispatch(action);
+  };
+
   // The phase the board shows. It stays in discovery until the flipped card has turned over.
   const phase = revealing ? 'discovery' : state.phase;
   const buying = state.phase === 'trade' || state.phase === 'others';
@@ -163,7 +188,8 @@ export default function PortRoyal({
     detail?.kind === 'expedition'
       ? state.expeditions.find((e) => e.id === detail.id)
       : undefined;
-  const claim = posted ? claimCheck(state, posted) : null;
+  // A bot claims its expeditions by itself, so a real player is not offered the claim for it.
+  const claim = posted && !botDeciding ? claimCheck(state, posted) : null;
 
   return (
     <div
@@ -206,7 +232,7 @@ export default function PortRoyal({
 
         <button
           type="button"
-          onClick={() => dispatch({ type: 'TOGGLE_SETTINGS' })}
+          onClick={() => playerDispatch({ type: 'TOGGLE_SETTINGS' })}
           className="font-archivo-narrow text-portRoyal-parchment hover:border-portRoyal-brass min-h-11 cursor-pointer self-center border border-[#4A5560] bg-transparent px-3.5 py-2.5 text-[11px] tracking-[0.16em] uppercase"
         >
           Settings
@@ -227,8 +253,8 @@ export default function PortRoyal({
               (e) => e.id !== revealing?.id,
             )}
             seat={seat}
-            claiming={claimingIn(state.phase)}
-            onInspect={(card) => dispatch({ type: 'INSPECT', card })}
+            claiming={claimingIn(state.phase) && !botDeciding}
+            onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
           />
 
           <Harbour
@@ -242,14 +268,15 @@ export default function PortRoyal({
             smoothScroll={!reduceMotion}
             revealing={revealing}
             flipMs={flipMs}
-            onPick={(card) => dispatch({ type: 'PICK', card })}
-            onInspect={(card) => dispatch({ type: 'INSPECT', card })}
+            pickable={!botDeciding}
+            onPick={(card) => playerDispatch({ type: 'PICK', card })}
+            onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
           />
 
           <div className="flex min-h-0 flex-1 gap-4.5 px-6 pt-1 pb-3">
             <Tableau
               seat={seat}
-              onInspect={(card) => dispatch({ type: 'INSPECT', card })}
+              onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
             />
             <HandRail seat={seat} />
           </div>
@@ -261,7 +288,8 @@ export default function PortRoyal({
         seat={seat}
         selected={selected}
         revealing={revealing !== null}
-        dispatch={dispatch}
+        botDeciding={botDeciding}
+        dispatch={playerDispatch}
       />
 
       {state.toast && !revealing && <Toast toast={state.toast} />}
@@ -275,8 +303,9 @@ export default function PortRoyal({
             (c) =>
               c.kind === 'ship' && c.colorIdx === state.repelShip!.colorIdx,
           )}
-          onRepel={() => dispatch({ type: 'REPEL' })}
-          onDecline={() => dispatch({ type: 'DECLINE_REPEL' })}
+          botDeciding={botDeciding}
+          onRepel={() => playerDispatch({ type: 'REPEL' })}
+          onDecline={() => playerDispatch({ type: 'DECLINE_REPEL' })}
         />
       )}
 
@@ -286,22 +315,22 @@ export default function PortRoyal({
         <HandoverOverlay
           nextName={state.players[state.active].name}
           finalRound={finalRound(state)}
-          onBegin={() => dispatch({ type: 'BEGIN_TURN' })}
+          onBegin={() => playerDispatch({ type: 'BEGIN_TURN' })}
         />
       )}
 
       {phase === 'bust' && state.bustPair && (
         <BustOverlay
           pair={state.bustPair}
-          onAcknowledge={() => dispatch({ type: 'ACK_BUST' })}
+          onAcknowledge={() => playerDispatch({ type: 'ACK_BUST' })}
         />
       )}
 
       {phase === 'tax' && state.tax && (
         <TaxOverlay
           event={state.tax}
-          onInspect={(card) => dispatch({ type: 'INSPECT', card })}
-          onAcknowledge={() => dispatch({ type: 'ACK_TAX' })}
+          onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
+          onAcknowledge={() => playerDispatch({ type: 'ACK_TAX' })}
         />
       )}
 
@@ -314,18 +343,18 @@ export default function PortRoyal({
                   handIn: claim.handIn.map((c) => c.name),
                   blocked: claim.blocked,
                   onClaim: () =>
-                    dispatch({ type: 'CLAIM_EXPEDITION', id: posted.id }),
+                    playerDispatch({ type: 'CLAIM_EXPEDITION', id: posted.id }),
                 }
               : undefined
           }
-          onClose={() => dispatch({ type: 'CLOSE_DETAIL' })}
+          onClose={() => playerDispatch({ type: 'CLOSE_DETAIL' })}
         />
       )}
 
       {state.settings && (
         <SettingsOverlay
-          onClose={() => dispatch({ type: 'TOGGLE_SETTINGS' })}
-          onRestart={() => dispatch({ type: 'RESTART' })}
+          onClose={() => playerDispatch({ type: 'TOGGLE_SETTINGS' })}
+          onRestart={() => playerDispatch({ type: 'RESTART' })}
         />
       )}
 
@@ -336,7 +365,7 @@ export default function PortRoyal({
           endReason={state.endReason}
           qualified={state.players.map((p) => reachedTarget(state, p))}
           expeditionRule={state.rules.expeditionToWin}
-          onRestart={() => dispatch({ type: 'RESTART' })}
+          onRestart={() => playerDispatch({ type: 'RESTART' })}
         />
       )}
     </div>
