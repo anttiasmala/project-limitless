@@ -6,6 +6,7 @@ import {
   Card,
   cardArt,
   describeRequirement,
+  ROLE_LABELS,
   SHIPS,
   TAX_THRESHOLD,
 } from '@/utils/port-royal/types';
@@ -60,7 +61,7 @@ function bandFor(card: Card): string {
   }
   if (card.kind === 'tax') return 'Event · immediate';
   if (card.kind === 'expedition') return 'Expedition · posted until claimed';
-  return `Person · ${card.role}`;
+  return `Person · ${ROLE_LABELS[card.role]}`;
 }
 
 function textFor(card: Card): string {
