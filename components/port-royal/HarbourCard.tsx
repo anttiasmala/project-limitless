@@ -7,6 +7,7 @@ import {
   CARD_ART_W,
   cardArt,
   HarbourCard as HarbourCardType,
+  ROLE_LABELS,
   SHIPS,
 } from '@/utils/port-royal/types';
 
@@ -189,7 +190,7 @@ function ComposedFace({
         <span className="font-archivo-narrow text-[9px] font-semibold tracking-[0.16em] uppercase">
           {card.kind === 'ship'
             ? `Ship · ${SHIPS[card.colorIdx].name}`
-            : `Person · ${card.role}`}
+            : `Person · ${ROLE_LABELS[card.role]}`}
         </span>
         <span className="font-archivo-narrow text-[9px] tracking-widest uppercase opacity-85">
           {ship ? ship.shape : 'hire'}
