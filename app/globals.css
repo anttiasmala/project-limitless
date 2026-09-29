@@ -141,6 +141,20 @@ input:-webkit-autofill:active {
   }
 }
 
+/* Port Royal: a drawn card shows its back (coin) for a moment, then turns over from left to right. */
+@keyframes portRoyalCardFlip {
+  0%,
+  30% {
+    transform: rotateY(-180deg);
+  }
+  65% {
+    transform: rotateY(-90deg) scale(1.06);
+  }
+  100% {
+    transform: rotateY(0deg);
+  }
+}
+
 /* Ambient up/down bob for the Limitless Arcade title. Each letter shares this
    animation but gets a staggered animation-delay, producing a travelling wave.
    Uses em so the amplitude scales with the responsive font size. */
