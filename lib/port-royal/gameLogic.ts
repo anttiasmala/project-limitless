@@ -703,7 +703,10 @@ function endTurn(s: GameState): GameState {
 function flip(s: GameState): GameState {
   let deck = s.deck.slice();
   let discardPile = s.discardPile;
-  let note: GameState['toast'] = s.toast;
+  // A new card replaces the old message. If the old toast was kept, the
+  // reveal would hide it and then start its timer again from zero, so the old toast
+  // (even from the last turn) would show up.
+  let note: GameState['toast'] = null;
 
   if (!deck.length) {
     // Every card still in play is in a hand or a tableau, so nothing can be
@@ -1171,7 +1174,11 @@ export function reducer(s: GameState, action: Action): GameState {
       return endTurn(s);
 
     case 'BEGIN_TURN':
-      return { ...s, phase: 'discovery' };
+      return {
+        ...s,
+        phase: 'discovery',
+        toast: isBot(s.players[s.active]) ? s.toast : null,
+      };
 
     case 'INSPECT':
       return { ...s, detail: action.card };
