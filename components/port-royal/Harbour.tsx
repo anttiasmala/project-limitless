@@ -1,11 +1,18 @@
+import Image from 'next/image';
 import { useEffect, useRef } from 'react';
+import CardFlip from './CardFlip';
 import Flag from './Flag';
 import HarbourCard from './HarbourCard';
 import { DASHED_RULE } from './shapes';
 import { affordable, priceOf } from '@/lib/port-royal/gameLogic';
 import {
+  CARD_ART_H,
+  CARD_ART_W,
+  cardArt,
+  DeckCard,
   HarbourCard as HarbourCardType,
   Player,
+  ShipCard,
   SHIPS,
 } from '@/utils/port-royal/types';
 
@@ -22,6 +29,7 @@ export default function Harbour({
   discovering,
   selected,
   alternative,
+  revealing,
   onPick,
   onInspect,
 }: {
@@ -34,27 +42,39 @@ export default function Harbour({
   selected: number | null;
   /** Draw the alternative face rather than the "whole" card. */
   alternative: boolean;
+  /** The card that is turning over right now or nothing turning over */
+  revealing: DeckCard | null;
   onPick: (card: HarbourCardType) => void;
   onInspect: (card: HarbourCardType) => void;
 }) {
+  // A card that turns over but does not stay in the harbour (tax, expedition,
+  // a ship that can be repelled or that busts). It is shown at the end of the
+  // row only while it turns over.
+  const visitor =
+    revealing && !harbour.some((c) => c.id === revealing.id) ? revealing : null;
+
+  // The colour of a ship still turning over is not shown yet, so the flags do not give it away.
   const seen = new Set(
-    harbour.filter((c) => c.kind === 'ship').map((c) => c.colorIdx),
+    harbour
+      .filter((c): c is ShipCard => c.kind === 'ship' && c.id !== revealing?.id)
+      .map((c) => c.colorIdx),
   );
 
   // Scroll to the end when a card is flipped. Buying a card does not break the scroll to the end "flow"
   const scroller = useRef<HTMLDivElement>(null);
-  const prevCount = useRef(harbour.length);
+  const shownCount = harbour.length + (visitor ? 1 : 0);
+  const prevCount = useRef(shownCount);
   useEffect(() => {
     const el = scroller.current;
-    if (el && harbour.length > prevCount.current) {
+    if (el && shownCount > prevCount.current) {
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
       el.scrollTo({
         left: el.scrollWidth,
         behavior: reduce.matches ? 'auto' : 'smooth',
       });
     }
-    prevCount.current = harbour.length;
-  }, [harbour.length]);
+    prevCount.current = shownCount;
+  }, [shownCount]);
 
   return (
     <div className="flex min-h-0 flex-col gap-2.5 px-6 pt-4 pb-3">
@@ -91,7 +111,7 @@ export default function Harbour({
         ref={scroller}
         className="border-portRoyal-wood/55 bg-portRoyal-parchment/35 min-h-79 overflow-x-auto overflow-y-hidden border p-3.5"
       >
-        {harbour.length === 0 && (
+        {shownCount === 0 && (
           <div className="grid h-71.5 place-items-center text-center">
             <div className="flex flex-col items-center gap-1.5">
               <div className="border-portRoyal-wood/80 h-18.5 w-18.5 rounded-full border border-dashed" />
@@ -104,18 +124,45 @@ export default function Harbour({
 
         <div className="flex items-start gap-3">
           {harbour.map((card) => (
-            <HarbourCard
-              key={card.id}
-              card={card}
-              price={priceOf(card, seat)}
-              buying={buying}
-              affordable={buying ? affordable(card, seat, tax) : true}
-              selected={selected === card.id}
-              alternative={alternative}
-              onPick={() => onPick(card)}
-              onInspect={() => onInspect(card)}
-            />
+            <CardFlip key={card.id} flipping={card.id === revealing?.id}>
+              <HarbourCard
+                card={card}
+                price={priceOf(card, seat)}
+                buying={buying}
+                affordable={buying ? affordable(card, seat, tax) : true}
+                selected={selected === card.id}
+                alternative={alternative}
+                onPick={() => onPick(card)}
+                onInspect={() => onInspect(card)}
+              />
+            </CardFlip>
           ))}
+
+          {visitor && (
+            <CardFlip key={`visitor-${visitor.id}`} flipping>
+              {visitor.kind === 'ship' || visitor.kind === 'person' ? (
+                <HarbourCard
+                  card={visitor}
+                  price={priceOf(visitor, seat)}
+                  buying={false}
+                  affordable
+                  selected={false}
+                  alternative={alternative}
+                  onPick={() => {}}
+                  onInspect={() => onInspect(visitor)}
+                />
+              ) : (
+                // Tax and expedition cards have no harbour face, so the printed card is shown.
+                <Image
+                  src={cardArt(visitor.image)}
+                  alt={visitor.name}
+                  width={CARD_ART_W}
+                  height={CARD_ART_H}
+                  className="h-71.5 w-44.5 object-contain shadow-[0_6px_14px_rgba(31,42,51,0.16)]"
+                />
+              )}
+            </CardFlip>
+          )}
         </div>
       </div>
     </div>
