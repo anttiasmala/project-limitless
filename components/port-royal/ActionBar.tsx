@@ -127,17 +127,23 @@ export default function ActionBar({
   state,
   seat,
   selected,
+  revealing,
   dispatch,
 }: {
   state: GameState;
   seat: Player;
   selected: HarbourCard | undefined;
+  /** A flipped card is still turning over. */
+  revealing: boolean;
   dispatch: (action: Action) => void;
 }) {
   const active = state.players[state.active];
   const dry = nothingToDraw(state);
+  // Until the card has turned over, the bar stays as it was during the discovery,
+  // so the text does not tell what the card is (e.g. "Two ships of one colour").
+  const phase = revealing ? 'discovery' : state.phase;
   const actions = actionsFor(
-    state.phase,
+    phase,
     state.harbour.length,
     selected,
     active.name,
@@ -148,10 +154,10 @@ export default function ActionBar({
     <div className="bg-portRoyal-ink/94 text-portRoyal-ground flex flex-none items-center gap-5 px-6 py-3">
       <div className="flex min-w-52.5 flex-col gap-0.75">
         <span className="font-archivo-narrow text-portRoyal-brassLight text-[10px] tracking-[0.2em] uppercase">
-          {PHASE_LABEL[state.phase] ?? 'Phase · —'}
+          {PHASE_LABEL[phase] ?? 'Phase · —'}
         </span>
         <span className="font-spectral text-[15px] font-semibold">
-          {state.phase === 'others'
+          {phase === 'others'
             ? `${seat.name} is buying from ${active.name}`
             : `${active.name}'s turn`}
         </span>
@@ -161,7 +167,7 @@ export default function ActionBar({
 
       <div className="font-spectral flex-1 text-[20px] font-medium">
         {question(
-          state.phase,
+          phase,
           state.harbour.length,
           state.takesLeft,
           seat,
@@ -176,7 +182,9 @@ export default function ActionBar({
             key={a.label}
             type="button"
             disabled={a.disabled}
-            onClick={() => dispatch(a.action)}
+            // Clicks are ignored while a card turns over. The buttons are not
+            // disabled, because that would make them blink on every flip.
+            onClick={() => !revealing && dispatch(a.action)}
             className={`min-h-11 border px-5.5 py-3 text-[13px] font-semibold tracking-[0.12em] uppercase hover:brightness-[1.08] ${
               a.disabled ? 'cursor-not-allowed' : 'cursor-pointer'
             } ${
