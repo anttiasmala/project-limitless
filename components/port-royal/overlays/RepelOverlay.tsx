@@ -17,6 +17,7 @@ export default function RepelOverlay({
   swords,
   playerName,
   clashes,
+  botDeciding,
   onRepel,
   onDecline,
 }: {
@@ -26,6 +27,8 @@ export default function RepelOverlay({
   playerName: string;
   /** Whether a ship of this colour is already in the harbour. */
   clashes: boolean;
+  /** The active player is a bot, so it decides and the buttons are not shown. */
+  botDeciding: boolean;
   onRepel: () => void;
   onDecline: () => void;
 }) {
@@ -90,20 +93,28 @@ export default function RepelOverlay({
           </div>
 
           <div className="mt-auto flex justify-end gap-2.5">
-            <button
-              type="button"
-              onClick={onDecline}
-              className="border-portRoyal-wood text-portRoyal-ink min-h-11.5 cursor-pointer border bg-transparent px-6.5 py-3.5 text-[13px] font-semibold tracking-[0.14em] uppercase hover:brightness-[1.08]"
-            >
-              Decline
-            </button>
-            <button
-              type="button"
-              onClick={onRepel}
-              className="bg-portRoyal-crimson text-portRoyal-ground border-portRoyal-crimsonDeep min-h-11.5 cursor-pointer border px-6.5 py-3.5 text-[13px] font-semibold tracking-[0.14em] uppercase hover:brightness-[1.08]"
-            >
-              Repel the ship
-            </button>
+            {botDeciding ? (
+              <div className="font-spectral text-portRoyal-slate flex min-h-11.5 items-center text-[15px] italic">
+                {playerName} is thinking…
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={onDecline}
+                  className="border-portRoyal-wood text-portRoyal-ink min-h-11.5 cursor-pointer border bg-transparent px-6.5 py-3.5 text-[13px] font-semibold tracking-[0.14em] uppercase hover:brightness-[1.08]"
+                >
+                  Decline
+                </button>
+                <button
+                  type="button"
+                  onClick={onRepel}
+                  className="bg-portRoyal-crimson text-portRoyal-ground border-portRoyal-crimsonDeep min-h-11.5 cursor-pointer border px-6.5 py-3.5 text-[13px] font-semibold tracking-[0.14em] uppercase hover:brightness-[1.08]"
+                >
+                  Repel the ship
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
