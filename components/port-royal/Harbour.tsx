@@ -29,7 +29,9 @@ export default function Harbour({
   discovering,
   selected,
   alternative,
+  smoothScroll,
   revealing,
+  flipMs,
   onPick,
   onInspect,
 }: {
@@ -42,8 +44,12 @@ export default function Harbour({
   selected: number | null;
   /** Draw the alternative face rather than the "whole" card. */
   alternative: boolean;
+  /** Slide to a new card. Off when animations are reduced, then the row jumps. */
+  smoothScroll: boolean;
   /** The card that is turning over right now or nothing turning over */
   revealing: DeckCard | null;
+  /** How long the revealed card turns over. 0 = it is shown instantly */
+  flipMs: number;
   onPick: (card: HarbourCardType) => void;
   onInspect: (card: HarbourCardType) => void;
 }) {
@@ -67,14 +73,13 @@ export default function Harbour({
   useEffect(() => {
     const el = scroller.current;
     if (el && shownCount > prevCount.current) {
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
       el.scrollTo({
         left: el.scrollWidth,
-        behavior: reduce.matches ? 'auto' : 'smooth',
+        behavior: smoothScroll ? 'smooth' : 'auto',
       });
     }
     prevCount.current = shownCount;
-  }, [shownCount]);
+  }, [shownCount, smoothScroll]);
 
   return (
     <div className="flex min-h-0 flex-col gap-2.5 px-6 pt-4 pb-3">
@@ -124,7 +129,10 @@ export default function Harbour({
 
         <div className="flex items-start gap-3">
           {harbour.map((card) => (
-            <CardFlip key={card.id} flipping={card.id === revealing?.id}>
+            <CardFlip
+              key={card.id}
+              flipMs={card.id === revealing?.id ? flipMs : 0}
+            >
               <HarbourCard
                 card={card}
                 price={priceOf(card, seat)}
@@ -139,7 +147,7 @@ export default function Harbour({
           ))}
 
           {visitor && (
-            <CardFlip key={`visitor-${visitor.id}`} flipping>
+            <CardFlip key={`visitor-${visitor.id}`} flipMs={flipMs}>
               {visitor.kind === 'ship' || visitor.kind === 'person' ? (
                 <HarbourCard
                   card={visitor}
