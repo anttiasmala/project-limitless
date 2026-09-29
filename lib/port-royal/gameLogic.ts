@@ -195,6 +195,7 @@ export function freshState(
     endReason: null,
     flipsBeyond: 0,
     scheduled: null,
+    flipped: null,
   };
 }
 
@@ -720,11 +721,18 @@ function flip(s: GameState): GameState {
 
   const card = deck.shift()!;
 
+  // A new `flipped` object on every flip tells the board to play the flip animation.
+  const drawn: GameState = {
+    ...s,
+    deck,
+    discardPile,
+    toast: note,
+    flipped: { card },
+  };
+
   if (card.kind === 'tax') {
     return {
-      ...s,
-      deck,
-      toast: note,
+      ...drawn,
       // The tax card is resolved on the flip. It never gets to "Harbour display"
       discardPile: discardPile.concat(card),
       tax: { card, rows: taxRows(s.players, card.mode) },
@@ -739,20 +747,13 @@ function flip(s: GameState): GameState {
    */
   if (card.kind === 'expedition') {
     return withToast(
-      {
-        ...s,
-        deck,
-        discardPile,
-        expeditions: s.expeditions.concat(card),
-      },
+      { ...drawn, expeditions: s.expeditions.concat(card) },
       `An expedition is posted — ${card.vp} points for ${describeRequirement(
         card.requires,
       )}.`,
       'info',
     );
   }
-
-  const drawn: GameState = { ...s, deck, discardPile, toast: note };
 
   /*
    * A ship the active player can repel. The
