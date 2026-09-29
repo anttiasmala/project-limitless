@@ -310,9 +310,20 @@ export type Settings = {
    * flag, stat chips and price set around it.
    */
   alternativeTheme: boolean;
+  /**
+   * No card flip, no smooth scrolling, no transitions. A drawn card is shown instantly
+   * The device's own "reduced motion" setting turns this on as well.
+   */
+  reduceAnimation: boolean;
+  /** A drawn card is shown instantly, so the next card can be drawn without a wait. */
+  fastGame: boolean;
 };
 
-export const DEFAULT_SETTINGS: Settings = { alternativeTheme: false };
+export const DEFAULT_SETTINGS: Settings = {
+  alternativeTheme: false,
+  reduceAnimation: false,
+  fastGame: false,
+};
 
 /**
  * Game rules chosen on the landing page. Unlike `Settings`, they change how the
