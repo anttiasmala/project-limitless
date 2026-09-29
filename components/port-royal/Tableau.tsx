@@ -75,8 +75,11 @@ export default function Tableau({
           );
 
           return (
-            <div key={role} className="flex min-w-37.5 flex-col gap-1.5">
-              <div className="font-archivo-narrow text-portRoyal-wood text-[9px] tracking-[0.16em] uppercase">
+            // The 150px minimum is on the title, not on the column. So the
+            // column is at least 150px wide, but it can grow wider when one
+            // chip needs more room (for example "Mademoiselle").
+            <div key={role} className="flex flex-col gap-1.5">
+              <div className="font-archivo-narrow text-portRoyal-wood min-w-37.5 text-[9px] tracking-[0.16em] uppercase">
                 {title}
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -89,7 +92,7 @@ export default function Tableau({
                   <div
                     key={card.id}
                     onClick={() => onInspect(card)}
-                    className="bg-portRoyal-card/75 border-portRoyal-wood hover:border-portRoyal-teal flex h-11 cursor-pointer items-center gap-1.75 border pr-2.5 pl-1.75"
+                    className="bg-portRoyal-card/75 border-portRoyal-wood hover:border-portRoyal-teal flex h-11 w-max cursor-pointer items-center gap-1.75 border pr-2.5 pl-1.75"
                   >
                     <RoleChip role={card.role} />
                     <span className="font-spectral text-[13px] font-semibold">

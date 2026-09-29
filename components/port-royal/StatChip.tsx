@@ -105,7 +105,7 @@ export function RoleChip({ role }: { role: PersonRole }) {
   return (
     <span
       aria-hidden
-      className={`grid h-5 w-5 place-items-center border text-[9px] font-bold ${r.chip}`}
+      className={`grid h-5 w-5 shrink-0 place-items-center border text-[9px] font-bold ${r.chip}`}
     >
       <Image
         src={r.icon.imageSrc}
