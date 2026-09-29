@@ -1,7 +1,11 @@
+import Image from 'next/image';
 import { RoleChip } from './StatChip';
 import {
   BonusCard,
+  CARD_ART_DIR,
+  EXPEDITION_SYMBOLS,
   ExpeditionCard,
+  ExpeditionSymbol,
   PersonCard,
   PersonRole,
   Player,
@@ -9,15 +13,24 @@ import {
 } from '@/utils/port-royal/types';
 
 const GROUPS: { role: PersonRole; title: string }[] = [
-  { role: 'fighter', title: 'Fighters — swords' },
-  { role: 'trader', title: 'Traders — goods' },
+  { role: 'fighter', title: 'Fighters' },
+  { role: 'trader', title: 'Traders' },
+  { role: 'crew', title: 'Expedition crew' },
   { role: 'rule', title: 'Rule benders' },
 ];
 
+/** The symbols a crew card supplies. The Jack of all Trades supplies all three. */
+function crewSymbols(card: PersonCard): ExpeditionSymbol[] {
+  if (card.expeditionItem === 'jackOfAllTrades')
+    return ['house', 'cross', 'anchor'];
+  if (card.expeditionItem === 'none') return [];
+  return [card.expeditionItem];
+}
+
 /**
  * Everyone the player has hired, grouped by what they do. Fighters show
- * their swords, everyone else their influence, because that is the number that
- * decides whether the card was worth its price.
+ * their swords, the expedition crew their expedition symbols, and everyone
+ * else their Victory Points
  *
  * Used for the seated player on the board, and for any player in the
  * player overlay. Hired cards are public, like in the board game.
@@ -73,9 +86,42 @@ export default function Tableau({
                       {card.name.split(' — ')[0]}
                     </span>
                     <span className="text-portRoyal-teal text-[12px] font-bold tabular-nums">
-                      {card.role === 'fighter'
-                        ? `${card.swords}✦`
-                        : `${card.vp}◆`}
+                      {card.role === 'fighter' ? (
+                        <span className="flex gap-1">
+                          {card.swords}
+                          <Image
+                            alt="Sword icon"
+                            src={`${CARD_ART_DIR}/realSwords.png`}
+                            width={16}
+                            height={16}
+                            className="h-4 w-4"
+                          />
+                        </span>
+                      ) : card.kind === 'person' && card.role === 'crew' ? (
+                        <span className="flex gap-1">
+                          {crewSymbols(card).map((symbol) => (
+                            <Image
+                              key={symbol}
+                              alt={`${EXPEDITION_SYMBOLS[symbol].label} icon`}
+                              src={`${CARD_ART_DIR}/${EXPEDITION_SYMBOLS[symbol].icon}`}
+                              width={16}
+                              height={16}
+                              className="h-4 w-4 object-contain"
+                            />
+                          ))}
+                        </span>
+                      ) : (
+                        <span className="flex gap-1">
+                          {card.vp}
+                          <Image
+                            alt="Victory Points icon"
+                            src={`${CARD_ART_DIR}/realVictoryPoints.png`}
+                            width={16}
+                            height={16}
+                            className="h-4 w-4"
+                          />
+                        </span>
+                      )}
                     </span>
                   </div>
                 ))}
