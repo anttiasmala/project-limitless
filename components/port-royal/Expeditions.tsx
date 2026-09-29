@@ -1,6 +1,8 @@
+import Image from 'next/image';
 import { canClaim, expeditionFill } from '@/lib/port-royal/gameLogic';
 import { DASHED_RULE } from './shapes';
 import {
+  CARD_ART_DIR,
   EXPEDITION_SYMBOLS,
   ExpeditionCard,
   ExpeditionSymbol,
@@ -10,27 +12,33 @@ import {
 
 /**
  * This has styling for 3 types, exact-card (e.g. house),
- * wild = Jack of all Trades and then not hired
+ * wild = Jack of all Trades and then not hired.
+ *
+ * The icons are coloured art, so a symbol that is not hired is faded out
+ * (`icon`). This way the player sees at a glance what is still missing.
  */
-const CHIP_FILLS: Record<SlotFill, { className: string; note: string }> = {
+const CHIP_FILLS: Record<
+  SlotFill,
+  { className: string; icon: string; note: string }
+> = {
   exact: {
-    className:
-      'border-portRoyal-teal bg-portRoyal-teal text-portRoyal-card font-bold',
+    className: 'border-portRoyal-teal bg-portRoyal-teal',
+    icon: '',
     note: 'hired',
   },
   wild: {
-    className:
-      'border-portRoyal-teal border-dashed bg-portRoyal-teal/22 text-portRoyal-tealDeep font-bold',
+    className: 'border-portRoyal-teal border-dashed bg-portRoyal-teal/22',
+    icon: '',
     note: 'covered by a Jack of all Trades',
   },
   missing: {
-    className:
-      'border-portRoyal-wood/70 bg-portRoyal-parchment/60 text-portRoyal-ink',
+    className: 'border-portRoyal-wood/70 bg-portRoyal-parchment/60',
+    icon: 'opacity-40 grayscale',
     note: 'not hired',
   },
 };
 
-/** One symbol the expedition asks for, drawn as a glyph rather than as art. */
+/** One symbol the expedition asks for, drawn with the symbol's icon. */
 function SymbolChip({
   symbol,
   fill,
@@ -39,14 +47,21 @@ function SymbolChip({
   fill: SlotFill;
 }) {
   const s = EXPEDITION_SYMBOLS[symbol];
-  const { className, note } = CHIP_FILLS[fill];
+  const { className, icon, note } = CHIP_FILLS[fill];
 
   return (
     <span
       title={`${s.label} — ${note}`}
-      className={`grid h-6 w-6 place-items-center border text-[12px] leading-none ${className}`}
+      className={`grid h-6 w-6 place-items-center border ${className}`}
     >
-      <span aria-hidden>{s.glyph}</span>
+      <Image
+        aria-hidden
+        alt=""
+        src={`${CARD_ART_DIR}/${s.icon}`}
+        width={18}
+        height={18}
+        className={`h-4.5 w-4.5 object-contain ${icon}`}
+      />
       <span className="sr-only">{`${s.label}, ${note}`}</span>
     </span>
   );
