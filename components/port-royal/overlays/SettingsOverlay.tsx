@@ -1,21 +1,12 @@
 import { ReactNode } from 'react';
 import SettingSwitch from '@/components/port-royal/SettingSwitch';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { DEFAULT_SETTINGS, SETTINGS_KEY } from '@/utils/port-royal/types';
+import { usePortRoyalSettings } from '@/hooks/port-royal/usePortRoyalSettings';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
-/* The design specifies these three switches as a fixed display: it gives them
+/* The design specifies these two switches as a fixed display: it gives them
    labels and resting positions but no behaviour, and the systems they would
-   drive (audio, reduced motion, open hands) do not exist yet. They are drawn
-   exactly as designed and left inert rather than invented. */
-const ROWS = [
-  { label: 'Sound', note: 'coins, sails, alarms', on: true },
-  { label: 'Reduce animation', note: 'no card flight, no ribbons', on: false },
-  {
-    label: 'Show hidden hands',
-    note: 'table-talk mode, off by default',
-    on: false,
-  },
-];
+   drive (audio, open hands) do not exist yet. They are drawn exactly as
+   designed and left inert rather than invented. */
 
 /** One settings line: title and small caption on the left, switch on the
  * right. The whole row is a <label>, so a click on the text also toggles. */
@@ -49,10 +40,9 @@ export default function SettingsOverlay({
   onClose: () => void;
   onRestart: () => void;
 }) {
-  const [settings, setSettings] = useLocalStorage(
-    SETTINGS_KEY,
-    DEFAULT_SETTINGS,
-  );
+  const [settings, setSettings] = usePortRoyalSettings();
+  // When the device already asks for less motion, the switch is locked on.
+  const deviceReducesMotion = usePrefersReducedMotion();
 
   return (
     <div
@@ -65,13 +55,36 @@ export default function SettingsOverlay({
       >
         <div className="font-spectral text-[26px] font-semibold">Settings</div>
 
-        {ROWS.map((row) => (
-          <SettingRow key={row.label} label={row.label} note={row.note}>
-            {/* Disabled, so keyboard users do not land on a switch that does
-                nothing. It still looks the same as a working one. */}
-            <SettingSwitch checked={row.on} disabled readOnly />
-          </SettingRow>
-        ))}
+        <SettingRow
+          label="Reduce animation"
+          note={
+            deviceReducesMotion
+              ? 'On by your device settings'
+              : 'No card flip, no sliding'
+          }
+        >
+          <SettingSwitch
+            checked={deviceReducesMotion || settings.reduceAnimation}
+            disabled={deviceReducesMotion}
+            onChange={(e) =>
+              setSettings((prev) => ({
+                ...prev,
+                reduceAnimation: e.currentTarget.checked,
+              }))
+            }
+          />
+        </SettingRow>
+        <SettingRow label="Fast game" note="No wait between card draws">
+          <SettingSwitch
+            checked={settings.fastGame}
+            onChange={(e) =>
+              setSettings((prev) => ({
+                ...prev,
+                fastGame: e.currentTarget.checked,
+              }))
+            }
+          />
+        </SettingRow>
         <SettingRow
           label="Alternative card display"
           note="Compact faces, not whole cards"
