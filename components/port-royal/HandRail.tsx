@@ -5,34 +5,52 @@ import { Player } from '@/utils/port-royal/types';
 const MAX_SHOWN = 12;
 
 /**
- * The seated player's coin cards and running totals.
- *
- * Every coin card is worth one, so the fan is deliberately faceless — it shows
- * how much is in hand without the other players learning anything they could
- * not already count.
+ * A player's running totals: coins in hand, swords and Victory Points. All of these
+ * are public, so the player overlay shows the same row for any player.
  */
-export default function HandRail({ seat }: { seat: Player }) {
+export function PlayerTotals({ player }: { player: Player }) {
   const totals = [
     {
       label: 'Coins in hand',
-      value: seat.hand.length,
+      value: player.hand.length,
       className:
         'border-portRoyal-brass bg-portRoyal-brass/12 text-portRoyal-wood',
     },
     {
       label: 'Swords',
-      value: swordsOf(seat),
+      value: swordsOf(player),
       className:
         'border-portRoyal-slate bg-portRoyal-slate/8 text-portRoyal-ink',
     },
     {
-      label: 'Influence',
-      value: vpOf(seat),
+      label: 'Victory Points',
+      value: vpOf(player),
       className:
         'border-portRoyal-teal bg-portRoyal-teal/8 text-portRoyal-teal',
     },
   ];
 
+  return (
+    <div className="mt-0.5 flex gap-2">
+      {totals.map((t) => (
+        <div
+          key={t.label}
+          className={`flex flex-1 flex-col gap-0.5 border px-2.5 py-2 ${t.className}`}
+        >
+          <span className="font-archivo-narrow text-portRoyal-slate text-[9px] tracking-[0.16em] uppercase">
+            {t.label}
+          </span>
+          <span className="text-[22px] font-bold tabular-nums">{t.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Shows how many coins, swords and Victory Points a player has
+ */
+export default function HandRail({ seat }: { seat: Player }) {
   return (
     <div className="flex w-93 flex-none flex-col gap-2">
       <div className="flex items-center gap-2.5">
@@ -68,21 +86,7 @@ export default function HandRail({ seat }: { seat: Player }) {
         )}
       </div>
 
-      <div className="mt-0.5 flex gap-2">
-        {totals.map((t) => (
-          <div
-            key={t.label}
-            className={`flex flex-1 flex-col gap-0.5 border px-2.5 py-2 ${t.className}`}
-          >
-            <span className="font-archivo-narrow text-portRoyal-slate text-[9px] tracking-[0.16em] uppercase">
-              {t.label}
-            </span>
-            <span className="text-[22px] font-bold tabular-nums">
-              {t.value}
-            </span>
-          </div>
-        ))}
-      </div>
+      <PlayerTotals player={seat} />
     </div>
   );
 }
