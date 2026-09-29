@@ -28,6 +28,18 @@ function crewSymbols(card: PersonCard): ExpeditionSymbol[] {
 }
 
 /**
+ * The short name shown on a tableau chip. The full name is in the card overlay.
+ * Cards are printed "Trader — Spice"; the chip is too narrow for the
+ * speciality, so it keeps the base name. "Jack of all Trades" also has three
+ * icons, so it is shortened to "Jack" to fit on one line.
+ */
+function chipName(card: PersonCard | BonusCard): string {
+  if (card.kind === 'person' && card.expeditionItem === 'jackOfAllTrades')
+    return 'Jack';
+  return card.name.split(' — ')[0];
+}
+
+/**
  * Everyone the player has hired, grouped by what they do. Fighters show
  * their swords, the expedition crew their expedition symbols, and everyone
  * else their Victory Points
@@ -80,12 +92,10 @@ export default function Tableau({
                     className="bg-portRoyal-card/75 border-portRoyal-wood hover:border-portRoyal-teal flex h-11 cursor-pointer items-center gap-1.75 border pr-2.5 pl-1.75"
                   >
                     <RoleChip role={card.role} />
-                    {/* Cards are printed "Trader — Spice"; the chip is too
-                        narrow for the speciality, so it keeps the base name. */}
                     <span className="font-spectral text-[13px] font-semibold">
-                      {card.name.split(' — ')[0]}
+                      {chipName(card)}
                     </span>
-                    <span className="text-portRoyal-teal text-[12px] font-bold tabular-nums">
+                    <span className="text-portRoyal-teal shrink-0 text-[12px] font-bold tabular-nums">
                       {card.role === 'fighter' ? (
                         <span className="flex gap-1">
                           {card.swords}
