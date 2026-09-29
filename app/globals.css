@@ -155,6 +155,14 @@ input:-webkit-autofill:active {
   }
 }
 
+/* Port Royal "Reduce animation" setting (or the device's reduced motion setting) */
+[data-reduce-motion] *,
+[data-reduce-motion] *::before,
+[data-reduce-motion] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
 /* Ambient up/down bob for the Limitless Arcade title. Each letter shares this
    animation but gets a staggered animation-delay, producing a travelling wave.
    Uses em so the amplitude scales with the responsive font size. */
