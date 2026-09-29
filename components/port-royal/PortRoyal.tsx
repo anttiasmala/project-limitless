@@ -13,6 +13,7 @@ import BustOverlay from './overlays/BustOverlay';
 import DetailOverlay from './overlays/DetailOverlay';
 import EndOverlay from './overlays/EndOverlay';
 import HandoverOverlay from './overlays/HandoverOverlay';
+import PlayerOverlay from './overlays/PlayerOverlay';
 import SettingsOverlay from './overlays/SettingsOverlay';
 import TaxOverlay from './overlays/TaxOverlay';
 import { BOARD_NOISE, BOARD_VIGNETTE } from './shapes';
@@ -125,6 +126,11 @@ export default function PortRoyal({
   // is not this one, its card is being revealed, and everything the card causes
   // (overlays, toast, the next move of a bot) waits.
   const [revealed, setRevealed] = useState<Flipped | null>(null);
+
+  // The index of the player whose cards are open, or null. Only a view of the
+  // game, so it lives here and not in the reducer. The index (not a copy of the
+  // player) keeps the view up to date when the player buys during it.
+  const [viewing, setViewing] = useState<number | null>(null);
   const revealing =
     revealMs > 0 && state.flipped && state.flipped !== revealed
       ? state.flipped.card
@@ -228,6 +234,7 @@ export default function PortRoyal({
           phase={state.phase}
           expeditionRule={state.rules.expeditionToWin}
           expeditionsRemain={expeditionsRemain(state)}
+          onView={setViewing}
         />
 
         <button
@@ -275,7 +282,7 @@ export default function PortRoyal({
 
           <div className="flex min-h-0 flex-1 gap-4.5 px-6 pt-1 pb-3">
             <Tableau
-              seat={seat}
+              player={seat}
               onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
             />
             <HandRail seat={seat} />
@@ -293,6 +300,19 @@ export default function PortRoyal({
       />
 
       {state.toast && !revealing && <Toast toast={state.toast} />}
+
+      {/* Comes before the game's overlays, so a repel offer or a handover
+          opens on top of it. The card details come after, so a click on a
+          card here opens them on top. */}
+      {viewing !== null && state.players[viewing] && (
+        <PlayerOverlay
+          player={state.players[viewing]}
+          isSeat={state.players[viewing] === seat}
+          escapeCloses={!state.detail}
+          onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
+          onClose={() => setViewing(null)}
+        />
+      )}
 
       {phase === 'repel' && state.repelShip && (
         <RepelOverlay
