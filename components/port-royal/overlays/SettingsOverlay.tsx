@@ -3,11 +3,6 @@ import SettingSwitch from '@/components/port-royal/SettingSwitch';
 import { usePortRoyalSettings } from '@/hooks/port-royal/usePortRoyalSettings';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
-/* The design specifies these two switches as a fixed display: it gives them
-   labels and resting positions but no behaviour, and the systems they would
-   drive (audio, open hands) do not exist yet. They are drawn exactly as
-   designed and left inert rather than invented. */
-
 /** One settings line: title and small caption on the left, switch on the
  * right. The whole row is a <label>, so a click on the text also toggles. */
 function SettingRow({
