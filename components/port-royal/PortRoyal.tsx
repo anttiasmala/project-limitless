@@ -16,7 +16,8 @@ import HandoverOverlay from './overlays/HandoverOverlay';
 import SettingsOverlay from './overlays/SettingsOverlay';
 import TaxOverlay from './overlays/TaxOverlay';
 import { BOARD_NOISE, BOARD_VIGNETTE } from './shapes';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { usePortRoyalSettings } from '@/hooks/port-royal/usePortRoyalSettings';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { botTurn } from '@/lib/port-royal/ai';
 import {
   claimCheck,
@@ -34,11 +35,9 @@ import {
 import { DEFAULT_ROSTER } from '@/lib/port-royal/roster';
 import {
   DEFAULT_RULES,
-  DEFAULT_SETTINGS,
   Flipped,
   Rules,
   Seat,
-  SETTINGS_KEY,
   TARGET_VP,
 } from '@/utils/port-royal/types';
 import RepelOverlay from './overlays/RepelOverlay';
@@ -46,11 +45,21 @@ import RepelOverlay from './overlays/RepelOverlay';
 const TOAST_MS = 2600;
 
 /**
- * How long a flipped card is shown turning over before the game goes on with it.
- * The flip animation itself (`portRoyalCardFlip` in globals.css) is 750 ms. The
- * rest is a short pause so the player can see the card before an overlay opens.
+ * How a drawn card is shown before the game goes on with it. `flipMs` is the
+ * length of the flip animation (`portRoyalCardFlip` in globals.css), 0 = no flip.
+ * `revealMs` is the wait before the game goes on (overlays, toast, next draw).
+ * In a normal game the wait is a bit longer than the flip, so the player can
+ * see the card before an overlay opens.
  */
-const REVEAL_MS = 950;
+type Reveal = { flipMs: number; revealMs: number };
+
+const NORMAL_REVEAL: Reveal = { flipMs: 750, revealMs: 950 };
+/** "Reduce animation": no motion, but the same wait as a normal game. */
+const STILL_REVEAL: Reveal = { flipMs: 0, revealMs: 950 };
+/** "Fast game": a quick flip and no extra pause after it. */
+const QUICK_REVEAL: Reveal = { flipMs: 300, revealMs: 300 };
+/** Both settings on: the card is shown instantly. */
+const INSTANT_REVEAL: Reveal = { flipMs: 0, revealMs: 0 };
 
 /** The one line of rules text the left rail shows, chosen by phase. */
 const HINTS: Record<string, string> = {
@@ -86,25 +95,34 @@ export default function PortRoyal({
   }, []);
 
   // Loads Port Royal settings from LocalStorage
-  const [settings] = useLocalStorage(SETTINGS_KEY, DEFAULT_SETTINGS);
+  const [settings] = usePortRoyalSettings();
+  const reduceMotion = usePrefersReducedMotion() || settings.reduceAnimation;
+  // "Reduce animation" decides if the card moves, "Fast game" how long the game waits.
+  const { flipMs, revealMs } = settings.fastGame
+    ? reduceMotion
+      ? INSTANT_REVEAL
+      : QUICK_REVEAL
+    : reduceMotion
+      ? STILL_REVEAL
+      : NORMAL_REVEAL;
 
   // The flip that has already been shown to the players. While the latest flip
-  // is not this one, its card is turning over, and everything the card causes
+  // is not this one, its card is being revealed, and everything the card causes
   // (overlays, toast, the next move of a bot) waits.
   const [revealed, setRevealed] = useState<Flipped | null>(null);
   const revealing =
-    state.flipped && state.flipped !== revealed ? state.flipped.card : null;
+    revealMs > 0 && state.flipped && state.flipped !== revealed
+      ? state.flipped.card
+      : null;
 
+  // Also runs when there is no wait. Then `revealed` keeps up with the flips,
+  // and a later switch back to a wait does not reveal an old card again.
   useEffect(() => {
     const flipped = state.flipped;
     if (!flipped || flipped === revealed) return;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const timer = setTimeout(
-      () => setRevealed(flipped),
-      reduce.matches ? 0 : REVEAL_MS,
-    );
+    const timer = setTimeout(() => setRevealed(flipped), revealMs);
     return () => clearTimeout(timer);
-  }, [state.flipped, revealed]);
+  }, [state.flipped, revealed, revealMs]);
 
   // A replacement toast is a new object, which restarts this timer — the way
   // the prototype cleared and re-armed its timeout on every `say()`.
@@ -149,6 +167,8 @@ export default function PortRoyal({
 
   return (
     <div
+      // Turns off every animation and transition inside the board (see globals.css).
+      data-reduce-motion={reduceMotion || undefined}
       className="bg-portRoyal-ground font-archivo text-portRoyal-ink relative flex min-h-0 w-full flex-col overflow-hidden"
       style={{ backgroundImage: `${BOARD_VIGNETTE}, ${BOARD_NOISE}` }}
     >
@@ -219,7 +239,9 @@ export default function PortRoyal({
             discovering={phase === 'discovery'}
             selected={state.selected}
             alternative={settings.alternativeTheme}
+            smoothScroll={!reduceMotion}
             revealing={revealing}
+            flipMs={flipMs}
             onPick={(card) => dispatch({ type: 'PICK', card })}
             onInspect={(card) => dispatch({ type: 'INSPECT', card })}
           />
