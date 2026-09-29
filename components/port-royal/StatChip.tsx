@@ -1,4 +1,5 @@
-import { PersonRole } from '@/utils/port-royal/types';
+import { CARD_ART_DIR, PersonRole } from '@/utils/port-royal/types';
+import Image from 'next/image';
 
 export type StatKind = 'coin' | 'sword' | 'vp';
 
@@ -60,18 +61,41 @@ export default function StatChip({
 }
 
 /** The smaller tableau chip, keyed off the hired person's role. */
-const ROLE: Record<PersonRole, { glyph: string; chip: string }> = {
+const ROLE: Record<
+  PersonRole,
+  { glyph: string; chip: string; icon: { imageSrc: string; imageAlt: string } }
+> = {
   fighter: {
     glyph: '✦',
     chip: 'rounded-[2px] border-portRoyal-slate bg-portRoyal-ink/14 text-portRoyal-teal',
+    icon: {
+      imageSrc: `${CARD_ART_DIR}/realSwords.png`,
+      imageAlt: 'Real swords icon',
+    },
   },
   trader: {
     glyph: 'S',
     chip: 'rounded-full border-portRoyal-brass bg-portRoyal-brass/30 text-portRoyal-brassDeep',
+    icon: {
+      imageSrc: `${CARD_ART_DIR}/realCoins.png`,
+      imageAlt: 'Real coins icon',
+    },
+  },
+  crew: {
+    glyph: '⚓',
+    chip: 'rounded-[2px] border-portRoyal-wood bg-portRoyal-wood/20 text-portRoyal-ink',
+    icon: {
+      imageSrc: `${CARD_ART_DIR}/expeditionIcon.png`,
+      imageAlt: 'Expedition icon',
+    },
   },
   rule: {
     glyph: '◆',
     chip: 'rounded-[2px] border-portRoyal-teal bg-portRoyal-teal/18 text-portRoyal-teal',
+    icon: {
+      imageSrc: `${CARD_ART_DIR}/realVictoryPoints.png`,
+      imageAlt: 'Real Victory Points icon',
+    },
   },
 };
 
@@ -83,7 +107,13 @@ export function RoleChip({ role }: { role: PersonRole }) {
       aria-hidden
       className={`grid h-5 w-5 place-items-center border text-[9px] font-bold ${r.chip}`}
     >
-      {r.glyph}
+      <Image
+        src={r.icon.imageSrc}
+        alt={r.icon.imageAlt}
+        width={16}
+        height={16}
+        className="h-3 w-3"
+      />
     </span>
   );
 }
