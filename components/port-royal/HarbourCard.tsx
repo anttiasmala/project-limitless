@@ -16,6 +16,8 @@ type FaceProps = {
   buying: boolean;
   affordable: boolean;
   selected: boolean;
+  /** A click picks the card. False while a bot is deciding, so the card does not look clickable. */
+  pickable: boolean;
   onPick: () => void;
   onInspect: () => void;
 };
@@ -56,6 +58,7 @@ function PrintedFace({
   buying,
   affordable,
   selected,
+  pickable,
   onPick,
   onInspect,
 }: FaceProps) {
@@ -65,7 +68,7 @@ function PrintedFace({
     <div
       onClick={onPick}
       className={`relative h-71.5 w-44.5 flex-none overflow-hidden shadow-[0_6px_14px_rgba(31,42,51,0.16)] outline-offset-[3px] transition-transform duration-120 ease-out hover:shadow-[0_12px_22px_rgba(31,42,51,0.22)] ${
-        buying ? 'cursor-pointer' : 'cursor-default'
+        buying && pickable ? 'cursor-pointer' : 'cursor-default'
       } ${
         selected ? 'outline-portRoyal-teal -translate-y-1.5 outline-[3px]' : ''
       } ${buying && !affordable ? 'opacity-55' : 'opacity-100'}`}
@@ -110,6 +113,7 @@ function ComposedFace({
   buying,
   affordable,
   selected,
+  pickable,
   onPick,
   onInspect,
 }: FaceProps) {
@@ -120,7 +124,7 @@ function ComposedFace({
     <div
       onClick={onPick}
       className={`relative flex h-71.5 w-44.5 flex-none flex-col gap-1.75 border p-2.25 shadow-[0_6px_14px_rgba(31,42,51,0.16)] outline-offset-[3px] transition-transform duration-120 ease-out hover:shadow-[0_12px_22px_rgba(31,42,51,0.22)] ${
-        buying ? 'cursor-pointer' : 'cursor-default'
+        buying && pickable ? 'cursor-pointer' : 'cursor-default'
       } ${
         selected
           ? 'border-portRoyal-teal outline-portRoyal-teal -translate-y-1.5 bg-[#FFFDF7]/98 outline-[3px]'
