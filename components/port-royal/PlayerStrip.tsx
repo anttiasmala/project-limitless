@@ -52,6 +52,7 @@ function ExpeditionTag({ done, waived }: { done: boolean; waived: boolean }) {
  * @param expeditionRule Whether the `expeditionToWin` rule is on. Only then the
  * expedition tag is shown.
  * @param expeditionsRemain Whether any expedition can still be claimed.
+ * @param onView Opens the player's cards. Called with the player's index.
  */
 export default function PlayerStrip({
   players,
@@ -60,6 +61,7 @@ export default function PlayerStrip({
   phase,
   expeditionRule,
   expeditionsRemain,
+  onView,
 }: {
   players: Player[];
   active: number;
@@ -67,6 +69,7 @@ export default function PlayerStrip({
   phase: Phase;
   expeditionRule: boolean;
   expeditionsRemain: boolean;
+  onView: (index: number) => void;
 }) {
   return (
     <div className="flex min-w-0 flex-1 gap-2.5 overflow-x-auto">
@@ -78,9 +81,21 @@ export default function PlayerStrip({
           // Cards sit at their natural width and shrink from it, so a
           // three-player table looks as it always did and a five-player one
           // still fits the bar instead of sliding off the end.
+          // A click opens the player's cards. The card holds <div>s, which a
+          // <button> may not contain, so it is a <div> that acts as a button.
           <div
             key={p.name}
-            className={`flex w-44 min-w-0 shrink flex-col gap-1.25 border px-3 py-2 ${
+            role="button"
+            tabIndex={0}
+            title={`Show ${p.name}'s cards`}
+            onClick={() => onView(i)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onView(i);
+              }
+            }}
+            className={`hover:border-portRoyal-brassLight flex w-44 min-w-0 shrink cursor-pointer flex-col gap-1.25 border px-3 py-2 ${
               isActive
                 ? 'border-portRoyal-brass bg-portRoyal-brass/16'
                 : isTaking
