@@ -128,6 +128,7 @@ export default function ActionBar({
   seat,
   selected,
   revealing,
+  botDeciding,
   dispatch,
 }: {
   state: GameState;
@@ -135,6 +136,8 @@ export default function ActionBar({
   selected: HarbourCard | undefined;
   /** A flipped card is still turning over. */
   revealing: boolean;
+  /** The game waits for a bot, so the buttons are replaced with a label. */
+  botDeciding: boolean;
   dispatch: (action: Action) => void;
 }) {
   const active = state.players[state.active];
@@ -176,29 +179,37 @@ export default function ActionBar({
         )}
       </div>
 
-      <div className="flex gap-2.5">
-        {actions.map((a) => (
-          <button
-            key={a.label}
-            type="button"
-            disabled={a.disabled}
-            // Clicks are ignored while a card turns over. The buttons are not
-            // disabled, because that would make them blink on every flip.
-            onClick={() => !revealing && dispatch(a.action)}
-            className={`min-h-11 border px-5.5 py-3 text-[13px] font-semibold tracking-[0.12em] uppercase hover:brightness-[1.08] ${
-              a.disabled ? 'cursor-not-allowed' : 'cursor-pointer'
-            } ${
-              a.primary
-                ? a.disabled
-                  ? 'border-portRoyal-slate bg-portRoyal-parchment/25 text-portRoyal-wood'
-                  : 'border-portRoyal-wood bg-portRoyal-brass text-portRoyal-ink'
-                : 'border-portRoyal-wood text-portRoyal-parchment bg-transparent'
-            }`}
-          >
-            {a.label}
-          </button>
-        ))}
-      </div>
+      {botDeciding ? (
+        // The bot plays its own turn, so the buttons are not shown at all.
+        // The label has the same height as a button, so the bar does not jump.
+        <div className="font-spectral text-portRoyal-brassLight flex min-h-11 items-center px-5.5 text-[15px] italic">
+          {seat.name} is thinking…
+        </div>
+      ) : (
+        <div className="flex gap-2.5">
+          {actions.map((a) => (
+            <button
+              key={a.label}
+              type="button"
+              disabled={a.disabled}
+              // Clicks are ignored while a card turns over. The buttons are not
+              // disabled, because that would make them blink on every flip.
+              onClick={() => !revealing && dispatch(a.action)}
+              className={`min-h-11 border px-5.5 py-3 text-[13px] font-semibold tracking-[0.12em] uppercase hover:brightness-[1.08] ${
+                a.disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+              } ${
+                a.primary
+                  ? a.disabled
+                    ? 'border-portRoyal-slate bg-portRoyal-parchment/25 text-portRoyal-wood'
+                    : 'border-portRoyal-wood bg-portRoyal-brass text-portRoyal-ink'
+                  : 'border-portRoyal-wood text-portRoyal-parchment bg-transparent'
+              }`}
+            >
+              {a.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
