@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import ActionBar from './ActionBar';
 import Expeditions from './Expeditions';
 import HandRail from './HandRail';
@@ -35,6 +35,7 @@ import { DEFAULT_ROSTER } from '@/lib/port-royal/roster';
 import {
   DEFAULT_RULES,
   DEFAULT_SETTINGS,
+  Flipped,
   Rules,
   Seat,
   SETTINGS_KEY,
@@ -43,6 +44,13 @@ import {
 import RepelOverlay from './overlays/RepelOverlay';
 
 const TOAST_MS = 2600;
+
+/**
+ * How long a flipped card is shown turning over before the game goes on with it.
+ * The flip animation itself (`portRoyalCardFlip` in globals.css) is 750 ms. The
+ * rest is a short pause so the player can see the card before an overlay opens.
+ */
+const REVEAL_MS = 950;
 
 /** The one line of rules text the left rail shows, chosen by phase. */
 const HINTS: Record<string, string> = {
@@ -80,13 +88,32 @@ export default function PortRoyal({
   // Loads Port Royal settings from LocalStorage
   const [settings] = useLocalStorage(SETTINGS_KEY, DEFAULT_SETTINGS);
 
+  // The flip that has already been shown to the players. While the latest flip
+  // is not this one, its card is turning over, and everything the card causes
+  // (overlays, toast, the next move of a bot) waits.
+  const [revealed, setRevealed] = useState<Flipped | null>(null);
+  const revealing =
+    state.flipped && state.flipped !== revealed ? state.flipped.card : null;
+
+  useEffect(() => {
+    const flipped = state.flipped;
+    if (!flipped || flipped === revealed) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const timer = setTimeout(
+      () => setRevealed(flipped),
+      reduce.matches ? 0 : REVEAL_MS,
+    );
+    return () => clearTimeout(timer);
+  }, [state.flipped, revealed]);
+
   // A replacement toast is a new object, which restarts this timer — the way
   // the prototype cleared and re-armed its timeout on every `say()`.
+  // The toast is hidden while a card turns over, so its time starts after that.
   useEffect(() => {
-    if (!state.toast) return;
+    if (!state.toast || revealing) return;
     const timer = setTimeout(() => dispatch({ type: 'CLEAR_TOAST' }), TOAST_MS);
     return () => clearTimeout(timer);
-  }, [state.toast]);
+  }, [state.toast, revealing]);
 
   // Turn transitions the engine asked for but deliberately delayed, so a
   // purchase is visible for a beat before the seat changes.
@@ -100,13 +127,16 @@ export default function PortRoyal({
   // Checks if current turn is Bot's turn. Adds an timeout for the move so real-players can follow easier what the bot does
   // Returns null if the board is waiting a real-player
   useEffect(() => {
+    if (revealing) return;
     const turn = botTurn(state);
     if (!turn) return;
     const timer = setTimeout(() => dispatch(turn.action), turn.delay);
     return () => clearTimeout(timer);
-  }, [state]);
+  }, [state, revealing]);
 
   const seat = seatOf(state);
+  // The phase the board shows. It stays in discovery until the flipped card has turned over.
+  const phase = revealing ? 'discovery' : state.phase;
   const buying = state.phase === 'trade' || state.phase === 'others';
   const selected = state.harbour.find((c) => c.id === state.selected);
 
@@ -167,12 +197,15 @@ export default function PortRoyal({
         <Sidebar
           deckCount={state.deck.length}
           discard={state.discardPile.length}
-          hint={HINTS[state.phase] ?? DEFAULT_HINT}
+          hint={HINTS[phase] ?? DEFAULT_HINT}
         />
 
         <div className="flex min-w-0 flex-1 flex-col">
           <Expeditions
-            expeditions={state.expeditions}
+            // A flipped expedition moves to this row after it has turned over in the harbour.
+            expeditions={state.expeditions.filter(
+              (e) => e.id !== revealing?.id,
+            )}
             seat={seat}
             claiming={claimingIn(state.phase)}
             onInspect={(card) => dispatch({ type: 'INSPECT', card })}
@@ -183,9 +216,10 @@ export default function PortRoyal({
             seat={seat}
             buying={buying}
             tax={taxFor(state.phase)}
-            discovering={state.phase === 'discovery'}
+            discovering={phase === 'discovery'}
             selected={state.selected}
             alternative={settings.alternativeTheme}
+            revealing={revealing}
             onPick={(card) => dispatch({ type: 'PICK', card })}
             onInspect={(card) => dispatch({ type: 'INSPECT', card })}
           />
@@ -204,12 +238,13 @@ export default function PortRoyal({
         state={state}
         seat={seat}
         selected={selected}
+        revealing={revealing !== null}
         dispatch={dispatch}
       />
 
-      {state.toast && <Toast toast={state.toast} />}
+      {state.toast && !revealing && <Toast toast={state.toast} />}
 
-      {state.phase === 'repel' && state.repelShip && (
+      {phase === 'repel' && state.repelShip && (
         <RepelOverlay
           ship={state.repelShip}
           swords={swordsOf(state.players[state.active])}
@@ -233,14 +268,14 @@ export default function PortRoyal({
         />
       )}
 
-      {state.phase === 'bust' && state.bustPair && (
+      {phase === 'bust' && state.bustPair && (
         <BustOverlay
           pair={state.bustPair}
           onAcknowledge={() => dispatch({ type: 'ACK_BUST' })}
         />
       )}
 
-      {state.phase === 'tax' && state.tax && (
+      {phase === 'tax' && state.tax && (
         <TaxOverlay
           event={state.tax}
           onInspect={(card) => dispatch({ type: 'INSPECT', card })}
