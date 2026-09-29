@@ -98,7 +98,19 @@ export const SHIPS: ShipColour[] = [
   },
 ];
 
-export type PersonRole = 'fighter' | 'trader' | 'rule';
+/**
+ * **crew** — the Settler, Priest, Captain and Jack of all Trades. They only
+ * supply expedition symbols, so they get their own tableau column.
+ */
+export type PersonRole = 'fighter' | 'trader' | 'crew' | 'rule';
+
+/** How a role is written on a card band, e.g. "Person · expedition crew". */
+export const ROLE_LABELS: Record<PersonRole, string> = {
+  fighter: 'fighter',
+  trader: 'trader',
+  crew: 'expedition crew',
+  rule: 'rule',
+};
 
 /** The three expedition symbols an expedition card can ask for. */
 export type ExpeditionSymbol = 'house' | 'cross' | 'anchor';
@@ -118,14 +130,17 @@ export type ExpeditionItem = ExpeditionSymbol | 'jackOfAllTrades' | 'none';
  */
 export type SlotFill = 'exact' | 'wild' | 'missing';
 
-/** How each expedition symbol is drawn where the art is too small to read. */
+/**
+ * How each expedition symbol is drawn where the art is too small to read.
+ * `icon` is the file name of the symbol image under `CARD_ART_DIR`.
+ */
 export const EXPEDITION_SYMBOLS: Record<
   ExpeditionSymbol,
-  { glyph: string; label: string }
+  { glyph: string; label: string; icon: string }
 > = {
-  house: { glyph: '⌂', label: 'house' },
-  cross: { glyph: '✚', label: 'cross' },
-  anchor: { glyph: '⚓', label: 'anchor' },
+  house: { glyph: '⌂', label: 'house', icon: 'realHouse.png' },
+  cross: { glyph: '✚', label: 'cross', icon: 'realCross.png' },
+  anchor: { glyph: '⚓', label: 'anchor', icon: 'realAnchor.png' },
 };
 
 const COUNT_WORDS = ['no', 'one', 'two', 'three', 'four', 'five'];
@@ -255,19 +270,19 @@ export const PERSON_PROFILES: Record<string, PersonProfile> = {
     text: 'Get an extra coin whenever you take a {ship}.',
   },
   'Jack of all Trades': {
-    role: 'trader',
+    role: 'crew',
     text: 'Supplies one of expedition symbol (a house, an anchor or a cross) toward expeditions.',
   },
   Captain: {
-    role: 'trader',
+    role: 'crew',
     text: 'Supplies one anchor toward expeditions.',
   },
   Priest: {
-    role: 'trader',
+    role: 'crew',
     text: 'Supplies one cross toward expeditions.',
   },
   Settler: {
-    role: 'trader',
+    role: 'crew',
     text: 'Supplies one house toward expeditions.',
   },
   Jester: {
