@@ -15,18 +15,21 @@ const GROUPS: { role: PersonRole; title: string }[] = [
 ];
 
 /**
- * Everyone the seated player has hired, grouped by what they do. Fighters show
+ * Everyone the player has hired, grouped by what they do. Fighters show
  * their swords, everyone else their influence, because that is the number that
  * decides whether the card was worth its price.
+ *
+ * Used for the seated player on the board, and for any player in the
+ * player overlay. Hired cards are public, like in the board game.
  */
 export default function Tableau({
-  seat,
+  player,
   onInspect,
 }: {
-  seat: Player;
+  player: Player;
   onInspect: (card: TableauCard) => void;
 }) {
-  const claimed = seat.tableau.filter(
+  const claimed = player.tableau.filter(
     (c): c is ExpeditionCard => c.kind === 'expedition',
   );
 
@@ -34,14 +37,14 @@ export default function Tableau({
     <div className="flex min-w-0 flex-1 flex-col gap-2">
       <div className="flex items-center gap-2.5">
         <span className="font-archivo text-portRoyal-teal text-[11px] font-bold tracking-[0.2em] uppercase">
-          {seat.name} — tableau
+          {player.name} — tableau
         </span>
         <div className="bg-portRoyal-wood/50 h-px flex-1" />
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-1">
         {GROUPS.map(({ role, title }) => {
-          const items = seat.tableau.filter(
+          const items = player.tableau.filter(
             (c): c is PersonCard | BonusCard =>
               c.kind !== 'expedition' && c.role === role,
           );
