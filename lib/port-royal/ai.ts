@@ -83,6 +83,24 @@ const BEAT: Partial<Record<Phase, number>> = {
 
 const DEFAULT_BEAT = 800;
 
+/**
+ * The tax overlay stays open longer when a real player lost or got coins, so
+ * they have time to read their own line. They can still close it earlier.
+ */
+const TAX_HUMAN_BEAT = 5000;
+
+/** How long the bot waits before it plays in this state. */
+function beatFor(s: GameState): number {
+  if (s.phase === 'tax' && s.tax) {
+    const rows = s.tax.rows;
+    const humanHit = s.players.some(
+      (p, i) => p.kind !== 'ai' && (rows[i].pays > 0 || rows[i].gains > 0),
+    );
+    if (humanHit) return TAX_HUMAN_BEAT;
+  }
+  return BEAT[s.phase] ?? DEFAULT_BEAT;
+}
+
 /* ------------------------------------------------------------------ difficulty */
 
 /** The mistakes a difficulty level makes. "hard" makes none of them. */
@@ -178,7 +196,7 @@ export function botTurn(s: GameState): BotTurn | null {
   const action = decide(s);
   if (!action) return null;
 
-  return { action, delay: BEAT[s.phase] ?? DEFAULT_BEAT };
+  return { action, delay: beatFor(s) };
 }
 
 export function decide(s: GameState): Action | null {
