@@ -460,6 +460,9 @@ export type ScheduledKind = 'TO_OTHERS' | 'NEXT_TAKER' | 'END_TURN';
 
 export type Scheduled = { kind: ScheduledKind; delay: number };
 
+/** The card the latest flip drew. The board shows it turning over before the game goes on. */
+export type Flipped = { card: DeckCard };
+
 /**
  * - `target`: a player reached TARGET_VP (and, with the `expeditionToWin`
  *   rule, has claimed an expedition), and the round was played to its end.
@@ -507,6 +510,8 @@ export type GameState = {
   /** Spends the Jester's one-off reprieve, so it can't absorb two duplicates. */
   flipsBeyond: number;
   scheduled: Scheduled | null;
+  /** The last flip. Null until the first flip of the game. */
+  flipped: Flipped | null;
 };
 
 export type Action =
