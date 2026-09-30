@@ -1,5 +1,11 @@
 import { vpOf } from '@/lib/port-royal/gameLogic';
-import { EndReason, Player, TARGET_VP } from '@/utils/port-royal/types';
+import {
+  CARD_ART_DIR,
+  EndReason,
+  Player,
+  TARGET_VP,
+} from '@/utils/port-royal/types';
+import Image from 'next/image';
 
 /** "Anne", "Anne & Bart", "Anne, Bart & Cecil" */
 function joinNames(names: string[]): string {
@@ -91,18 +97,32 @@ export default function EndOverlay({
                     </span>
                   )}
                 </span>
-                <span className="font-archivo-narrow text-portRoyal-slate order-last basis-full text-[11px] tracking-widest uppercase sm:order-none sm:flex-1 sm:basis-auto">
+                <span className="font-archivo-narrow text-portRoyal-slate order-last basis-full text-[11px] tracking-widest uppercase sm:order-0 sm:flex-1 sm:basis-auto">
                   {p.tableau.length
                     ? p.tableau
                         .map((c) => `${c.name.split(' — ')[0]} ${c.vp || 0}`)
                         .join(' · ')
                     : 'no persons hired'}
                 </span>
-                <span className="text-portRoyal-wood text-[16px] font-semibold tabular-nums">
-                  {p.hand.length}¤
+                <span className="text-portRoyal-wood flex text-[16px] font-semibold tabular-nums">
+                  {p.hand.length}
+                  <Image
+                    src={`${CARD_ART_DIR}/realCoins.png`}
+                    alt="Coins icon"
+                    width={16}
+                    height={16}
+                    className="mt-1 h-4 w-4"
+                  />
                 </span>
-                <span className="text-[26px] font-bold tabular-nums">
+                <span className="flex text-[26px] font-bold tabular-nums">
                   {vpOf(p)}
+                  <Image
+                    src={`${CARD_ART_DIR}/realVictoryPoints.png`}
+                    alt="Victory Points icon"
+                    width={16}
+                    height={16}
+                    className="mt-2 ml-1 h-6 w-6"
+                  />
                 </span>
               </div>
             ))}
