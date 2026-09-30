@@ -4,6 +4,7 @@ import Flag from './Flag';
 import StatChip from './StatChip';
 import { HATCH_PANEL, HATCH_SUBJECT, SUBJECT } from './shapes';
 import {
+  CARD_ART_DIR,
   CARD_ART_H,
   CARD_ART_W,
   cardArt,
@@ -102,11 +103,33 @@ function PrintedFace({
         <span
           className={`absolute bottom-2 left-2 border px-2 py-0.75 text-[13px] font-bold tabular-nums ${
             affordable
-              ? 'border-portRoyal-brass bg-portRoyal-brass/90 text-portRoyal-ink'
+              ? 'border-portRoyal-brass bg-portRoyal-slate text-white'
               : 'border-portRoyal-crimson bg-portRoyal-crimson text-portRoyal-ground'
           }`}
         >
-          {ship ? `${card.swords}✦` : `${price}¤`}
+          {ship ? (
+            <span className="flex">
+              {card.kind === 'ship' && card.coins}
+              <Image
+                src={`${CARD_ART_DIR}/realCoins.png`}
+                alt="Coin icon"
+                width={16}
+                height={16}
+                className="mt-0.5 ml-1 h-4 w-4"
+              />
+            </span>
+          ) : (
+            <span className="flex">
+              {price}
+              <Image
+                src={`${CARD_ART_DIR}/realCoins.png`}
+                alt="Coin icon"
+                width={16}
+                height={16}
+                className="mt-0.5 ml-1 h-4 w-4"
+              />
+            </span>
+          )}
         </span>
       )}
 
