@@ -59,7 +59,9 @@ export default function Tableau({
   );
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-2">
+    // Grows only on the big board, where it shares a row with the hand. In a
+    // column (phone, tablet) growing would push the hand far down.
+    <div className="flex min-w-0 flex-col gap-2 lg:flex-1">
       <div className="flex items-center gap-2.5">
         <span className="font-archivo text-portRoyal-teal text-[11px] font-bold tracking-[0.2em] uppercase">
           {player.name} — tableau
@@ -67,7 +69,8 @@ export default function Tableau({
         <div className="bg-portRoyal-wood/50 h-px flex-1" />
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-1">
+      {/* Two columns on a phone. From `sm` the groups are one row. */}
+      <div className="grid grid-cols-2 gap-x-3 gap-y-3 pb-1 sm:flex sm:gap-4 sm:overflow-x-auto">
         {GROUPS.map(({ role, title }) => {
           const items = player.tableau.filter(
             (c): c is PersonCard | BonusCard =>
@@ -78,8 +81,8 @@ export default function Tableau({
             // The 150px minimum is on the title, not on the column. So the
             // column is at least 150px wide, but it can grow wider when one
             // chip needs more room (for example "Mademoiselle").
-            <div key={role} className="flex flex-col gap-1.5">
-              <div className="font-archivo-narrow text-portRoyal-wood min-w-37.5 text-[9px] tracking-[0.16em] uppercase">
+            <div key={role} className="flex min-w-0 flex-col gap-1.5">
+              <div className="font-archivo-narrow text-portRoyal-wood text-[9px] tracking-[0.16em] uppercase sm:min-w-37.5">
                 {title}
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -144,7 +147,7 @@ export default function Tableau({
         })}
 
         {claimed.length > 0 && (
-          <div className="flex min-w-37.5 flex-col gap-1.5">
+          <div className="col-span-2 flex flex-col gap-1.5 sm:min-w-37.5">
             <div className="font-archivo-narrow text-portRoyal-wood text-[9px] tracking-[0.16em] uppercase">
               Expeditions — claimed
             </div>

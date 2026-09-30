@@ -52,7 +52,7 @@ export function PlayerTotals({ player }: { player: Player }) {
  */
 export default function HandRail({ seat }: { seat: Player }) {
   return (
-    <div className="flex w-93 flex-none flex-col gap-2">
+    <div className="flex w-full flex-none flex-col gap-2 lg:w-93">
       <div className="flex items-center gap-2.5">
         <span className="font-archivo text-portRoyal-teal text-[11px] font-bold tracking-[0.2em] uppercase">
           {seat.name} — hand
@@ -72,9 +72,9 @@ export default function HandRail({ seat }: { seat: Player }) {
           seat.hand.slice(0, MAX_SHOWN).map((coin, i) => (
             <div
               key={coin.id}
-              className="border-portRoyal-wood bg-portRoyal-brass/14 grid h-23 w-15.5 place-items-center border shadow-[0_4px_10px_rgba(31,42,51,0.14)]"
+              // The cards overlap more on a phone, so a full hand still fits the width.
+              className="border-portRoyal-wood bg-portRoyal-brass/14 grid h-23 w-15.5 place-items-center border shadow-[0_4px_10px_rgba(31,42,51,0.14)] not-first:-ml-10 sm:not-first:-ml-7.5"
               style={{
-                marginLeft: i === 0 ? 0 : -30,
                 transform: `rotate(${((i % 3) - 1) * 1.5}deg)`,
               }}
             >

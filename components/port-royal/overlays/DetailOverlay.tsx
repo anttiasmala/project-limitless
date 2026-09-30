@@ -106,96 +106,99 @@ export default function DetailOverlay({
   return (
     <div
       onClick={onClose}
-      className="bg-portRoyal-ink/72 absolute inset-0 grid place-items-center"
+      className="bg-portRoyal-ink/72 fixed inset-0 z-50 overflow-y-auto overscroll-contain"
     >
-      {/* The panel is a reading surface, not a dismiss target. */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-portRoyal-vellum border-portRoyal-wood flex w-140 flex-col gap-3.5 border px-8 py-7 shadow-[0_20px_50px_rgba(0,0,0,0.35)]"
-      >
-        <div className="flex items-start gap-3.5">
-          <div>
-            <div className="font-archivo-narrow text-portRoyal-wood text-[10px] tracking-[0.22em] uppercase">
-              {bandFor(card)}
-            </div>
-            <div className="font-spectral text-[32px] leading-[1.1] font-semibold">
-              {card.name}
-            </div>
-          </div>
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={onClose}
-            className="border-portRoyal-wood/70 text-portRoyal-slate ml-auto h-11 w-11 cursor-pointer border bg-transparent text-[16px]"
-          >
-            ×
-          </button>
-        </div>
-
+      {/* A click here also closes: it bubbles up to the backdrop. */}
+      <div className="flex min-h-full items-center justify-center p-4">
+        {/* The panel is a reading surface, not a dismiss target. */}
         <div
-          className="border-portRoyal-wood/70 bg-portRoyal-parchment/50 font-archivo-narrow text-portRoyal-wood grid place-items-center border py-4 text-[10px] tracking-[0.16em] uppercase"
-          style={{ backgroundImage: HATCH_PANEL_SOFT }}
+          onClick={(e) => e.stopPropagation()}
+          className="bg-portRoyal-vellum border-portRoyal-wood flex w-full max-w-140 flex-col gap-3.5 border px-5 py-5 shadow-[0_20px_50px_rgba(0,0,0,0.35)] sm:px-8 sm:py-7"
         >
-          {/* The Crown favour is awarded rather than printed, so it has no art. */}
-          {card.kind !== 'bonus' && card.image ? (
-            <Image
-              src={cardArt(card.image)}
-              alt={card.name}
-              width={CARD_ART_W}
-              height={CARD_ART_H}
-              className="h-78.75 w-auto object-contain"
-            />
-          ) : (
-            <span className="py-14">illustration — figure study</span>
-          )}
-        </div>
-
-        <div className="font-spectral text-[16px] leading-normal">
-          {textFor(card)}
-        </div>
-
-        {stats.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {stats.map((s) => (
-              <div
-                key={s.label}
-                className={`flex items-center gap-1.5 border px-2.5 py-1.5 ${s.className}`}
-              >
-                <span className="text-[15px] font-bold tabular-nums">
-                  {s.value}
-                </span>
-                <span className="font-archivo-narrow text-portRoyal-slate text-[10px] tracking-[0.12em] uppercase">
-                  {s.label}
-                </span>
+          <div className="flex items-start gap-3.5">
+            <div>
+              <div className="font-archivo-narrow text-portRoyal-wood text-[10px] tracking-[0.22em] uppercase">
+                {bandFor(card)}
               </div>
-            ))}
-          </div>
-        )}
-
-        {claim && (
-          <div className="border-portRoyal-wood/50 flex items-center gap-4 border-t pt-3.5">
-            <div
-              className={`font-archivo-narrow min-w-0 flex-1 text-[11px] leading-relaxed tracking-[0.08em] uppercase ${
-                claim.blocked
-                  ? 'text-portRoyal-crimson'
-                  : 'text-portRoyal-slate'
-              }`}
-            >
-              {!claim.blocked ? `You hand in: ` : ''}
-              <span className="text-xs font-bold">
-                {claim.blocked ?? `${claim.handIn.join(', ')}`}
-              </span>
+              <div className="font-spectral text-[26px] leading-[1.1] font-semibold sm:text-[32px]">
+                {card.name}
+              </div>
             </div>
             <button
               type="button"
-              onClick={claim.onClaim}
-              disabled={claim.blocked !== null}
-              className="bg-portRoyal-teal text-portRoyal-ground border-portRoyal-tealDeep min-h-11.5 flex-none border px-6.5 py-3.5 text-[13px] font-semibold tracking-[0.14em] uppercase enabled:cursor-pointer enabled:hover:brightness-[1.08] disabled:cursor-not-allowed disabled:opacity-45"
+              aria-label="Close"
+              onClick={onClose}
+              className="border-portRoyal-wood/70 text-portRoyal-slate ml-auto h-11 w-11 cursor-pointer border bg-transparent text-[16px]"
             >
-              Claim expedition
+              ×
             </button>
           </div>
-        )}
+
+          <div
+            className="border-portRoyal-wood/70 bg-portRoyal-parchment/50 font-archivo-narrow text-portRoyal-wood grid place-items-center border py-4 text-[10px] tracking-[0.16em] uppercase"
+            style={{ backgroundImage: HATCH_PANEL_SOFT }}
+          >
+            {/* The Crown favour is awarded rather than printed, so it has no art. */}
+            {card.kind !== 'bonus' && card.image ? (
+              <Image
+                src={cardArt(card.image)}
+                alt={card.name}
+                width={CARD_ART_W}
+                height={CARD_ART_H}
+                className="h-60 w-auto object-contain sm:h-78.75"
+              />
+            ) : (
+              <span className="py-14">illustration — figure study</span>
+            )}
+          </div>
+
+          <div className="font-spectral text-[16px] leading-normal">
+            {textFor(card)}
+          </div>
+
+          {stats.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {stats.map((s) => (
+                <div
+                  key={s.label}
+                  className={`flex items-center gap-1.5 border px-2.5 py-1.5 ${s.className}`}
+                >
+                  <span className="text-[15px] font-bold tabular-nums">
+                    {s.value}
+                  </span>
+                  <span className="font-archivo-narrow text-portRoyal-slate text-[10px] tracking-[0.12em] uppercase">
+                    {s.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {claim && (
+            <div className="border-portRoyal-wood/50 flex flex-col gap-3 border-t pt-3.5 sm:flex-row sm:items-center sm:gap-4">
+              <div
+                className={`font-archivo-narrow min-w-0 text-[11px] leading-relaxed tracking-[0.08em] uppercase sm:flex-1 ${
+                  claim.blocked
+                    ? 'text-portRoyal-crimson'
+                    : 'text-portRoyal-slate'
+                }`}
+              >
+                {!claim.blocked ? `You hand in: ` : ''}
+                <span className="text-xs font-bold">
+                  {claim.blocked ?? `${claim.handIn.join(', ')}`}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={claim.onClaim}
+                disabled={claim.blocked !== null}
+                className="bg-portRoyal-teal text-portRoyal-ground border-portRoyal-tealDeep min-h-11.5 flex-none border px-6.5 py-3.5 text-[13px] font-semibold tracking-[0.14em] uppercase enabled:cursor-pointer enabled:hover:brightness-[1.08] disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                Claim expedition
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

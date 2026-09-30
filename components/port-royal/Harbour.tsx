@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 import CardFlip from './CardFlip';
 import Flag from './Flag';
-import HarbourCard from './HarbourCard';
+import HarbourCard, { CARD_SIZE } from './HarbourCard';
 import { DASHED_RULE } from './shapes';
 import { affordable, priceOf } from '@/lib/port-royal/gameLogic';
 import {
@@ -20,6 +20,9 @@ import {
  * The harbour display — the cards flipped so far this turn, plus a read-out of
  * which ship colours are already exposed. During discovery every colour is
  * listed so the risk is legible; afterwards only the exposed ones remain.
+ *
+ * On the big board (`lg`) the cards are one row that scrolls sideways. Below
+ * `lg` they are a grid of smaller cards, so every card can be seen at once.
  */
 export default function Harbour({
   harbour,
@@ -71,27 +74,39 @@ export default function Harbour({
 
   // Scroll to the end when a card is flipped. Buying a card does not break the scroll to the end "flow"
   const scroller = useRef<HTMLDivElement>(null);
+  const row = useRef<HTMLDivElement>(null);
   const shownCount = harbour.length + (visitor ? 1 : 0);
   const prevCount = useRef(shownCount);
   useEffect(() => {
     const el = scroller.current;
     if (el && shownCount > prevCount.current) {
-      el.scrollTo({
-        left: el.scrollWidth,
-        behavior: smoothScroll ? 'smooth' : 'auto',
-      });
+      const behavior = smoothScroll ? 'smooth' : 'auto';
+      if (row.current && getComputedStyle(row.current).display === 'grid') {
+        // The grid does not scroll sideways, but a new row of cards can be
+        // under the action bar or below the screen. Then the page scrolls so
+        // the new card can be seen. "nearest" does nothing when it already is.
+        row.current.lastElementChild?.scrollIntoView({
+          block: 'nearest',
+          behavior,
+        });
+      } else {
+        el.scrollTo({ left: el.scrollWidth, behavior });
+      }
     }
     prevCount.current = shownCount;
   }, [shownCount, smoothScroll]);
 
   return (
-    <div className="flex min-h-0 flex-col gap-2.5 px-6 pt-4 pb-3">
-      <div className="flex items-center gap-3.5">
+    <div className="flex min-h-0 flex-col gap-2.5 px-4 pt-3 pb-3 lg:px-6 lg:pt-4">
+      <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2">
         <div className="font-archivo text-portRoyal-teal text-[11px] font-bold tracking-[0.2em] uppercase">
           Harbour display
         </div>
-        <div className="h-px flex-1" style={{ background: DASHED_RULE }} />
-        <div className="flex gap-2">
+        <div
+          className="hidden h-px flex-1 sm:block"
+          style={{ background: DASHED_RULE }}
+        />
+        <div className="flex flex-wrap gap-1.5 lg:gap-2">
           {SHIPS.map((ship, i) => {
             const exposed = seen.has(i);
             if (!discovering && !exposed) return null;
@@ -99,7 +114,7 @@ export default function Harbour({
             return (
               <div
                 key={ship.name}
-                className={`flex items-center gap-1.5 border px-2 py-1 ${
+                className={`flex items-center gap-1.5 border px-1.5 py-1 lg:px-2 ${
                   exposed
                     ? 'border-portRoyal-crimson bg-portRoyal-crimson/16'
                     : 'border-portRoyal-wood/50 bg-transparent'
@@ -117,10 +132,10 @@ export default function Harbour({
 
       <div
         ref={scroller}
-        className="border-portRoyal-wood/55 bg-portRoyal-parchment/35 min-h-79 overflow-x-auto overflow-y-hidden border p-3.5"
+        className="border-portRoyal-wood/55 bg-portRoyal-parchment/35 border p-2 lg:min-h-79 lg:overflow-x-auto lg:overflow-y-hidden lg:p-3.5"
       >
         {shownCount === 0 && (
-          <div className="grid h-71.5 place-items-center text-center">
+          <div className="grid h-40 place-items-center px-2 text-center lg:h-71.5">
             <div className="flex flex-col items-center gap-1.5">
               <div className="border-portRoyal-wood/80 h-18.5 w-18.5 rounded-full border border-dashed" />
               <div className="font-spectral text-portRoyal-slate text-[15px] italic">
@@ -130,7 +145,12 @@ export default function Harbour({
           </div>
         )}
 
-        <div className="flex items-start gap-3">
+        {/* `scroll-mb` keeps a card that is scrolled to above the action bar,
+            which is pinned to the bottom of the screen below `lg`. */}
+        <div
+          ref={row}
+          className="grid grid-cols-[repeat(auto-fill,minmax(96px,1fr))] gap-2 *:scroll-mt-4 *:scroll-mb-40 md:grid-cols-[repeat(auto-fill,minmax(120px,1fr))] lg:flex lg:items-start lg:gap-3"
+        >
           {harbour.map((card) => (
             <CardFlip
               key={card.id}
@@ -171,7 +191,7 @@ export default function Harbour({
                   alt={visitor.name}
                   width={CARD_ART_W}
                   height={CARD_ART_H}
-                  className="h-71.5 w-44.5 object-contain shadow-[0_6px_14px_rgba(31,42,51,0.16)]"
+                  className={`${CARD_SIZE} object-contain shadow-[0_6px_14px_rgba(31,42,51,0.16)]`}
                 />
               )}
             </CardFlip>

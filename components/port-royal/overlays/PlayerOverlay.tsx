@@ -34,36 +34,39 @@ export default function PlayerOverlay({
   return (
     <div
       onClick={onClose}
-      className="bg-portRoyal-ink/72 absolute inset-0 grid place-items-center"
+      className="bg-portRoyal-ink/72 fixed inset-0 z-50 overflow-y-auto overscroll-contain"
     >
-      {/* The panel is a reading surface, not a dismiss target. */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-portRoyal-vellum border-portRoyal-wood flex max-h-[85%] w-190 max-w-[92%] flex-col gap-4 overflow-y-auto border px-8 py-7 shadow-[0_20px_50px_rgba(0,0,0,0.35)]"
-      >
-        <div className="flex items-start gap-3.5">
-          <div>
-            <div className="font-archivo-narrow text-portRoyal-wood text-[10px] tracking-[0.22em] uppercase">
-              {player.kind === 'ai' ? 'Computer player' : 'Player'}
-              {isSeat && ' · on turn'}
+      {/* A click here also closes: it bubbles up to the backdrop. */}
+      <div className="flex min-h-full items-center justify-center p-4">
+        {/* The panel is a reading surface, not a dismiss target. */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="bg-portRoyal-vellum border-portRoyal-wood flex w-full max-w-190 flex-col gap-4 border px-5 py-5 shadow-[0_20px_50px_rgba(0,0,0,0.35)] sm:px-8 sm:py-7"
+        >
+          <div className="flex items-start gap-3.5">
+            <div>
+              <div className="font-archivo-narrow text-portRoyal-wood text-[10px] tracking-[0.22em] uppercase">
+                {player.kind === 'ai' ? 'Computer player' : 'Player'}
+                {isSeat && ' · on turn'}
+              </div>
+              <div className="font-spectral text-[26px] leading-[1.1] font-semibold sm:text-[32px]">
+                {player.name}
+              </div>
             </div>
-            <div className="font-spectral text-[32px] leading-[1.1] font-semibold">
-              {player.name}
-            </div>
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={onClose}
+              className="border-portRoyal-wood/70 text-portRoyal-slate ml-auto h-11 w-11 cursor-pointer border bg-transparent text-[16px]"
+            >
+              ×
+            </button>
           </div>
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={onClose}
-            className="border-portRoyal-wood/70 text-portRoyal-slate ml-auto h-11 w-11 cursor-pointer border bg-transparent text-[16px]"
-          >
-            ×
-          </button>
+
+          <PlayerTotals player={player} />
+
+          <Tableau player={player} onInspect={onInspect} />
         </div>
-
-        <PlayerTotals player={player} />
-
-        <Tableau player={player} onInspect={onInspect} />
       </div>
     </div>
   );

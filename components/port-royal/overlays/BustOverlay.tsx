@@ -23,21 +23,23 @@ export default function BustOverlay({
   const colour = SHIPS[pair[0].colorIdx].name.toLowerCase();
 
   return (
-    <div className="absolute inset-0 grid place-items-center bg-[rgba(87,29,22,0.93)]">
-      <div className="flex flex-col items-center gap-5 text-center">
-        <div className="font-spectral text-portRoyal-ground text-[56px] font-bold tracking-[0.02em]">
+    // Covers the screen, not only the board. When the content is taller than
+    // the screen (a phone on its side), the overlay scrolls.
+    <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-[rgba(87,29,22,0.93)]">
+      <div className="flex min-h-full flex-col items-center justify-center gap-4 p-4 text-center sm:gap-5 [@media(max-height:480px)]:gap-3">
+        <div className="font-spectral text-portRoyal-ground text-[40px] leading-none font-bold tracking-[0.02em] sm:text-[56px] [@media(max-height:480px)]:text-[40px]">
           Bust
         </div>
-        <div className="font-spectral text-portRoyal-blush max-w-155 text-[19px]">
+        <div className="font-spectral text-portRoyal-blush max-w-155 text-[16px] sm:text-[19px]">
           A second {colour} ship sailed in. Discovery ends, and every card in
           the harbour is discarded.
         </div>
 
-        <div className="flex items-center gap-4.5">
+        <div className="flex items-center gap-3 sm:gap-4.5">
           {pair.map((ship, i) => (
             <div
               key={ship.id}
-              className="bg-portRoyal-ground/95 border-portRoyal-crimson flex w-37.5 flex-col items-center gap-2 border p-2.5"
+              className="bg-portRoyal-ground/95 border-portRoyal-crimson flex w-34 flex-col items-center gap-2 border p-2.5 sm:w-37.5"
             >
               {ship.image ? (
                 <Image
@@ -45,7 +47,8 @@ export default function BustOverlay({
                   alt={ship.name}
                   width={CARD_ART_W}
                   height={CARD_ART_H}
-                  className="h-42.5 w-auto object-contain"
+                  // Smaller on a short screen (a phone on its side), so the button still fits.
+                  className="h-36 w-auto object-contain sm:h-42.5 [@media(max-height:480px)]:h-24"
                 />
               ) : (
                 <Flag colorIdx={ship.colorIdx} className="h-7.5 w-11" />

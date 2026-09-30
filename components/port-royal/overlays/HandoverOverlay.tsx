@@ -18,16 +18,16 @@ export default function HandoverOverlay({
   return (
     <div
       onClick={onBegin}
-      className="absolute inset-0 grid cursor-pointer place-items-center bg-[rgba(22,35,43,0.96)]"
+      className="fixed inset-0 z-50 cursor-pointer overflow-y-auto overscroll-contain bg-[rgba(22,35,43,0.96)]"
     >
-      <div className="flex flex-col items-center gap-4.5 text-center">
+      <div className="flex min-h-full flex-col items-center justify-center gap-4.5 p-4 text-center">
         <div className="grid h-30 w-30 place-items-center rounded-full border border-[rgba(184,134,47,0.7)]">
           <div className="h-11.5 w-11.5 rotate-45 border border-[rgba(184,134,47,0.7)]" />
         </div>
         <div className="font-archivo-narrow text-portRoyal-wood text-[11px] tracking-[0.3em] uppercase">
           Let&apos;s Port Royal!
         </div>
-        <div className="font-spectral text-portRoyal-ground text-[44px] font-semibold">
+        <div className="font-spectral text-portRoyal-ground text-[32px] leading-tight font-semibold sm:text-[44px]">
           Pass the device to {nextName}
         </div>
         {finalRound && (

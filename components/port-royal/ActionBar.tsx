@@ -153,22 +153,24 @@ export default function ActionBar({
     dry,
   );
 
+  // On a phone the bar is stacked: whose turn, the question, then the buttons
+  // at full width. From `sm` it is one row.
   return (
-    <div className="bg-portRoyal-ink/94 text-portRoyal-ground flex flex-none items-center gap-5 px-6 py-3">
-      <div className="flex min-w-52.5 flex-col gap-0.75">
-        <span className="font-archivo-narrow text-portRoyal-brassLight text-[10px] tracking-[0.2em] uppercase">
+    <div className="bg-portRoyal-ink/94 text-portRoyal-ground flex flex-col gap-x-5 gap-y-1.5 px-4 py-2.5 sm:flex-row sm:items-center lg:px-6 lg:py-3">
+      <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.75 sm:flex-col sm:flex-nowrap sm:items-start lg:min-w-52.5">
+        <span className="font-archivo-narrow text-portRoyal-brassLight flex-none text-[10px] tracking-[0.2em] uppercase">
           {PHASE_LABEL[phase] ?? 'Phase · —'}
         </span>
-        <span className="font-spectral text-[15px] font-semibold">
+        <span className="font-spectral text-[14px] font-semibold lg:text-[15px]">
           {phase === 'others'
             ? `${seat.name} is buying from ${active.name}`
             : `${active.name}'s turn`}
         </span>
       </div>
 
-      <div className="bg-portRoyal-steel h-8.5 w-px" />
+      <div className="bg-portRoyal-steel hidden h-8.5 w-px flex-none sm:block" />
 
-      <div className="font-spectral flex-1 text-[20px] font-medium">
+      <div className="font-spectral flex-1 text-[17px] leading-snug font-medium lg:text-[20px]">
         {question(
           phase,
           state.harbour.length,
@@ -182,11 +184,11 @@ export default function ActionBar({
       {botDeciding ? (
         // The bot plays its own turn, so the buttons are not shown at all.
         // The label has the same height as a button, so the bar does not jump.
-        <div className="font-spectral text-portRoyal-brassLight flex min-h-11 items-center px-5.5 text-[15px] italic">
+        <div className="font-spectral text-portRoyal-brassLight flex min-h-11 flex-none items-center text-[15px] italic sm:px-5.5">
           {seat.name} is thinking…
         </div>
       ) : (
-        <div className="flex gap-2.5">
+        <div className="mt-1 flex flex-none gap-2.5 sm:mt-0">
           {actions.map((a) => (
             <button
               key={a.label}
@@ -195,7 +197,7 @@ export default function ActionBar({
               // Clicks are ignored while a card turns over. The buttons are not
               // disabled, because that would make them blink on every flip.
               onClick={() => !revealing && dispatch(a.action)}
-              className={`min-h-11 border px-5.5 py-3 text-[13px] font-semibold tracking-[0.12em] uppercase hover:brightness-[1.08] ${
+              className={`min-h-11 flex-1 border px-3 py-2.5 text-[12px] font-semibold tracking-[0.08em] uppercase hover:brightness-[1.08] sm:flex-none lg:px-5.5 lg:py-3 lg:text-[13px] lg:tracking-[0.12em] ${
                 a.disabled ? 'cursor-not-allowed' : 'cursor-pointer'
               } ${
                 a.primary

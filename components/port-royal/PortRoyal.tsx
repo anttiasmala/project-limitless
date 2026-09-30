@@ -201,7 +201,9 @@ export default function PortRoyal({
     <div
       // Turns off every animation and transition inside the board (see globals.css).
       data-reduce-motion={reduceMotion || undefined}
-      className="bg-portRoyal-ground font-archivo text-portRoyal-ink relative flex min-h-0 w-full flex-col overflow-hidden"
+      // `overflow-clip` and not `overflow-hidden`: "hidden" would make the board
+      // its own scroll box, and then the sticky action bar would not stick.
+      className="bg-portRoyal-ground font-archivo text-portRoyal-ink relative flex min-h-0 w-full flex-col overflow-clip"
       style={{ backgroundImage: `${BOARD_VIGNETTE}, ${BOARD_NOISE}` }}
     >
       {/* Compass rose, purely decorative. */}
@@ -209,9 +211,11 @@ export default function PortRoyal({
         <div className="border-portRoyal-wood/30 absolute inset-17.5 rounded-full border" />
       </div>
 
-      <header className="bg-portRoyal-ink text-portRoyal-ground relative flex flex-none items-stretch gap-4.5 px-6 py-3">
-        <div className="flex min-w-47.5 flex-col justify-center">
-          <div className="font-spectral text-[19px] font-semibold tracking-[0.04em]">
+      {/* On a phone the players go to a second row under the title and the
+          Settings button. From `sm` everything is on one row. */}
+      <header className="bg-portRoyal-ink text-portRoyal-ground relative flex flex-none flex-wrap items-stretch gap-x-4.5 gap-y-2 px-4 py-2 sm:flex-nowrap lg:px-6 lg:py-3">
+        <div className="flex flex-col justify-center lg:min-w-47.5">
+          <div className="font-spectral text-[17px] font-semibold tracking-[0.04em] lg:text-[19px]">
             Port Royal
           </div>
           <div className="font-archivo-narrow text-portRoyal-wood text-[10px] tracking-[0.2em] uppercase">
@@ -225,7 +229,7 @@ export default function PortRoyal({
           )}
         </div>
 
-        <div className="bg-portRoyal-steel w-px" />
+        <div className="bg-portRoyal-steel hidden w-px lg:block" />
 
         <PlayerStrip
           players={state.players}
@@ -240,20 +244,22 @@ export default function PortRoyal({
         <button
           type="button"
           onClick={() => playerDispatch({ type: 'TOGGLE_SETTINGS' })}
-          className="font-archivo-narrow text-portRoyal-parchment hover:border-portRoyal-brass min-h-11 cursor-pointer self-center border border-[#4A5560] bg-transparent px-3.5 py-2.5 text-[11px] tracking-[0.16em] uppercase"
+          className="font-archivo-narrow text-portRoyal-parchment hover:border-portRoyal-brass ml-auto min-h-11 cursor-pointer self-center border border-[#4A5560] bg-transparent px-3.5 py-2.5 text-[11px] tracking-[0.16em] uppercase sm:ml-0"
         >
           Settings
         </button>
       </header>
 
-      <div className="relative flex min-h-0 flex-1">
+      {/* Below `lg` the board is one column, and the sidebar goes to the
+          bottom, so the harbour is right under the header. */}
+      <div className="relative flex min-h-0 flex-1 flex-col lg:flex-row">
         <Sidebar
           deckCount={state.deck.length}
           discard={state.discardPile.length}
           hint={HINTS[phase] ?? DEFAULT_HINT}
         />
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col max-lg:order-first">
           <Expeditions
             // A flipped expedition moves to this row after it has turned over in the harbour.
             expeditions={state.expeditions.filter(
@@ -280,7 +286,7 @@ export default function PortRoyal({
             onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
           />
 
-          <div className="flex min-h-0 flex-1 gap-4.5 px-6 pt-1 pb-3">
+          <div className="flex min-h-0 flex-1 flex-col gap-4.5 px-4 pt-1 pb-3 lg:flex-row lg:px-6">
             <Tableau
               player={seat}
               onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
@@ -290,16 +296,21 @@ export default function PortRoyal({
         </div>
       </div>
 
-      <ActionBar
-        state={state}
-        seat={seat}
-        selected={selected}
-        revealing={revealing !== null}
-        botDeciding={botDeciding}
-        dispatch={playerDispatch}
-      />
+      {/* Sticks to the bottom of the screen when the board is taller than the
+          screen (on a phone), so the buttons can always be reached. The toast
+          is inside it, so the toast is always just above the buttons. */}
+      <div className="sticky bottom-0 z-20 flex-none">
+        {state.toast && !revealing && <Toast toast={state.toast} />}
 
-      {state.toast && !revealing && <Toast toast={state.toast} />}
+        <ActionBar
+          state={state}
+          seat={seat}
+          selected={selected}
+          revealing={revealing !== null}
+          botDeciding={botDeciding}
+          dispatch={playerDispatch}
+        />
+      </div>
 
       {/* Comes before the game's overlays, so a repel offer or a handover
           opens on top of it. The card details come after, so a click on a

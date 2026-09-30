@@ -87,7 +87,7 @@ export default function Expeditions({
   if (!expeditions.length) return null;
 
   return (
-    <div className="flex flex-none flex-col gap-2 px-6 pt-4">
+    <div className="flex flex-none flex-col gap-2 px-4 pt-3 lg:px-6 lg:pt-4">
       <div className="flex items-center gap-3.5">
         <div className="font-archivo text-portRoyal-teal text-[11px] font-bold tracking-[0.2em] uppercase">
           Expeditions

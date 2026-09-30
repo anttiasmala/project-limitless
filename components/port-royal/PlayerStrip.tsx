@@ -72,13 +72,16 @@ export default function PlayerStrip({
   onView: (index: number) => void;
 }) {
   return (
-    <div className="flex min-w-0 flex-1 gap-2.5 overflow-x-auto">
+    // Below `lg` the cards are compact chips (name, points, coins, swords) that
+    // do not shrink, and the row scrolls sideways when they do not all fit.
+    // A tap on a chip shows everything else in the player overlay.
+    <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto max-sm:order-last max-sm:basis-full lg:gap-2.5">
       {players.map((p, i) => {
         const isActive = i === active;
         const isTaking = phase === 'others' && i === taker;
 
         return (
-          // Cards sit at their natural width and shrink from it, so a
+          // On the big board, cards sit at their natural width and shrink from it, so a
           // three-player table looks as it always did and a five-player one
           // still fits the bar instead of sliding off the end.
           // A click opens the player's cards. The card holds <div>s, which a
@@ -95,7 +98,7 @@ export default function PlayerStrip({
                 onView(i);
               }
             }}
-            className={`hover:border-portRoyal-brassLight flex w-44 min-w-0 shrink cursor-pointer flex-col gap-1.25 border px-3 py-2 ${
+            className={`hover:border-portRoyal-brassLight flex flex-none cursor-pointer flex-col gap-1 border px-2.5 py-1.5 lg:w-44 lg:min-w-0 lg:shrink lg:gap-1.25 lg:px-3 lg:py-2 ${
               isActive
                 ? 'border-portRoyal-brass bg-portRoyal-brass/16'
                 : isTaking
@@ -114,7 +117,7 @@ export default function PlayerStrip({
                       : 'bg-portRoyal-slate'
                 }`}
               />
-              <span className="font-spectral text-portRoyal-ground truncate text-[15px] font-semibold">
+              <span className="font-spectral text-portRoyal-ground max-w-28 truncate text-[14px] font-semibold lg:max-w-none lg:text-[15px]">
                 {p.name}
               </span>
               {p.kind === 'ai' && (
@@ -126,7 +129,7 @@ export default function PlayerStrip({
                 </span>
               )}
               <span
-                className={`font-archivo-narrow ml-auto flex-none text-[9px] tracking-[0.16em] uppercase ${
+                className={`font-archivo-narrow ml-auto flex-none text-[9px] tracking-[0.16em] uppercase max-lg:sr-only ${
                   isActive
                     ? 'text-portRoyal-brassLight'
                     : 'text-portRoyal-slate'
@@ -137,8 +140,8 @@ export default function PlayerStrip({
             </div>
 
             <div className="flex flex-col items-baseline tabular-nums">
-              <div className="flex items-center gap-3 tabular-nums">
-                <div className="text-portRoyal-ground flex items-center text-[20px] font-bold">
+              <div className="flex items-center gap-2.5 tabular-nums lg:gap-3">
+                <div className="text-portRoyal-ground flex items-center text-[16px] font-bold lg:text-[20px]">
                   <Image
                     src={`${CARD_ART_DIR}/realVictoryPoints.png`}
                     alt="Victory Points icon"
@@ -148,7 +151,7 @@ export default function PlayerStrip({
                   />
                   <span className="ml-1">{vpOf(p)}</span>
                 </div>
-                <div className="text-portRoyal-brassLight flex items-center text-[20px] font-semibold">
+                <div className="text-portRoyal-brassLight flex items-center text-[16px] font-semibold lg:text-[20px]">
                   <Image
                     src={`${CARD_ART_DIR}/realCoins.png`}
                     alt="Coins icon"
@@ -158,7 +161,7 @@ export default function PlayerStrip({
                   />
                   <span className="ml-1">{p.hand.length}</span>
                 </div>
-                <div className="text-portRoyal-ground flex items-center text-[20px] font-semibold">
+                <div className="text-portRoyal-ground flex items-center text-[16px] font-semibold lg:text-[20px]">
                   <Image
                     src={`${CARD_ART_DIR}/realSwords.png`}
                     alt="Swords icon"
@@ -169,8 +172,10 @@ export default function PlayerStrip({
                   <span className="ml-1">{swordsOf(p)}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3 tabular-nums">
-                <div className="text-portRoyal-ground flex items-center text-[20px] font-semibold">
+              {/* The expedition symbols. Only on the big board; on a small
+                  screen the player overlay shows the crew cards instead. */}
+              <div className="hidden items-center gap-3 tabular-nums lg:flex">
+                <div className="text-portRoyal-ground flex items-center text-[16px] font-semibold lg:text-[20px]">
                   <Image
                     src={`${CARD_ART_DIR}/realHouse.png`}
                     alt="Houses icon"
@@ -180,7 +185,7 @@ export default function PlayerStrip({
                   />
                   <span className="ml-1">{houseOf(p)}</span>
                 </div>
-                <div className="text-portRoyal-ground flex items-center text-[20px] font-semibold">
+                <div className="text-portRoyal-ground flex items-center text-[16px] font-semibold lg:text-[20px]">
                   <Image
                     src={`${CARD_ART_DIR}/realCross.png`}
                     alt="Crosses icon"
@@ -190,7 +195,7 @@ export default function PlayerStrip({
                   />
                   <span className="ml-1">{crossOf(p)}</span>
                 </div>
-                <div className="text-portRoyal-ground flex items-center text-[20px] font-semibold">
+                <div className="text-portRoyal-ground flex items-center text-[16px] font-semibold lg:text-[20px]">
                   <Image
                     src={`${CARD_ART_DIR}/realAnchor.png`}
                     alt="Anchors icon"

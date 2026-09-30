@@ -49,113 +49,117 @@ export default function TaxOverlay({
   const rewarded = REWARDED[card.mode];
 
   return (
-    <div className="bg-portRoyal-ink/90 absolute inset-0 grid place-items-center">
-      <div className="bg-portRoyal-ground border-portRoyal-crimson flex w-180 gap-7 border px-8.5 py-7.5 shadow-[0_20px_50px_rgba(0,0,0,0.4)]">
-        <div className="bg-portRoyal-card border-portRoyal-wood/60 flex w-52.5 flex-none flex-col items-center gap-2 border p-2.5">
-          {card.image && (
+    <div className="bg-portRoyal-ink/90 fixed inset-0 z-50 overflow-y-auto overscroll-contain">
+      <div className="flex min-h-full items-center justify-center p-4">
+        {/* On a phone the tax card is on top of the text, not beside it. */}
+        <div className="bg-portRoyal-ground border-portRoyal-crimson flex w-full max-w-180 flex-col gap-5 border px-5 py-5 shadow-[0_20px_50px_rgba(0,0,0,0.4)] sm:flex-row sm:gap-7 sm:px-8.5 sm:py-7.5">
+          <div className="bg-portRoyal-card border-portRoyal-wood/60 flex w-52.5 flex-none flex-col items-center gap-2 self-center border p-2.5 sm:self-auto">
+            {card.image && (
+              <button
+                type="button"
+                onClick={() => onInspect(card)}
+                aria-label={`Inspect the ${card.name} card`}
+                className="cursor-pointer border-0 bg-transparent p-0 hover:brightness-[1.08]"
+              >
+                <Image
+                  src={cardArt(card.image)}
+                  alt={card.name}
+                  width={CARD_ART_W}
+                  height={CARD_ART_H}
+                  className="h-44 w-auto object-contain sm:h-60"
+                />
+              </button>
+            )}
+            <div className="font-spectral text-[15px] font-semibold">
+              {card.name}
+            </div>
+            <div className="font-archivo-narrow text-portRoyal-slate text-center text-[9px] tracking-[0.14em] uppercase">
+              rewards the {rewarded}
+            </div>
+          </div>
+
+          <div className="flex min-w-0 flex-1 flex-col gap-4">
+            <div className="flex flex-wrap items-baseline gap-x-3">
+              <span className="font-archivo-narrow text-portRoyal-crimson text-[10px] tracking-[0.24em] uppercase">
+                Event · immediate
+              </span>
+              <span className="font-spectral text-[24px] font-semibold sm:text-[30px]">
+                Tax Increase
+              </span>
+            </div>
+
+            <div className="font-spectral text-portRoyal-ink text-[15px] leading-normal">
+              Anyone holding {TAX_THRESHOLD} or more coins pays half to the Tax,
+              keeping the larger half. The players with the{' '}
+              <span className="font-bold">{rewarded}</span> are then rewarded
+              with one coin each.
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              {rows.map((r) => (
+                <div
+                  key={r.name}
+                  // On a phone the reason goes to its own line under the name.
+                  className={`flex flex-wrap items-center gap-x-3 gap-y-0.5 border px-3 py-2 sm:flex-nowrap ${
+                    r.pays
+                      ? 'border-portRoyal-crimson bg-portRoyal-crimson/10'
+                      : r.gains
+                        ? 'border-portRoyal-teal bg-portRoyal-teal/8'
+                        : 'border-portRoyal-wood/50 bg-transparent'
+                  }`}
+                >
+                  <span className="font-spectral flex-1 text-[15px] font-semibold sm:w-30 sm:flex-none">
+                    {r.name}
+                  </span>
+                  <span className="font-archivo-narrow text-portRoyal-slate order-last basis-full text-[11px] tracking-widest uppercase sm:order-none sm:flex-1 sm:basis-auto">
+                    {reasonFor(r, rewarded)}
+                  </span>
+                  {/* A payer can be rewarded too, so both sides can show at once. */}
+                  <span className="flex items-center gap-2 text-[15px] font-bold tabular-nums">
+                    {r.pays > 0 && (
+                      <span className="text-portRoyal-crimson flex items-center">
+                        −{r.pays}
+                        <span className="ml-1">
+                          <Image
+                            className="h-4 w-4"
+                            alt="Coin icon"
+                            src={REAL_COIN}
+                            width={16}
+                            height={16}
+                          />
+                        </span>
+                      </span>
+                    )}
+                    {r.gains > 0 && (
+                      <span className="text-portRoyal-teal flex items-center">
+                        +{r.gains}
+                        <span className="ml-1">
+                          <Image
+                            className="h-4 w-4"
+                            alt="Coin icon"
+                            src={REAL_COIN}
+                            width={16}
+                            height={16}
+                          />
+                        </span>
+                      </span>
+                    )}
+                    {!r.pays && !r.gains && (
+                      <span className="text-portRoyal-slate">—</span>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+
             <button
               type="button"
-              onClick={() => onInspect(card)}
-              aria-label={`Inspect the ${card.name} card`}
-              className="cursor-pointer border-0 bg-transparent p-0 hover:brightness-[1.08]"
+              onClick={onAcknowledge}
+              className="bg-portRoyal-teal text-portRoyal-ground border-portRoyal-tealDeep min-h-11.5 cursor-pointer self-end border px-6.5 py-3.5 text-[13px] font-semibold tracking-[0.14em] uppercase"
             >
-              <Image
-                src={cardArt(card.image)}
-                alt={card.name}
-                width={CARD_ART_W}
-                height={CARD_ART_H}
-                className="h-60 w-auto object-contain"
-              />
+              Continue
             </button>
-          )}
-          <div className="font-spectral text-[15px] font-semibold">
-            {card.name}
           </div>
-          <div className="font-archivo-narrow text-portRoyal-slate text-center text-[9px] tracking-[0.14em] uppercase">
-            rewards the {rewarded}
-          </div>
-        </div>
-
-        <div className="flex min-w-0 flex-1 flex-col gap-4">
-          <div className="flex items-baseline gap-3">
-            <span className="font-archivo-narrow text-portRoyal-crimson text-[10px] tracking-[0.24em] uppercase">
-              Event · immediate
-            </span>
-            <span className="font-spectral text-[30px] font-semibold">
-              Tax Increase
-            </span>
-          </div>
-
-          <div className="font-spectral text-portRoyal-ink text-[15px] leading-normal">
-            Anyone holding {TAX_THRESHOLD} or more coins pays half to the Tax,
-            keeping the larger half. The players with the{' '}
-            <span className="font-bold">{rewarded}</span> are then rewarded with
-            one coin each.
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            {rows.map((r) => (
-              <div
-                key={r.name}
-                className={`flex items-center gap-3 border px-3 py-2 ${
-                  r.pays
-                    ? 'border-portRoyal-crimson bg-portRoyal-crimson/10'
-                    : r.gains
-                      ? 'border-portRoyal-teal bg-portRoyal-teal/8'
-                      : 'border-portRoyal-wood/50 bg-transparent'
-                }`}
-              >
-                <span className="font-spectral w-30 text-[15px] font-semibold">
-                  {r.name}
-                </span>
-                <span className="font-archivo-narrow text-portRoyal-slate flex-1 text-[11px] tracking-widest uppercase">
-                  {reasonFor(r, rewarded)}
-                </span>
-                {/* A payer can be rewarded too, so both sides can show at once. */}
-                <span className="flex items-center gap-2 text-[15px] font-bold tabular-nums">
-                  {r.pays > 0 && (
-                    <span className="text-portRoyal-crimson flex items-center">
-                      −{r.pays}
-                      <span className="ml-1">
-                        <Image
-                          className="h-4 w-4"
-                          alt="Coin icon"
-                          src={REAL_COIN}
-                          width={16}
-                          height={16}
-                        />
-                      </span>
-                    </span>
-                  )}
-                  {r.gains > 0 && (
-                    <span className="text-portRoyal-teal flex items-center">
-                      +{r.gains}
-                      <span className="ml-1">
-                        <Image
-                          className="h-4 w-4"
-                          alt="Coin icon"
-                          src={REAL_COIN}
-                          width={16}
-                          height={16}
-                        />
-                      </span>
-                    </span>
-                  )}
-                  {!r.pays && !r.gains && (
-                    <span className="text-portRoyal-slate">—</span>
-                  )}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={onAcknowledge}
-            className="bg-portRoyal-teal text-portRoyal-ground border-portRoyal-tealDeep min-h-11.5 cursor-pointer self-end border px-6.5 py-3.5 text-[13px] font-semibold tracking-[0.14em] uppercase"
-          >
-            Continue
-          </button>
         </div>
       </div>
     </div>

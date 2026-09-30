@@ -28,7 +28,10 @@ const STAT: Record<
   },
 };
 
-/** A glyph + number + label pill, as used on the harbour cards. */
+/**
+ * A glyph + number + label pill, as used on the harbour cards. The harbour
+ * cards are small below `lg`, so there the label is only read by screen readers.
+ */
 export default function StatChip({
   kind,
   value,
@@ -42,18 +45,20 @@ export default function StatChip({
 
   return (
     <div
-      className={`flex items-center gap-1.25 border py-0.75 pr-1.75 pl-1 ${s.wrap}`}
+      className={`flex items-center gap-1 border py-0.5 pr-1.25 pl-0.75 lg:gap-1.25 lg:py-0.75 lg:pr-1.75 lg:pl-1 ${s.wrap}`}
     >
       <span
         aria-hidden
-        className={`grid h-4 w-4 place-items-center text-[9px] font-bold ${s.chip}`}
+        className={`grid h-3.5 w-3.5 place-items-center text-[8px] font-bold lg:h-4 lg:w-4 lg:text-[9px] ${s.chip}`}
       >
         {s.glyph}
       </span>
-      <span className={`text-[13px] font-bold tabular-nums ${s.value}`}>
+      <span
+        className={`text-[12px] font-bold tabular-nums lg:text-[13px] ${s.value}`}
+      >
         {value}
       </span>
-      <span className="font-archivo-narrow text-portRoyal-slate text-[9px] tracking-[0.06em] uppercase">
+      <span className="font-archivo-narrow text-portRoyal-slate text-[9px] tracking-[0.06em] uppercase max-lg:sr-only">
         {label}
       </span>
     </div>

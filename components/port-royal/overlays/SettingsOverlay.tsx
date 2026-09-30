@@ -42,11 +42,11 @@ export default function SettingsOverlay({
   return (
     <div
       onClick={onClose}
-      className="bg-portRoyal-ink/60 absolute inset-0 flex justify-end"
+      className="bg-portRoyal-ink/60 fixed inset-0 z-50 flex justify-end"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-portRoyal-vellum border-portRoyal-wood flex h-full w-95 flex-col gap-4.5 border-l px-7 py-6.5"
+        className="bg-portRoyal-vellum border-portRoyal-wood flex h-full w-full max-w-95 flex-col gap-4.5 overflow-y-auto overscroll-contain border-l px-5 py-5 sm:px-7 sm:py-6.5"
       >
         <div className="font-spectral text-[26px] font-semibold">Settings</div>
 
