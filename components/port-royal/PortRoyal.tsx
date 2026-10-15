@@ -36,6 +36,7 @@ import {
 import { DEFAULT_ROSTER } from '@/lib/port-royal/roster';
 import {
   Action,
+  Card,
   DEFAULT_RULES,
   Flipped,
   Rules,
@@ -76,13 +77,12 @@ const DEFAULT_HINT =
 
 /**
  * What a real player may still do while the game waits for a bot. These only
- * look at the game, control the app, or close a notice that a person has read.
- * Every other action is a decision, and only the bot makes its own decisions.
+ * control the app, or close a notice that a person has read. Every other
+ * action is a decision, and only the bot makes its own decisions.
+ * Looking at cards and opening the settings are not game actions at all, so
+ * they are always allowed.
  */
 const ALLOWED_ON_BOT_TURN = new Set<Action['type']>([
-  'INSPECT',
-  'CLOSE_DETAIL',
-  'TOGGLE_SETTINGS',
   'RESTART',
   'ACK_BUST',
   'ACK_TAX',
@@ -131,6 +131,12 @@ export default function PortRoyal({
   // game, so it lives here and not in the reducer. The index (not a copy of the
   // player) keeps the view up to date when the player buys during it.
   const [viewing, setViewing] = useState<number | null>(null);
+
+  // The card whose details are open, and whether the settings are open. These
+  // are only on this screen: in an online game other players must not see them.
+  const [detail, setDetail] = useState<Card | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   const revealing =
     revealMs > 0 && state.flipped && state.flipped !== revealed
       ? state.flipped.card
@@ -165,13 +171,15 @@ export default function PortRoyal({
 
   // Checks if current turn is Bot's turn. Adds an timeout for the move so real-players can follow easier what the bot does
   // Returns null if the board is waiting a real-player
+  // If a card or the settings are open, the overlay owns the board: looking at
+  // a card during a bot's turn should not let the game keep running behind it.
   useEffect(() => {
-    if (revealing) return;
+    if (revealing || detail || settingsOpen) return;
     const turn = botTurn(state);
     if (!turn) return;
     const timer = setTimeout(() => dispatch(turn.action), turn.delay);
     return () => clearTimeout(timer);
-  }, [state, revealing]);
+  }, [state, revealing, detail, settingsOpen]);
 
   const seat = seatOf(state);
   // The game waits for a bot's decision, so the real players only watch.
@@ -184,12 +192,18 @@ export default function PortRoyal({
     dispatch(action);
   };
 
+  // A new game starts with no overlays open.
+  const restart = () => {
+    setDetail(null);
+    setSettingsOpen(false);
+    playerDispatch({ type: 'RESTART' });
+  };
+
   // The phase the board shows. It stays in discovery until the flipped card has turned over.
   const phase = revealing ? 'discovery' : state.phase;
   const buying = state.phase === 'trade' || state.phase === 'others';
   const selected = state.harbour.find((c) => c.id === state.selected);
 
-  const detail = state.detail;
   const posted =
     detail?.kind === 'expedition'
       ? state.expeditions.find((e) => e.id === detail.id)
@@ -243,7 +257,7 @@ export default function PortRoyal({
 
         <button
           type="button"
-          onClick={() => playerDispatch({ type: 'TOGGLE_SETTINGS' })}
+          onClick={() => setSettingsOpen(true)}
           className="font-archivo-narrow text-portRoyal-parchment hover:border-portRoyal-brass ml-auto min-h-11 cursor-pointer self-center border border-[#4A5560] bg-transparent px-3.5 py-2.5 text-[11px] tracking-[0.16em] uppercase sm:ml-0"
         >
           Settings
@@ -267,7 +281,7 @@ export default function PortRoyal({
             )}
             seat={seat}
             claiming={claimingIn(state.phase) && !botDeciding}
-            onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
+            onInspect={(card) => setDetail(card)}
           />
 
           <Harbour
@@ -283,13 +297,13 @@ export default function PortRoyal({
             flipMs={flipMs}
             pickable={!botDeciding}
             onPick={(card) => playerDispatch({ type: 'PICK', card })}
-            onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
+            onInspect={(card) => setDetail(card)}
           />
 
           <div className="flex min-h-0 flex-1 flex-col gap-4.5 px-4 pt-1 pb-3 lg:flex-row lg:px-6">
             <Tableau
               player={seat}
-              onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
+              onInspect={(card) => setDetail(card)}
             />
             <HandRail seat={seat} />
           </div>
@@ -319,8 +333,8 @@ export default function PortRoyal({
         <PlayerOverlay
           player={state.players[viewing]}
           isSeat={state.players[viewing] === seat}
-          escapeCloses={!state.detail}
-          onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
+          escapeCloses={!detail}
+          onInspect={(card) => setDetail(card)}
           onClose={() => setViewing(null)}
         />
       )}
@@ -360,32 +374,36 @@ export default function PortRoyal({
       {phase === 'tax' && state.tax && (
         <TaxOverlay
           event={state.tax}
-          onInspect={(card) => playerDispatch({ type: 'INSPECT', card })}
+          onInspect={(card) => setDetail(card)}
           onAcknowledge={() => playerDispatch({ type: 'ACK_TAX' })}
         />
       )}
 
-      {state.detail && (
+      {detail && (
         <DetailOverlay
-          card={state.detail}
+          card={detail}
           claim={
             posted && claim
               ? {
                   handIn: claim.handIn.map((c) => c.name),
                   blocked: claim.blocked,
-                  onClaim: () =>
-                    playerDispatch({ type: 'CLAIM_EXPEDITION', id: posted.id }),
+                  // The button is disabled when the claim is blocked, so the
+                  // claim always succeeds here and the card can be closed.
+                  onClaim: () => {
+                    playerDispatch({ type: 'CLAIM_EXPEDITION', id: posted.id });
+                    setDetail(null);
+                  },
                 }
               : undefined
           }
-          onClose={() => playerDispatch({ type: 'CLOSE_DETAIL' })}
+          onClose={() => setDetail(null)}
         />
       )}
 
-      {state.settings && (
+      {settingsOpen && (
         <SettingsOverlay
-          onClose={() => playerDispatch({ type: 'TOGGLE_SETTINGS' })}
-          onRestart={() => playerDispatch({ type: 'RESTART' })}
+          onClose={() => setSettingsOpen(false)}
+          onRestart={restart}
         />
       )}
 
@@ -396,7 +414,7 @@ export default function PortRoyal({
           endReason={state.endReason}
           qualified={state.players.map((p) => reachedTarget(state, p))}
           expeditionRule={state.rules.expeditionToWin}
-          onRestart={() => playerDispatch({ type: 'RESTART' })}
+          onRestart={restart}
         />
       )}
     </div>

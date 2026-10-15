@@ -180,12 +180,11 @@ export type BotTurn = { action: Action; delay: number };
 /**
  * The move a computer player makes now, and how long to wait before making it.
  * Returns null when the game is not waiting for a bot at all.
+ *
+ * Open overlays (card details, settings) are only on the screen, not in the
+ * game state, so the board checks them itself before it asks the bot.
  */
 export function botTurn(s: GameState): BotTurn | null {
-  // If someone opened an overlay, the overlay owns the board: looking at a
-  // card during a bot's turn should not let the game keep running behind it.
-  if (s.detail || s.settings) return null;
-
   // The engine has already planned this step by itself.
   if (s.scheduled) return null;
 

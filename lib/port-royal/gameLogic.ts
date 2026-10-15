@@ -188,9 +188,7 @@ export function freshState(
     repelShip: null,
     bustPair: null,
     tax: null,
-    detail: null,
     toast: null,
-    settings: false,
     winners: [],
     endReason: null,
     flipsBeyond: 0,
@@ -962,7 +960,6 @@ function claimExpedition(s: GameState, id: number): GameState {
       // the coins they paid for.
       discardPile: r.discardPile.concat(handIn),
       expeditions: s.expeditions.filter((e) => e.id !== id),
-      detail: null,
     },
     `${s.players[claimerIdx].name} claims the expedition — ${card.vp} points and ${coins(
       r.taken.length,
@@ -1179,15 +1176,6 @@ export function reducer(s: GameState, action: Action): GameState {
         phase: 'discovery',
         toast: isBot(s.players[s.active]) ? s.toast : null,
       };
-
-    case 'INSPECT':
-      return { ...s, detail: action.card };
-
-    case 'CLOSE_DETAIL':
-      return { ...s, detail: null };
-
-    case 'TOGGLE_SETTINGS':
-      return { ...s, settings: !s.settings };
 
     case 'CLEAR_TOAST':
       return { ...s, toast: null };

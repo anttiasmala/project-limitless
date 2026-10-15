@@ -523,9 +523,7 @@ export type GameState = {
   repelShip: ShipCard | null;
   bustPair: [ShipCard, ShipCard] | null;
   tax: TaxEvent | null;
-  detail: Card | null;
   toast: Toast | null;
-  settings: boolean;
   /**
    * The seats that won, filled in when the game ends. More than one seat means
    * a shared victory: the same points and the same number of coins.
@@ -552,9 +550,6 @@ export type Action =
   | { type: 'NEXT_TAKER' }
   | { type: 'END_TURN' }
   | { type: 'BEGIN_TURN' }
-  | { type: 'INSPECT'; card: Card }
-  | { type: 'CLOSE_DETAIL' }
-  | { type: 'TOGGLE_SETTINGS' }
   | { type: 'CLEAR_TOAST' }
   | { type: 'SHUFFLE' }
   | { type: 'RESTART' }
